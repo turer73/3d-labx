@@ -57,10 +57,16 @@ import "../../styles/admin.css";
       <div class="filters">
         <select id="categoryFilter" class="filter-select">
           <option value="">Tüm Kategoriler</option>
-          <option value="3d-baski">3D Baskı</option>
-          <option value="rehberler">Rehberler</option>
-          <option value="teknoloji">Teknoloji</option>
-          <option value="yapay-zeka">Yapay Zeka</option>
+          <optgroup label="📦 3D Baskı">
+            <option value="3d-baski">🔶 3D Baskı Haberleri</option>
+            <option value="rehberler">📘 Rehberler</option>
+            <option value="sorun-cozumleri">🔧 Sorun Çözümleri</option>
+            <option value="incelemeler">⭐ İncelemeler</option>
+          </optgroup>
+          <optgroup label="📁 Diğer">
+            <option value="teknoloji">💻 Teknoloji</option>
+            <option value="yapay-zeka">🤖 Yapay Zeka</option>
+          </optgroup>
         </select>
 
         <select id="statusFilter" class="filter-select">
@@ -132,6 +138,9 @@ import "../../styles/admin.css";
 
   const categoryNames: Record<string, string> = {
     '3d-baski': '3D Baskı',
+    'rehberler': 'Rehber',
+    'sorun-cozumleri': 'Sorun Çözümü',
+    'incelemeler': 'İnceleme',
     'teknoloji': 'Teknoloji',
     'yapay-zeka': 'Yapay Zeka'
   };

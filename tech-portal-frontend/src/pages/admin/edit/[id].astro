@@ -99,10 +99,26 @@ const { id } = Astro.params;
               <div class="form-group">
                 <label for="category">Kategori *</label>
                 <select id="category" name="category" required>
-                  <option value="3d-baski">3D Baskı</option>
-                  <option value="rehberler">Rehberler (3D Baskı)</option>
-                  <option value="teknoloji">Teknoloji</option>
-                  <option value="yapay-zeka">Yapay Zeka</option>
+                  <optgroup label="📦 3D Baskı (Ana Kategori)">
+                    <option value="3d-baski">🔶 3D Baskı Haberleri</option>
+                    <option value="rehberler">📘 Rehberler</option>
+                    <option value="sorun-cozumleri">🔧 Sorun Çözümleri</option>
+                    <option value="incelemeler">⭐ İncelemeler</option>
+                  </optgroup>
+                  <optgroup label="📁 Diğer (İkincil)">
+                    <option value="teknoloji">💻 Teknoloji</option>
+                    <option value="yapay-zeka">🤖 Yapay Zeka</option>
+                  </optgroup>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="post_type">İçerik Tipi</label>
+                <select id="post_type" name="post_type">
+                  <option value="haber">📰 Haber</option>
+                  <option value="rehber">📘 Rehber/Kılavuz</option>
+                  <option value="inceleme">⭐ İnceleme</option>
+                  <option value="sorun-cozumu">🔧 Sorun Çözümü</option>
                 </select>
               </div>
 
