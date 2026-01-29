@@ -253,14 +253,14 @@ function getCategoryColor(cat: string) {
       </div>
     </section>
 
-    <!-- LATEST POSTS -->
-    {(printPosts.length > 1 || techPosts.length > 1 || aiPosts.length > 1) && (
+    <!-- LATEST POSTS - 3D Baskı Odaklı -->
+    {(printPosts.length > 1 || rehberPosts.length > 0 || incelemePosts.length > 0 || sorunPosts.length > 0) && (
       <section class="latest-section">
         <h2>Son İçerikler</h2>
         <div class="latest-bento">
-          {[...printPosts.slice(1, 4), ...techPosts.slice(1, 4), ...aiPosts.slice(1, 4)].slice(0, 9).map((post, i) => {
-            const catLabel = post.category === "3d-baski" ? "3D Baskı" : post.category === "teknoloji" ? "Teknoloji" : "Yapay Zeka";
-            const catColor = post.category === "3d-baski" ? "orange" : post.category === "teknoloji" ? "cyan" : "purple";
+          {[...printPosts.slice(1, 4), ...rehberPosts.slice(0, 3), ...incelemePosts.slice(0, 2), ...sorunPosts.slice(0, 2)].slice(0, 9).map((post, i) => {
+            const catLabel = getCategoryLabel(post.category);
+            const catColor = getCategoryColor(post.category);
             const sizeClass = i === 0 ? "lb-hero" : i === 6 ? "lb-wide" : "";
             return (
               <a href={`/${post.category}/${post.slug}`} class={`lb-card ${sizeClass} ${catColor}`}>
