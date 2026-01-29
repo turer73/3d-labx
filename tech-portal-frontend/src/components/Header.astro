@@ -34,8 +34,9 @@ const currentPath = Astro.url.pathname;
 
     <nav class="desktop-nav">
       <a href="/3d-baski" class={currentPath.startsWith("/3d-baski") ? "active" : ""}>3D Baskı</a>
-      <a href="/teknoloji" class={currentPath.startsWith("/teknoloji") ? "active" : ""}>Teknoloji</a>
-      <a href="/yapay-zeka" class={currentPath.startsWith("/yapay-zeka") ? "active" : ""}>Yapay Zeka</a>
+      <a href="/rehberler" class={currentPath.startsWith("/rehberler") ? "active" : ""}>Rehberler</a>
+      <a href="/sorun-cozumleri" class={currentPath.startsWith("/sorun-cozumleri") ? "active" : ""}>Sorun Çözümleri</a>
+      <a href="/incelemeler" class={currentPath.startsWith("/incelemeler") ? "active" : ""}>İncelemeler</a>
     </nav>
 
     <div class="header-actions">
@@ -120,9 +121,9 @@ const currentPath = Astro.url.pathname;
     <nav class="mobile-nav">
       <a href="/" class={currentPath === "/" ? "active" : ""}>Ana Sayfa</a>
       <a href="/3d-baski" class={currentPath.startsWith("/3d-baski") ? "active" : ""}>3D Baskı</a>
-      <a href="/teknoloji" class={currentPath.startsWith("/teknoloji") ? "active" : ""}>Teknoloji</a>
-      <a href="/yapay-zeka" class={currentPath.startsWith("/yapay-zeka") ? "active" : ""}>Yapay Zeka</a>
-      <a href="/hakkimizda" class={currentPath.startsWith("/hakkimizda") ? "active" : ""}>Hakkımızda</a>
+      <a href="/rehberler" class={currentPath.startsWith("/rehberler") ? "active" : ""}>Rehberler</a>
+      <a href="/sorun-cozumleri" class={currentPath.startsWith("/sorun-cozumleri") ? "active" : ""}>Sorun Çözümleri</a>
+      <a href="/incelemeler" class={currentPath.startsWith("/incelemeler") ? "active" : ""}>İncelemeler</a>
       <a href="/iletisim" class={currentPath.startsWith("/iletisim") ? "active" : ""}>İletişim</a>
     </nav>
     <form action="/search" method="get" class="mobile-search">

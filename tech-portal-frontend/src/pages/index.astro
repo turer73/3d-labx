@@ -36,34 +36,37 @@ try {
 }
 
 const printPosts = data["3d-baski"] || [];
-const techPosts = data["teknoloji"] || [];
-const aiPosts = data["yapay-zeka"] || [];
+const rehberPosts = data["rehberler"] || [];
+const incelemePosts = data["incelemeler"] || [];
+const sorunPosts = data["sorun-cozumleri"] || [];
 
-// Hero slider için her kategoriden bir post
+// Hero slider için sadece 3D Baskı içerikleri (ilk 3 post)
 const heroSlides = [
   printPosts[0],
-  techPosts[0],
-  aiPosts[0]
+  printPosts[1],
+  printPosts[2]
 ].filter(Boolean);
 
 function getCategoryLabel(cat: string) {
   if (cat === "3d-baski") return "3D Baskı";
-  if (cat === "teknoloji") return "Teknoloji";
-  if (cat === "yapay-zeka") return "Yapay Zeka";
-  return "Güncel";
+  if (cat === "rehberler") return "Rehber";
+  if (cat === "incelemeler") return "İnceleme";
+  if (cat === "sorun-cozumleri") return "Sorun Çözümü";
+  return "3D Baskı";
 }
 
 function getCategoryColor(cat: string) {
   if (cat === "3d-baski") return "orange";
-  if (cat === "teknoloji") return "cyan";
-  if (cat === "yapay-zeka") return "purple";
+  if (cat === "rehberler") return "cyan";
+  if (cat === "incelemeler") return "purple";
+  if (cat === "sorun-cozumleri") return "green";
   return "orange";
 }
 ---
 
 <BaseLayout
-  title="3D-LABX - 3D Baskı, Teknoloji ve Yapay Zeka"
-  description="3D baskı, teknoloji ve yapay zeka dünyasından güncel haberler ve analizler."
+  title="3D-LABX - Türkiye'nin 3D Baskı Rehberi | Yazıcı Ayarları, Sorun Çözümleri"
+  description="3D yazıcı ayarları, filament rehberleri, sorun çözümleri ve ürün incelemeleri. Türkiye'nin en kapsamlı 3D baskı kaynağı."
 >
   <Header />
 
@@ -122,66 +125,48 @@ function getCategoryColor(cat: string) {
       </div>
     )}
 
-    <!-- BENTO GRID -->
+    <!-- BENTO GRID - 3D Baskı Odaklı -->
     <section class="bento-grid">
-      <a href="/3d-baski" class="bento-card bento-large orange">
+      <!-- Rehberler - Büyük Kart -->
+      <a href="/rehberler" class="bento-card bento-large cyan">
         <div class="bento-glow"></div>
         <div class="bento-content">
           <div class="bento-header">
             <div class="bento-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="m9 9.5 2 2 4-4"/></svg>
             </div>
-            <span class="bento-tag">Katmanlı İmalat</span>
+            <span class="bento-tag">Adım Adım Rehberler</span>
           </div>
-          {printPosts[0] ? (
-            <>
-              <h3>{printPosts[0].title_tr}</h3>
-              <p>{printPosts[0].summary_tr}</p>
-            </>
-          ) : (
-            <>
-              <h3>3D Baskı Haberleri</h3>
-              <p>En güncel 3D baskı haberleri ve incelemeleri.</p>
-            </>
-          )}
+          <h3>3D Yazıcı Kurulum & Ayar Rehberleri</h3>
+          <p>Klipper kurulumu, slicer ayarları, kalibrasyon rehberleri. Başlangıçtan ileri seviyeye tüm bilgiler.</p>
         </div>
       </a>
 
-      <a href="/teknoloji" class="bento-card cyan">
+      <!-- Sorun Çözümleri -->
+      <a href="/sorun-cozumleri" class="bento-card green">
         <div class="bento-content">
           <div class="bento-header">
             <div class="bento-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
             </div>
-            <span class="bento-tag">Teknoloji</span>
+            <span class="bento-tag">Sorun Giderme</span>
           </div>
-          {techPosts[0] ? (
-            <>
-              <h3>{techPosts[0].title_tr}</h3>
-              <p>{techPosts[0].summary_tr}</p>
-            </>
-          ) : (
-            <><h3>Teknoloji Haberleri</h3><p>Güncel teknoloji haberleri.</p></>
-          )}
+          <h3>Stringing, Warping, Tıkanma...</h3>
+          <p>3D baskı sorunları ve çözümleri. Adım adım sorun giderme kılavuzları.</p>
         </div>
       </a>
 
-      <a href="/yapay-zeka" class="bento-card purple">
+      <!-- İncelemeler -->
+      <a href="/incelemeler" class="bento-card purple">
         <div class="bento-content">
           <div class="bento-header">
             <div class="bento-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             </div>
-            <span class="bento-tag">Yapay Zeka</span>
+            <span class="bento-tag">Ürün İncelemeleri</span>
           </div>
-          {aiPosts[0] ? (
-            <>
-              <h3>{aiPosts[0].title_tr}</h3>
-              <p>{aiPosts[0].summary_tr}</p>
-            </>
-          ) : (
-            <><h3>Yapay Zeka Haberleri</h3><p>AI dünyasından güncel gelişmeler.</p></>
-          )}
+          <h3>Yazıcı & Filament İncelemeleri</h3>
+          <p>Detaylı test sonuçları, karşılaştırmalar ve satın alma tavsiyeleri.</p>
         </div>
       </a>
 
@@ -676,6 +661,10 @@ function getCategoryColor(cat: string) {
   .bento-card.orange .bento-tag { background: rgba(249, 115, 22, 0.1); color: #F97316; }
   .bento-card.cyan .bento-tag { background: rgba(6, 182, 212, 0.1); color: #06B6D4; }
   .bento-card.purple .bento-tag { background: rgba(168, 85, 247, 0.1); color: #A855F7; }
+  .bento-card.green .bento-tag { background: rgba(34, 197, 94, 0.1); color: #22C55E; }
+  .bento-card.green .bento-icon { background: rgba(34, 197, 94, 0.1); color: #22C55E; }
+  .bento-card.green:hover { border-color: rgba(34, 197, 94, 0.5); }
+  .bento-card.green .bento-glow { background: radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%); }
 
   .bento-card h3 { font-size: 1.25rem; margin: 0 0 8px; line-height: 1.3; color: var(--text-main); }
   .bento-large h3 { font-size: 1.5rem; }
