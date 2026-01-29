@@ -4,8 +4,13 @@ import "../../styles/admin.css";
 ---
 
 <BaseLayout title="Üyeler – Admin Panel" noIndex={true}>
+  <button class="mobile-menu-toggle" id="mobileMenuToggle">
+    <span></span>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <div class="admin-layout">
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <a href="/" class="logo">3D-labX</a>
         <span class="badge badge-primary">Admin</span>
@@ -583,6 +588,20 @@ import "../../styles/admin.css";
 
     document.getElementById('refreshBtn').addEventListener('click', loadUsers);
     document.getElementById('logoutBtn').addEventListener('click', logout);
+
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    function toggleMobileMenu() {
+      mobileMenuToggle?.classList.toggle('active');
+      sidebar?.classList.toggle('open');
+      sidebarOverlay?.classList.toggle('active');
+    }
+
+    mobileMenuToggle?.addEventListener('click', toggleMobileMenu);
+    sidebarOverlay?.addEventListener('click', toggleMobileMenu);
 
     // Modal events
     document.getElementById('closeModal').addEventListener('click', closeEditModal);

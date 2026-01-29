@@ -159,6 +159,88 @@
 }
 
 /* ================================
+   MOBILE MENU TOGGLE
+   ================================ */
+.mobile-menu-toggle {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 200;
+  width: 48px;
+  height: 48px;
+  background: var(--admin-gradient-1);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle:hover {
+  transform: scale(1.05);
+}
+
+.mobile-menu-toggle span {
+  display: block;
+  width: 24px;
+  height: 3px;
+  background: white;
+  border-radius: 3px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle span::before,
+.mobile-menu-toggle span::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 3px;
+  background: white;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle span::before {
+  top: -8px;
+}
+
+.mobile-menu-toggle span::after {
+  top: 8px;
+}
+
+.mobile-menu-toggle.active span {
+  background: transparent;
+}
+
+.mobile-menu-toggle.active span::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+
+.mobile-menu-toggle.active span::after {
+  top: 0;
+  transform: rotate(-45deg);
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 90;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+}
+
+/* ================================
    MAIN CONTENT
    ================================ */
 .main-content {
@@ -1026,18 +1108,35 @@
 }
 
 @media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: flex;
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+
   .sidebar {
     transform: translateX(-100%);
     transition: transform 0.3s ease;
+    visibility: hidden;
+    opacity: 0;
   }
 
   .sidebar.open {
     transform: translateX(0);
+    visibility: visible;
+    opacity: 1;
   }
 
   .main-content {
     margin-left: 0;
-    padding: 20px;
+    padding: 70px 20px 20px 20px;
+  }
+
+  .admin-layout {
+    display: block;
+    position: relative;
   }
 
   .stats-grid {
@@ -1047,6 +1146,10 @@
   .content-header {
     flex-direction: column;
     gap: 16px;
+  }
+
+  .content-header h1 {
+    font-size: 1.5rem;
   }
 
   .filters {

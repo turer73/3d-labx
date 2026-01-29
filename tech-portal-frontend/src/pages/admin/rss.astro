@@ -4,8 +4,13 @@ import "../../styles/admin.css";
 ---
 
 <BaseLayout title="RSS Kaynakları – Admin Panel" noIndex={true}>
+  <button class="mobile-menu-toggle" id="mobileMenuToggle">
+    <span></span>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <div class="admin-layout">
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <a href="/" class="logo">3D-labX</a>
         <span class="badge badge-primary">Admin</span>
@@ -228,6 +233,20 @@ import "../../styles/admin.css";
     localStorage.removeItem('adminSecret');
     window.location.href = '/admin';
   });
+
+  // Mobile menu toggle
+  const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+  const sidebar = document.getElementById('sidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+  function toggleMobileMenu() {
+    mobileMenuToggle?.classList.toggle('active');
+    sidebar?.classList.toggle('open');
+    sidebarOverlay?.classList.toggle('active');
+  }
+
+  mobileMenuToggle?.addEventListener('click', toggleMobileMenu);
+  sidebarOverlay?.addEventListener('click', toggleMobileMenu);
 
   const categoryNames: Record<string, string> = {
     '3d-baski': '3D Baskı',

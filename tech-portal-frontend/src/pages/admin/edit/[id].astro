@@ -6,8 +6,13 @@ const { id } = Astro.params;
 ---
 
 <BaseLayout title="Yazı Düzenle – Admin Panel" noIndex={true}>
+  <button class="mobile-menu-toggle" id="mobileMenuToggle">
+    <span></span>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <div class="admin-layout">
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <a href="/" class="logo">3D-labX</a>
         <span class="badge badge-primary">Admin</span>
@@ -293,6 +298,20 @@ const { id } = Astro.params;
     localStorage.removeItem('adminSecret');
     window.location.href = '/admin';
   });
+
+  // Mobile menu toggle
+  const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+  const sidebar = document.getElementById('sidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+  function toggleMobileMenu() {
+    mobileMenuToggle?.classList.toggle('active');
+    sidebar?.classList.toggle('open');
+    sidebarOverlay?.classList.toggle('active');
+  }
+
+  mobileMenuToggle?.addEventListener('click', toggleMobileMenu);
+  sidebarOverlay?.addEventListener('click', toggleMobileMenu);
 
   // Yazıyı yükle
   async function loadPost() {
