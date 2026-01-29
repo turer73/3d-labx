@@ -1,0 +1,513 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import "../../../styles/admin.css";
+
+const { id } = Astro.params;
+---
+
+<BaseLayout title="Yazı Düzenle – Admin Panel" noIndex={true}>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="/" class="logo">3D-labX</a>
+        <span class="badge badge-primary">Admin</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-item">
+          <span class="icon">📊</span>
+          Dashboard
+        </a>
+        <a href="/admin/posts" class="nav-item active">
+          <span class="icon">📝</span>
+          Yazılar
+        </a>
+        <a href="/admin/rss" class="nav-item">
+          <span class="icon">📡</span>
+          RSS Kaynakları
+        </a>
+        <a href="/admin/content-boxes" class="nav-item">
+          <span class="icon">📦</span>
+          İçerik Kutuları
+        </a>
+        <a href="/admin/new" class="nav-item">
+          <span class="icon">➕</span>
+          Yeni Yazı
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="logoutBtn" class="btn btn-ghost btn-full">
+          🚪 Çıkış Yap
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="content-header">
+        <div>
+          <h1>Yazı Düzenle</h1>
+          <p class="text-muted">ID: {id}</p>
+        </div>
+        <a href="/admin/posts" class="btn btn-secondary">← Geri</a>
+      </header>
+
+      <div id="loadingState" class="loading-state">
+        <span class="spinner"></span> Yazı yükleniyor...
+      </div>
+
+      <form id="postForm" class="post-form hidden">
+        <div class="form-grid">
+          <div class="form-main">
+            <div class="form-group">
+              <label for="title_tr">Başlık (Türkçe) *</label>
+              <input type="text" id="title_tr" name="title_tr" required />
+            </div>
+
+            <div class="form-group">
+              <label for="summary_tr">Özet (Türkçe) *</label>
+              <textarea id="summary_tr" name="summary_tr" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="content_tr">
+                İçerik (Türkçe) *
+                <label for="content_upload" class="inline-upload-btn" title="İçeriğe resim ekle">
+                  🖼️ Resim Ekle
+                  <input type="file" id="content_upload" accept="image/*" hidden />
+                </label>
+              </label>
+              <textarea id="content_tr" name="content_tr" rows="15" required></textarea>
+              <p class="form-hint">Markdown formatı desteklenir. Resimler: ![açıklama](url)</p>
+            </div>
+
+            <div class="form-group">
+              <label for="title_en">Başlık (İngilizce)</label>
+              <input type="text" id="title_en" name="title_en" />
+            </div>
+
+            <div class="form-group">
+              <label for="summary_en">Özet (İngilizce)</label>
+              <textarea id="summary_en" name="summary_en" rows="2"></textarea>
+            </div>
+          </div>
+
+          <div class="form-sidebar">
+            <div class="sidebar-card">
+              <h3>Yayın Ayarları</h3>
+
+              <div class="form-group">
+                <label for="category">Kategori *</label>
+                <select id="category" name="category" required>
+                  <option value="3d-baski">3D Baskı</option>
+                  <option value="rehberler">Rehberler (3D Baskı)</option>
+                  <option value="teknoloji">Teknoloji</option>
+                  <option value="yapay-zeka">Yapay Zeka</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="slug">Slug</label>
+                <input type="text" id="slug" name="slug" readonly class="readonly" />
+              </div>
+
+              <div class="form-group">
+                <label for="image_url">Görsel URL</label>
+                <div class="input-with-upload">
+                  <input type="url" id="image_url" name="image_url" />
+                  <label for="cover_upload" class="upload-btn" title="Kapak görseli yükle">
+                    📁
+                    <input type="file" id="cover_upload" accept="image/*" hidden />
+                  </label>
+                  <button type="button" id="ai_image_btn" class="upload-btn ai-btn" title="AI ile görsel oluştur">
+                    🤖
+                  </button>
+                </div>
+                <div id="cover_preview" class="image-preview hidden"></div>
+              </div>
+
+              <div class="form-group">
+                <label for="source_url">Kaynak URL</label>
+                <input type="url" id="source_url" name="source_url" />
+              </div>
+
+              <div class="form-group checkbox-group">
+                <label>
+                  <input type="checkbox" id="is_featured" name="is_featured" />
+                  Öne çıkan yazı
+                </label>
+              </div>
+
+              <div class="form-group checkbox-group">
+                <label>
+                  <input type="checkbox" id="published" name="published" />
+                  Yayında
+                </label>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary btn-full" id="submitBtn">
+                <span class="btn-text">Güncelle</span>
+                <span class="btn-loading hidden">
+                  <span class="spinner"></span>
+                  Kaydediliyor...
+                </span>
+              </button>
+              <a href="/admin/posts" class="btn btn-secondary btn-full">İptal</a>
+            </div>
+          </div>
+        </div>
+
+        <div id="message" class="message hidden"></div>
+      </form>
+    </main>
+  </div>
+</BaseLayout>
+
+<style>
+  .input-with-upload {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .input-with-upload input {
+    flex: 1;
+  }
+
+  .upload-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--card-bg, #2d3748);
+    border: 1px solid var(--border-color, #4a5568);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.2s;
+  }
+
+  .upload-btn:hover {
+    background: var(--primary-color, #4299e1);
+  }
+
+  .ai-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #764ba2;
+  }
+
+  .ai-btn:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  }
+
+  .ai-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .inline-upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.5rem;
+    background: var(--card-bg, #2d3748);
+    border: 1px solid var(--border-color, #4a5568);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: normal;
+    margin-left: 0.5rem;
+    transition: all 0.2s;
+  }
+
+  .inline-upload-btn:hover {
+    background: var(--primary-color, #4299e1);
+  }
+
+  .image-preview {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: var(--card-bg, #2d3748);
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .image-preview img {
+    max-width: 100%;
+    max-height: 150px;
+    border-radius: 4px;
+  }
+
+  .image-preview.hidden {
+    display: none;
+  }
+
+  .upload-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: var(--card-bg, #2d3748);
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  .upload-progress .spinner {
+    width: 16px;
+    height: 16px;
+  }
+</style>
+
+<script define:vars={{ id }}>
+  const API_BASE = 'https://tech-portal-api.turgut-d01.workers.dev';
+  const postId = id;
+
+  // Auth kontrolü
+  const secret = localStorage.getItem('adminSecret');
+  if (!secret) {
+    window.location.href = '/admin';
+  }
+
+  // Logout
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    localStorage.removeItem('adminSecret');
+    window.location.href = '/admin';
+  });
+
+  // Yazıyı yükle
+  async function loadPost() {
+    try {
+      const res = await fetch(`${API_BASE}/admin/post/${postId}`, {
+        headers: { 'X-ADMIN-SECRET': secret }
+      });
+
+      if (!res.ok) {
+        if (res.status === 404) {
+          alert('Yazı bulunamadı');
+          window.location.href = '/admin/posts';
+          return;
+        }
+        throw new Error('Unauthorized');
+      }
+
+      const post = await res.json();
+
+      // Form alanlarını doldur
+      document.getElementById('title_tr').value = post.title_tr || '';
+      document.getElementById('summary_tr').value = post.summary_tr || '';
+      document.getElementById('content_tr').value = post.content_tr || '';
+      document.getElementById('title_en').value = post.title_en || '';
+      document.getElementById('summary_en').value = post.summary_en || '';
+      document.getElementById('category').value = post.category || '';
+      document.getElementById('slug').value = post.slug || '';
+      document.getElementById('image_url').value = post.image_url || '';
+      document.getElementById('source_url').value = post.source_url || '';
+      document.getElementById('is_featured').checked = post.is_featured === 1;
+      document.getElementById('published').checked = post.published === 1;
+
+      // Loading'i gizle, formu göster
+      document.getElementById('loadingState').classList.add('hidden');
+      document.getElementById('postForm').classList.remove('hidden');
+
+      // Kapak görseli önizlemesi
+      if (post.image_url) {
+        const preview = document.getElementById('cover_preview');
+        preview.innerHTML = `<img src="${post.image_url}" alt="Kapak görseli" />`;
+        preview.classList.remove('hidden');
+      }
+    } catch (err) {
+      console.error('Post yüklenemedi:', err);
+      alert('Yazı yüklenirken hata oluştu');
+      window.location.href = '/admin/posts';
+    }
+  }
+
+  // Form submit
+  const form = document.getElementById('postForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const btnText = submitBtn.querySelector('.btn-text');
+  const btnLoading = submitBtn.querySelector('.btn-loading');
+  const messageDiv = document.getElementById('message');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Loading state
+    btnText.classList.add('hidden');
+    btnLoading.classList.remove('hidden');
+    submitBtn.disabled = true;
+    messageDiv.classList.add('hidden');
+
+    const data = {
+      title_tr: document.getElementById('title_tr').value,
+      summary_tr: document.getElementById('summary_tr').value,
+      content_tr: document.getElementById('content_tr').value,
+      title_en: document.getElementById('title_en').value || null,
+      summary_en: document.getElementById('summary_en').value || null,
+      category: document.getElementById('category').value,
+      image_url: document.getElementById('image_url').value || null,
+      source_url: document.getElementById('source_url').value || null,
+      is_featured: document.getElementById('is_featured').checked ? 1 : 0,
+      published: document.getElementById('published').checked ? 1 : 0
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/update/${postId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-ADMIN-SECRET': secret
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        messageDiv.className = 'message message-success';
+        messageDiv.textContent = 'Yazı başarıyla güncellendi!';
+        messageDiv.classList.remove('hidden');
+      } else {
+        throw new Error(result.error || 'Bir hata oluştu');
+      }
+    } catch (err) {
+      messageDiv.className = 'message message-error';
+      messageDiv.textContent = err.message || 'Bir hata oluştu';
+      messageDiv.classList.remove('hidden');
+    } finally {
+      btnText.classList.remove('hidden');
+      btnLoading.classList.add('hidden');
+      submitBtn.disabled = false;
+    }
+  });
+
+  // Resim yükleme fonksiyonu
+  async function uploadImage(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch(`${API_BASE}/admin/upload-image`, {
+      method: 'POST',
+      headers: {
+        'X-ADMIN-SECRET': secret
+      },
+      body: formData
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Yükleme başarısız');
+    }
+
+    return await res.json();
+  }
+
+  // Kapak görseli yükleme
+  const coverUpload = document.getElementById('cover_upload');
+  const imageUrlInput = document.getElementById('image_url');
+  const coverPreview = document.getElementById('cover_preview');
+
+  coverUpload?.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Progress göster
+    coverPreview.innerHTML = '<div class="upload-progress"><span class="spinner"></span> Yükleniyor...</div>';
+    coverPreview.classList.remove('hidden');
+
+    try {
+      const result = await uploadImage(file);
+      imageUrlInput.value = result.url;
+      coverPreview.innerHTML = `<img src="${result.url}" alt="Kapak görseli" />`;
+    } catch (err) {
+      coverPreview.innerHTML = `<span style="color: #e53e3e;">❌ ${err.message}</span>`;
+      setTimeout(() => coverPreview.classList.add('hidden'), 3000);
+    }
+  });
+
+  // İçerik resmi yükleme
+  const contentUpload = document.getElementById('content_upload');
+  const contentTextarea = document.getElementById('content_tr');
+
+  contentUpload?.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Cursor pozisyonunu al
+    const cursorPos = contentTextarea.selectionStart;
+    const textBefore = contentTextarea.value.substring(0, cursorPos);
+    const textAfter = contentTextarea.value.substring(cursorPos);
+
+    // Geçici placeholder ekle
+    const placeholder = '\n![Resim yükleniyor...]()\n';
+    contentTextarea.value = textBefore + placeholder + textAfter;
+
+    try {
+      const result = await uploadImage(file);
+      // Placeholder'ı gerçek resim ile değiştir
+      const imageMarkdown = `\n![${file.name}](${result.url})\n`;
+      contentTextarea.value = textBefore + imageMarkdown + textAfter;
+    } catch (err) {
+      // Hata durumunda placeholder'ı kaldır
+      contentTextarea.value = textBefore + textAfter;
+      alert('Resim yüklenemedi: ' + err.message);
+    }
+
+    // Input'u temizle (aynı dosyayı tekrar seçebilmek için)
+    contentUpload.value = '';
+  });
+
+  // AI görsel oluşturma
+  const aiImageBtn = document.getElementById('ai_image_btn');
+  const titleInput = document.getElementById('title_tr');
+  const categorySelect = document.getElementById('category');
+
+  aiImageBtn?.addEventListener('click', async () => {
+    const title = titleInput?.value;
+    const category = categorySelect?.value;
+
+    if (!title) {
+      alert('Lütfen önce bir başlık girin');
+      return;
+    }
+
+    // Disable button and show progress
+    aiImageBtn.disabled = true;
+    aiImageBtn.innerHTML = '⏳';
+    coverPreview.innerHTML = '<div class="upload-progress"><span class="spinner"></span> AI görsel oluşturuluyor...</div>';
+    coverPreview.classList.remove('hidden');
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/ai-image`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-ADMIN-SECRET': secret
+        },
+        body: JSON.stringify({ title, category })
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'AI görsel oluşturulamadı');
+      }
+
+      const result = await res.json();
+      imageUrlInput.value = result.url;
+      coverPreview.innerHTML = `<img src="${result.url}" alt="AI görseli" />`;
+    } catch (err) {
+      coverPreview.innerHTML = `<span style="color: #e53e3e;">❌ ${err.message}</span>`;
+      setTimeout(() => coverPreview.classList.add('hidden'), 3000);
+    } finally {
+      aiImageBtn.disabled = false;
+      aiImageBtn.innerHTML = '🤖';
+    }
+  });
+
+  // Yükle
+  loadPost();
+</script>

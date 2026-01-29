@@ -1,0 +1,109 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+---
+
+<BaseLayout title="Sayfa Bulunamadı – 3D-labX" description="Aradığınız sayfa bulunamadı." noIndex={true}>
+  <Header />
+
+  <main class="container error-page">
+    <div class="error-content">
+      <h1>404</h1>
+      <h2>Sayfa Bulunamadı</h2>
+      <p>Aradığınız sayfa mevcut değil veya taşınmış olabilir.</p>
+
+      <div class="actions">
+        <a href="/" class="btn primary">Ana Sayfaya Dön</a>
+        <a href="/search" class="btn secondary">Arama Yap</a>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .error-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+  }
+
+  .error-content h1 {
+    font-size: 8rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin: 0;
+    opacity: 0.3;
+  }
+
+  .error-content h2 {
+    font-size: 1.8rem;
+    margin: 16px 0;
+    color: var(--text-main);
+  }
+
+  .error-content p {
+    color: var(--text-muted);
+    margin-bottom: 32px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn.primary {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn.primary:hover {
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  }
+
+  .btn.secondary {
+    background: var(--bg-card);
+    color: var(--text-main);
+    border: 1px solid var(--border-soft);
+  }
+
+  .btn.secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  @media (max-width: 480px) {
+    .error-content h1 {
+      font-size: 5rem;
+    }
+
+    .error-content h2 {
+      font-size: 1.4rem;
+    }
+
+    .actions {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>

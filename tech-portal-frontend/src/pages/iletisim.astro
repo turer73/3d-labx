@@ -1,0 +1,360 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+
+const title = "İletişim – 3D-labX";
+const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz veya işbirliği talepleriniz için bize ulaşın.";
+---
+
+<BaseLayout title={title} description={description}>
+  <Header />
+
+  <main class="static-page">
+    <div class="container">
+      <article class="page-content">
+        <h1>İletişim</h1>
+
+        <p class="lead">
+          Sorularınız, önerileriniz veya işbirliği talepleriniz için bizimle iletişime geçebilirsiniz.
+        </p>
+
+        <div class="contact-grid">
+          <div class="contact-info">
+            <h2>Bize Ulaşın</h2>
+
+            <div class="contact-item">
+              <div class="contact-icon">📧</div>
+              <div>
+                <h3>E-posta</h3>
+                <p>
+                  <a href="mailto:3d-labx@3d-labx.com">3d-labx@3d-labx.com</a>
+                </p>
+              </div>
+            </div>
+
+            <div class="contact-item">
+              <div class="contact-icon">🌐</div>
+              <div>
+                <h3>Sosyal Medya</h3>
+                <p>Yakında aktif olacaktır.</p>
+              </div>
+            </div>
+
+            <div class="info-box">
+              <h3>Yanıt Süresi</h3>
+              <p>
+                Mesajlarınıza genellikle 1-2 iş günü içerisinde dönüş yapılmaktadır.
+                Yoğun dönemlerde bu süre uzayabilir.
+              </p>
+            </div>
+          </div>
+
+          <div class="contact-form-wrapper">
+            <h2>Mesaj Gönderin</h2>
+
+            <form class="contact-form" id="contactForm">
+              <div class="form-group">
+                <label for="name">Adınız *</label>
+                <input type="text" id="name" name="name" required placeholder="Adınızı girin" />
+              </div>
+
+              <div class="form-group">
+                <label for="email">E-posta *</label>
+                <input type="email" id="email" name="email" required placeholder="ornek@email.com" />
+              </div>
+
+              <div class="form-group">
+                <label for="subject">Konu *</label>
+                <select id="subject" name="subject" required>
+                  <option value="">Bir konu seçin</option>
+                  <option value="genel">Genel Soru</option>
+                  <option value="oneri">Öneri</option>
+                  <option value="hata">Hata Bildirimi</option>
+                  <option value="isbirligi">İşbirliği</option>
+                  <option value="diger">Diğer</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="message">Mesajınız *</label>
+                <textarea id="message" name="message" required rows="5" placeholder="Mesajınızı buraya yazın..."></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary">Gönder</button>
+
+              <p class="form-note">
+                * işaretli alanlar zorunludur.
+              </p>
+            </form>
+
+            <div class="form-message" id="formMessage" style="display: none;"></div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('contactForm') as HTMLFormElement;
+  const formMessage = document.getElementById('formMessage');
+  const submitBtn = form?.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData);
+
+    // Loading state
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Gönderiliyor...';
+    }
+
+    if (formMessage) {
+      formMessage.style.display = 'none';
+    }
+
+    try {
+      const res = await fetch('https://tech-portal-api.turgut-d01.workers.dev/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      if (formMessage) {
+        formMessage.style.display = 'block';
+
+        if (res.ok) {
+          formMessage.className = 'form-message success';
+          formMessage.innerHTML = `
+            <strong>Teşekkürler!</strong>
+            <p>Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.</p>
+          `;
+          form.reset();
+        } else {
+          formMessage.className = 'form-message error';
+          formMessage.innerHTML = `
+            <strong>Hata!</strong>
+            <p>${result.error || 'Bir hata oluştu. Lütfen tekrar deneyin.'}</p>
+          `;
+        }
+      }
+    } catch (err) {
+      if (formMessage) {
+        formMessage.style.display = 'block';
+        formMessage.className = 'form-message error';
+        formMessage.innerHTML = `
+          <strong>Bağlantı Hatası</strong>
+          <p>Sunucuya ulaşılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.</p>
+        `;
+      }
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Gönder';
+      }
+    }
+  });
+</script>
+
+<style>
+  .static-page {
+    padding-top: 156px;
+    padding-bottom: 64px;
+    min-height: 100vh;
+  }
+
+  .page-content {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .page-content h1 {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-md);
+    color: var(--text-main);
+  }
+
+  .lead {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-2xl);
+    line-height: 1.7;
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: var(--spacing-2xl);
+  }
+
+  .contact-info h2,
+  .contact-form-wrapper h2 {
+    font-size: 1.3rem;
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-main);
+  }
+
+  .contact-item {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+  }
+
+  .contact-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .contact-item h3 {
+    font-size: 0.95rem;
+    margin: 0 0 4px;
+    color: var(--text-main);
+  }
+
+  .contact-item p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .contact-item a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .contact-item a:hover {
+    text-decoration: underline;
+  }
+
+  .info-box {
+    background: var(--bg-soft);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+  }
+
+  .info-box h3 {
+    font-size: 0.95rem;
+    margin: 0 0 var(--spacing-sm);
+    color: var(--text-main);
+  }
+
+  .info-box p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .contact-form-wrapper {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+  }
+
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-main);
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 12px 14px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    color: var(--text-main);
+    font-size: 0.95rem;
+    transition: border-color var(--transition-fast);
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .form-group input::placeholder,
+  .form-group textarea::placeholder {
+    color: var(--text-light);
+  }
+
+  .form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  .contact-form .btn {
+    align-self: flex-start;
+    margin-top: var(--spacing-sm);
+  }
+
+  .form-note {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin: var(--spacing-sm) 0 0;
+  }
+
+  .form-message {
+    margin-top: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-md);
+  }
+
+  .form-message.success {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #22c55e;
+  }
+
+  .form-message.error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+  }
+
+  .form-message strong {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .form-message p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 768px) {
+    .contact-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .page-content h1 {
+      font-size: 2rem;
+    }
+  }
+</style>

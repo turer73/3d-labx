@@ -1,0 +1,330 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+import { getApiBase } from "../../lib/api";
+
+type Post = {
+  id: number;
+  title_tr: string;
+  summary_tr: string;
+  slug: string;
+  category: string;
+  image_url?: string;
+  is_featured: number;
+  created_at?: string;
+};
+
+type Pagination = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+};
+
+type ApiResponse = {
+  posts: Post[];
+  pagination: Pagination;
+};
+
+const API_BASE = getApiBase(Astro.request);
+
+// URL'den sayfa numarasını al
+const url = new URL(Astro.request.url);
+const currentPage = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
+const POSTS_PER_PAGE = 12;
+
+let posts: Post[] = [];
+let pagination: Pagination | null = null;
+let error: string | null = null;
+
+try {
+  const res = await fetch(
+    `${API_BASE}/api/posts?category=3d-baski&page=${currentPage}&limit=${POSTS_PER_PAGE}`,
+    { headers: { "Accept": "application/json" } }
+  );
+
+  if (!res.ok) {
+    throw new Error(`API hatası: ${res.status}`);
+  }
+
+  const data: ApiResponse = await res.json();
+  posts = data.posts;
+  pagination = data.pagination;
+} catch (e) {
+  error = e instanceof Error ? e.message : "Bilinmeyen hata";
+  console.error("3D Baskı sayfası hatası:", error);
+}
+
+const title = currentPage > 1
+  ? `3D Baskı Haberleri - Sayfa ${currentPage} – 3D-labX`
+  : "3D Baskı Haberleri – 3D-labX";
+
+const description = posts.length > 0
+  ? `En güncel 3D baskı haberleri: ${posts.slice(0, 3).map((p) => p.title_tr).join(", ")}`
+  : "3D baskı dünyasından en güncel haberler ve analizler.";
+
+// Sayfalama URL'leri
+const prevUrl = pagination?.hasPrev ? `/3d-baski?page=${currentPage - 1}` : null;
+const nextUrl = pagination?.hasNext ? `/3d-baski?page=${currentPage + 1}` : null;
+---
+
+<BaseLayout title={title} description={description}>
+  <Header />
+
+  <main class="category-page">
+    <div class="container">
+      <div class="page-header">
+      <h1>3D Baskı</h1>
+      {pagination && (
+        <span class="post-count">{pagination.total} içerik</span>
+      )}
+    </div>
+
+    {error && (
+      <div class="message message-error">
+        <p><strong>İçerikler yüklenirken bir hata oluştu.</strong></p>
+        <p class="text-sm">{error}</p>
+      </div>
+    )}
+
+    {!error && posts.length === 0 && (
+      <div class="empty-state">
+        <div class="empty-icon">📄</div>
+        <h2>Henüz İçerik Yok</h2>
+        <p>Bu kategoride henüz içerik bulunmuyor.</p>
+        <a href="/" class="btn btn-primary">Ana Sayfaya Dön</a>
+      </div>
+    )}
+
+    {posts.length > 0 && (
+      <div class="posts-grid">
+        {posts.map((post) => (
+          <article class={`post-card ${post.is_featured ? 'featured' : ''}`}>
+            {post.image_url && (
+              <a href={`/3d-baski/${post.slug}`} class="post-image">
+                <img src={post.image_url} alt={post.title_tr} loading="lazy" />
+              </a>
+            )}
+            <div class="post-content">
+              {post.is_featured === 1 && (
+                <span class="badge badge-primary">Öne Çıkan</span>
+              )}
+              <h2>
+                <a href={`/3d-baski/${post.slug}`}>{post.title_tr}</a>
+              </h2>
+              <p>{post.summary_tr}</p>
+              {post.created_at && (
+                <time class="post-date" datetime={post.created_at}>
+                  {new Date(post.created_at).toLocaleDateString("tr-TR", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                  })}
+                </time>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+    )}
+
+    {/* Sayfalama */}
+    {pagination && pagination.totalPages > 1 && (
+      <nav class="pagination" aria-label="Sayfa navigasyonu">
+        <a
+          href={prevUrl || "#"}
+          class={`pagination-btn ${!prevUrl ? 'disabled' : ''}`}
+          aria-disabled={!prevUrl}
+        >
+          ← Önceki
+        </a>
+
+        <span class="pagination-info">
+          Sayfa {pagination.page} / {pagination.totalPages}
+        </span>
+
+        <a
+          href={nextUrl || "#"}
+          class={`pagination-btn ${!nextUrl ? 'disabled' : ''}`}
+          aria-disabled={!nextUrl}
+        >
+          Sonraki →
+        </a>
+      </nav>
+    )}
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .category-page {
+    padding-top: 156px; /* 120 + 36 for announcement bar */
+    padding-bottom: 64px;
+    min-height: 100vh;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-xl);
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+
+  .page-header h1 {
+    margin: 0;
+  }
+
+  .post-count {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+  }
+
+  .post-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+  }
+
+  .post-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .post-card.featured {
+    border-color: var(--accent);
+    border-width: 2px;
+  }
+
+  .post-image {
+    display: block;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+  }
+
+  .post-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+  }
+
+  .post-card:hover .post-image img {
+    transform: scale(1.05);
+  }
+
+  .post-content {
+    padding: var(--spacing-lg);
+  }
+
+  .post-content h2 {
+    font-size: 1.1rem;
+    margin: var(--spacing-sm) 0;
+    line-height: 1.4;
+  }
+
+  .post-content h2 a {
+    color: var(--text-main);
+    text-decoration: none;
+  }
+
+  .post-content h2 a:hover {
+    color: var(--accent);
+  }
+
+  .post-content p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .post-date {
+    display: block;
+    margin-top: var(--spacing-md);
+    font-size: 0.8rem;
+    color: var(--text-light);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--spacing-2xl) var(--spacing-lg);
+  }
+
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: var(--spacing-md);
+    opacity: 0.5;
+  }
+
+  .empty-state h2 {
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .empty-state p {
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-2xl);
+    flex-wrap: wrap;
+  }
+
+  .pagination-btn {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    color: var(--text-main);
+    font-weight: 500;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+  }
+
+  .pagination-btn:hover:not(.disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .pagination-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .pagination-info {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 640px) {
+    .posts-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

@@ -1,0 +1,323 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import "../../styles/admin.css";
+---
+
+<BaseLayout title="Yazılar – Admin Panel" noIndex={true}>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="/" class="logo">3D-labX</a>
+        <span class="badge badge-primary">Admin</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-item">
+          <span class="icon">📊</span>
+          Dashboard
+        </a>
+        <a href="/admin/posts" class="nav-item active">
+          <span class="icon">📝</span>
+          Yazılar
+        </a>
+        <a href="/admin/users" class="nav-item">
+          <span class="icon">👥</span>
+          Üyeler
+        </a>
+        <a href="/admin/rss" class="nav-item">
+          <span class="icon">📡</span>
+          RSS Kaynakları
+        </a>
+        <a href="/admin/content-boxes" class="nav-item">
+          <span class="icon">📦</span>
+          İçerik Kutuları
+        </a>
+        <a href="/admin/new" class="nav-item">
+          <span class="icon">➕</span>
+          Yeni Yazı
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="logoutBtn" class="btn btn-ghost btn-full">
+          🚪 Çıkış Yap
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="content-header">
+        <div>
+          <h1>Yazılar</h1>
+          <p class="text-muted">Tüm yazıları yönetin</p>
+        </div>
+        <a href="/admin/new" class="btn btn-primary">+ Yeni Yazı</a>
+      </header>
+
+      <div class="filters">
+        <select id="categoryFilter" class="filter-select">
+          <option value="">Tüm Kategoriler</option>
+          <option value="3d-baski">3D Baskı</option>
+          <option value="rehberler">Rehberler</option>
+          <option value="teknoloji">Teknoloji</option>
+          <option value="yapay-zeka">Yapay Zeka</option>
+        </select>
+
+        <select id="statusFilter" class="filter-select">
+          <option value="">Tüm Durumlar</option>
+          <option value="1">Yayında</option>
+          <option value="0">Taslak</option>
+        </select>
+
+        <input type="search" id="searchInput" placeholder="Yazı ara..." class="search-input" />
+      </div>
+
+      <div class="posts-table-container">
+        <table class="posts-table" id="postsTable">
+          <thead>
+            <tr>
+              <th>Başlık</th>
+              <th>Kategori</th>
+              <th>Durum</th>
+              <th>Öne Çıkan</th>
+              <th>Tarih</th>
+              <th>İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="6" class="loading-row">
+                <span class="spinner"></span> Yükleniyor...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination" id="pagination"></div>
+    </main>
+  </div>
+
+  <!-- Silme Onay Modal -->
+  <div id="deleteModal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <h3>Yazıyı Sil</h3>
+      <p>Bu yazıyı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="cancelDelete">İptal</button>
+        <button class="btn btn-danger" id="confirmDelete">Sil</button>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const API_BASE = 'https://tech-portal-api.turgut-d01.workers.dev';
+
+  // Auth kontrolü
+  const secret = localStorage.getItem('adminSecret');
+  if (!secret) {
+    window.location.href = '/admin';
+  }
+
+  // Logout
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    localStorage.removeItem('adminSecret');
+    window.location.href = '/admin';
+  });
+
+  let allPosts: any[] = [];
+  let deletePostId: number | null = null;
+
+  const categoryNames: Record<string, string> = {
+    '3d-baski': '3D Baskı',
+    'teknoloji': 'Teknoloji',
+    'yapay-zeka': 'Yapay Zeka'
+  };
+
+  // Yazıları yükle
+  async function loadPosts() {
+    try {
+      const res = await fetch(`${API_BASE}/admin/posts`, {
+        headers: { 'X-ADMIN-SECRET': secret! }
+      });
+
+      if (!res.ok) throw new Error('Unauthorized');
+
+      allPosts = await res.json();
+      renderPosts(allPosts);
+    } catch (err) {
+      console.error('Posts yüklenemedi:', err);
+      const tbody = document.querySelector('#postsTable tbody')!;
+      tbody.innerHTML = '<tr><td colspan="6" class="error-row">Yüklenirken hata oluştu</td></tr>';
+    }
+  }
+
+  // Yazıları render et
+  function renderPosts(posts: any[]) {
+    const tbody = document.querySelector('#postsTable tbody')!;
+
+    if (posts.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-row">Yazı bulunamadı</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = posts.map(post => `
+      <tr data-id="${post.id}">
+        <td class="title-cell">
+          <a href="/admin/edit/${post.id}">${post.title_tr?.substring(0, 60)}${post.title_tr?.length > 60 ? '...' : ''}</a>
+        </td>
+        <td>
+          <span class="category-badge ${post.category}">${categoryNames[post.category] || post.category}</span>
+        </td>
+        <td>
+          <button class="status-toggle ${post.published ? 'published' : 'draft'}" data-id="${post.id}" data-published="${post.published}">
+            ${post.published ? 'Yayında' : 'Taslak'}
+          </button>
+        </td>
+        <td>
+          <button class="featured-toggle ${post.is_featured ? 'active' : ''}" data-id="${post.id}" data-featured="${post.is_featured}">
+            ${post.is_featured ? '⭐' : '☆'}
+          </button>
+        </td>
+        <td class="date-cell">${new Date(post.created_at).toLocaleDateString('tr-TR')}</td>
+        <td class="actions-cell">
+          <a href="/admin/edit/${post.id}" class="btn btn-ghost btn-sm">✏️</a>
+          <a href="/${post.category}/${post.slug}" target="_blank" class="btn btn-ghost btn-sm">👁️</a>
+          <button class="btn btn-ghost btn-sm delete-btn" data-id="${post.id}">🗑️</button>
+        </td>
+      </tr>
+    `).join('');
+
+    // Event listeners
+    attachEventListeners();
+  }
+
+  // Event listeners ekle
+  function attachEventListeners() {
+    // Durum değiştir
+    document.querySelectorAll('.status-toggle').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const target = e.currentTarget as HTMLButtonElement;
+        const id = target.dataset.id;
+        const currentStatus = target.dataset.published === '1';
+
+        try {
+          const res = await fetch(`${API_BASE}/admin/update/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-ADMIN-SECRET': secret!
+            },
+            body: JSON.stringify({ published: currentStatus ? 0 : 1 })
+          });
+
+          if (res.ok) {
+            loadPosts();
+          }
+        } catch (err) {
+          console.error('Güncelleme hatası:', err);
+        }
+      });
+    });
+
+    // Öne çıkan değiştir
+    document.querySelectorAll('.featured-toggle').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const target = e.currentTarget as HTMLButtonElement;
+        const id = target.dataset.id;
+        const currentFeatured = target.dataset.featured === '1';
+
+        try {
+          const res = await fetch(`${API_BASE}/admin/update/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-ADMIN-SECRET': secret!
+            },
+            body: JSON.stringify({ is_featured: currentFeatured ? 0 : 1 })
+          });
+
+          if (res.ok) {
+            loadPosts();
+          }
+        } catch (err) {
+          console.error('Güncelleme hatası:', err);
+        }
+      });
+    });
+
+    // Silme
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.currentTarget as HTMLButtonElement;
+        deletePostId = parseInt(target.dataset.id!);
+        document.getElementById('deleteModal')?.classList.remove('hidden');
+      });
+    });
+  }
+
+  // Filtreleme
+  function filterPosts() {
+    const category = (document.getElementById('categoryFilter') as HTMLSelectElement).value;
+    const status = (document.getElementById('statusFilter') as HTMLSelectElement).value;
+    const search = (document.getElementById('searchInput') as HTMLInputElement).value.toLowerCase();
+
+    let filtered = allPosts;
+
+    if (category) {
+      filtered = filtered.filter(p => p.category === category);
+    }
+
+    if (status !== '') {
+      filtered = filtered.filter(p => p.published === parseInt(status));
+    }
+
+    if (search) {
+      filtered = filtered.filter(p =>
+        p.title_tr?.toLowerCase().includes(search) ||
+        p.summary_tr?.toLowerCase().includes(search)
+      );
+    }
+
+    renderPosts(filtered);
+  }
+
+  document.getElementById('categoryFilter')?.addEventListener('change', filterPosts);
+  document.getElementById('statusFilter')?.addEventListener('change', filterPosts);
+  document.getElementById('searchInput')?.addEventListener('input', filterPosts);
+
+  // Modal
+  document.getElementById('cancelDelete')?.addEventListener('click', () => {
+    document.getElementById('deleteModal')?.classList.add('hidden');
+    deletePostId = null;
+  });
+
+  document.querySelector('.modal-backdrop')?.addEventListener('click', () => {
+    document.getElementById('deleteModal')?.classList.add('hidden');
+    deletePostId = null;
+  });
+
+  document.getElementById('confirmDelete')?.addEventListener('click', async () => {
+    if (!deletePostId) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/delete/${deletePostId}`, {
+        method: 'DELETE',
+        headers: { 'X-ADMIN-SECRET': secret! }
+      });
+
+      if (res.ok) {
+        document.getElementById('deleteModal')?.classList.add('hidden');
+        deletePostId = null;
+        loadPosts();
+      }
+    } catch (err) {
+      console.error('Silme hatası:', err);
+    }
+  });
+
+  // Yükle
+  loadPosts();
+</script>

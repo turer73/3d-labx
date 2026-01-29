@@ -1,0 +1,1029 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import { getApiBase } from "../lib/api";
+
+export const prerender = false;
+
+type Post = {
+  id: number;
+  title_tr: string;
+  summary_tr: string;
+  slug: string;
+  category: string;
+  image_url?: string;
+  is_featured: number;
+};
+
+const API_BASE = getApiBase(Astro.request);
+
+let data: Record<string, Post[]> = {};
+let error: string | null = null;
+
+try {
+  const res = await fetch(`${API_BASE}/api/home`, {
+    headers: { "Accept": "application/json" }
+  });
+
+  if (!res.ok) {
+    throw new Error(`API hatası: ${res.status}`);
+  }
+
+  data = await res.json();
+} catch (e) {
+  error = e instanceof Error ? e.message : "Bilinmeyen hata";
+  console.error("Ana sayfa hatası:", error);
+}
+
+const printPosts = data["3d-baski"] || [];
+const techPosts = data["teknoloji"] || [];
+const aiPosts = data["yapay-zeka"] || [];
+
+// Hero slider için her kategoriden bir post
+const heroSlides = [
+  printPosts[0],
+  techPosts[0],
+  aiPosts[0]
+].filter(Boolean);
+
+function getCategoryLabel(cat: string) {
+  if (cat === "3d-baski") return "3D Baskı";
+  if (cat === "teknoloji") return "Teknoloji";
+  if (cat === "yapay-zeka") return "Yapay Zeka";
+  return "Güncel";
+}
+
+function getCategoryColor(cat: string) {
+  if (cat === "3d-baski") return "orange";
+  if (cat === "teknoloji") return "cyan";
+  if (cat === "yapay-zeka") return "purple";
+  return "orange";
+}
+---
+
+<BaseLayout
+  title="3D-LABX - 3D Baskı, Teknoloji ve Yapay Zeka"
+  description="3D baskı, teknoloji ve yapay zeka dünyasından güncel haberler ve analizler."
+>
+  <Header />
+
+  <!-- HERO SLIDER SECTION -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="hero-slider-box">
+        <div class="slider-container">
+          {heroSlides.map((slide, index) => (
+            <div class={`slide ${index === 0 ? 'active' : ''}`} data-index={index}>
+              <div class="slide-bg">
+                {slide.image_url && <img src={slide.image_url} alt={slide.title_tr} />}
+                <div class="slide-overlay"></div>
+              </div>
+              <div class="slide-content">
+                <div class={`hero-badge ${getCategoryColor(slide.category)}`}>
+                  <span class="pulse-dot"></span>
+                  <span>{getCategoryLabel(slide.category)}</span>
+                </div>
+                <h1>{slide.title_tr}</h1>
+                <p>{slide.summary_tr}</p>
+                <a href={`/${slide.category}/${slide.slug}`} class="hero-btn">
+                  Devamını Oku
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+                </a>
+              </div>
+            </div>
+          ))}
+
+          <!-- Slider Navigation Dots -->
+          <div class="slider-dots">
+            {heroSlides.map((slide, index) => (
+              <button
+                class={`dot ${index === 0 ? 'active' : ''} ${getCategoryColor(slide.category)}`}
+                data-index={index}
+                aria-label={getCategoryLabel(slide.category)}
+              >
+                <span class="dot-label">{getCategoryLabel(slide.category)}</span>
+              </button>
+            ))}
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="slider-progress">
+            <div class="progress-bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="main-content container">
+    {error && (
+      <div class="message message-error">
+        <p>İçerikler yüklenirken bir hata oluştu: {error}</p>
+      </div>
+    )}
+
+    <!-- BENTO GRID -->
+    <section class="bento-grid">
+      <a href="/3d-baski" class="bento-card bento-large orange">
+        <div class="bento-glow"></div>
+        <div class="bento-content">
+          <div class="bento-header">
+            <div class="bento-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+            </div>
+            <span class="bento-tag">Katmanlı İmalat</span>
+          </div>
+          {printPosts[0] ? (
+            <>
+              <h3>{printPosts[0].title_tr}</h3>
+              <p>{printPosts[0].summary_tr}</p>
+            </>
+          ) : (
+            <>
+              <h3>3D Baskı Haberleri</h3>
+              <p>En güncel 3D baskı haberleri ve incelemeleri.</p>
+            </>
+          )}
+        </div>
+      </a>
+
+      <a href="/teknoloji" class="bento-card cyan">
+        <div class="bento-content">
+          <div class="bento-header">
+            <div class="bento-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/></svg>
+            </div>
+            <span class="bento-tag">Teknoloji</span>
+          </div>
+          {techPosts[0] ? (
+            <>
+              <h3>{techPosts[0].title_tr}</h3>
+              <p>{techPosts[0].summary_tr}</p>
+            </>
+          ) : (
+            <><h3>Teknoloji Haberleri</h3><p>Güncel teknoloji haberleri.</p></>
+          )}
+        </div>
+      </a>
+
+      <a href="/yapay-zeka" class="bento-card purple">
+        <div class="bento-content">
+          <div class="bento-header">
+            <div class="bento-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/></svg>
+            </div>
+            <span class="bento-tag">Yapay Zeka</span>
+          </div>
+          {aiPosts[0] ? (
+            <>
+              <h3>{aiPosts[0].title_tr}</h3>
+              <p>{aiPosts[0].summary_tr}</p>
+            </>
+          ) : (
+            <><h3>Yapay Zeka Haberleri</h3><p>AI dünyasından güncel gelişmeler.</p></>
+          )}
+        </div>
+      </a>
+
+      <!-- Anket 1: API Anketi - Varsayılan değerlerle -->
+      <div class="bento-card poll poll-gradient-1" id="pollCard">
+        <div class="bento-content">
+          <div class="bento-header">
+            <div class="bento-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+            </div>
+            <span class="bento-tag">Anket</span>
+          </div>
+          <h3 id="pollQuestion">En çok kullandığınız 3D yazıcı markası?</h3>
+          <div class="poll-options" id="pollOptions">
+            <div class="poll-option clickable" data-option-id="1" data-poll-id="4">
+              <div class="poll-bar" style="width: 35%; background: linear-gradient(90deg, #EAB308 0%, #EAB308cc 100%);"></div>
+              <span class="poll-label">Creality</span>
+              <span class="poll-percent">%35</span>
+            </div>
+            <div class="poll-option clickable" data-option-id="2" data-poll-id="4">
+              <div class="poll-bar" style="width: 25%; background: linear-gradient(90deg, #3B82F6 0%, #3B82F6cc 100%);"></div>
+              <span class="poll-label">Prusa</span>
+              <span class="poll-percent">%25</span>
+            </div>
+            <div class="poll-option clickable" data-option-id="3" data-poll-id="4">
+              <div class="poll-bar" style="width: 22%; background: linear-gradient(90deg, #8B5CF6 0%, #8B5CF6cc 100%);"></div>
+              <span class="poll-label">Bambu Lab</span>
+              <span class="poll-percent">%22</span>
+            </div>
+            <div class="poll-option clickable" data-option-id="4" data-poll-id="4">
+              <div class="poll-bar" style="width: 12%; background: linear-gradient(90deg, #10B981 0%, #10B981cc 100%);"></div>
+              <span class="poll-label">Anycubic</span>
+              <span class="poll-percent">%12</span>
+            </div>
+            <div class="poll-option clickable" data-option-id="5" data-poll-id="4">
+              <div class="poll-bar" style="width: 8%; background: linear-gradient(90deg, #06B6D4 0%, #06B6D4cc 100%);"></div>
+              <span class="poll-label">Diğer</span>
+              <span class="poll-percent">%6</span>
+            </div>
+          </div>
+          <div class="poll-votes" id="pollVotes">127 Oy</div>
+        </div>
+      </div>
+
+      <!-- Anket 2: Slicer Anketi - Server-side rendered -->
+      <div class="bento-card poll poll-gradient-2" id="slicerPollCard">
+        <div class="bento-content">
+          <div class="bento-header">
+            <div class="bento-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+            </div>
+            <span class="bento-tag">Slicer Anketi</span>
+          </div>
+          <h3>Hangi Slicer Kullanıyorsunuz?</h3>
+          <div class="poll-options" id="slicerOptions">
+            <div class="poll-option clickable" data-slicer-id="1">
+              <div class="poll-bar" style="width: 33%; background: linear-gradient(90deg, #22C55E 0%, #22C55Edd 100%);"></div>
+              <span class="poll-label">Cura</span>
+              <span class="poll-percent">%33</span>
+            </div>
+            <div class="poll-option clickable" data-slicer-id="2">
+              <div class="poll-bar" style="width: 27%; background: linear-gradient(90deg, #F97316 0%, #F97316dd 100%);"></div>
+              <span class="poll-label">PrusaSlicer</span>
+              <span class="poll-percent">%27</span>
+            </div>
+            <div class="poll-option clickable" data-slicer-id="3">
+              <div class="poll-bar" style="width: 22%; background: linear-gradient(90deg, #8B5CF6 0%, #8B5CF6dd 100%);"></div>
+              <span class="poll-label">OrcaSlicer</span>
+              <span class="poll-percent">%22</span>
+            </div>
+            <div class="poll-option clickable" data-slicer-id="4">
+              <div class="poll-bar" style="width: 13%; background: linear-gradient(90deg, #06B6D4 0%, #06B6D4dd 100%);"></div>
+              <span class="poll-label">Bambu Studio</span>
+              <span class="poll-percent">%13</span>
+            </div>
+            <div class="poll-option clickable" data-slicer-id="5">
+              <div class="poll-bar" style="width: 8%; background: linear-gradient(90deg, #6B7280 0%, #6B7280dd 100%);"></div>
+              <span class="poll-label">Diğer</span>
+              <span class="poll-percent">%5</span>
+            </div>
+          </div>
+          <div class="poll-votes" id="slicerVotes">700 Oy</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LATEST POSTS -->
+    {(printPosts.length > 1 || techPosts.length > 1 || aiPosts.length > 1) && (
+      <section class="latest-section">
+        <h2>Son İçerikler</h2>
+        <div class="latest-bento">
+          {[...printPosts.slice(1, 4), ...techPosts.slice(1, 4), ...aiPosts.slice(1, 4)].slice(0, 9).map((post, i) => {
+            const catLabel = post.category === "3d-baski" ? "3D Baskı" : post.category === "teknoloji" ? "Teknoloji" : "Yapay Zeka";
+            const catColor = post.category === "3d-baski" ? "orange" : post.category === "teknoloji" ? "cyan" : "purple";
+            const sizeClass = i === 0 ? "lb-hero" : i === 6 ? "lb-wide" : "";
+            return (
+              <a href={`/${post.category}/${post.slug}`} class={`lb-card ${sizeClass} ${catColor}`}>
+                {post.image_url && (
+                  <div class="lb-image">
+                    <img src={post.image_url} alt={post.title_tr} loading="lazy" />
+                  </div>
+                )}
+                <div class="lb-content">
+                  <span class="lb-cat">{catLabel}</span>
+                  <h3>{post.title_tr}</h3>
+                  <p>{post.summary_tr}</p>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+    )}
+  </main>
+</BaseLayout>
+
+<style>
+  /* HERO SECTION */
+  .hero-section {
+    padding: 100px 20px 30px;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  /* HERO SLIDER BOX */
+  .hero-slider-box {
+    position: relative;
+    height: 380px;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--border-soft);
+  }
+
+  .slider-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+  }
+
+  .slide.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .slide-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .slide-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .slide-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.2) 100%);
+  }
+
+  .slide-content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 30px 40px;
+    max-width: 600px;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    color: white;
+    margin-bottom: 16px;
+    width: fit-content;
+  }
+
+  .hero-badge.orange { border-color: rgba(249, 115, 22, 0.5); }
+  .hero-badge.cyan { border-color: rgba(6, 182, 212, 0.5); }
+  .hero-badge.purple { border-color: rgba(168, 85, 247, 0.5); }
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  .hero-badge.orange .pulse-dot { background: #F97316; }
+  .hero-badge.cyan .pulse-dot { background: #06B6D4; }
+  .hero-badge.purple .pulse-dot { background: #A855F7; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .slide-content h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 12px;
+    color: white;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  }
+
+  .slide-content p {
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.5;
+    margin-bottom: 20px;
+    max-width: 500px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .hero-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    background: var(--accent);
+    color: white;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.3s;
+    width: fit-content;
+  }
+
+  .hero-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+  }
+
+  /* Slider Dots */
+  .slider-dots {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+  }
+
+  .dot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .dot:hover {
+    background: rgba(255,255,255,0.2);
+  }
+
+  .dot.active {
+    background: rgba(255,255,255,0.25);
+  }
+
+  .dot.active.orange { border-color: #F97316; box-shadow: 0 0 10px rgba(249, 115, 22, 0.4); }
+  .dot.active.cyan { border-color: #06B6D4; box-shadow: 0 0 10px rgba(6, 182, 212, 0.4); }
+  .dot.active.purple { border-color: #A855F7; box-shadow: 0 0 10px rgba(168, 85, 247, 0.4); }
+
+  .dot-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  /* Progress Bar */
+  .slider-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.1);
+  }
+
+  .progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #F97316, #06B6D4, #A855F7);
+    transition: width 0.1s linear;
+  }
+
+  @media (max-width: 768px) {
+    .hero-section {
+      padding: 80px 15px 15px;
+    }
+
+    .hero-slider-box {
+      height: 280px;
+      border-radius: 16px;
+    }
+
+    .slide-content {
+      padding: 20px;
+    }
+
+    .slide-content h1 {
+      font-size: 1.3rem;
+    }
+
+    .slide-content p {
+      font-size: 0.85rem;
+      -webkit-line-clamp: 2;
+    }
+
+    .slider-dots {
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 0 15px;
+      gap: 6px;
+      bottom: 15px;
+    }
+
+    .dot {
+      padding: 5px 10px;
+    }
+
+    .dot-label {
+      font-size: 0.6rem;
+    }
+  }
+
+  .main-content { padding-bottom: 64px; }
+
+  /* BENTO GRID */
+  .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 64px;
+  }
+
+  @media (max-width: 1024px) { .bento-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 768px) { .bento-grid { grid-template-columns: 1fr; } }
+
+  .bento-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    padding: 24px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    min-height: 200px;
+  }
+
+  .bento-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+  }
+
+  .bento-large { grid-column: span 2; }
+
+  .bento-glow {
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .bento-card.orange .bento-glow { background: radial-gradient(circle, rgba(249, 115, 22, 0.1) 0%, transparent 70%); }
+
+  .bento-content { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; }
+
+  .bento-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+
+  .bento-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .bento-card.orange .bento-icon { background: rgba(249, 115, 22, 0.1); color: #F97316; }
+  .bento-card.cyan .bento-icon { background: rgba(6, 182, 212, 0.1); color: #06B6D4; }
+  .bento-card.purple .bento-icon { background: rgba(168, 85, 247, 0.1); color: #A855F7; }
+
+  .bento-card.orange:hover { border-color: rgba(249, 115, 22, 0.5); }
+  .bento-card.cyan:hover { border-color: rgba(6, 182, 212, 0.5); }
+  .bento-card.purple:hover { border-color: rgba(168, 85, 247, 0.5); }
+
+  .bento-tag {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--border-soft);
+    color: var(--text-muted);
+  }
+
+  .bento-card.orange .bento-tag { background: rgba(249, 115, 22, 0.1); color: #F97316; }
+  .bento-card.cyan .bento-tag { background: rgba(6, 182, 212, 0.1); color: #06B6D4; }
+  .bento-card.purple .bento-tag { background: rgba(168, 85, 247, 0.1); color: #A855F7; }
+
+  .bento-card h3 { font-size: 1.25rem; margin: 0 0 8px; line-height: 1.3; color: var(--text-main); }
+  .bento-large h3 { font-size: 1.5rem; }
+  .bento-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin: 0; flex: 1; }
+
+  /* POLL STYLES */
+  .bento-card.poll .bento-icon { background: rgba(234, 179, 8, 0.1); color: #EAB308; }
+  .bento-card.poll:hover { border-color: rgba(234, 179, 8, 0.5); }
+
+  .bento-card.poll-gradient-1 {
+    background: linear-gradient(135deg, rgba(234, 179, 8, 0.15) 0%, rgba(249, 115, 22, 0.1) 50%, var(--bg-card) 100%);
+    border-color: rgba(234, 179, 8, 0.3);
+  }
+  .bento-card.poll-gradient-1 .bento-icon { background: linear-gradient(135deg, #EAB308, #F97316); color: white; }
+  .bento-card.poll-gradient-1 .bento-tag { background: linear-gradient(135deg, rgba(234, 179, 8, 0.2), rgba(249, 115, 22, 0.2)); color: #EAB308; }
+  .bento-card.poll-gradient-1:hover { border-color: rgba(234, 179, 8, 0.6); box-shadow: 0 0 30px rgba(234, 179, 8, 0.15); }
+
+  .bento-card.poll-gradient-2 {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(59, 130, 246, 0.1) 50%, var(--bg-card) 100%);
+    border-color: rgba(6, 182, 212, 0.3);
+  }
+  .bento-card.poll-gradient-2 .bento-icon { background: linear-gradient(135deg, #06B6D4, #3B82F6); color: white; }
+  .bento-card.poll-gradient-2 .bento-tag { background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(59, 130, 246, 0.2)); color: #06B6D4; }
+  .bento-card.poll-gradient-2:hover { border-color: rgba(6, 182, 212, 0.6); box-shadow: 0 0 30px rgba(6, 182, 212, 0.15); }
+
+  .poll-options { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .poll-option { position: relative; height: 38px; background: rgba(100, 100, 100, 0.1); border-radius: 10px; overflow: hidden; border: 1px solid var(--border-soft); transition: all 0.3s ease; cursor: pointer; }
+  .poll-option.voted { pointer-events: none; }
+  .poll-option.clickable:hover { transform: scale(1.02); }
+  .poll-bar { position: absolute !important; left: 0 !important; top: 0 !important; bottom: 0 !important; height: 100% !important; min-height: 38px !important; border-radius: 10px; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); z-index: 0; opacity: 1 !important; display: block !important; }
+  .poll-bar.color-1 { background: linear-gradient(90deg, #EAB308 0%, #F59E0B 100%); }
+  .poll-bar.color-2 { background: linear-gradient(90deg, #3B82F6 0%, #2563EB 100%); }
+  .poll-bar.color-3 { background: linear-gradient(90deg, #8B5CF6 0%, #7C3AED 100%); }
+  .poll-bar.color-4 { background: linear-gradient(90deg, #10B981 0%, #059669 100%); }
+  .poll-bar.color-5 { background: linear-gradient(90deg, #06B6D4 0%, #0891B2 100%); }
+  .poll-bar.gray { background: rgba(156, 163, 175, 0.4); }
+  .poll-label { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; font-weight: 600; z-index: 1; }
+  .poll-percent { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 0.75rem; font-weight: 700; color: var(--text-muted); z-index: 1; }
+  .poll-votes { margin-top: 10px; font-size: 0.75rem; color: var(--text-muted); text-align: right; }
+  .poll-option.selected { border-color: #22C55E; box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3); }
+  .poll-option.selected .poll-label { color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+
+  /* LATEST SECTION */
+  .latest-section h2 {
+    margin-bottom: 32px;
+    background: linear-gradient(135deg, var(--text-main) 0%, #F97316 50%, #EAB308 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+  }
+
+  .latest-bento {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  @media (max-width: 1024px) { .latest-bento { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 768px) { .latest-bento { grid-template-columns: 1fr; } }
+
+  .lb-card {
+    position: relative;
+    border-radius: 16px;
+    text-decoration: none;
+    color: white;
+    transition: all 0.3s;
+    overflow: hidden;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  .lb-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+  }
+
+  .lb-card.orange:hover { box-shadow: 0 12px 40px rgba(249, 115, 22, 0.3); }
+  .lb-card.cyan:hover { box-shadow: 0 12px 40px rgba(6, 182, 212, 0.3); }
+  .lb-card.purple:hover { box-shadow: 0 12px 40px rgba(168, 85, 247, 0.3); }
+
+  .lb-hero { grid-column: span 2; grid-row: span 2; min-height: 500px; }
+
+  /* Resim arka plan olarak tüm kartı kaplar */
+  .lb-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+  }
+  .lb-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+  .lb-card:hover .lb-image img {
+    transform: scale(1.08);
+  }
+
+  /* İçerik overlay */
+  .lb-content {
+    position: relative;
+    z-index: 2;
+    padding: 20px;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, transparent 100%);
+    margin-top: auto;
+  }
+
+  .lb-cat {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
+
+  .lb-card.orange .lb-cat { background: rgba(249, 115, 22, 0.9); color: white; }
+  .lb-card.cyan .lb-cat { background: rgba(6, 182, 212, 0.9); color: white; }
+  .lb-card.purple .lb-cat { background: rgba(168, 85, 247, 0.9); color: white; }
+
+  .lb-card h3 { font-size: 1.1rem; margin: 0 0 6px; line-height: 1.3; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+  .lb-card p { font-size: 0.85rem; color: rgba(255,255,255,0.85); line-height: 1.5; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+  .lb-hero h3 { font-size: 1.6rem; }
+  .lb-hero p { -webkit-line-clamp: 3; }
+  .lb-hero .lb-content { padding: 30px; }
+</style>
+
+<script is:inline>
+  const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
+
+  // ========================================
+  // HERO SLIDER
+  // ========================================
+  (function initSlider() {
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.slider-dots .dot');
+    const progressBar = document.querySelector('.progress-bar');
+
+    if (slides.length === 0) return;
+
+    let currentIndex = 0;
+    let interval;
+    let progress = 0;
+    const SLIDE_DURATION = 6000; // 6 saniye
+    const PROGRESS_INTERVAL = 50;
+
+    function goToSlide(index) {
+      slides.forEach(s => s.classList.remove('active'));
+      dots.forEach(d => d.classList.remove('active'));
+
+      slides[index].classList.add('active');
+      dots[index].classList.add('active');
+
+      currentIndex = index;
+      progress = 0;
+    }
+
+    function nextSlide() {
+      const next = (currentIndex + 1) % slides.length;
+      goToSlide(next);
+    }
+
+    function updateProgress() {
+      progress += (PROGRESS_INTERVAL / SLIDE_DURATION) * 100;
+      if (progressBar) {
+        progressBar.style.width = progress + '%';
+      }
+      if (progress >= 100) {
+        nextSlide();
+      }
+    }
+
+    function startAutoPlay() {
+      interval = setInterval(updateProgress, PROGRESS_INTERVAL);
+    }
+
+    function stopAutoPlay() {
+      clearInterval(interval);
+    }
+
+    // Dot click events
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        stopAutoPlay();
+        goToSlide(index);
+        startAutoPlay();
+      });
+    });
+
+    // Pause on hover
+    const sliderContainer = document.querySelector('.slider-container');
+    if (sliderContainer) {
+      sliderContainer.addEventListener('mouseenter', stopAutoPlay);
+      sliderContainer.addEventListener('mouseleave', startAutoPlay);
+    }
+
+    // Start
+    startAutoPlay();
+  })();
+
+  // ========================================
+  // API POLL (3D Yazıcı Markası)
+  // ========================================
+  async function loadPoll() {
+    const pollQuestion = document.getElementById('pollQuestion');
+    const pollOptions = document.getElementById('pollOptions');
+    const pollVotes = document.getElementById('pollVotes');
+
+    if (!pollQuestion || !pollOptions || !pollVotes) return;
+
+    try {
+      const res = await fetch(`${API_URL}/api/poll/active`);
+      const data = await res.json();
+
+      if (!data.poll) {
+        pollQuestion.textContent = 'Aktif anket yok';
+        pollOptions.innerHTML = '';
+        pollVotes.textContent = '';
+        return;
+      }
+
+      const poll = data.poll;
+      pollQuestion.textContent = poll.question;
+
+      // Renkler inline style olarak - tüm stiller inline!
+      const barColors = ['#EAB308', '#3B82F6', '#8B5CF6', '#10B981', '#06B6D4'];
+      pollOptions.innerHTML = poll.options.map((opt, index) => {
+        const isVoted = poll.votedOptionId === opt.id;
+        const barColor = barColors[index % 5];
+        const barWidth = Math.max(opt.percent, 8);
+
+        return `
+          <div class="poll-option ${poll.hasVoted ? 'voted' : 'clickable'} ${isVoted ? 'selected' : ''}"
+               data-option-id="${opt.id}" data-poll-id="${poll.id}"
+               style="position: relative; height: 38px; background: rgba(100,100,100,0.1); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;">
+            <div class="poll-bar" style="position: absolute; left: 0; top: 0; bottom: 0; height: 100%; width: ${barWidth}%; background: linear-gradient(90deg, ${barColor} 0%, ${barColor}cc 100%); border-radius: 10px; z-index: 0;"></div>
+            <span class="poll-label" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; font-weight: 600; z-index: 1;">${opt.text}</span>
+            <span class="poll-percent" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 0.75rem; font-weight: 700; color: var(--text-muted); z-index: 1;">%${opt.percent}</span>
+          </div>
+        `;
+      }).join('');
+
+      const totalFormatted = poll.totalVotes >= 1000
+        ? `${(poll.totalVotes / 1000).toFixed(1)}k`
+        : poll.totalVotes;
+      pollVotes.textContent = `${totalFormatted} Oy`;
+
+      if (!poll.hasVoted) {
+        document.querySelectorAll('#pollOptions .poll-option.clickable').forEach(opt => {
+          opt.addEventListener('click', handleVote);
+        });
+      }
+    } catch (err) {
+      console.error('Poll load error:', err);
+      pollQuestion.textContent = 'Anket yüklenemedi';
+    }
+  }
+
+  async function handleVote(e) {
+    const target = e.currentTarget;
+    const optionId = target.dataset.optionId;
+    const pollId = target.dataset.pollId;
+
+    if (!optionId || !pollId) return;
+
+    document.querySelectorAll('#pollOptions .poll-option').forEach(opt => {
+      opt.classList.remove('clickable');
+      opt.classList.add('voted');
+    });
+
+    try {
+      const res = await fetch(`${API_URL}/api/poll/vote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pollId: parseInt(pollId), optionId: parseInt(optionId) })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        loadPoll();
+      } else {
+        alert(data.error || 'Oy verilemedi');
+        loadPoll();
+      }
+    } catch (err) {
+      console.error('Vote error:', err);
+      alert('Bağlantı hatası');
+      loadPoll();
+    }
+  }
+
+  loadPoll();
+  document.addEventListener('astro:after-swap', loadPoll);
+
+  // ========================================
+  // SLICER POLL (localStorage)
+  // ========================================
+  const SLICER_STORAGE_KEY = 'slicerPollData';
+  const SLICER_VOTED_KEY = 'slicerPollVoted';
+
+  const slicerOptions = [
+    { id: 1, text: 'Cura', color: '#22C55E' },
+    { id: 2, text: 'PrusaSlicer', color: '#F97316' },
+    { id: 3, text: 'OrcaSlicer', color: '#8B5CF6' },
+    { id: 4, text: 'Bambu Studio', color: '#06B6D4' },
+    { id: 5, text: 'Diğer', color: '#6B7280' }
+  ];
+
+  function getSlicerData() {
+    try {
+      const data = localStorage.getItem(SLICER_STORAGE_KEY);
+      if (data) return JSON.parse(data);
+    } catch (e) {}
+    return { 1: 234, 2: 187, 3: 156, 4: 89, 5: 34 };
+  }
+
+  function saveSlicerData(data) {
+    localStorage.setItem(SLICER_STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function hasVotedSlicer() {
+    return localStorage.getItem(SLICER_VOTED_KEY) !== null;
+  }
+
+  function setVotedSlicer(optionId) {
+    localStorage.setItem(SLICER_VOTED_KEY, optionId.toString());
+  }
+
+  function getVotedSlicerOption() {
+    return parseInt(localStorage.getItem(SLICER_VOTED_KEY) || '0');
+  }
+
+  function loadSlicerPoll() {
+    const slicerOptionsEl = document.getElementById('slicerOptions');
+    const slicerVotesEl = document.getElementById('slicerVotes');
+
+    if (!slicerOptionsEl || !slicerVotesEl) return;
+
+    const data = getSlicerData();
+    const totalVotes = Object.values(data).reduce((a, b) => a + b, 0);
+    const voted = hasVotedSlicer();
+    const votedOptionId = getVotedSlicerOption();
+
+    slicerOptionsEl.innerHTML = slicerOptions.map((opt) => {
+      const votes = data[opt.id] || 0;
+      const percent = totalVotes > 0 ? Math.round((votes / totalVotes) * 100) : 0;
+      const isVoted = votedOptionId === opt.id;
+
+      return `
+        <div class="poll-option ${voted ? 'voted' : 'clickable'} ${isVoted ? 'selected' : ''}"
+             data-slicer-id="${opt.id}"
+             style="position: relative; height: 38px; background: rgba(100,100,100,0.1); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;">
+          <div class="poll-bar" style="position: absolute; left: 0; top: 0; bottom: 0; height: 100%; width: ${Math.max(percent, 8)}%; background: linear-gradient(90deg, ${opt.color} 0%, ${opt.color}dd 100%); border-radius: 10px; z-index: 0;"></div>
+          <span class="poll-label" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; font-weight: 600; z-index: 1;">${opt.text}</span>
+          <span class="poll-percent" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 0.75rem; font-weight: 700; color: var(--text-muted); z-index: 1;">%${percent}</span>
+        </div>
+      `;
+    }).join('');
+
+    const totalFormatted = totalVotes >= 1000 ? `${(totalVotes / 1000).toFixed(1)}k` : totalVotes;
+    slicerVotesEl.textContent = `${totalFormatted} Oy`;
+
+    if (!voted) {
+      document.querySelectorAll('#slicerOptions [data-slicer-id]').forEach(opt => {
+        opt.addEventListener('click', handleSlicerVote);
+      });
+    }
+  }
+
+  function handleSlicerVote(e) {
+    const target = e.currentTarget;
+    const optionId = parseInt(target.dataset.slicerId || '0');
+
+    if (!optionId || hasVotedSlicer()) return;
+
+    const data = getSlicerData();
+    data[optionId] = (data[optionId] || 0) + 1;
+    saveSlicerData(data);
+    setVotedSlicer(optionId);
+
+    loadSlicerPoll();
+  }
+
+  loadSlicerPoll();
+  document.addEventListener('astro:after-swap', loadSlicerPoll);
+</script>

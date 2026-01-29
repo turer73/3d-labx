@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nozzle Tıkanıklığı Test</title>
+  <style>
+    :root {
+      --text-main: #e5e5e5;
+      --text-muted: #a3a3a3;
+      --bg-card: #1a1a1a;
+      --border-soft: #333;
+      --accent: #3b82f6;
+    }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0a0a0a;
+      color: var(--text-main);
+      padding: 40px 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+    h1 { color: var(--text-main); margin-bottom: 16px; }
+    h2 { font-size: 1.4rem; margin-top: 24px; margin-bottom: 12px; }
+    h3 { font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; }
+    p { margin-bottom: 16px; }
+    ul, ol { margin-bottom: 16px; padding-left: 24px; }
+    li { margin-bottom: 8px; }
+    strong { font-weight: 600; }
+    .message-warning {
+      background: rgba(234, 179, 8, 0.1);
+      border: 1px solid rgba(234, 179, 8, 0.3);
+      padding: 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+    }
+    .bento-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      padding: 20px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background: var(--accent);
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Nozzle Tıkanıklığı Nasıl Açılır? (Resimli Anlatım & 3 Etkili Yöntem)</h1>
+  <p style="color: var(--text-muted);">3D yazıcınızın nozzle'ı tıkandığında panik yapmayın. Bu rehberde en etkili 3 yöntemi adım adım öğrenin.</p>
+  <hr style="border-color: var(--border-soft); margin: 24px 0;">
+
+  <div class="article-content">
+    <p>Baskının ortasında filament akışı durdu mu? Veya yazıcınızın extruder motorundan o korkutucu "tık-tık" sesini mi duyuyorsunuz? Panik yapmayın; nozzle (meme) tıkanıklığı her "maker"ın başına gelen klasik bir sorundur. Bu rehberde, <strong>nozzle'ı sökmeden</strong> tıkanıklığı açmanın en etkili yollarını adım adım inceleyeceğiz.</p>
+
+    <div class="message message-warning mt-4 mb-4"><strong>Dikkat:</strong> Nozzle ile çalışırken sıcaklığın 200C üzerine çıkabileceğini unutmayın. Yanıklara karşı dikkatli olun ve metal aksamlara çıplak elle dokunmayın.</div>
+
+    <h2>1. Tıkanıklığı Nasıl Anlarsınız?</h2>
+    <p>Tam tıkanıklık oluşmadan önce yazıcınız size genellikle şu sinyalleri verir:</p>
+    <ul>
+      <li>Baskıda <strong>"Under-extrusion"</strong> (eksik malzeme) ve süngerimsi görünüm.</li>
+      <li>Filamentin nozzle ucundan dümdüz değil, <strong>kıvrılarak</strong> (domuz kuyruğu gibi) akması.</li>
+      <li>Extruder dişlisinin filamenti itemeyip "tak-tak" sesi çıkararak atlama yapması.</li>
+    </ul>
+
+    <h2>2. Yöntem: İğneleme Tekniği (Hızlı Çözüm)</h2>
+    <p>Hafif tıkanıklıklar için en hızlı yöntemdir. Genellikle yazıcınızla birlikte gelen ince akupunktur iğnesini kullanacağız.</p>
+
+    <ol>
+      <li>Nozzle'ı kullandığınız filamentin baskı sıcaklığına (örn. PLA için <strong>200C</strong>) ısıtın.</li>
+      <li>Extruder mandalına basarak filamenti elinizle hafifçe aşağı doğru itin.</li>
+      <li>İğneyi nozzle ucundan içeri doğru nazikçe sokun ve yukarı aşağı hareket ettirin.</li>
+    </ol>
+
+    <h2>3. Yöntem: Cold Pull (Atomic) Tekniği - Kesin Çözüm</h2>
+    <p>Eğer iğneleme işe yaramadıysa, internetteki en etkili yöntem olan <strong>Cold Pull (Soğuk Çekme)</strong> tekniğini uygulayacağız. Bu yöntem, nozzle içindeki yanmış partikülleri filamente yapıştırıp söküp almanızı sağlar. <em>İpucu: Bu işlem için beyaz renkli PLA veya Naylon filament en iyi sonucu verir.</em></p>
+
+    <h3>Adım 1: Isıtın ve Soğutun</h3>
+    <p>Nozzle'ı 210C'ye ısıtıp filamenti biraz akıtın. Ardından ısıtıcıyı kapatın ve sıcaklığın <strong>90C'ye (PLA için)</strong> düşmesini bekleyin.</p>
+
+    <h3>Adım 2: Hızlıca Çekin!</h3>
+    <p>Sıcaklık 90C'ye geldiğinde, extruder mandalına basın ve filamenti <strong>hızlı ve tek bir hamlede</strong> yukarı doğru çekin.</p>
+
+    <p>Filamentin ucunda nozzle'ın iç şeklini almış siyah tortular görüyorsanız işlem başarılıdır. Uç temiz çıkana kadar bu işlemi tekrarlayın.</p>
+
+    <h2>Gelecekte Tıkanmayı Nasıl Önlersiniz?</h2>
+    <p>Tıkanıklığın en büyük sebebi kalitesiz veya çap toleransı bozuk filamentlerdir. Ayrıca nozzle'ı sıcakken aniden kapatmak "Heat Creep" (Isı sürünmesi) sorununa yol açar.</p>
+
+    <div class="bento-card mt-4">
+      <h3>Kalitesiz Filament Yazıcınızı Bozmasın!</h3>
+      <p>Tıkanma yapmayan, çap toleransı yüksek ve en uygun fiyatlı filamentleri sizin için listeledik.</p>
+      <a href="/rehberler" class="btn btn-primary mt-2">En İyi Filament Fiyatlarını Gör</a>
+    </div>
+  </div>
+</body>
+</html>

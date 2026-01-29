@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Admin sayfalarını gizle
+Disallow: /admin/
+Disallow: /admin
+
+# Sitemap
+Sitemap: https://3d-labx.com/sitemap.xml

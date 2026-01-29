@@ -1,0 +1,769 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+
+export const prerender = true;
+
+const TRENDING_TAGS = ["#Ender3V3", "#Klipper", "#Cosplay", "#BambuLab", "#Voron", "#PETG"];
+
+const SAMPLE_POSTS = [
+  {
+    id: 1,
+    type: "SORUN",
+    author: "MakerTurk",
+    rank: "Pro",
+    title: "ABS Çatlama Sorunu - Kapalı Kasa Olmadan Çözüm",
+    content: "Kapalı kasa olmadan ABS basmanın püf noktaları var mı? İlk katman yapışmasında sorun yaşıyorum.",
+    upvotes: 156,
+    comments: 24,
+    time: "2s",
+    tags: ["#ABS", "#Help"]
+  },
+  {
+    id: 2,
+    type: "SHOWCASE",
+    author: "3DPrintci",
+    rank: "Expert",
+    title: "Voron 2.4 Build - Sıfırdan İnşa",
+    content: "6 aylık süren Voron 2.4 buildimin final halini paylaşıyorum. 500mm/s hıza ulaştık!",
+    image: "https://images.unsplash.com/photo-1626285861696-9f0bf5a49c6d?q=80&w=800&auto=format&fit=crop",
+    upvotes: 342,
+    comments: 58,
+    time: "4s",
+    tags: ["#Voron", "#CoreXY"]
+  },
+  {
+    id: 3,
+    type: "TARTISMA",
+    author: "FilamentUsta",
+    rank: "Member",
+    title: "En İyi Bütçe Dostu PLA Filament Hangisi?",
+    content: "Türkiye'de bulunabilen en kaliteli ve uygun fiyatlı PLA filamenti tartışalım.",
+    upvotes: 89,
+    comments: 67,
+    time: "6s",
+    tags: ["#PLA", "#Filament"]
+  },
+  {
+    id: 4,
+    type: "REHBER",
+    author: "KlipperGuru",
+    rank: "Expert",
+    title: "Klipper Input Shaper Ayarı - Adım Adım",
+    content: "Yazıcınızdaki titreşim sorunlarını çözün. ADXL345 sensörü ile resonance testi rehberi.",
+    upvotes: 234,
+    comments: 45,
+    time: "1g",
+    tags: ["#Klipper", "#InputShaper"]
+  }
+];
+
+const HIVE_RULES = [
+  "Saygı çerçevesinde tartışma",
+  "Spam ve reklam yasak",
+  "Kaynak belirtmeyi unutma",
+  "Yapıcı eleştiri yap"
+];
+---
+
+<BaseLayout 
+  title="Topluluk - Maker Kültür Platformu - 3D-labX"
+  description="3D baskı ve maker topluluğunun buluşma noktası. Projelerinizi paylaşın, sorular sorun, tecrübelerinizi aktarın."
+>
+  <Header />
+
+  <main class="community-page">
+    <div class="container">
+      <div class="page-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <div>
+            <div class="title-row">
+              <h1>Topluluk</h1>
+              <span class="beta-badge">ÇOK YAKINDA</span>
+            </div>
+            <p class="subtitle">Maker kültürünün kalbi. Projelerini sergile, sorular sor.</p>
+          </div>
+        </div>
+        <div class="header-stats">
+          <div class="stat">
+            <span class="stat-value">2.4k</span>
+            <span class="stat-label">Üye</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">156</span>
+            <span class="stat-label">Aktif</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="beta-notice">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        <p>Topluluk özelliği yakın zamanda aktif olacaktır. Aşağıdaki içerikler örnek gösterim amaçlıdır.</p>
+      </div>
+
+      <div class="community-layout">
+        <div class="main-content">
+          <!-- Post Input -->
+          <div class="post-input-card">
+            <div class="input-avatar">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <input type="text" placeholder="Toplulukla bir şeyler paylaş..." disabled />
+            <button class="post-btn" disabled>Paylaş</button>
+          </div>
+
+          <!-- Filters -->
+          <div class="filters">
+            <button class="filter-btn active">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+              Sicak
+            </button>
+            <button class="filter-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Yeni
+            </button>
+            <button class="filter-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Tartisilan
+            </button>
+          </div>
+
+          <!-- Posts -->
+          <div class="posts-feed">
+            {SAMPLE_POSTS.map((post) => (
+              <article class="post-card">
+                <div class="post-header">
+                  <div class="post-author">
+                    <div class="author-avatar">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <div class="author-info">
+                      <span class="author-name">{post.author}</span>
+                      <span class={`author-rank rank-${post.rank.toLowerCase()}`}>{post.rank}</span>
+                    </div>
+                  </div>
+                  <div class="post-meta">
+                    <span class={`post-type type-${post.type.toLowerCase()}`}>{post.type}</span>
+                    <span class="post-time">{post.time}</span>
+                  </div>
+                </div>
+
+                <h3 class="post-title">{post.title}</h3>
+                <p class="post-content">{post.content}</p>
+
+                {post.image && (
+                  <div class="post-image">
+                    <img src={post.image} alt={post.title} loading="lazy" />
+                  </div>
+                )}
+
+                <div class="post-tags">
+                  {post.tags.map((tag) => (
+                    <span class="tag">{tag}</span>
+                  ))}
+                </div>
+
+                <div class="post-actions">
+                  <button class="action-btn upvote">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/></svg>
+                    {post.upvotes}
+                  </button>
+                  <button class="action-btn comment">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    {post.comments}
+                  </button>
+                  <button class="action-btn share">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+                    Paylas
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div class="load-more">
+            <button class="load-more-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+              Daha Fazla Yukle
+            </button>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <!-- Trending Tags -->
+          <div class="sidebar-card">
+            <h3>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>
+              Trend Etiketler
+            </h3>
+            <div class="trending-tags">
+              {TRENDING_TAGS.map((tag) => (
+                <a href={`/search?q=${tag.replace('#', '')}`} class="trending-tag">{tag}</a>
+              ))}
+            </div>
+          </div>
+
+          <!-- Rules -->
+          <div class="sidebar-card rules-card">
+            <h3>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
+              Topluluk Kurallari
+            </h3>
+            <ul class="rules-list">
+              {HIVE_RULES.map((rule, i) => (
+                <li>
+                  <span class="rule-num">{i + 1}</span>
+                  {rule}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <!-- Top Contributors -->
+          <div class="sidebar-card">
+            <h3>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+              Haftanin Makerlari
+            </h3>
+            <div class="contributors">
+              <div class="contributor">
+                <div class="contributor-avatar gold">1</div>
+                <div class="contributor-info">
+                  <span class="contributor-name">KlipperGuru</span>
+                  <span class="contributor-points">2.4k puan</span>
+                </div>
+              </div>
+              <div class="contributor">
+                <div class="contributor-avatar silver">2</div>
+                <div class="contributor-info">
+                  <span class="contributor-name">3DPrintci</span>
+                  <span class="contributor-points">1.8k puan</span>
+                </div>
+              </div>
+              <div class="contributor">
+                <div class="contributor-avatar bronze">3</div>
+                <div class="contributor-info">
+                  <span class="contributor-name">MakerTurk</span>
+                  <span class="contributor-points">1.2k puan</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .community-page {
+    padding-top: 156px;
+    padding-bottom: 64px;
+    min-height: 100vh;
+    background: var(--bg-main);
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 2px solid rgba(249, 115, 22, 0.2);
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .beta-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    background: linear-gradient(135deg, #F97316, #EA580C);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 800;
+    border-radius: 6px;
+    letter-spacing: 0.1em;
+    animation: pulse-badge 2s infinite;
+  }
+
+  @keyframes pulse-badge {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  .beta-notice {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(249, 115, 22, 0.1);
+    border: 1px solid rgba(249, 115, 22, 0.2);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    color: #F97316;
+  }
+
+  .beta-notice p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .beta-notice svg {
+    flex-shrink: 0;
+  }
+
+  .header-icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 8px 32px rgba(249, 115, 22, 0.3);
+  }
+
+  .page-header h1 {
+    margin: 0 0 8px;
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, #F97316, #EA580C);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 1rem;
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 24px;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #F97316;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .community-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  @media (min-width: 1024px) {
+    .community-layout {
+      grid-template-columns: 1fr 320px;
+    }
+  }
+
+  /* Post Input */
+  .post-input-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+  }
+
+  .input-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--border-soft);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  .post-input-card input {
+    flex: 1;
+    border: none;
+    background: none;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    outline: none;
+  }
+
+  .post-btn {
+    background: #F97316;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0.5;
+  }
+
+  /* Filters */
+  .filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .filter-btn:hover {
+    border-color: #F97316;
+    color: #F97316;
+  }
+
+  .filter-btn.active {
+    background: rgba(249, 115, 22, 0.1);
+    border-color: #F97316;
+    color: #F97316;
+  }
+
+  /* Posts */
+  .posts-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .post-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.2s ease;
+  }
+
+  .post-card:hover {
+    border-color: rgba(249, 115, 22, 0.3);
+  }
+
+  .post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .post-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .author-avatar {
+    width: 36px;
+    height: 36px;
+    background: var(--border-soft);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+  }
+
+  .author-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .author-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .author-rank {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .rank-pro { color: #A855F7; }
+  .rank-expert { color: #F97316; }
+  .rank-member { color: var(--text-muted); }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .post-type {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+  }
+
+  .type-sorun { background: rgba(239, 68, 68, 0.1); color: #EF4444; }
+  .type-showcase { background: rgba(34, 197, 94, 0.1); color: #22C55E; }
+  .type-tartisma { background: rgba(59, 130, 246, 0.1); color: #3B82F6; }
+  .type-rehber { background: rgba(168, 85, 247, 0.1); color: #A855F7; }
+
+  .post-time {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .post-title {
+    font-size: 1.15rem;
+    margin: 0 0 8px;
+    line-height: 1.4;
+  }
+
+  .post-content {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0 0 16px;
+  }
+
+  .post-image {
+    margin-bottom: 16px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .post-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .tag {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #F97316;
+    background: rgba(249, 115, 22, 0.1);
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+
+  .post-actions {
+    display: flex;
+    gap: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .action-btn:hover { color: var(--text-main); }
+  .action-btn.upvote:hover { color: #22C55E; }
+  .action-btn.comment:hover { color: #3B82F6; }
+  .action-btn.share:hover { color: #F97316; }
+
+  .load-more {
+    text-align: center;
+    margin-top: 32px;
+  }
+
+  .load-more-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .load-more-btn:hover {
+    border-color: #F97316;
+    color: #F97316;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .sidebar-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 20px;
+  }
+
+  .sidebar-card h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    margin: 0 0 16px;
+    color: var(--text-main);
+  }
+
+  .trending-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .trending-tag {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #F97316;
+    background: rgba(249, 115, 22, 0.1);
+    padding: 6px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .trending-tag:hover {
+    background: rgba(249, 115, 22, 0.2);
+  }
+
+  .rules-card {
+    border-color: rgba(249, 115, 22, 0.2);
+  }
+
+  .rules-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .rules-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .rule-num {
+    width: 24px;
+    height: 24px;
+    background: rgba(249, 115, 22, 0.1);
+    color: #F97316;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .contributors {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .contributor {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .contributor-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: white;
+  }
+
+  .contributor-avatar.gold { background: linear-gradient(135deg, #F59E0B, #D97706); }
+  .contributor-avatar.silver { background: linear-gradient(135deg, #9CA3AF, #6B7280); }
+  .contributor-avatar.bronze { background: linear-gradient(135deg, #CD7C32, #A0522D); }
+
+  .contributor-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .contributor-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .contributor-points {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+</style>

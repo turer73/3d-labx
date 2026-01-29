@@ -1,0 +1,307 @@
+---
+import "../styles/global.css";
+
+interface BreadcrumbItem {
+  name: string;
+  url: string;
+}
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  article?: boolean;
+  publishedTime?: string;
+  noIndex?: boolean;
+  breadcrumbs?: BreadcrumbItem[];
+}
+
+const {
+  title = "3D-labX – 3D Baskı, Teknoloji ve Yapay Zeka",
+  description = "3D baskı, teknoloji ve yapay zeka dünyasından güncel haberler ve analizler.",
+  image = "/og.png",
+  article = false,
+  publishedTime,
+  noIndex = false,
+  breadcrumbs,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || "https://3d-labx.com");
+const ogImage = image.startsWith("http") ? image : new URL(image, canonicalURL).href;
+
+// Auto-generate breadcrumbs from URL path if not provided
+const categoryNames: Record<string, string> = {
+  "3d-baski": "3D Baskı",
+  "teknoloji": "Teknoloji",
+  "yapay-zeka": "Yapay Zeka",
+  "incelemeler": "İncelemeler",
+  "rehberler": "Rehberler",
+  "sorun-cozumleri": "Sorun Çözümleri",
+  "ai-araclar": "AI Araçlar",
+  "topluluk": "Topluluk",
+};
+
+const pathParts = Astro.url.pathname.split("/").filter(Boolean);
+const autoBreadcrumbs: BreadcrumbItem[] = [{ name: "Ana Sayfa", url: "https://3d-labx.com/" }];
+if (pathParts.length > 0 && categoryNames[pathParts[0]]) {
+  autoBreadcrumbs.push({ name: categoryNames[pathParts[0]], url: `https://3d-labx.com/${pathParts[0]}` });
+}
+if (pathParts.length > 1 && article) {
+  autoBreadcrumbs.push({ name: title.replace(" – 3D-labX", "").replace(" - 3D-labX", ""), url: canonicalURL.href });
+}
+
+const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs : null);
+---
+
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Theme Script (Prevents Flash) -->
+    <script is:inline>
+      (function() {
+        const theme = localStorage.getItem('theme') ||
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      })();
+    </script>
+
+    <!-- SEO -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    {noIndex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={article ? "article" : "website"} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:site_name" content="3D-labX" />
+    <meta property="og:locale" content="tr_TR" />
+
+    {article && publishedTime && (
+      <meta property="article:published_time" content={publishedTime} />
+    )}
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#2563EB" />
+    <meta name="msapplication-TileColor" content="#2563EB" />
+
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://tech-portal-api.turgut-d01.workers.dev" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": article ? "Article" : "WebSite",
+      "name": title,
+      "description": description,
+      "url": canonicalURL.href,
+      ...(article ? {
+        "headline": title,
+        "image": ogImage,
+        "datePublished": publishedTime,
+        "publisher": {
+          "@type": "Organization",
+          "name": "3D-labX",
+          "url": "https://3d-labx.com"
+        }
+      } : {
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://3d-labx.com/search?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      })
+    })} />
+
+    {/* BreadcrumbList Structured Data */}
+    {finalBreadcrumbs && finalBreadcrumbs.length > 1 && (
+      <script type="application/ld+json" set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": finalBreadcrumbs.map((item, index) => ({
+          "@type": "ListItem",
+          "position": index + 1,
+          "name": item.name,
+          "item": item.url
+        }))
+      })} />
+    )}
+  </head>
+
+  <body>
+    <slot />
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-brand">
+            <a href="/" class="footer-logo">3D-labX</a>
+            <p>3D baskı, teknoloji ve yapay zeka dünyasından güncel haberler ve analizler.</p>
+          </div>
+
+          <div class="footer-links">
+            <div class="footer-column">
+              <h4>Kategoriler</h4>
+              <ul>
+                <li><a href="/3d-baski">3D Baskı</a></li>
+                <li><a href="/teknoloji">Teknoloji</a></li>
+                <li><a href="/yapay-zeka">Yapay Zeka</a></li>
+              </ul>
+            </div>
+
+            <div class="footer-column">
+              <h4>Kurumsal</h4>
+              <ul>
+                <li><a href="/hakkimizda">Hakkımızda</a></li>
+                <li><a href="/iletisim">İletişim</a></li>
+                <li><a href="/gizlilik">Gizlilik Politikası</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>&copy; {new Date().getFullYear()} 3D-labX. Tüm hakları saklıdır.</p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  .site-footer {
+    margin-top: 64px;
+    padding: 48px 0 24px;
+    border-top: none;
+    background: var(--bg-card);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    position: relative;
+  }
+
+  .site-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #F97316, #EAB308, #22C55E, #06B6D4, #A855F7, #EC4899);
+  }
+
+  .footer-content {
+    display: grid;
+    grid-template-columns: 1.5fr 2fr;
+    gap: 48px;
+    margin-bottom: 32px;
+  }
+
+  .footer-brand {
+    max-width: 300px;
+  }
+
+  .footer-logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #F97316, #EAB308);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
+  .footer-brand p {
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .footer-links {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+
+  .footer-column h4 {
+    color: var(--text-main);
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 16px;
+  }
+
+  .footer-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .footer-column li {
+    margin-bottom: 10px;
+  }
+
+  .footer-column a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .footer-column a:hover {
+    color: var(--accent);
+  }
+
+  .footer-bottom {
+    padding-top: 24px;
+    border-top: 1px solid var(--border-soft);
+    text-align: center;
+  }
+
+  .footer-bottom p {
+    margin: 0;
+    color: var(--text-light);
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 768px) {
+    .footer-content {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    .footer-brand {
+      max-width: 100%;
+      text-align: center;
+    }
+
+    .footer-links {
+      grid-template-columns: repeat(2, 1fr);
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .footer-links {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+</style>

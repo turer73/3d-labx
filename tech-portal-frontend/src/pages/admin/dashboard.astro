@@ -1,0 +1,244 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import "../../styles/admin.css";
+---
+
+<BaseLayout title="Dashboard – Admin Panel" noIndex={true}>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="/" class="logo">3D-labX</a>
+        <span class="badge badge-primary">Admin</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-item active">
+          <span class="icon">📊</span>
+          Dashboard
+        </a>
+        <a href="/admin/posts" class="nav-item">
+          <span class="icon">📝</span>
+          Yazılar
+        </a>
+        <a href="/admin/users" class="nav-item">
+          <span class="icon">👥</span>
+          Üyeler
+        </a>
+        <a href="/admin/rss" class="nav-item">
+          <span class="icon">📡</span>
+          RSS Kaynakları
+        </a>
+        <a href="/admin/content-boxes" class="nav-item">
+          <span class="icon">📦</span>
+          İçerik Kutuları
+        </a>
+        <a href="/admin/new" class="nav-item">
+          <span class="icon">➕</span>
+          Yeni Yazı
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="logoutBtn" class="btn btn-ghost btn-full">
+          🚪 Çıkış Yap
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="content-header">
+        <h1>Dashboard</h1>
+        <p class="text-muted">Genel bakış ve istatistikler</p>
+      </header>
+
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+          <div class="stat-icon">📄</div>
+          <div class="stat-info">
+            <span class="stat-value" id="totalPosts">-</span>
+            <span class="stat-label">Toplam Yazı</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-info">
+            <span class="stat-value" id="totalUsers">-</span>
+            <span class="stat-label">Toplam Üye</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">💬</div>
+          <div class="stat-info">
+            <span class="stat-value" id="totalComments">-</span>
+            <span class="stat-label">Yorumlar</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📅</div>
+          <div class="stat-info">
+            <span class="stat-value" id="todayUsers">-</span>
+            <span class="stat-label">Bugün Kayıt</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kategori İstatistikleri -->
+      <div class="stats-grid secondary">
+        <div class="stat-card small">
+          <div class="stat-icon small">🖨️</div>
+          <div class="stat-info">
+            <span class="stat-value" id="posts3d">-</span>
+            <span class="stat-label">3D Baskı</span>
+          </div>
+        </div>
+        <div class="stat-card small">
+          <div class="stat-icon small">💻</div>
+          <div class="stat-info">
+            <span class="stat-value" id="postsTech">-</span>
+            <span class="stat-label">Teknoloji</span>
+          </div>
+        </div>
+        <div class="stat-card small">
+          <div class="stat-icon small">🤖</div>
+          <div class="stat-info">
+            <span class="stat-value" id="postsAI">-</span>
+            <span class="stat-label">Yapay Zeka</span>
+          </div>
+        </div>
+        <div class="stat-card small">
+          <div class="stat-icon small">✅</div>
+          <div class="stat-info">
+            <span class="stat-value" id="publishedPosts">-</span>
+            <span class="stat-label">Yayında</span>
+          </div>
+        </div>
+      </div>
+
+      <section class="recent-section">
+        <div class="section-header">
+          <h2>Son Eklenen Yazılar</h2>
+          <a href="/admin/posts" class="btn btn-secondary">Tümünü Gör</a>
+        </div>
+
+        <div class="posts-table-container">
+          <table class="posts-table" id="recentPosts">
+            <thead>
+              <tr>
+                <th>Başlık</th>
+                <th>Kategori</th>
+                <th>Durum</th>
+                <th>Tarih</th>
+                <th>İşlem</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="5" class="loading-row">
+                  <span class="spinner"></span> Yükleniyor...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</BaseLayout>
+
+<script>
+  const API_BASE = 'https://tech-portal-api.turgut-d01.workers.dev';
+
+  // Auth kontrolü
+  const secret = localStorage.getItem('adminSecret');
+  if (!secret) {
+    window.location.href = '/admin';
+  }
+
+  // Logout
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    localStorage.removeItem('adminSecret');
+    window.location.href = '/admin';
+  });
+
+  // İstatistikleri yükle
+  async function loadStats() {
+    try {
+      // Post istatistikleri
+      const res = await fetch(`${API_BASE}/api/stats`);
+      const data = await res.json();
+
+      document.getElementById('totalPosts')!.textContent = data.total || '0';
+      document.getElementById('posts3d')!.textContent = data.baski_3d || '0';
+      document.getElementById('postsTech')!.textContent = data.teknoloji || '0';
+      document.getElementById('postsAI')!.textContent = data.yapay_zeka || '0';
+      document.getElementById('publishedPosts')!.textContent = data.published || '0';
+
+      // Dashboard istatistikleri
+      const dashRes = await fetch(`${API_BASE}/admin/dashboard-stats`, {
+        headers: { 'X-ADMIN-SECRET': secret! }
+      });
+
+      if (dashRes.ok) {
+        const dashData = await dashRes.json();
+        document.getElementById('totalUsers')!.textContent = dashData.stats?.totalUsers || '0';
+        document.getElementById('totalComments')!.textContent = dashData.stats?.totalComments || '0';
+        document.getElementById('todayUsers')!.textContent = dashData.stats?.todayUsers || '0';
+      }
+    } catch (err) {
+      console.error('Stats yüklenemedi:', err);
+    }
+  }
+
+  // Son yazıları yükle
+  async function loadRecentPosts() {
+    try {
+      const res = await fetch(`${API_BASE}/admin/posts?limit=5`, {
+        headers: { 'X-ADMIN-SECRET': secret! }
+      });
+
+      if (!res.ok) throw new Error('Unauthorized');
+
+      const posts = await res.json();
+      const tbody = document.querySelector('#recentPosts tbody')!;
+
+      if (posts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-row">Henüz yazı yok</td></tr>';
+        return;
+      }
+
+      const categoryNames: Record<string, string> = {
+        '3d-baski': '3D Baskı',
+        'teknoloji': 'Teknoloji',
+        'yapay-zeka': 'Yapay Zeka'
+      };
+
+      tbody.innerHTML = posts.map((post: any) => `
+        <tr>
+          <td class="title-cell">
+            <a href="/admin/edit/${post.id}">${post.title_tr?.substring(0, 50)}${post.title_tr?.length > 50 ? '...' : ''}</a>
+          </td>
+          <td>
+            <span class="category-badge ${post.category}">${categoryNames[post.category] || post.category}</span>
+          </td>
+          <td>
+            <span class="status-badge ${post.published ? 'published' : 'draft'}">
+              ${post.published ? 'Yayında' : 'Taslak'}
+            </span>
+          </td>
+          <td class="date-cell">${new Date(post.created_at).toLocaleDateString('tr-TR')}</td>
+          <td>
+            <a href="/admin/edit/${post.id}" class="btn btn-ghost btn-sm">Düzenle</a>
+          </td>
+        </tr>
+      `).join('');
+    } catch (err) {
+      console.error('Posts yüklenemedi:', err);
+      const tbody = document.querySelector('#recentPosts tbody')!;
+      tbody.innerHTML = '<tr><td colspan="5" class="error-row">Yüklenirken hata oluştu</td></tr>';
+    }
+  }
+
+  // Yükle
+  loadStats();
+  loadRecentPosts();
+</script>

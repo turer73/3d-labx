@@ -1,0 +1,8 @@
+# Cloudflare Pages Development Environment Variables
+# Bu dosyayı .dev.vars olarak kopyalayın ve değerleri doldurun
+
+# Admin Secret - API ile iletişim için (API'deki ADMIN_SECRET ile aynı olmalı)
+ADMIN_SECRET=your_strong_admin_secret_here
+
+# Admin Password - /admin/posts paneline erişim için Basic Auth şifresi
+ADMIN_PASSWORD=your_admin_password_here

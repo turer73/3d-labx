@@ -1,0 +1,1015 @@
+import React, { useState, useEffect, useMemo, memo, useRef } from 'react';
+import { 
+  Printer, Cpu, Brain, MessageSquare, ThumbsUp, ThumbsDown, Share2, Search, Menu, User, Flame, Clock, TrendingUp, ArrowRight, AlertTriangle, CheckCircle2, ShoppingBag, CreditCard, ShieldCheck, Star, Filter, ChevronRight, XCircle, Bookmark, BarChart2, Eye, X, Zap, Code, CircuitBoard, Activity, Terminal, FastForward, BookOpen, Copy, Check, ArrowLeft, Package, Download, Tag, Sparkles, Bot, Image as ImageIcon, Layers, FlaskConical, Wrench, Hash, MessageSquarePlus, MoreHorizontal, Loader2, ArrowDownCircle, Trophy, PieChart, MonitorPlay, Calculator, FileCode, Github, Ruler, Globe, History, TrendingUp as TrendingIcon, Mail, Lock, LogIn, UserPlus
+} from 'lucide-react';
+
+// --- OPTIMIZATION NOTE: ICONS ---
+const Box3DIcon = memo(({className}) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22v-9"/>
+  </svg>
+));
+
+// --- LOCALIZATION DICTIONARY ---
+const LOCALE = {
+  TR: {
+    nav: { news: "TEST LAB", tech: "ATÖLYE", ai: "AI STÜDYO", hive: "KOVAN", market: "MARKET" },
+    hero: { category: "AR-GE BÜLTENİ", btn: "Raporu Oku" },
+    home: { print_cat: "KATMANLI İMALAT", tech_cat: "GÖMÜLÜ SİSTEMLER", ai_cat: "ÜRETKEN ALGORİTMALAR", guide_cat: "REHBERLER", deal_cat: "FIRSAT ÜRÜNÜ", hive_cat: "SICAK TARTIŞMA", poll_cat: "ANKET", soft_cat: "YAZILIM", maker_cat: "HAFTANIN MAKER'I" },
+    titles: { poll: "Hangi Dilimleyici?", votes: "Oy Kullanıldı", market_deal: "Creality K1 Hotend", guide_title: "Klipper Kurulum Rehberi", hive_topic: "ABS Çatlama Sorunu", soft_update: "OrcaSlicer: Yeni Ağaç Destekleri", maker_title: "Haftanın Maker'ı", profile: "Profiline Git" },
+    desc: { 
+      klipper: "Eski yazıcınıza yeni bir beyin takın. Adım adım KIAUH kurulumu.",
+      deal: "Yedek parça kategorisinde haftanın en çok satan ürünü.",
+      hive: "Kapalı kasa olmadan ABS basmanın püf noktaları tartışılıyor.",
+      soft: "Daha az malzeme harcayan yeni destek algoritması geldi."
+    },
+    market: { title: "MAKER DEPOSU", subtitle: "Her Maker Bir Fabrikadır.", btn_sell: "Ürün Sat", filters: ['Hepsi', 'Sıfır Ürün', 'Dijital', '2. El'], load_more: "Daha Fazla Yükle", loading: "Yükleniyor..." },
+    news: { title: "TEST MERKEZİ & ANALİZ", subtitle: "Sadece haber değil; veri, test ve laboratuvar sonuçları.", filters: ['Hepsi', 'İNCELEME', 'REHBER', 'HABER', 'TEST'] },
+    tech: { title: "AR-GE GARAJI", subtitle: "Arduino, Raspberry Pi, SBC'ler ve IoT dünyası.", tools_title: "Dijital Alet Çantası", fw_title: "Firmware Takip", klipper_title: "KLIPPER & RETROFIT ATÖLYESİ", guide_btn: "Rehberi İncele" },
+    hive: { title: "KOVAN", subtitle: "/ Ortak Akıl Platformu", desc: "Maker kültürünün kalbi. Projelerini sergile.", filters: ['Sıcak', 'Yeni', 'Tartışılan'], input_ph: "Toplulukla bir şeyler paylaş...", rules_title: "Kovan Kuralları" },
+    ai: { title: "DİJİTAL ASİSTANLAR (AI STÜDYO)", subtitle: "3D tasarım ve üretim sürecinizi hızlandıracak yapay zeka araçları." },
+    auth: { title: "Giriş Yap", subtitle: "Maker dünyasına katıl.", email_ph: "E-posta adresiniz", pass_ph: "Şifreniz", btn_login: "Giriş Yap", btn_register: "Kayıt Ol", no_account: "Hesabın yok mu?", have_account: "Zaten üye misin?" },
+    common: { login: "Giriş", read: "okuma", comments: "Yorum", share: "Paylaş", buy: "Satın Al", inspect: "İncele", search_ph: "Ara..." },
+    search: { popular: "Popüler Aramalar", recent: "Son Gezilenler", quick: "Hızlı Erişim" }
+  },
+  EN: {
+    nav: { news: "TEST LAB", tech: "WORKSHOP", ai: "AI STUDIO", hive: "THE HIVE", market: "MARKET" },
+    hero: { category: "R&D BULLETIN", btn: "Read Report" },
+    home: { print_cat: "ADDITIVE MFG", tech_cat: "EMBEDDED SYSTEMS", ai_cat: "GENERATIVE ALGO", guide_cat: "GUIDES", deal_cat: "HOT DEAL", hive_cat: "HOT TOPIC", poll_cat: "POLL", soft_cat: "SOFTWARE", maker_cat: "MAKER OF WEEK" },
+    titles: { poll: "Which Slicer?", votes: "Votes Cast", market_deal: "Creality K1 Hotend", guide_title: "Klipper Install Guide", hive_topic: "ABS Cracking Issue", soft_update: "OrcaSlicer: New Tree Supports", maker_title: "Maker of the Week", profile: "Go to Profile" },
+    desc: { 
+      klipper: "Give your old printer a new brain. Step by step KIAUH installation.",
+      deal: "Best selling item of the week in spare parts category.",
+      hive: "Discussing tips for printing ABS without an enclosure.",
+      soft: "New support algorithm that uses less material is here."
+    },
+    market: { title: "MAKER DEPOT", subtitle: "Every Maker is a Factory.", btn_sell: "Sell Item", filters: ['All', 'New Item', 'Digital', 'Used'], load_more: "Load More", loading: "Loading..." },
+    news: { title: "TEST CENTER & ANALYSIS", subtitle: "Not just news; data, tests and lab results.", filters: ['All', 'REVIEW', 'GUIDE', 'NEWS', 'TEST'] },
+    tech: { title: "R&D GARAGE", subtitle: "Arduino, Raspberry Pi, SBCs and IoT world.", tools_title: "Digital Toolbox", fw_title: "Firmware Tracker", klipper_title: "KLIPPER & RETROFIT WORKSHOP", guide_btn: "View Guide" },
+    hive: { title: "THE HIVE", subtitle: "/ Collective Mind", desc: "Heart of Maker culture. Showcase your projects.", filters: ['Hot', 'New', 'Discussed'], input_ph: "Share something with the community...", rules_title: "Hive Rules" },
+    ai: { title: "DIGITAL ASSISTANTS (AI STUDIO)", subtitle: "AI tools to accelerate your 3D design and manufacturing process." },
+    auth: { title: "Login", subtitle: "Join the Maker world.", email_ph: "Your email", pass_ph: "Your password", btn_login: "Login", btn_register: "Register", no_account: "No account?", have_account: "Already a member?" },
+    common: { login: "Login", read: "read", comments: "Comments", share: "Share", buy: "Buy Now", inspect: "Inspect", search_ph: "Search..." },
+    search: { popular: "Popular Searches", recent: "Recently Viewed", quick: "Quick Access" }
+  }
+};
+
+// --- DATA SOURCE (Localized & Complete) ---
+const DATA_SOURCE = {
+  TR: {
+    hero: { title: "Üretimin Geleceği: Hibrit İmalat Teknolojileri", summary: "Yapay zeka destekli CNC ve 3D baskı kombinasyonları, endüstriyel parça üretiminde %40 maliyet avantajı sağlıyor." },
+    col_print: { title: "Creality K2 Serisi ve Hız Testleri", content: "Yeni K2 serisi, titreşim engelleme algoritmalarında (input shaping) ciddi iyileştirmelerle geliyor." },
+    col_tech: { title: "Raspberry Pi 5 ile Ev Otomasyonu", content: "Isınma sorunları yeni aktif soğutucu kitiyle çözüldü mü? GPIO pinlerinin tepki süresi test edildi." },
+    col_ai: { title: "Midjourney v7: 3D Doku Desteği", content: "Sadece görsel değil, artık 'texture map' oluşturabilen yeni parametreler duyuruldu." },
+    news: [
+      { id: 1, category: "İNCELEME", subcategory: "FDM Yazıcı", title: "Bambu Lab A1 Mini İncelemesi", summary: "Renkli baskı yeteneği (AMS Lite) ve sessiz çalışmasıyla giriş seviyesini yeniden tanımlıyor.", verdict: "ALINIR" },
+      { id: 2, category: "HABER", subcategory: "Yazılım", title: "Autodesk Fusion 360 AI Güncellemesi", summary: "Artık metin komutları ile temel geometriler oluşturulabiliyor.", verdict: null },
+    ],
+    tech_data: [
+        { 
+            id: 1, 
+            type: "SBC", 
+            title: "Raspberry Pi 5", 
+            description: "NVMe SSD desteği ve aktif soğutma zorunluluğu. Klipper için aşırı güçlü.", 
+            verdict: "MÜKEMMEL",
+            specs: [{ label: "CPU", value: "2.4GHz" }, { label: "RAM", value: "8GB" }, { label: "PCIe", value: "2.0" }],
+            codeSnippet: "sudo rpi-eeprom-config --edit"
+        },
+        { 
+            id: 2, 
+            type: "MCU", 
+            title: "ESP32-S3", 
+            description: "AI ve görüntü işleme için Arduino rakibi. Düşük güç tüketimi.", 
+            verdict: "F/P KRALI",
+            specs: [{ label: "Wifi", value: "2.4 GHz" }, { label: "AI", value: "Vector" }, { label: "Flash", value: "8MB" }],
+            codeSnippet: "import network"
+        }
+    ],
+    market: [
+      { id: 101, category: "Filament", title: "Esun PLA+ Filament (Gri - 1KG)", badge: "Çok Satan" },
+      { id: 102, category: "Yedek Parça", title: "Creality K1/K1 Max Seramik Hotend", badge: "Orijinal" }
+    ]
+  },
+  EN: {
+    hero: { title: "Future of Production: Hybrid Mfg Technologies", summary: "AI-supported CNC and 3D printing combinations provide 40% cost advantage in industrial part production." },
+    col_print: { title: "Creality K2 Series and Speed Tests", content: "The new K2 series comes with serious improvements in vibration cancellation algorithms (input shaping)." },
+    col_tech: { title: "Home Automation with Raspberry Pi 5", content: "Heating issues solved with the new active cooler kit? GPIO pin response times tested." },
+    col_ai: { title: "Midjourney v7: 3D Texture Support", content: "Not just visuals, new parameters capable of creating 'texture maps' have been announced." },
+    news: [
+      { id: 1, category: "REVIEW", subcategory: "FDM Printer", title: "Bambu Lab A1 Mini Review", summary: "Redefining the entry level with multi-color capability (AMS Lite) and silent operation.", verdict: "BUY" },
+      { id: 2, category: "NEWS", subcategory: "Software", title: "Autodesk Fusion 360 AI Update", summary: "Basic geometries can now be created with text commands.", verdict: null },
+    ],
+    tech_data: [
+        { 
+            id: 1, 
+            type: "SBC", 
+            title: "Raspberry Pi 5", 
+            description: "NVMe SSD support and mandatory active cooling. Overkill for Klipper.", 
+            verdict: "PERFECT",
+            specs: [{ label: "CPU", value: "2.4GHz" }, { label: "RAM", value: "8GB" }, { label: "PCIe", value: "2.0" }],
+            codeSnippet: "sudo rpi-eeprom-config --edit"
+        },
+        { 
+            id: 2, 
+            type: "MCU", 
+            title: "ESP32-S3", 
+            description: "Arduino rival for AI and image processing. Low power consumption.", 
+            verdict: "VALUE KING",
+            specs: [{ label: "Wifi", value: "2.4 GHz" }, { label: "AI", value: "Vector" }, { label: "Flash", value: "8MB" }],
+            codeSnippet: "import network"
+        }
+    ],
+    market: [
+      { id: 101, category: "Filament", title: "Esun PLA+ Filament (Grey - 1KG)", badge: "Best Seller" },
+      { id: 102, category: "Spare Parts", title: "Creality K1/K1 Max Ceramic Hotend", badge: "Original" }
+    ]
+  }
+};
+
+const WORKSHOP_TOOLS = [
+  { id: 1, name: "Kayış Hesaplayıcı", icon: <Ruler className="w-5 h-5 text-cyan-400" />, desc: "GT2 kayış adımı ve uzunluk hesabı." },
+  { id: 2, name: "E-Steps Kalibrasyon", icon: <Calculator className="w-5 h-5 text-cyan-400" />, desc: "Extruder adım kalibrasyonu." },
+  { id: 3, name: "Rezonans Testi", icon: <Activity className="w-5 h-5 text-cyan-400" />, desc: "Input Shaper frekans analizi." },
+  { id: 4, name: "Ohm Kanunu", icon: <Zap className="w-5 h-5 text-cyan-400" />, desc: "Voltaj, Akım ve Direnç hesabı." }
+];
+
+const FIRMWARE_UPDATES = [
+  { name: "Klipper", version: "v0.12.0", date: "2 Gün Önce", tag: "Major" },
+  { name: "Marlin", version: "2.1.2.2", date: "1 Hafta Önce", tag: "Stable" },
+  { name: "Mainsail", version: "v2.9.1", date: "3 Hafta Önce", tag: "UI" }
+];
+
+// --- MOCK API SERVICE ---
+const api = {
+  fetchNews: (lang) => new Promise(resolve => {
+    const baseData = DATA_SOURCE[lang].news;
+    const fullData = Array.from({ length: 6 }).map((_, index) => {
+        const item = baseData[index % baseData.length];
+        return {
+            ...item,
+            id: 2000 + index, 
+            image: index % 2 === 0 ? "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?q=80&w=800&auto=format&fit=crop" : "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=800&auto=format&fit=crop",
+            score: index === 0 ? 8.8 : null,
+            pros: [], cons: [],
+            date: "12.11.2024", author: "Editor", readTime: "5 min"
+        };
+    });
+    setTimeout(() => resolve(fullData), 600);
+  }),
+  
+  fetchMarket: (lang, page = 1) => new Promise(resolve => {
+    const baseItems = DATA_SOURCE[lang].market;
+    const generatedItems = Array.from({ length: 8 }, (_, i) => ({
+      ...baseItems[i % 2],
+      id: 100 + (page * 10) + i,
+      price: `${(Math.random() * 500 + 50).toFixed(2)} ${lang === 'TR' ? 'TL' : '$'}`,
+      image: i % 2 === 0 ? "https://images.unsplash.com/photo-1629196914375-f7e48f477b6d?q=80&w=400&auto=format&fit=crop" : "https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=400&auto=format&fit=crop",
+      seller: `Seller_${i}`,
+      type: i % 2 === 0 ? "physical" : "digital"
+    }));
+    setTimeout(() => resolve(generatedItems), 600);
+  }),
+
+  fetchHive: (lang, page = 1) => new Promise(resolve => {
+    const posts = Array.from({ length: 6 }, (_, i) => ({
+      id: 500 + i,
+      type: i % 2 === 0 ? (lang === 'TR' ? "SORUN" : "HELP") : (lang === 'TR' ? "SHOWCASE" : "SHOWCASE"),
+      author: `Maker_${i}`,
+      rank: "Pro",
+      title: lang === 'TR' ? `Örnek Tartışma Başlığı #${i}` : `Sample Discussion Topic #${i}`,
+      content: lang === 'TR' ? "Bu konuda tecrübesi olan var mı? Baskı yüzeyinde pürüzler oluşuyor." : "Does anyone have experience with this? I'm getting rough surfaces.",
+      image: i === 1 ? "https://images.unsplash.com/photo-1626285861696-9f0bf5a49c6d?q=80&w=800&auto=format&fit=crop" : null,
+      upvotes: 42 + i, comments: 5 + i, time: "2h",
+      tags: ["#3D", "#Help"]
+    }));
+    setTimeout(() => resolve(posts), 500);
+  })
+};
+
+// --- CONSTANTS ---
+const HERO_NEWS = {
+  title: "Üretimin Geleceği: Hibrit İmalat Teknolojileri",
+  summary: "Yapay zeka destekli CNC ve 3D baskı kombinasyonları, endüstriyel parça üretiminde %40 maliyet avantajı sağlıyor. Yeni nesil materyallerin dayanıklılık testleri tamamlandı.",
+  image: "https://images.unsplash.com/photo-1631556097152-c39479bcbee9?q=80&w=1200&auto=format&fit=crop",
+  category: "AR-GE BÜLTENİ"
+};
+
+const KLIPPER_DATA = [
+    { id: 1, machine: "Ender 3 V2", upgrade: "Stok -> Klipper + Input Shaping", speedIncrease: "3x Hız", cost: "~800 TL", status: "TAMAMLANDI", config: "[printer]\nkinematics: cartesian" },
+    { id: 2, machine: "Voron 0.2", upgrade: "Sıfırdan İnşa", speedIncrease: "500mm/s", cost: "~12.000 TL", status: "YAPIM AŞAMASINDA", config: "[printer]\nkinematics: corexy\nmax_velocity: 500" },
+    { id: 3, machine: "Kingroon KP3S", upgrade: "Linear Rail Mod", speedIncrease: "2x Hassasiyet", cost: "~1500 TL", status: "PLANLANIYOR", config: "# Beklemede" }
+];
+
+const AI_TOOLS = [
+  { id: 1, name: "Obico", type: "Baskı Denetimi", description: "Yapay zeka ile hata tespiti. Spagetti olunca yazıcıyı durdurur.", icon: <Eye className="w-6 h-6 text-purple-400" />, link: "#", tag: "Açık Kaynak" },
+  { id: 2, name: "Luma AI", type: "3D Tarama", description: "Telefondan fotogrametri. Videoyu 3D modele çevirir (NeRF).", icon: <Box3DIcon className="w-6 h-6 text-purple-400" />, link: "#", tag: "Mobil App" },
+  { id: 3, name: "Kaedim", type: "2D to 3D", description: "2D görselleri dakikalar içinde üretime hazır 3D modellere dönüştürür.", icon: <Layers className="w-6 h-6 text-purple-400" />, link: "#", tag: "Web Tabanlı" },
+  { id: 4, name: "CSM (Cube)", type: "Generative 3D", description: "Tek bir görselden veya metinden 3D varlıklar oluşturan güçlü yapay zeka.", icon: <Box3DIcon className="w-6 h-6 text-purple-400" />, link: "#", tag: "Beta" },
+  { id: 5, name: "ChatGPT G-Code", type: "Kod Yardımcısı", description: "Klipper makroları yazmak veya G-Code hatalarını ayıklamak için asistan.", icon: <Bot className="w-6 h-6 text-purple-400" />, link: "#", tag: "LLM" },
+  { id: 6, name: "Polycam", type: "LiDAR Tarama", description: "iPhone LiDAR sensörünü kullanarak mekanları ve objeleri tarayın.", icon: <Box3DIcon className="w-6 h-6 text-purple-400" />, link: "#", tag: "iOS/Android" }
+];
+
+const COLUMN_DATA = {
+  printing: {
+    title: "Creality K2 Serisi ve Hız Testleri",
+    content: "Yeni K2 serisi, titreşim engelleme algoritmalarında (input shaping) ciddi iyileştirmelerle geliyor. AI lidar sensörleri artık ilk katman hatalarını %99 doğrulukla tespit edebiliyor. Ancak kullanıcıların fan gürültüsü konusundaki geri bildirimleri halen karışık.",
+    stats: "+%12 Hız Artışı"
+  },
+  tech: {
+    title: "Raspberry Pi 5 ile Ev Otomasyonu",
+    content: "Isınma sorunları yeni aktif soğutucu kitiyle çözüldü mü? GPIO pinlerinin tepki süresi ve enerji tüketimi üzerine yaptığımız 24 saatlik stres testi sonuçları, makerlar için umut verici veriler sunuyor.",
+    stats: "Isı: 42°C (Yükte)"
+  },
+  ai: {
+    title: "Midjourney v7: 3D Doku Desteği",
+    content: "Sadece görsel değil, artık 'texture map' oluşturabilen yeni parametreler duyuruldu. Oyun geliştiricileri ve 3D sanatçıları için bu özellik, modelleme sürecini saatlerden dakikalara indirebilir.",
+    stats: "Prompt: --tile --3d"
+  }
+};
+
+const KLIPPER_GUIDE_STEPS = [
+  { title: "1. Hazırlık ve Gereksinimler", content: "Başlamadan önce aşağıdaki donanımların hazır olduğundan emin olun.", list: ["Raspberry Pi (3B, 4 veya Zero 2W)", "Micro SD Kart (8GB+)", "3D Yazıcı"], code: null },
+  { title: "2. MainsailOS Kurulumu", content: "Raspberry Pi Imager yazılımını kullanarak MainsailOS imajını SD karta yazdırın.", code: null },
+  { title: "3. SSH ile Bağlantı", content: "Terminal üzerinden Pi'ye bağlanın.", code: "ssh pi@mainsailos.local" },
+  { title: "4. KIAUH Kurulumu", content: "KIAUH aracını git ile çekin ve çalıştırın.", code: "git clone https://github.com/dw-0/kiauh.git\n./kiauh/kiauh.sh" }
+];
+
+const TRENDING_TAGS = ["#Ender3V3", "#Klipper", "#Spaghetti", "#Cosplay", "#BambuLab", "#Voron"];
+const TRENDING_NEWS = [
+  { id: 1, title: "Creality K1 Max Rootlama Rehberi", views: "45k" },
+  { id: 2, title: "En İyi 5 Ücretsiz Dilimleyici (2024)", views: "32k" },
+  { id: 3, title: "Reçine Zehirlenmesi Belirtileri", views: "28k" },
+  { id: 4, title: "Bitcoin Madenciliği Artık Karlı Mı?", views: "21k" },
+];
+
+// --- ISOLATED COMPONENTS (Prevents Full Re-renders) ---
+
+const NewsTicker = memo(({ lang }) => {
+  const [tickerIndex, setTickerIndex] = useState(0);
+  const items = lang === 'TR' 
+    ? ["Bambu Lab X1C Güncellemesi Yayında", "Bitcoin: $94,320", "Topluluk: 142 yeni model"] 
+    : ["Bambu Lab X1C Update Released", "Bitcoin: $94,320", "Community: 142 new models"];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTickerIndex((prev) => (prev + 1) % items.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [lang, items.length]);
+
+  return (
+    <div className="bg-black/50 text-xs py-1 px-4 flex justify-between items-center border-b border-gray-800">
+      <div className="flex items-center space-x-2 overflow-hidden">
+        <span className="text-orange-500 font-bold animate-pulse">{lang === 'TR' ? 'CANLI:' : 'LIVE:'}</span>
+        <span className="opacity-80 transition-all duration-500 transform translate-y-0">{items[tickerIndex]}</span>
+      </div>
+      <div className="flex space-x-4 text-gray-500">
+        <span>{lang === 'TR' ? 'Versiyon: v1.0.4' : 'Version: v1.0.4'}</span>
+      </div>
+    </div>
+  );
+});
+
+const Header = memo(({ activeTab, onTabChange, onMenuOpen, lang, setLang, searchTerm, onSearchChange }) => {
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const inputRef = useRef(null);
+  const t = LOCALE[lang];
+
+  // Close search popup on click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (inputRef.current && !inputRef.current.contains(event.target)) {
+        setIsSearchFocused(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <header className="fixed top-0 w-full z-50 bg-[#0F1014]/90 backdrop-blur-md border-b border-gray-800">
+      <NewsTicker lang={lang} />
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <div 
+          className="flex items-center space-x-2 cursor-pointer group flex-shrink-0"
+          onClick={() => onTabChange('home')}
+        >
+          <div className="w-8 h-8 bg-gradient-to-tr from-orange-600 to-purple-600 rounded flex items-center justify-center font-bold text-white shadow-[0_0_15px_rgba(255,107,0,0.5)] group-hover:shadow-[0_0_25px_rgba(255,107,0,0.8)] transition-all">
+            3D
+          </div>
+          <span className="text-xl font-bold tracking-wider font-[Orbitron,sans-serif] hidden sm:block">
+            3D-LABX
+          </span>
+        </div>
+
+        <nav className="hidden lg:flex space-x-6 text-sm font-medium">
+          <button onClick={() => onTabChange('news')} className={`transition-colors ${activeTab === 'news' ? 'text-orange-400 font-bold' : 'hover:text-orange-400'}`}>{t.nav.news}</button>
+          <button onClick={() => onTabChange('tech')} className={`transition-colors ${activeTab === 'tech' ? 'text-cyan-400 font-bold' : 'hover:text-cyan-400'}`}>{t.nav.tech}</button>
+          <button onClick={() => onTabChange('ai')} className={`transition-colors ${activeTab === 'ai' ? 'text-purple-400 font-bold' : 'hover:text-purple-400'}`}>{t.nav.ai}</button>
+          <button onClick={() => onTabChange('hive')} className={`flex items-center gap-1 transition-colors ${activeTab === 'hive' ? 'text-orange-500 font-bold' : 'text-orange-500 hover:text-orange-400'}`}><span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span> {t.nav.hive}</button>
+          <button onClick={() => onTabChange('market')} className={`transition-colors flex items-center gap-1 ${activeTab === 'market' ? 'text-green-400 font-bold' : 'hover:text-green-400'}`}><ShoppingBag className="w-4 h-4" /> {t.nav.market}</button>
+        </nav>
+
+        <div className="flex items-center space-x-4">
+          <button 
+            onClick={() => setLang(prev => prev === 'TR' ? 'EN' : 'TR')}
+            className="flex items-center gap-1 text-xs font-bold bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded transition-colors text-white flex-shrink-0"
+          >
+            <Globe className="w-3 h-3"/> {lang}
+          </button>
+          
+          {/* EXPANDABLE SEARCH BAR */}
+          <div className="relative" ref={inputRef}>
+            <div className={`flex items-center bg-gray-800 rounded-full transition-all duration-300 ease-in-out ${isSearchFocused || searchTerm ? 'w-48 md:w-64 pl-3 pr-4' : 'w-8 h-8 justify-center bg-transparent hover:bg-gray-800'}`}>
+              <Search 
+                className={`w-4 h-4 text-gray-400 cursor-pointer ${isSearchFocused || searchTerm ? '' : 'hover:text-white'}`} 
+                onClick={() => {
+                   setIsSearchFocused(true);
+                   // Input focus logic handled by autoFocus or ref if needed
+                }}
+              />
+              <input 
+                type="text" 
+                value={searchTerm}
+                onChange={(e) => onSearchChange(e.target.value)}
+                onFocus={() => setIsSearchFocused(true)}
+                placeholder={isSearchFocused ? t.common.search_ph : ""}
+                className={`bg-transparent text-gray-300 text-sm focus:outline-none ml-2 w-full ${isSearchFocused || searchTerm ? 'block' : 'hidden'}`}
+              />
+              {(searchTerm && isSearchFocused) && (
+                 <X 
+                   className="w-3 h-3 text-gray-500 hover:text-white cursor-pointer ml-1" 
+                   onClick={() => { onSearchChange(''); setIsSearchFocused(false); }}
+                 />
+              )}
+            </div>
+
+            {/* SEARCH POPUP */}
+            {isSearchFocused && (
+              <div className="absolute top-full right-0 mt-3 w-72 bg-[#16181D] border border-gray-700 rounded-xl p-4 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 origin-top-right">
+                  <div className="mb-4">
+                    <h4 className="text-[10px] font-bold text-gray-500 mb-2 uppercase tracking-wider">{t.search.popular}</h4>
+                    <div className="space-y-1">
+                        {['Ender 3 V3 KE', 'Klipper Input Shaper', 'OrcaSlicer', 'PETG Sorunu'].map((term, i) => (
+                          <button key={i} onClick={() => { onSearchChange(term); setIsSearchFocused(false); }} className="block w-full text-left text-sm text-gray-300 hover:text-white hover:bg-gray-800 px-2 py-1.5 rounded transition-colors flex items-center">
+                             <TrendingIcon className="w-3 h-3 mr-2 text-orange-500" /> {term}
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-[10px] font-bold text-gray-500 mb-2 uppercase tracking-wider">{t.search.quick}</h4>
+                    <div className="flex gap-2">
+                       <button onClick={() => { onTabChange('market'); setIsSearchFocused(false); }} className="flex-1 bg-gray-800 hover:bg-gray-700 text-green-400 text-xs py-2 rounded flex items-center justify-center gap-1 transition-colors"><ShoppingBag className="w-3 h-3"/> Market</button>
+                       <button onClick={() => { onTabChange('guide_klipper'); setIsSearchFocused(false); }} className="flex-1 bg-gray-800 hover:bg-gray-700 text-orange-400 text-xs py-2 rounded flex items-center justify-center gap-1 transition-colors"><BookOpen className="w-3 h-3"/> Rehber</button>
+                    </div>
+                  </div>
+              </div>
+            )}
+          </div>
+
+          {/* USER / LOGIN BUTTON */}
+          <div 
+             className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-700 transition-colors flex-shrink-0 group relative"
+             onClick={() => onTabChange('auth')}
+             title={t.common.login}
+          >
+            <User className="w-4 h-4 group-hover:text-cyan-400 transition-colors" />
+            <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-[#0F1014]"></span>
+          </div>
+          
+          <button onClick={onMenuOpen} className="lg:hidden text-gray-300 hover:text-white"><Menu className="w-6 h-6" /></button>
+        </div>
+      </div>
+    </header>
+  );
+});
+
+const AuthView = ({ onNavigate, lang }) => {
+  const t = LOCALE[lang];
+  const [isLogin, setIsLogin] = useState(true);
+
+  return (
+    <div className="flex items-center justify-center min-h-[70vh] animate-in fade-in zoom-in duration-500">
+       <div className="bg-[#16181D] border border-gray-800 p-8 rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+          
+          <div className="text-center mb-8 relative z-10">
+             <div className="w-16 h-16 bg-gradient-to-tr from-orange-600 to-purple-600 rounded-2xl flex items-center justify-center font-bold text-3xl text-white mx-auto mb-4 shadow-lg">3D</div>
+             <h2 className="text-2xl font-bold text-white mb-2">{isLogin ? t.auth.title : t.auth.btn_register}</h2>
+             <p className="text-gray-400 text-sm">{t.auth.subtitle}</p>
+          </div>
+
+          <form className="space-y-4 relative z-10" onSubmit={(e) => e.preventDefault()}>
+             <div className="space-y-2">
+                <div className="flex items-center bg-black/40 border border-gray-700 rounded-xl px-4 py-3 focus-within:border-cyan-500 transition-colors">
+                   <Mail className="w-5 h-5 text-gray-500 mr-3" />
+                   <input type="email" placeholder={t.auth.email_ph} className="bg-transparent border-none outline-none text-white w-full text-sm" />
+                </div>
+             </div>
+             <div className="space-y-2">
+                <div className="flex items-center bg-black/40 border border-gray-700 rounded-xl px-4 py-3 focus-within:border-cyan-500 transition-colors">
+                   <Lock className="w-5 h-5 text-gray-500 mr-3" />
+                   <input type="password" placeholder={t.auth.pass_ph} className="bg-transparent border-none outline-none text-white w-full text-sm" />
+                </div>
+             </div>
+             
+             <button className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-cyan-900/20 transition-all flex items-center justify-center gap-2">
+                {isLogin ? <LogIn className="w-4 h-4"/> : <UserPlus className="w-4 h-4"/>}
+                {isLogin ? t.auth.btn_login : t.auth.btn_register}
+             </button>
+          </form>
+
+          <div className="mt-6 text-center text-xs text-gray-500 relative z-10">
+             {isLogin ? t.auth.no_account : t.auth.have_account} 
+             <button onClick={() => setIsLogin(!isLogin)} className="text-cyan-400 hover:text-cyan-300 font-bold ml-1 transition-colors underline">
+               {isLogin ? t.auth.btn_register : t.auth.btn_login}
+             </button>
+          </div>
+       </div>
+    </div>
+  );
+};
+
+const LoadingSkeleton = ({ count = 3, type = "card" }) => (
+  <div className={`grid grid-cols-1 ${type === 'card' ? 'md:grid-cols-2 lg:grid-cols-3' : 'md:grid-cols-2'} gap-6`}>
+    {[...Array(count)].map((_, i) => (
+      <div key={i} className="bg-[#16181D] rounded-xl border border-gray-800 p-6 animate-pulse">
+        <div className="h-48 bg-gray-800 rounded-lg mb-4"></div><div className="h-6 bg-gray-800 rounded w-3/4 mb-3"></div><div className="h-4 bg-gray-800 rounded w-full mb-2"></div><div className="h-4 bg-gray-800 rounded w-1/2"></div>
+      </div>
+    ))}
+  </div>
+);
+
+const HomeView = ({ onNavigate, lang }) => {
+  const content = DATA_SOURCE[lang];
+  const t = LOCALE[lang];
+
+  return (
+    <div className="animate-in fade-in duration-500">
+      <section className="mb-12 relative group rounded-2xl overflow-hidden h-[400px] border border-gray-800 shadow-2xl">
+        <img src={HERO_NEWS.image} alt="Hero" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60"/>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0F1014] via-[#0F1014]/60 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 p-8 md:p-12 max-w-3xl">
+          <span className="bg-orange-600 text-white px-3 py-1 rounded text-xs font-bold uppercase tracking-widest shadow-lg mb-4 inline-block">{t.hero.category}</span>
+          <h1 className="text-3xl md:text-5xl font-bold mt-2 mb-4 leading-tight text-white drop-shadow-lg">{content.hero.title}</h1>
+          <p className="text-gray-200 text-lg leading-relaxed line-clamp-2 md:line-clamp-none drop-shadow-md mb-6">{content.hero.summary}</p>
+          <button onClick={() => onNavigate('news')} className="flex items-center space-x-2 bg-white text-black px-6 py-3 rounded-full font-bold hover:bg-gray-200 transition-colors shadow-lg"><span>{t.hero.btn}</span><ArrowRight className="w-4 h-4" /></button>
+        </div>
+      </section>
+
+      {/* BENTO GRID LAYOUT */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+        
+        {/* 1. Printing (Large Box) */}
+        <div className="md:col-span-2 bg-gradient-to-br from-[#1a1d24] to-[#0F1014] rounded-2xl border border-gray-800 hover:border-orange-500/50 transition-all p-8 cursor-pointer group relative overflow-hidden" onClick={() => onNavigate('news')}>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-orange-500/10 transition-colors"></div>
+          <div className="relative z-10">
+             <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 bg-orange-500/10 rounded-xl group-hover:bg-orange-500/20 transition-colors"><Printer className="w-8 h-8 text-orange-500" /></div>
+                <span className="text-sm text-orange-500 font-bold tracking-widest uppercase">{t.home.print_cat}</span>
+             </div>
+             <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-orange-400 transition-colors">{content.col_print.title}</h3>
+             <p className="text-gray-400 text-base leading-relaxed max-w-lg">{content.col_print.content}</p>
+             <div className="mt-6 flex items-center text-xs font-bold text-green-400"><TrendingUp className="w-4 h-4 mr-2"/> +%12</div>
+          </div>
+        </div>
+
+        {/* 2. Tech (Standard Box) */}
+        <div className="bg-[#16181D] rounded-2xl border border-gray-800 hover:border-cyan-500/50 transition-all p-6 cursor-pointer group flex flex-col justify-between" onClick={() => onNavigate('tech')}>
+          <div>
+             <div className="flex justify-between items-start mb-4"><div className="p-3 bg-cyan-500/10 rounded-xl"><Cpu className="w-6 h-6 text-cyan-500" /></div><span className="text-[10px] font-bold border border-cyan-500/30 text-cyan-500 px-2 py-1 rounded">{t.home.tech_cat}</span></div>
+             <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cyan-400">{content.col_tech.title}</h3>
+             <p className="text-gray-400 text-xs leading-relaxed">{content.col_tech.content}</p>
+          </div>
+          <div className="mt-4 pt-4 border-t border-gray-800 flex items-center text-xs font-bold text-yellow-500"><AlertTriangle className="w-3 h-3 mr-2"/> 42°C</div>
+        </div>
+
+        {/* 3. AI (Standard Box) */}
+        <div className="bg-[#16181D] rounded-2xl border border-gray-800 hover:border-purple-500/50 transition-all p-6 cursor-pointer group flex flex-col justify-between" onClick={() => onNavigate('ai')}>
+          <div>
+             <div className="flex justify-between items-start mb-4"><div className="p-3 bg-purple-500/10 rounded-xl"><Brain className="w-6 h-6 text-purple-500" /></div><span className="text-[10px] font-bold border border-purple-500/30 text-purple-500 px-2 py-1 rounded">{t.home.ai_cat}</span></div>
+             <h3 className="text-lg font-bold text-white mb-2 group-hover:text-purple-400">{content.col_ai.title}</h3>
+             <p className="text-gray-400 text-xs leading-relaxed">{content.col_ai.content}</p>
+          </div>
+          <div className="mt-4 pt-4 border-t border-gray-800 flex items-center text-xs font-bold text-purple-400"><Sparkles className="w-3 h-3 mr-2"/> Prompt: --tile</div>
+        </div>
+
+        {/* 4. Guide (Large Box) */}
+        <div className="md:col-span-2 bg-gradient-to-bl from-[#1a1d24] to-[#0F1014] rounded-2xl border border-gray-800 hover:border-green-500/50 transition-all p-8 cursor-pointer group relative overflow-hidden" onClick={() => onNavigate('guide_klipper')}>
+           <div className="absolute top-0 left-0 w-64 h-64 bg-green-500/5 rounded-full blur-3xl -ml-16 -mt-16 group-hover:bg-green-500/10 transition-colors"></div>
+           <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
+              <div className="flex-1">
+                 <div className="flex items-center gap-3 mb-4">
+                    <div className="p-3 bg-green-500/10 rounded-xl group-hover:bg-green-500/20 transition-colors"><Terminal className="w-8 h-8 text-green-500" /></div>
+                    <span className="text-sm text-green-500 font-bold tracking-widest uppercase">{t.home.guide_cat}</span>
+                 </div>
+                 <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-green-400 transition-colors">{t.titles.guide_title}</h3>
+                 <p className="text-gray-400 text-base leading-relaxed">{t.desc.klipper}</p>
+              </div>
+              <div className="bg-black/40 p-4 rounded-xl border border-gray-700 font-mono text-xs text-green-400 w-full md:w-auto min-w-[200px]">
+                 $ git clone klipper<br/>
+                 $ ./install-octopi.sh<br/>
+                 <span className="text-gray-500"># Kurulum Başlatılıyor...</span>
+              </div>
+           </div>
+        </div>
+
+        {/* 5. Deal (Standard Box) */}
+        <div className="bg-[#16181D] rounded-2xl border border-gray-800 hover:border-blue-500/50 transition-all p-6 cursor-pointer group" onClick={() => onNavigate('market')}>
+          <div className="flex justify-between items-start mb-4"><div className="p-3 bg-blue-500/10 rounded-xl"><ShoppingBag className="w-6 h-6 text-blue-500" /></div><span className="text-[10px] font-bold bg-blue-500 text-white px-2 py-1 rounded shadow-lg shadow-blue-500/20">{t.home.deal_cat}</span></div>
+          <h3 className="text-lg font-bold text-white mb-2 group-hover:text-blue-400">{t.titles.market_deal}</h3>
+          <p className="text-gray-400 text-xs leading-relaxed mb-4">{t.desc.deal}</p>
+          <div className="flex justify-between items-center"><span className="text-xl font-bold text-white">850 {lang === 'TR' ? 'TL' : 'USD'}</span><ArrowRight className="w-4 h-4 text-blue-500 group-hover:translate-x-1 transition-transform"/></div>
+        </div>
+
+        {/* 6. Hive (Standard Box) */}
+        <div className="bg-[#16181D] rounded-2xl border border-gray-800 hover:border-orange-500/50 transition-all p-6 cursor-pointer group" onClick={() => onNavigate('hive')}>
+          <div className="flex justify-between items-start mb-4"><div className="p-3 bg-orange-500/10 rounded-xl"><Flame className="w-6 h-6 text-orange-500" /></div><span className="text-[10px] font-bold border border-orange-500/30 text-orange-500 px-2 py-1 rounded">{t.home.hive_cat}</span></div>
+          <h3 className="text-lg font-bold text-white mb-2 group-hover:text-orange-400">{t.titles.hive_topic}</h3>
+          <p className="text-gray-400 text-xs leading-relaxed mb-4">{t.desc.hive}</p>
+          <div className="flex items-center gap-3 text-xs text-gray-500 font-bold"><span className="flex items-center"><MessageSquare className="w-3 h-3 mr-1"/> 24</span><span className="flex items-center"><ThumbsUp className="w-3 h-3 mr-1"/> 156</span></div>
+        </div>
+
+        {/* 7. Poll (New Standard Box) */}
+        <div className="bg-[#16181D] rounded-2xl border border-gray-800 hover:border-yellow-500/50 transition-all p-6 cursor-pointer group relative">
+          <div className="flex justify-between items-start mb-4"><div className="p-3 bg-yellow-500/10 rounded-xl"><PieChart className="w-6 h-6 text-yellow-500" /></div><span className="text-[10px] font-bold border border-yellow-500/30 text-yellow-500 px-2 py-1 rounded">{t.home.poll_cat}</span></div>
+          <h3 className="text-lg font-bold text-white mb-3">{t.titles.poll}</h3>
+          <div className="space-y-2">
+             <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden"><div className="bg-yellow-500 h-2 w-[45%]"></div></div>
+             <div className="flex justify-between text-[10px] text-gray-400"><span>Orca Slicer</span><span>%45</span></div>
+             <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden"><div className="bg-gray-600 h-2 w-[30%]"></div></div>
+             <div className="flex justify-between text-[10px] text-gray-400"><span>Cura</span><span>%30</span></div>
+          </div>
+          <div className="mt-4 pt-2 text-[10px] text-gray-500 text-right">1.2k {t.titles.votes}</div>
+        </div>
+
+        {/* 8. Software Update (Large Box - 2 Cols) */}
+        <div className="md:col-span-2 bg-[#16181D] rounded-2xl border border-gray-800 hover:border-cyan-500/50 transition-all p-6 cursor-pointer group flex items-center justify-between relative overflow-hidden" onClick={() => onNavigate('news')}>
+           <div className="absolute right-0 bottom-0 opacity-10"><Download className="w-48 h-48 text-cyan-500 -mr-10 -mb-10"/></div>
+           <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-2">
+                 <span className="text-[10px] font-bold bg-cyan-500/20 text-cyan-400 px-2 py-1 rounded">{t.home.soft_cat}</span>
+                 <span className="text-[10px] text-gray-500">v2.1.0 Yayınlandı</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-2">{t.titles.soft_update}</h3>
+              <p className="text-gray-400 text-sm max-w-md">{t.desc.soft}</p>
+           </div>
+           <div className="relative z-10 hidden md:block">
+              <button className="bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-3 rounded-xl font-bold transition-colors shadow-lg">İncele</button>
+           </div>
+        </div>
+
+        {/* 9. Maker Spotlight (New Standard Box) */}
+        <div className="bg-[#16181D] rounded-2xl border border-gray-800 hover:border-pink-500/50 transition-all p-6 cursor-pointer group text-center" onClick={() => onNavigate('hive')}>
+          <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-pink-500 to-purple-500 mx-auto mb-4 p-1">
+             <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop" alt="User" className="w-full h-full rounded-full object-cover border-2 border-[#16181D]" />
+          </div>
+          <h3 className="text-lg font-bold text-white mb-1">{t.titles.maker_title}</h3>
+          <p className="text-sm text-gray-400 mb-3">@Tekno_Can</p>
+          <div className="flex justify-center gap-2 text-[10px]">
+             <span className="bg-gray-800 px-2 py-1 rounded text-gray-300">12 Proje</span>
+             <span className="bg-gray-800 px-2 py-1 rounded text-gray-300">1.5k Beğeni</span>
+          </div>
+          <button className="mt-4 text-xs font-bold text-pink-500 hover:text-pink-400 flex items-center justify-center w-full">{t.titles.profile} <ArrowRight className="w-3 h-3 ml-1"/></button>
+        </div>
+
+      </section>
+    </div>
+  );
+};
+
+const MarketView = ({ lang, searchTerm }) => {
+  const t = LOCALE[lang];
+  const [marketFilter, setMarketFilter] = useState('Hepsi');
+  const [items, setItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  
+  useEffect(() => {
+    setIsLoading(true);
+    api.fetchMarket(lang, 1).then(data => {
+      setItems(data);
+      setIsLoading(false);
+    });
+  }, [lang]);
+
+  const handleLoadMore = () => {
+    setIsLoadingMore(true);
+    api.fetchMarket(lang, page + 1).then(newItems => {
+      setItems(prev => [...prev, ...newItems]);
+      setPage(prev => prev + 1);
+      setIsLoadingMore(false);
+    });
+  };
+
+  const filteredMarket = useMemo(() => {
+    let filtered = marketFilter === 'Hepsi' || marketFilter === 'All' 
+      ? items 
+      : items.filter(item => {
+          if(marketFilter === 'Dijital' || marketFilter === 'Digital') return item.type === 'digital';
+          if(marketFilter === '2. El' || marketFilter === 'Used') return item.type === 'secondhand';
+          if(marketFilter === 'Sıfır Ürün' || marketFilter === 'New Item') return item.type === 'physical';
+          return true;
+      });
+
+    if (searchTerm) {
+      const lowerTerm = searchTerm.toLowerCase();
+      filtered = filtered.filter(item => 
+        item.title.toLowerCase().includes(lowerTerm) || 
+        item.category.toLowerCase().includes(lowerTerm) ||
+        item.seller.toLowerCase().includes(lowerTerm)
+      );
+    }
+    return filtered;
+  }, [marketFilter, items, searchTerm]);
+
+  return (
+    <div className="animate-in fade-in duration-500">
+      <div className="mb-8 border-b border-green-500/30 pb-6 relative">
+          <div className="absolute -top-10 -left-10 w-40 h-40 bg-green-500/5 rounded-full blur-3xl"></div>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div>
+              <h2 className="text-3xl font-bold mb-2 flex items-center gap-3 text-green-400 font-[Orbitron,sans-serif]"><ShoppingBag className="w-8 h-8" /> {t.market.title}</h2>
+              <p className="text-gray-400 text-sm max-w-xl"><span className="text-green-400 font-bold">"{t.market.subtitle}"</span></p>
+            </div>
+            <button className="mt-4 md:mt-0 bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded-lg font-bold flex items-center transition-colors shadow-lg shadow-green-900/20"><Tag className="w-4 h-4 mr-2" /> {t.market.btn_sell}</button>
+          </div>
+      </div>
+      <div className="flex flex-wrap gap-2 mb-8">
+        {t.market.filters.map((filter) => (
+            <button key={filter} onClick={() => setMarketFilter(filter)} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${marketFilter === filter ? 'bg-green-600 text-white' : 'bg-[#16181D] hover:bg-gray-800 text-gray-300 border border-gray-700'}`}>{filter}</button>
+        ))}
+      </div>
+      {isLoading ? <LoadingSkeleton count={4} /> : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {filteredMarket.map((item) => (
+              <div key={item.id} className="bg-[#16181D] rounded-xl border border-gray-800 overflow-hidden group hover:border-green-500/50 transition-all flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="relative h-48 overflow-hidden"><img src={item.image} loading="lazy" alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />{item.badge && <span className="absolute top-2 right-2 bg-green-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-md">{item.badge}</span>}</div>
+                <div className="p-4 flex-1 flex flex-col">
+                  <div className="text-[10px] text-gray-500 mb-1 uppercase tracking-wide">{item.category}</div>
+                  <h4 className="text-sm font-bold line-clamp-2 mb-2 min-h-[40px] group-hover:text-green-400 transition-colors">{item.title}</h4>
+                  <div className="flex items-center justify-between text-xs text-gray-500 mb-4 mt-auto"><span className="flex items-center"><User className="w-3 h-3 mr-1" /> {item.seller}</span></div>
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-800"><span className="text-lg font-bold text-white">{item.price}</span><button className="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-lg transition-colors flex items-center justify-center" title="Satın Al"><CreditCard className="w-4 h-4" /></button></div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="text-center pb-8"><button onClick={handleLoadMore} disabled={isLoadingMore} className="bg-[#16181D] hover:bg-gray-800 text-gray-400 hover:text-white px-8 py-3 rounded-full font-bold text-sm border border-gray-700 transition-colors flex items-center gap-2 mx-auto disabled:opacity-50">{isLoadingMore ? <Loader2 className="w-4 h-4 animate-spin"/> : <ArrowDownCircle className="w-4 h-4"/>}{isLoadingMore ? t.market.loading : t.market.load_more}</button></div>
+        </>
+      )}
+    </div>
+  );
+};
+
+const HiveView = ({ lang, searchTerm }) => {
+  const t = LOCALE[lang];
+  const [feed, setFeed] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setIsLoading(true);
+    api.fetchHive(lang, 1).then(data => {
+      setFeed(data);
+      setIsLoading(false);
+    });
+  }, [lang]);
+
+  const handleLoadMore = () => {
+    setIsLoadingMore(true);
+    api.fetchHive(lang, page + 1).then(newPosts => {
+      setFeed(prev => [...prev, ...newPosts]);
+      setPage(prev => prev + 1);
+      setIsLoadingMore(false);
+    });
+  };
+
+  const filteredFeed = useMemo(() => {
+    let data = feed;
+    if (searchTerm) {
+      const lowerTerm = searchTerm.toLowerCase();
+      data = data.filter(post => 
+        post.title.toLowerCase().includes(lowerTerm) || 
+        post.content.toLowerCase().includes(lowerTerm) ||
+        post.author.toLowerCase().includes(lowerTerm)
+      );
+    }
+    return data;
+  }, [feed, searchTerm]);
+
+  return (
+    <div className="animate-in fade-in duration-500">
+      <div className="mb-10">
+        <div className="flex flex-col md:flex-row justify-between items-end border-b border-gray-800 pb-6 mb-6">
+          <div><h2 className="text-4xl font-bold mb-2 flex items-center gap-3 text-white font-[Orbitron,sans-serif]"><span className="text-orange-500">{t.hive.title}</span><span className="text-gray-600 text-2xl font-sans font-normal">{t.hive.subtitle}</span></h2><p className="text-gray-400 max-w-xl">{t.hive.desc}</p></div>
+          <div className="flex items-center gap-2 mt-4 md:mt-0">{t.hive.filters.map(f => (<button key={f} className="px-4 py-2 rounded-full text-sm font-bold bg-[#16181D] text-gray-400 hover:text-white hover:bg-gray-800 border border-gray-700">{f}</button>))}</div>
+        </div>
+        <div className="bg-[#16181D] border border-gray-800 rounded-xl p-4 flex items-center gap-4 hover:border-gray-700 transition-colors shadow-lg cursor-pointer mb-8"><div className="w-10 h-10 rounded-full bg-gradient-to-tr from-orange-500 to-purple-600 flex items-center justify-center font-bold text-white flex-shrink-0"><User className="w-5 h-5"/></div><input type="text" placeholder={t.hive.input_ph} className="bg-transparent text-white w-full outline-none placeholder-gray-500 text-sm"/><div className="flex gap-2 text-gray-500"><button className="p-2 hover:bg-gray-800 rounded-lg hover:text-cyan-400 transition-colors"><ImageIcon className="w-5 h-5"/></button><button className="p-2 hover:bg-gray-800 rounded-lg hover:text-orange-400 transition-colors"><MessageSquarePlus className="w-5 h-5"/></button></div></div>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="lg:col-span-8 space-y-6">
+          {isLoading ? <LoadingSkeleton count={2} type="list" /> : (
+            <>
+              {filteredFeed.map((post) => (
+                <div key={post.id} className="bg-[#16181D] border border-gray-800 rounded-2xl overflow-hidden hover:border-gray-700 transition-all group shadow-sm hover:shadow-md animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="p-5 flex items-start justify-between"><div className="flex items-center gap-3"><div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center font-bold text-gray-400 border border-gray-700">{post.author.charAt(0)}</div><div><div className="flex items-center gap-2"><span className="font-bold text-white">{post.author}</span><span className="text-[10px] px-1.5 py-0.5 rounded border border-gray-700 text-gray-500">{post.rank}</span></div><span className="text-xs text-gray-500">{post.time}</span></div></div><button className="text-gray-600 hover:text-white"><MoreHorizontal className="w-5 h-5"/></button></div>
+                  <div className="px-5 pb-3"><div className="mb-3"><span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-wider mb-2 ${post.type === 'SORUN' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}`}>{post.type}</span><h3 className="text-xl font-bold text-white mb-2 leading-snug group-hover:text-orange-400 transition-colors">{post.title}</h3><p className="text-gray-300 text-sm leading-relaxed">{post.content}</p></div>{post.image && <div className="mt-4 rounded-xl overflow-hidden border border-gray-800 relative bg-black max-h-[500px]"><img src={post.image} loading="lazy" alt="Post" className="w-full h-full object-contain" /></div>}
+                  {post.tags && <div className="flex gap-2 mt-4 flex-wrap">{post.tags.map(tag => <span key={tag} className="text-xs text-gray-500 hover:text-cyan-400 cursor-pointer transition-colors">#{tag}</span>)}</div>}
+                  </div>
+                  <div className="px-5 py-4 bg-[#1a1d23] border-t border-gray-800 flex items-center justify-between"><div className="flex items-center gap-1 bg-gray-800/50 rounded-full p-1 border border-gray-700"><button className="p-1.5 hover:bg-gray-700 rounded-full text-gray-400 hover:text-orange-500"><ThumbsUp className="w-4 h-4"/></button><span className="text-sm font-bold text-white px-2">{post.upvotes}</span><button className="p-1.5 hover:bg-gray-700 rounded-full text-gray-400 hover:text-blue-500"><ThumbsDown className="w-4 h-4"/></button></div><div className="flex gap-4 text-sm font-bold text-gray-500"><button className="flex items-center gap-2 hover:text-white"><MessageSquare className="w-4 h-4"/> {post.comments} {t.common.comments}</button></div></div>
+                </div>
+              ))}
+              <div className="text-center pt-2 pb-8"><button onClick={handleLoadMore} disabled={isLoadingMore} className="bg-[#16181D] hover:bg-gray-800 text-gray-400 hover:text-white px-8 py-3 rounded-full font-bold text-sm border border-gray-700 transition-colors flex items-center gap-2 mx-auto disabled:opacity-50">{isLoadingMore ? <Loader2 className="w-4 h-4 animate-spin"/> : <ArrowDownCircle className="w-4 h-4"/>}{isLoadingMore ? t.market.loading : t.market.load_more}</button></div>
+            </>
+          )}
+        </div>
+        <div className="lg:col-span-4 space-y-6">
+           <div className="bg-[#16181D] border border-gray-800 rounded-2xl p-6"><h4 className="font-bold text-gray-300 mb-4 flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-green-500"/> {t.hive.rules_title}</h4><ul className="space-y-3 text-xs text-gray-400"><li className="flex items-start gap-2"><span className="text-orange-500 font-bold">1.</span> <span>Saygı.</span></li><li className="flex items-start gap-2"><span className="text-orange-500 font-bold">2.</span> <span>No spam.</span></li></ul></div>
+           
+           {/* Trending News in Hive Sidebar */}
+           <div className="bg-[#16181D] border border-gray-800 rounded-2xl p-6">
+             <h4 className="font-bold text-gray-300 mb-4 flex items-center gap-2"><BarChart2 className="w-4 h-4 text-orange-500"/> Popüler</h4>
+             <div className="space-y-4">
+                {TRENDING_NEWS.map((item, idx) => (
+                  <div key={item.id} className="flex items-start gap-3 group cursor-pointer">
+                     <span className="text-4xl font-black text-gray-800 group-hover:text-orange-500/50 transition-colors leading-none -mt-1">{idx + 1}</span>
+                     <div>
+                       <h4 className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors leading-snug mb-1">{item.title}</h4>
+                       <span className="text-[10px] text-gray-500 flex items-center"><Eye className="w-3 h-3 mr-1"/> {item.views}</span>
+                     </div>
+                  </div>
+                ))}
+             </div>
+           </div>
+
+           <div className="bg-[#16181D] border border-gray-800 rounded-2xl p-6">
+              <h4 className="font-bold text-gray-300 mb-4 flex items-center gap-2"><Hash className="w-4 h-4 text-orange-500"/> Popüler Konular</h4>
+              <div className="flex flex-wrap gap-2">
+                 {TRENDING_TAGS.map(tag => (
+                    <span key={tag} className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs rounded-lg cursor-pointer transition-colors border border-gray-700 hover:border-gray-600">{tag}</span>
+                 ))}
+              </div>
+           </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const TechView = ({ onNavigate, lang, searchTerm }) => {
+  const content = DATA_SOURCE[lang];
+  const t = LOCALE[lang];
+
+  const filteredTech = useMemo(() => {
+    let data = content.tech_data;
+    if (searchTerm) {
+      const lowerTerm = searchTerm.toLowerCase();
+      data = data.filter(item => 
+        item.title.toLowerCase().includes(lowerTerm) || 
+        item.description.toLowerCase().includes(lowerTerm)
+      );
+    }
+    return data;
+  }, [content.tech_data, searchTerm]);
+
+  return (
+    <div className="animate-in fade-in duration-500">
+       <div className="mb-8 border-b border-cyan-500/30 pb-6 relative">
+          <div className="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/5 rounded-full blur-3xl"></div>
+          <h2 className="text-3xl font-bold mb-2 flex items-center gap-3 text-cyan-400 font-[Orbitron,sans-serif]"><Wrench className="w-8 h-8" /> {t.tech.title}</h2>
+          <p className="text-gray-400 text-sm max-w-xl">{t.tech.subtitle}</p>
+       </div>
+
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+          {filteredTech.map((item) => (
+             <div key={item.id} className="bg-[#0F1014] rounded-xl border border-gray-800 overflow-hidden relative group hover:border-cyan-500/50 transition-all">
+                <div className="absolute inset-0 opacity-5 bg-[linear-gradient(rgba(0,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.1)_1px,transparent_1px)] bg-[size:20px_20px]"></div>
+                <div className="flex flex-col md:flex-row h-full relative z-10">
+                   <div className="md:w-2/5 h-48 md:h-auto relative overflow-hidden border-r border-gray-800">
+                      <img src="https://images.unsplash.com/photo-1601057049463-547e2316e10f?q=80&w=800&auto=format&fit=crop" loading="lazy" alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                      <div className="absolute top-2 left-2 bg-black/80 backdrop-blur text-cyan-400 text-[10px] font-bold px-2 py-1 rounded border border-cyan-900">{item.type}</div>
+                   </div>
+                   <div className="p-6 flex-1 flex flex-col justify-between">
+                      <div><div className="flex justify-between items-start mb-2"><h3 className="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors">{item.title}</h3><span className="text-xs font-bold text-green-400 border border-green-500/30 px-2 py-1 rounded bg-green-500/10">{item.verdict}</span></div>
+                      {item.specs && <div className="grid grid-cols-3 gap-2 mb-4 bg-gray-900/50 p-2 rounded-lg border border-gray-800">{item.specs.map((spec, i) => (<div key={i} className="text-center"><span className="block text-[10px] text-gray-500 uppercase">{spec.label}</span><span className="block text-xs font-bold text-gray-200">{spec.value}</span></div>))}</div>}
+                      <p className="text-sm text-gray-400 mb-4 line-clamp-3">{item.description}</p></div>
+                      {item.codeSnippet && <div className="bg-[#0a0a0c] rounded-lg p-3 border border-gray-800 font-mono text-[10px] text-gray-300 relative group-hover:border-cyan-900 transition-colors"><div className="absolute top-2 right-2 text-cyan-500 opacity-50"><Code className="w-3 h-3"/></div><pre className="overflow-x-auto">{item.codeSnippet}</pre></div>}
+                   </div>
+                </div>
+             </div>
+          ))}
+       </div>
+
+       {/* Tools */}
+       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+          <div className="md:col-span-2">
+             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Calculator className="w-5 h-5 text-cyan-400"/> {t.tech.tools_title}</h3>
+             <div className="grid grid-cols-2 gap-4">
+                {WORKSHOP_TOOLS.map((tool) => (
+                   <div key={tool.id} className="bg-[#16181D] hover:bg-gray-800 border border-gray-800 rounded-xl p-4 cursor-pointer transition-colors flex items-start gap-4">
+                      <div className="p-3 bg-cyan-500/10 rounded-lg">{tool.icon}</div><div><h4 className="font-bold text-white text-sm">{tool.name}</h4><p className="text-xs text-gray-500 mt-1">{tool.desc}</p></div>
+                   </div>
+                ))}
+             </div>
+          </div>
+          <div>
+             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><FileCode className="w-5 h-5 text-green-400"/> {t.tech.fw_title}</h3>
+             <div className="bg-[#16181D] border border-gray-800 rounded-xl p-4 space-y-4">
+                {FIRMWARE_UPDATES.map((fw, i) => (
+                   <div key={i} className="flex items-center justify-between border-b border-gray-800 pb-3 last:border-0 last:pb-0"><div className="flex items-center gap-3"><Github className="w-4 h-4 text-gray-500"/><div><span className="block text-sm font-bold text-white">{fw.name}</span><span className="text-[10px] text-gray-500">{fw.date}</span></div></div><div className="text-right"><span className="block text-xs font-mono text-green-400">{fw.version}</span><span className="text-[10px] bg-gray-800 px-1.5 py-0.5 rounded text-gray-400">{fw.tag}</span></div></div>
+                ))}
+             </div>
+          </div>
+       </div>
+       
+       <div className="mb-12">
+        <div className="flex items-center gap-3 mb-6"><div className="bg-orange-600 p-2 rounded-lg"><Terminal className="w-6 h-6 text-white" /></div><div><h3 className="text-2xl font-bold text-white">{t.tech.klipper_title}</h3></div></div>
+        <div className="bg-[#16181D] border border-gray-800 rounded-xl overflow-hidden">
+           {KLIPPER_DATA.map((klipper) => (
+              <div key={klipper.id} className="flex flex-col md:flex-row border-b border-gray-800 last:border-0 hover:bg-gray-800/30 transition-colors">
+                 <div className="p-6 md:w-1/4 border-b md:border-b-0 md:border-r border-gray-800 flex flex-col justify-center bg-black/20"><span className="text-xs font-bold text-gray-500 uppercase mb-1">PROJE</span><h4 className="text-xl font-bold text-white mb-2">{klipper.machine}</h4><div className="flex flex-col gap-2"><span className="inline-flex items-center text-xs text-orange-400 bg-orange-500/10 px-2 py-1 rounded border border-orange-500/20 w-fit"><Activity className="w-3 h-3 mr-1" /> {klipper.upgrade}</span></div></div>
+                 <div className="p-6 md:w-2/4 flex flex-col justify-center"><div className="grid grid-cols-2 gap-4 mb-4"><div><span className="text-[10px] text-gray-500 block uppercase">HIZ</span><span className="text-sm font-bold text-white flex items-center"><FastForward className="w-4 h-4 mr-1 text-cyan-500"/> {klipper.speedIncrease}</span></div><div><span className="text-[10px] text-gray-500 block uppercase">MALİYET</span><span className="text-sm font-bold text-white">{klipper.cost}</span></div></div><p className="text-xs text-gray-400">Marlin firmware yerine Klipper yüklenerek, Input Shaping kalibrasyonu yapıldı.</p></div>
+                 <div className="p-6 md:w-1/4 bg-[#0a0a0c] font-mono text-[10px] text-green-400 overflow-hidden relative"><div className="absolute top-2 right-2 text-gray-600"><Code className="w-3 h-3"/> printer.cfg</div><pre className="whitespace-pre-wrap">{klipper.config}</pre><button onClick={() => onNavigate('guide_klipper')} className="mt-2 text-white bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-xs w-full transition-colors">{t.tech.guide_btn}</button></div>
+              </div>
+           ))}
+        </div>
+       </div>
+    </div>
+  );
+};
+
+const GuideKlipperView = ({ onBack }) => (
+  <div className="animate-in slide-in-from-right duration-500">
+     <button onClick={onBack} className="mb-6 flex items-center text-gray-400 hover:text-white transition-colors text-sm font-bold"><ArrowLeft className="w-4 h-4 mr-2" /> GERİ</button>
+     <div className="bg-[#16181D] border border-gray-800 rounded-2xl overflow-hidden mb-12">
+        <div className="bg-gradient-to-r from-orange-900/50 to-orange-900/10 p-8 border-b border-gray-800 relative">
+           <Terminal className="absolute top-8 right-8 w-24 h-24 text-orange-500/10" />
+           <h1 className="text-3xl font-bold text-white mb-4 font-[Orbitron,sans-serif]">KLIPPER REHBERİ</h1>
+           <p className="text-lg text-gray-300 max-w-2xl">Eski yazıcınıza modern özellikler kazandırın.</p>
+        </div>
+        <div className="p-8 space-y-12">
+          {KLIPPER_GUIDE_STEPS.map((step, index) => (
+             <div key={index} className="flex flex-col md:flex-row gap-6 relative">
+                <div className="flex-shrink-0"><div className="w-8 h-8 rounded-full bg-orange-600/20 text-orange-500 border border-orange-500/50 flex items-center justify-center font-bold text-sm">{index + 1}</div></div>
+                <div className="flex-1">
+                   <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
+                   <p className="text-gray-400 text-sm leading-relaxed mb-4">{step.content}</p>
+                </div>
+             </div>
+          ))}
+        </div>
+     </div>
+  </div>
+);
+
+const AiView = ({ lang, searchTerm }) => {
+  const t = LOCALE[lang];
+
+  const filteredTools = useMemo(() => {
+    let data = AI_TOOLS;
+    if (searchTerm) {
+      const lowerTerm = searchTerm.toLowerCase();
+      data = data.filter(tool => 
+        tool.name.toLowerCase().includes(lowerTerm) || 
+        tool.description.toLowerCase().includes(lowerTerm) ||
+        tool.type.toLowerCase().includes(lowerTerm)
+      );
+    }
+    return data;
+  }, [searchTerm]);
+
+  return (
+    <div className="animate-in fade-in duration-500">
+      <div className="mb-8 border-b border-purple-500/30 pb-6 relative">
+          <div className="absolute -top-10 -left-10 w-40 h-40 bg-purple-500/5 rounded-full blur-3xl"></div>
+          <h2 className="text-3xl font-bold mb-2 flex items-center gap-3 text-purple-400 font-[Orbitron,sans-serif]"><Brain className="w-8 h-8" /> {t.ai.title}</h2>
+          <p className="text-gray-400 text-sm max-w-xl">{t.ai.subtitle}</p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        {filteredTools.map((tool) => (
+          <div key={tool.id} className="bg-[#16181D] rounded-xl border border-gray-800 p-6 hover:border-purple-500/50 transition-all group hover:bg-[#1a1d24]">
+             <div className="flex justify-between items-start mb-4"><div className="p-3 bg-purple-500/10 rounded-lg group-hover:bg-purple-500/20 transition-colors">{tool.icon}</div><span className="text-[10px] font-bold text-gray-500 uppercase border border-gray-700 px-2 py-1 rounded">{tool.type}</span></div>
+             <h3 className="text-lg font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">{tool.name}</h3>
+             <p className="text-sm text-gray-400 mb-6 min-h-[60px]">{tool.description}</p>
+             <div className="flex justify-between items-center pt-4 border-t border-gray-800"><span className="text-xs text-purple-300 font-medium flex items-center"><Sparkles className="w-3 h-3 mr-1"/> {tool.tag}</span><button className="text-xs font-bold text-white bg-gray-700 hover:bg-purple-600 px-4 py-2 rounded-lg transition-colors flex items-center">{LOCALE[lang].common.inspect} <ArrowRight className="w-3 h-3 ml-1" /></button></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const NewsView = ({ lang, searchTerm }) => {
+  const t = LOCALE[lang];
+  const [newsFilter, setNewsFilter] = useState('Hepsi');
+  const [news, setNews] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(true);
+    api.fetchNews(lang).then(data => {
+      setNews(data);
+      setIsLoading(false);
+    });
+  }, [lang]);
+
+  const filteredNews = useMemo(() => {
+    let data = newsFilter === 'Hepsi' || newsFilter === 'All' ? news : news.filter(item => item.category === newsFilter);
+    
+    if (searchTerm) {
+      const lowerTerm = searchTerm.toLowerCase();
+      data = data.filter(item => 
+        item.title.toLowerCase().includes(lowerTerm) || 
+        item.summary.toLowerCase().includes(lowerTerm)
+      );
+    }
+    return data;
+  }, [newsFilter, news, searchTerm]);
+
+  return (
+    <div className="animate-in fade-in duration-500">
+      <div className="flex flex-col md:flex-row justify-between items-end mb-8 border-b border-gray-800 pb-6">
+        <div><h2 className="text-3xl font-bold mb-2 flex items-center gap-3"><span className="p-2 bg-orange-500/10 rounded-lg text-orange-500"><FlaskConical className="w-6 h-6" /></span> {t.news.title}</h2><p className="text-gray-400 text-sm max-w-xl">{t.news.subtitle}</p></div>
+        <div className="flex flex-wrap gap-2 mt-4 md:mt-0">{t.news.filters.map((filter) => (<button key={filter} onClick={() => setNewsFilter(filter)} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${newsFilter === filter ? 'bg-orange-600 text-white' : 'bg-[#16181D] hover:bg-gray-800 text-gray-300 border border-gray-700'}`}>{filter}</button>))}</div>
+      </div>
+      {isLoading ? <LoadingSkeleton count={3} type="card" /> : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {filteredNews.map((news) => (
+             <div key={news.id} className="bg-[#16181D] border border-gray-800 rounded-xl overflow-hidden hover:border-gray-600 transition-all group flex flex-col h-full">
+               <div className="h-48 overflow-hidden relative"><img src={news.image} loading="lazy" alt={news.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" /><div className="absolute top-2 left-2 flex gap-2"><span className="bg-black/60 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded border border-gray-600">{news.subcategory}</span></div></div>
+               <div className="p-5 flex-1 flex flex-col">
+                 <div className="flex justify-between items-center mb-2"><span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${news.category === 'TEST' || news.category === 'REVIEW' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : 'bg-green-500/10 text-green-400 border-green-500/20'}`}>{news.category}</span>{news.score && <span className="flex items-center text-yellow-500 text-xs font-bold"><Star className="w-3 h-3 mr-1 fill-yellow-500"/>{news.score}</span>}</div>
+                 <h3 className="text-lg font-bold mb-3 leading-snug group-hover:text-cyan-400 transition-colors line-clamp-2">{news.title}</h3>
+                 <p className="text-gray-400 text-sm line-clamp-3 mb-4 flex-1">{news.summary}</p>
+                 <div className="pt-4 border-t border-gray-800 flex items-center justify-between"><div className="flex items-center gap-2"><span className="text-xs text-gray-400 font-medium">{news.author}</span></div><div className="flex gap-2 text-gray-500"><Bookmark className="w-4 h-4 hover:text-white cursor-pointer"/><Share2 className="w-4 h-4 hover:text-white cursor-pointer"/></div></div>
+               </div>
+             </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// --- MAIN APP COMPONENT ---
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('home');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [lang, setLang] = useState('TR');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setIsMobileMenuOpen(false);
+    window.scrollTo(0, 0);
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0F1014] text-[#EAEAEA] font-sans selection:bg-orange-500 selection:text-white">
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-[60] bg-[#0F1014] animate-in slide-in-from-right duration-300">
+          <div className="p-4 flex justify-between items-center border-b border-gray-800">
+             <span className="text-xl font-bold tracking-wider font-[Orbitron,sans-serif]">3D-LABX</span>
+             <button onClick={() => setIsMobileMenuOpen(false)} className="text-gray-300"><X className="w-8 h-8" /></button>
+          </div>
+          <div className="p-6 flex flex-col space-y-6 text-lg font-bold">
+            <button onClick={() => handleTabChange('news')} className="text-orange-400 flex items-center gap-2"><FlaskConical className="w-5 h-5"/> {LOCALE[lang].nav.news}</button>
+            <button onClick={() => handleTabChange('tech')} className="text-cyan-400 flex items-center gap-2"><Wrench className="w-5 h-5"/> {LOCALE[lang].nav.tech}</button>
+            <button onClick={() => handleTabChange('ai')} className="text-purple-400 flex items-center gap-2"><Brain className="w-5 h-5"/> {LOCALE[lang].nav.ai}</button>
+            <button onClick={() => handleTabChange('hive')} className="text-orange-500 flex items-center gap-2"><Flame className="w-5 h-5"/> {LOCALE[lang].nav.hive}</button>
+            <button onClick={() => handleTabChange('market')} className="text-green-400 flex items-center gap-2"><ShoppingBag className="w-5 h-5"/> {LOCALE[lang].nav.market}</button>
+          </div>
+        </div>
+      )}
+
+      {/* Main Header */}
+      <Header 
+        activeTab={activeTab} 
+        onTabChange={handleTabChange} 
+        onMenuOpen={() => setIsMobileMenuOpen(true)} 
+        lang={lang} 
+        setLang={setLang}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+      />
+
+      {/* Main Content Area */}
+      <main className="container mx-auto px-4 pt-28 pb-12">
+        {activeTab === 'home' && <HomeView onNavigate={handleTabChange} lang={lang} />}
+        {activeTab === 'news' && <NewsView lang={lang} searchTerm={searchTerm} />}
+        {activeTab === 'tech' && <TechView onNavigate={handleTabChange} lang={lang} searchTerm={searchTerm} />}
+        {activeTab === 'market' && <MarketView lang={lang} searchTerm={searchTerm} />}
+        {activeTab === 'hive' && <HiveView lang={lang} searchTerm={searchTerm} />}
+        {activeTab === 'guide_klipper' && <GuideKlipperView onBack={() => handleTabChange('tech')} />}
+        {activeTab === 'ai' && <AiView lang={lang} searchTerm={searchTerm} />}
+        {activeTab === 'auth' && <AuthView onNavigate={handleTabChange} lang={lang} />}
+      </main>
+    </div>
+  );
+}

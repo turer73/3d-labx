@@ -1,0 +1,561 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+---
+
+<BaseLayout title="Profilim – 3D-labX">
+  <Header />
+
+  <main class="profile-page">
+    <div class="container">
+      <!-- Yükleniyor durumu -->
+      <div id="loadingState" class="loading-state">
+        <div class="spinner"></div>
+        <p>Profil yükleniyor...</p>
+      </div>
+
+      <!-- Giriş yapılmamış durumu -->
+      <div id="loginPrompt" class="login-prompt hidden">
+        <div class="prompt-icon">👤</div>
+        <h2>Giriş Yapın</h2>
+        <p>Profilinizi görüntülemek için giriş yapmanız gerekiyor.</p>
+        <div class="prompt-buttons">
+          <a href="/giris" class="btn btn-primary">Giriş Yap</a>
+          <a href="/kayit" class="btn btn-secondary">Kayıt Ol</a>
+        </div>
+      </div>
+
+      <!-- Profil içeriği -->
+      <div id="profileContent" class="profile-content hidden">
+        <!-- Profil Header -->
+        <div class="profile-header">
+          <div class="profile-avatar" id="profileAvatar">
+            <span id="avatarInitials">U</span>
+          </div>
+          <div class="profile-info">
+            <h1 id="displayName">Kullanıcı</h1>
+            <p class="username" id="username">@kullanici</p>
+            <p class="bio" id="bio"></p>
+            <div class="profile-meta">
+              <span id="location" class="meta-item hidden">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span></span>
+              </span>
+              <span id="website" class="meta-item hidden">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <a href="#" target="_blank"></a>
+              </span>
+              <span class="meta-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span id="joinDate">-</span>
+              </span>
+            </div>
+          </div>
+          <a href="/profil/ayarlar" class="btn btn-secondary edit-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Profili Düzenle
+          </a>
+        </div>
+
+        <!-- İstatistikler -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon orange">📝</div>
+            <div class="stat-info">
+              <span class="stat-value" id="postsCount">0</span>
+              <span class="stat-label">Yazı</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon cyan">💬</div>
+            <div class="stat-info">
+              <span class="stat-value" id="commentsCount">0</span>
+              <span class="stat-label">Yorum</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple">❤️</div>
+            <div class="stat-info">
+              <span class="stat-value" id="likesCount">0</span>
+              <span class="stat-label">Beğeni</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">🏆</div>
+            <div class="stat-info">
+              <span class="stat-value" id="badgesCount">0</span>
+              <span class="stat-label">Rozet</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sekmeler -->
+        <div class="profile-tabs">
+          <button class="tab-btn active" data-tab="activity">Son Aktiviteler</button>
+          <button class="tab-btn" data-tab="posts">Yazılarım</button>
+          <button class="tab-btn" data-tab="bookmarks">Kaydedilenler</button>
+        </div>
+
+        <!-- Tab İçerikleri -->
+        <div class="tab-content">
+          <div id="tab-activity" class="tab-panel active">
+            <div class="empty-state">
+              <span class="empty-icon">📊</span>
+              <p>Henüz aktivite yok</p>
+            </div>
+          </div>
+          <div id="tab-posts" class="tab-panel hidden">
+            <div class="empty-state">
+              <span class="empty-icon">📝</span>
+              <p>Henüz yazı yok</p>
+              <a href="/admin/new" class="btn btn-primary btn-sm">İlk Yazını Yaz</a>
+            </div>
+          </div>
+          <div id="tab-bookmarks" class="tab-panel hidden">
+            <div class="empty-state">
+              <span class="empty-icon">🔖</span>
+              <p>Kaydedilen içerik yok</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .profile-page {
+    padding: 100px 20px 60px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 20px;
+    color: var(--text-muted);
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-soft);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .login-prompt {
+    text-align: center;
+    padding: 80px 20px;
+    background: var(--bg-card);
+    border-radius: 20px;
+    border: 1px solid var(--border-soft);
+  }
+
+  .prompt-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+  }
+
+  .login-prompt h2 {
+    margin-bottom: 12px;
+  }
+
+  .login-prompt p {
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  .prompt-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  /* Profile Header */
+  .profile-header {
+    display: flex;
+    gap: 24px;
+    padding: 30px;
+    background: var(--bg-card);
+    border-radius: 20px;
+    border: 1px solid var(--border-soft);
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #A855F7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .profile-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .profile-info {
+    flex: 1;
+  }
+
+  .profile-info h1 {
+    font-size: 1.75rem;
+    margin-bottom: 4px;
+  }
+
+  .username {
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .bio {
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  .profile-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .meta-item a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .meta-item a:hover {
+    text-decoration: underline;
+  }
+
+  .edit-btn {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+  }
+
+  .stat-icon.orange { background: rgba(249, 115, 22, 0.1); }
+  .stat-icon.cyan { background: rgba(6, 182, 212, 0.1); }
+  .stat-icon.purple { background: rgba(168, 85, 247, 0.1); }
+  .stat-icon.green { background: rgba(34, 197, 94, 0.1); }
+
+  .stat-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .stat-label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  /* Tabs */
+  .profile-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    background: var(--bg-card);
+    padding: 8px;
+    border-radius: 12px;
+    border: 1px solid var(--border-soft);
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 12px 20px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover {
+    color: var(--text-main);
+  }
+
+  .tab-btn.active {
+    background: var(--accent);
+    color: white;
+  }
+
+  .tab-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 30px;
+    min-height: 200px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+  }
+
+  .empty-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 16px;
+  }
+
+  .empty-state p {
+    margin-bottom: 16px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-secondary {
+    background: var(--bg-main);
+    color: var(--text-main);
+    border: 1px solid var(--border-soft);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--accent);
+  }
+
+  .btn-sm {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 768px) {
+    .profile-header {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .profile-avatar {
+      margin: 0 auto;
+    }
+
+    .profile-meta {
+      justify-content: center;
+    }
+
+    .edit-btn {
+      position: static;
+      margin-top: 16px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .profile-tabs {
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      flex: none;
+      width: calc(50% - 4px);
+    }
+  }
+</style>
+
+<script is:inline>
+  const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('authToken');
+
+    if (!token) {
+      showLoginPrompt();
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/api/auth/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!res.ok) {
+        throw new Error('Oturum geçersiz');
+      }
+
+      const user = await res.json();
+      showProfile(user);
+    } catch (error) {
+      console.error('Auth error:', error);
+      localStorage.removeItem('authToken');
+      showLoginPrompt();
+    }
+  });
+
+  function showLoginPrompt() {
+    document.getElementById('loadingState').classList.add('hidden');
+    document.getElementById('loginPrompt').classList.remove('hidden');
+  }
+
+  function showProfile(user) {
+    document.getElementById('loadingState').classList.add('hidden');
+    document.getElementById('profileContent').classList.remove('hidden');
+
+    // Avatar
+    const avatar = document.getElementById('profileAvatar');
+    const initials = (user.display_name || user.username || 'U').substring(0, 2).toUpperCase();
+    if (user.avatar_url) {
+      avatar.innerHTML = `<img src="${user.avatar_url}" alt="${user.username}" />`;
+    } else {
+      document.getElementById('avatarInitials').textContent = initials;
+    }
+
+    // Temel bilgiler
+    document.getElementById('displayName').textContent = user.display_name || user.username;
+    document.getElementById('username').textContent = `@${user.username}`;
+
+    if (user.bio) {
+      document.getElementById('bio').textContent = user.bio;
+    }
+
+    // Meta bilgiler
+    if (user.location) {
+      const locationEl = document.getElementById('location');
+      locationEl.classList.remove('hidden');
+      locationEl.querySelector('span:last-child').textContent = user.location;
+    }
+
+    if (user.website) {
+      const websiteEl = document.getElementById('website');
+      websiteEl.classList.remove('hidden');
+      const link = websiteEl.querySelector('a');
+      link.href = user.website;
+      link.textContent = new URL(user.website).hostname;
+    }
+
+    // Kayıt tarihi
+    if (user.created_at) {
+      const date = new Date(user.created_at);
+      document.getElementById('joinDate').textContent = date.toLocaleDateString('tr-TR', {
+        month: 'long',
+        year: 'numeric'
+      }) + ' tarihinde katıldı';
+    }
+
+    // İstatistikler
+    if (user.stats) {
+      document.getElementById('postsCount').textContent = user.stats.posts || 0;
+      document.getElementById('commentsCount').textContent = user.stats.comments || 0;
+      document.getElementById('likesCount').textContent = user.stats.likes || 0;
+      document.getElementById('badgesCount').textContent = user.stats.badges || 0;
+    }
+
+    // Tab işlevselliği
+    setupTabs();
+  }
+
+  function setupTabs() {
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabId = btn.dataset.tab;
+
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabPanels.forEach(p => p.classList.add('hidden'));
+
+        btn.classList.add('active');
+        document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      });
+    });
+  }
+</script>

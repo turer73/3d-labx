@@ -1,0 +1,27 @@
+{
+  "project": "3dlabx-tech-portal",
+  "lastUpdated": "2026-01-26",
+  "status": "ready",
+  "fullPermissions": true,
+  "autoResume": true,
+  "completedTasks": [
+    "R2 bucket created: tech-portal-images",
+    "R2 upload/delete/list endpoints added to API",
+    "R2 public URL configured: https://pub-9142f11355e84e1da1dd96a4c14e4afb.r2.dev",
+    "API deployed with R2 binding",
+    "Claude Code full permissions configured"
+  ],
+  "pendingTasks": [],
+  "notes": {
+    "apiUrl": "https://tech-portal-api.turgut-d01.workers.dev",
+    "frontendUrl": "https://3d-labx.com",
+    "r2PublicUrl": "https://pub-9142f11355e84e1da1dd96a4c14e4afb.r2.dev",
+    "adminSecret": "Tur04520,",
+    "r2Endpoints": {
+      "upload": "POST /admin/upload-image",
+      "delete": "DELETE /admin/delete-image/{key}",
+      "list": "GET /admin/images"
+    }
+  },
+  "resumeInstructions": "CLAUDE.md dosyasını oku, tam yetki ile çalış, bekleyen görevleri tamamla."
+}

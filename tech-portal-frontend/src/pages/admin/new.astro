@@ -1,0 +1,1223 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import "../../styles/admin.css";
+---
+
+<BaseLayout title="Yeni Yazı – Admin Panel" noIndex={true}>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="/" class="logo">3D-labX</a>
+        <span class="badge badge-primary">Admin</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-item">
+          <span class="icon">📊</span>
+          Dashboard
+        </a>
+        <a href="/admin/posts" class="nav-item">
+          <span class="icon">📝</span>
+          Yazılar
+        </a>
+        <a href="/admin/users" class="nav-item">
+          <span class="icon">👥</span>
+          Üyeler
+        </a>
+        <a href="/admin/rss" class="nav-item">
+          <span class="icon">📡</span>
+          RSS Kaynakları
+        </a>
+        <a href="/admin/content-boxes" class="nav-item">
+          <span class="icon">📦</span>
+          İçerik Kutuları
+        </a>
+        <a href="/admin/new" class="nav-item active">
+          <span class="icon">➕</span>
+          Yeni Yazı
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="logoutBtn" class="btn btn-ghost btn-full">
+          🚪 Çıkış Yap
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="content-header">
+        <div>
+          <h1>Yeni Yazı Oluştur</h1>
+          <p class="text-muted">Yeni bir içerik ekleyin</p>
+        </div>
+      </header>
+
+      <form id="postForm" class="post-form">
+        <div class="form-grid">
+          <div class="form-main">
+            <div class="form-group">
+              <label for="title_tr">Başlık (Türkçe) *</label>
+              <input type="text" id="title_tr" name="title_tr" required placeholder="Yazı başlığı..." />
+            </div>
+
+            <div class="form-group">
+              <label for="summary_tr">Özet (Türkçe) *</label>
+              <textarea id="summary_tr" name="summary_tr" rows="3" required placeholder="Kısa özet yazın..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>İçerik (Türkçe) *</label>
+
+              <!-- Editor Mode Tabs -->
+              <div class="editor-tabs">
+                <button type="button" class="editor-tab active" data-mode="html">
+                  <span>🔧</span> HTML Kod
+                </button>
+                <button type="button" class="editor-tab" data-mode="preview">
+                  <span>👁️</span> Önizleme
+                </button>
+              </div>
+
+              <!-- Editor Toolbar -->
+              <div class="editor-toolbar">
+                <div class="toolbar-group">
+                  <span class="toolbar-label">Metin:</span>
+                  <button type="button" class="toolbar-btn" data-insert="heading" title="Başlık (H2)">
+                    <strong>H2</strong>
+                  </button>
+                  <button type="button" class="toolbar-btn" data-insert="paragraph" title="Paragraf">
+                    ¶
+                  </button>
+                  <button type="button" class="toolbar-btn" data-insert="bold" title="Kalın">
+                    <strong>B</strong>
+                  </button>
+                  <button type="button" class="toolbar-btn" data-insert="list" title="Liste">
+                    ☰
+                  </button>
+                </div>
+                <div class="toolbar-group">
+                  <span class="toolbar-label">Medya:</span>
+                  <label for="content_upload" class="toolbar-btn" title="Resim Yükle">
+                    🖼️
+                    <input type="file" id="content_upload" accept="image/*" hidden />
+                  </label>
+                  <button type="button" class="toolbar-btn" data-insert="image-placeholder" title="Resim Alanı">
+                    📷
+                  </button>
+                  <button type="button" class="toolbar-btn" data-insert="youtube" title="YouTube Video">
+                    ▶️
+                  </button>
+                  <button type="button" class="toolbar-btn" data-insert="link" title="Bağlantı">
+                    🔗
+                  </button>
+                  <button type="button" class="toolbar-btn" data-insert="button" title="Buton">
+                    🔘
+                  </button>
+                </div>
+                <div class="toolbar-group">
+                  <span class="toolbar-label">Bloklar:</span>
+                  <button type="button" class="toolbar-btn" data-insert="info-box" title="Bilgi Kutusu">
+                    ℹ️
+                  </button>
+                  <button type="button" class="toolbar-btn" data-insert="warning-box" title="Uyarı Kutusu">
+                    ⚠️
+                  </button>
+                  <button type="button" class="toolbar-btn" data-insert="quote" title="Alıntı">
+                    ❝
+                  </button>
+                  <button type="button" class="toolbar-btn" data-insert="card" title="Kart">
+                    🃏
+                  </button>
+                  <button type="button" class="toolbar-btn" data-insert="table" title="Tablo">
+                    📊
+                  </button>
+                  <button type="button" class="toolbar-btn" data-insert="cta" title="CTA Bloğu">
+                    🎯
+                  </button>
+                </div>
+                <div class="toolbar-group">
+                  <span class="toolbar-label">Düzen:</span>
+                  <button type="button" class="toolbar-btn" data-insert="grid-2" title="2 Sütun">
+                    ▥
+                  </button>
+                  <button type="button" class="toolbar-btn" data-insert="hr" title="Ayraç">
+                    ―
+                  </button>
+                </div>
+              </div>
+
+              <!-- HTML Editor -->
+              <div id="htmlEditor" class="editor-panel">
+                <textarea id="content_tr" name="content_tr" rows="20" required placeholder="HTML içeriğini buraya yazın...
+
+Örnek:
+<p>Paragraf metni</p>
+<h2>Alt başlık</h2>
+<ul>
+  <li>Liste öğesi</li>
+</ul>
+<div class=&quot;message message-warning&quot;>
+  <strong>Uyarı:</strong> Önemli not
+</div>"></textarea>
+              </div>
+
+              <!-- Preview Panel -->
+              <div id="previewPanel" class="editor-panel hidden">
+                <div id="previewContent" class="preview-content">
+                  <p class="text-muted">İçerik önizlemesi burada görünecek...</p>
+                </div>
+              </div>
+
+              <p class="form-hint">HTML formatı desteklenir: &lt;p&gt;, &lt;h2&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;a&gt;, &lt;img&gt; vb.</p>
+            </div>
+
+            <div class="form-group">
+              <label for="title_en">Başlık (İngilizce)</label>
+              <input type="text" id="title_en" name="title_en" placeholder="English title (optional)..." />
+            </div>
+
+            <div class="form-group">
+              <label for="summary_en">Özet (İngilizce)</label>
+              <textarea id="summary_en" name="summary_en" rows="2" placeholder="English summary (optional)..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-sidebar">
+            <div class="sidebar-card">
+              <h3>Yayın Ayarları</h3>
+
+              <div class="form-group">
+                <label for="category">Kategori *</label>
+                <select id="category" name="category" required>
+                  <option value="">Seçin...</option>
+                  <option value="3d-baski">3D Baskı</option>
+                  <option value="rehberler">Rehberler (3D Baskı)</option>
+                  <option value="teknoloji">Teknoloji</option>
+                  <option value="yapay-zeka">Yapay Zeka</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="image_url">Görsel URL</label>
+                <div class="input-with-upload">
+                  <input type="url" id="image_url" name="image_url" placeholder="https://..." />
+                  <label for="cover_upload" class="upload-btn" title="Kapak görseli yükle">
+                    📁
+                    <input type="file" id="cover_upload" accept="image/*" hidden />
+                  </label>
+                  <button type="button" id="ai_image_btn" class="upload-btn ai-btn" title="AI ile görsel oluştur">
+                    🤖
+                  </button>
+                </div>
+                <div id="cover_preview" class="image-preview hidden"></div>
+              </div>
+
+              <div class="form-group">
+                <label for="source_url">Kaynak URL</label>
+                <input type="url" id="source_url" name="source_url" placeholder="https://..." />
+              </div>
+
+              <div class="form-group checkbox-group">
+                <label>
+                  <input type="checkbox" id="is_featured" name="is_featured" />
+                  Öne çıkan yazı
+                </label>
+              </div>
+
+              <div class="form-group checkbox-group">
+                <label>
+                  <input type="checkbox" id="published" name="published" />
+                  Hemen yayınla
+                </label>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary btn-full" id="submitBtn">
+                <span class="btn-text">Kaydet</span>
+                <span class="btn-loading hidden">
+                  <span class="spinner"></span>
+                  Kaydediliyor...
+                </span>
+              </button>
+              <a href="/admin/posts" class="btn btn-secondary btn-full">İptal</a>
+            </div>
+          </div>
+        </div>
+
+        <div id="message" class="message hidden"></div>
+      </form>
+    </main>
+  </div>
+</BaseLayout>
+
+<style>
+  .input-with-upload {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .input-with-upload input {
+    flex: 1;
+  }
+
+  .upload-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--card-bg, #2d3748);
+    border: 1px solid var(--border-color, #4a5568);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.2s;
+  }
+
+  .upload-btn:hover {
+    background: var(--primary-color, #4299e1);
+  }
+
+  .ai-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #764ba2;
+  }
+
+  .ai-btn:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  }
+
+  .ai-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .inline-upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.5rem;
+    background: var(--card-bg, #2d3748);
+    border: 1px solid var(--border-color, #4a5568);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: normal;
+    transition: all 0.2s;
+  }
+
+  .inline-upload-btn:hover {
+    background: var(--primary-color, #4299e1);
+  }
+
+  .image-preview {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: var(--card-bg, #2d3748);
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .image-preview img {
+    max-width: 100%;
+    max-height: 150px;
+    border-radius: 4px;
+  }
+
+  .image-preview.hidden {
+    display: none;
+  }
+
+  .upload-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: var(--card-bg, #2d3748);
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  .upload-progress .spinner {
+    width: 16px;
+    height: 16px;
+  }
+
+  .editor-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+    background: var(--bg-secondary);
+    padding: 4px;
+    border-radius: 8px;
+  }
+
+  .editor-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px;
+    background: var(--bg-secondary, #1E293B);
+    border: 1px solid var(--border-color, #334155);
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+
+  .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding-right: 12px;
+    border-right: 1px solid var(--border-color, #334155);
+  }
+
+  .toolbar-group:last-child {
+    border-right: none;
+    padding-right: 0;
+  }
+
+  .toolbar-label {
+    font-size: 0.7rem;
+    color: var(--text-muted, #64748B);
+    margin-right: 4px;
+  }
+
+  .toolbar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--card-bg, #2d3748);
+    border: 1px solid var(--border-color, #4a5568);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    color: var(--text-primary, #E2E8F0);
+  }
+
+  .toolbar-btn:hover {
+    background: var(--primary, #6366F1);
+    border-color: var(--primary, #6366F1);
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 768px) {
+    .editor-toolbar {
+      gap: 6px;
+      padding: 8px;
+    }
+
+    .toolbar-group {
+      padding-right: 8px;
+    }
+
+    .toolbar-label {
+      display: none;
+    }
+
+    .toolbar-btn {
+      width: 28px;
+      height: 28px;
+      font-size: 0.8rem;
+    }
+  }
+
+  .editor-tab {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .editor-tab:hover {
+    color: var(--text-primary);
+    background: rgba(99, 102, 241, 0.1);
+  }
+
+  .editor-tab.active {
+    background: var(--primary);
+    color: white;
+  }
+
+  .editor-panel {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .editor-panel.hidden {
+    display: none;
+  }
+
+  .editor-panel textarea {
+    width: 100%;
+    border: none;
+    padding: 16px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 400px;
+    background: var(--bg-code);
+  }
+
+  .preview-content {
+    padding: 24px;
+    min-height: 400px;
+    background: white;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  /* Preview content styling */
+  .preview-content h1,
+  .preview-content h2,
+  .preview-content h3 {
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    color: var(--text-primary);
+  }
+
+  .preview-content h2 {
+    font-size: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.3em;
+  }
+
+  .preview-content h3 {
+    font-size: 1.25rem;
+  }
+
+  .preview-content p {
+    margin-bottom: 1em;
+    line-height: 1.7;
+  }
+
+  .preview-content ul,
+  .preview-content ol {
+    margin-bottom: 1em;
+    padding-left: 1.5em;
+  }
+
+  .preview-content li {
+    margin-bottom: 0.5em;
+  }
+
+  .preview-content strong {
+    font-weight: 600;
+  }
+
+  .preview-content em {
+    font-style: italic;
+  }
+
+  .preview-content a {
+    color: var(--primary);
+    text-decoration: underline;
+  }
+
+  .preview-content .message {
+    padding: 16px;
+    border-radius: 8px;
+    margin: 1em 0;
+  }
+
+  .preview-content .message-warning {
+    background: rgba(234, 179, 8, 0.1);
+    border-left: 4px solid var(--yellow);
+  }
+
+  .preview-content .message-info {
+    background: rgba(59, 130, 246, 0.1);
+    border-left: 4px solid var(--blue);
+  }
+
+  .preview-content .bento-card {
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    margin: 1em 0;
+  }
+
+  .preview-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  /* Placeholder Uyarıları */
+  .preview-content .placeholder-warning {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1));
+    border: 2px dashed #F59E0B;
+    border-radius: 12px;
+    color: #B45309;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin: 10px 0;
+  }
+
+  .preview-content .placeholder-warning:hover {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(245, 158, 11, 0.2));
+    border-color: #D97706;
+    transform: scale(1.01);
+  }
+
+  .preview-content .placeholder-warning.image-placeholder {
+    min-height: 150px;
+    flex-direction: column;
+  }
+
+  .preview-content .placeholder-warning.link-placeholder {
+    display: inline-flex;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.1));
+    border-color: #3B82F6;
+    color: #1D4ED8;
+  }
+
+  .preview-content .placeholder-warning.link-placeholder:hover {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.2));
+    border-color: #2563EB;
+  }
+
+  .preview-content .placeholder-warning.youtube-placeholder {
+    min-height: 200px;
+    flex-direction: column;
+    background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(200, 0, 0, 0.05));
+    border-color: #EF4444;
+    color: #B91C1C;
+  }
+
+  .preview-content .placeholder-warning.youtube-placeholder:hover {
+    background: linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(200, 0, 0, 0.1));
+    border-color: #DC2626;
+  }
+
+  .preview-content .placeholder-warning .icon {
+    font-size: 2rem;
+  }
+
+  .preview-content .placeholder-warning .text {
+    font-size: 0.9rem;
+  }
+
+  .preview-content .placeholder-warning .hint {
+    font-size: 0.75rem;
+    opacity: 0.8;
+  }
+
+  .preview-content hr {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 2em 0;
+  }
+
+  /* Dark mode */
+  @media (prefers-color-scheme: dark) {
+    .editor-tabs {
+      background: #1E293B;
+    }
+
+    .editor-tab {
+      color: #94A3B8;
+    }
+
+    .editor-tab:hover {
+      color: #F1F5F9;
+      background: rgba(99, 102, 241, 0.2);
+    }
+
+    .editor-panel {
+      border-color: #334155;
+    }
+
+    .editor-panel textarea {
+      background: #0F172A;
+      color: #E2E8F0;
+    }
+
+    .preview-content {
+      background: #1E293B;
+      color: #E2E8F0;
+    }
+
+    .preview-content h1,
+    .preview-content h2,
+    .preview-content h3 {
+      color: #F1F5F9;
+    }
+
+    .preview-content h2 {
+      border-bottom-color: #334155;
+    }
+
+    .preview-content hr {
+      border-top-color: #334155;
+    }
+
+    .preview-content .bento-card {
+      background: #0F172A;
+      border-color: #334155;
+    }
+  }
+</style>
+
+<script>
+  const API_BASE = 'https://tech-portal-api.turgut-d01.workers.dev';
+
+  // Auth kontrolü
+  const secret = localStorage.getItem('adminSecret');
+  if (!secret) {
+    window.location.href = '/admin';
+  }
+
+  // Logout
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    localStorage.removeItem('adminSecret');
+    window.location.href = '/admin';
+  });
+
+  // Editor tabs
+  const tabs = document.querySelectorAll('.editor-tab');
+  const htmlEditor = document.getElementById('htmlEditor');
+  const previewPanel = document.getElementById('previewPanel');
+  const contentTextarea = document.getElementById('content_tr') as HTMLTextAreaElement;
+  const previewContent = document.getElementById('previewContent');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const mode = tab.getAttribute('data-mode');
+
+      // Update active tab
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      // Show/hide panels
+      if (mode === 'html') {
+        htmlEditor?.classList.remove('hidden');
+        previewPanel?.classList.add('hidden');
+      } else if (mode === 'preview') {
+        htmlEditor?.classList.add('hidden');
+        previewPanel?.classList.remove('hidden');
+
+        // Update preview content
+        if (previewContent && contentTextarea) {
+          const html = contentTextarea.value.trim();
+          if (html) {
+            previewContent.innerHTML = processPreviewContent(html);
+            attachPlaceholderListeners();
+          } else {
+            previewContent.innerHTML = '<p class="text-muted">İçerik önizlemesi burada görünecek...</p>';
+          }
+        }
+      }
+    });
+  });
+
+  // Placeholder'ları interaktif uyarılara dönüştür
+  function processPreviewContent(html: string): string {
+    let processed = html;
+
+    // Resim placeholder'larını dönüştür
+    // src="RESIM_URL_BURAYA" veya src="" veya src="Yükleniyor..." olan resimleri yakala
+    processed = processed.replace(
+      /<img[^>]*src=["'](RESIM_URL_BURAYA|Yükleniyor\.\.\.|)["'][^>]*>/gi,
+      `<div class="placeholder-warning image-placeholder" data-type="image">
+        <span class="icon">📷</span>
+        <span class="text">Buraya resim ekleyin</span>
+        <span class="hint">Tıklayarak resim yükleyebilirsiniz</span>
+      </div>`
+    );
+
+    // href="https://3d-labx.com" olan varsayılan bağlantıları işaretle (sadece değiştirilmemişleri)
+    processed = processed.replace(
+      /<a([^>]*href=["']https:\/\/3d-labx\.com["'][^>]*)>([^<]*Bağlantı metni[^<]*)<\/a>/gi,
+      `<span class="placeholder-warning link-placeholder" data-type="link">
+        <span class="icon">🔗</span>
+        <span class="text">Bağlantı URL'si ekleyin</span>
+      </span>`
+    );
+
+    // Buton placeholder'larını işaretle
+    processed = processed.replace(
+      /<a([^>]*href=["']https:\/\/3d-labx\.com["'][^>]*)>([^<]*Buton Metni[^<]*)<\/a>/gi,
+      `<span class="placeholder-warning link-placeholder" data-type="button" style="padding: 12px 24px;">
+        <span class="icon">🔘</span>
+        <span class="text">Buton URL'si ve metni ekleyin</span>
+      </span>`
+    );
+
+    // "Başlık Buraya" placeholder'ını işaretle
+    processed = processed.replace(
+      />Başlık Buraya</g,
+      `><span style="background: rgba(251, 191, 36, 0.3); padding: 2px 6px; border-radius: 4px;">⚠️ Başlık yazın</span><`
+    );
+
+    // "Paragraf metninizi buraya yazın" placeholder'ını işaretle
+    processed = processed.replace(
+      />Paragraf metninizi buraya yazın\.</g,
+      `><span style="background: rgba(251, 191, 36, 0.3); padding: 2px 6px; border-radius: 4px;">⚠️ Paragraf metni yazın</span><`
+    );
+
+    // "Açıklama metni buraya gelecek" placeholder'ını işaretle
+    processed = processed.replace(
+      />Açıklama metni buraya gelecek\.</g,
+      `><span style="background: rgba(251, 191, 36, 0.3); padding: 2px 6px; border-radius: 4px;">⚠️ Açıklama yazın</span><`
+    );
+
+    // "CTA Başlığı" placeholder'ını işaretle
+    processed = processed.replace(
+      />CTA Başlığı</g,
+      `><span style="background: rgba(251, 191, 36, 0.3); padding: 2px 6px; border-radius: 4px;">⚠️ Başlık yazın</span><`
+    );
+
+    // "Sol Kolon" / "Sağ Kolon" placeholder'larını işaretle
+    processed = processed.replace(
+      />Sol Kolon</g,
+      `><span style="background: rgba(59, 130, 246, 0.3); padding: 2px 6px; border-radius: 4px;">📝 Sol içerik</span><`
+    );
+    processed = processed.replace(
+      />Sağ Kolon</g,
+      `><span style="background: rgba(59, 130, 246, 0.3); padding: 2px 6px; border-radius: 4px;">📝 Sağ içerik</span><`
+    );
+
+    // YouTube placeholder'larını işaretle (VIDEO_ID_BURAYA olanlar)
+    processed = processed.replace(
+      /<div class="video-container"[^>]*>[\s\S]*?<iframe[^>]*src=["'][^"']*VIDEO_ID_BURAYA[^"']*["'][^>]*>[\s\S]*?<\/iframe>[\s\S]*?<\/div>/gi,
+      `<div class="placeholder-warning youtube-placeholder" data-type="youtube">
+        <span class="icon">▶️</span>
+        <span class="text">YouTube Video ID'si ekleyin</span>
+        <span class="hint">Örnek: dQw4w9WgXcQ (video URL'sindeki ID)</span>
+      </div>`
+    );
+
+    return processed;
+  }
+
+  // Placeholder tıklama olaylarını ekle
+  function attachPlaceholderListeners() {
+    // Resim placeholder'larına tıklama
+    document.querySelectorAll('.placeholder-warning.image-placeholder').forEach(el => {
+      el.addEventListener('click', () => {
+        // HTML moduna geç
+        const htmlTab = document.querySelector('.editor-tab[data-mode="html"]') as HTMLElement;
+        htmlTab?.click();
+
+        // Kullanıcıya bilgi ver
+        alert('💡 İpucu: Toolbar\'daki 🖼️ butonuna tıklayarak resim yükleyebilir veya 📷 butonuyla resim alanı ekleyebilirsiniz.\n\nHTML kodunda "RESIM_URL_BURAYA" yazan yeri gerçek resim URL\'si ile değiştirin.');
+      });
+    });
+
+    // Link placeholder'larına tıklama
+    document.querySelectorAll('.placeholder-warning.link-placeholder').forEach(el => {
+      el.addEventListener('click', () => {
+        // HTML moduna geç
+        const htmlTab = document.querySelector('.editor-tab[data-mode="html"]') as HTMLElement;
+        htmlTab?.click();
+
+        alert('💡 İpucu: HTML kodunda href="https://3d-labx.com" yazan yeri gerçek bağlantı URL\'si ile değiştirin.\n\nÖrnek: href="https://ornek-site.com/sayfa"');
+      });
+    });
+
+    // YouTube placeholder'larına tıklama
+    document.querySelectorAll('.placeholder-warning.youtube-placeholder').forEach(el => {
+      el.addEventListener('click', () => {
+        const videoUrl = prompt('YouTube video URL\'sini veya Video ID\'sini girin:\n\nÖrnekler:\n• https://www.youtube.com/watch?v=dQw4w9WgXcQ\n• https://youtu.be/dQw4w9WgXcQ\n• dQw4w9WgXcQ');
+
+        if (videoUrl) {
+          // Video ID'yi çıkar
+          let videoId = videoUrl.trim();
+
+          // URL formatlarından ID'yi çıkar
+          const urlMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+          if (urlMatch) {
+            videoId = urlMatch[1];
+          } else if (videoId.length !== 11) {
+            alert('Geçersiz YouTube video ID\'si veya URL\'si!');
+            return;
+          }
+
+          // HTML'de VIDEO_ID_BURAYA'yı değiştir
+          if (contentTextarea) {
+            contentTextarea.value = contentTextarea.value.replace('VIDEO_ID_BURAYA', videoId);
+
+            // Önizlemeyi güncelle
+            if (previewContent && !previewPanel?.classList.contains('hidden')) {
+              previewContent.innerHTML = processPreviewContent(contentTextarea.value);
+              attachPlaceholderListeners();
+            }
+          }
+        }
+      });
+    });
+  }
+
+  // HTML Şablonları
+  const htmlTemplates: Record<string, string> = {
+    'heading': `<h2 style="font-size: 1.8rem;">Başlık Buraya</h2>`,
+
+    'paragraph': `<p>Paragraf metninizi buraya yazın.</p>`,
+
+    'bold': `<strong>Kalın metin</strong>`,
+
+    'list': `<ul style="margin-bottom: 1em; padding-left: 20px;">
+  <li>Liste öğesi 1</li>
+  <li>Liste öğesi 2</li>
+  <li>Liste öğesi 3</li>
+</ul>`,
+
+    'image-placeholder': `<figure class="bento-card" style="min-height: 200px; padding:0; overflow:hidden; border-radius: 12px; border: 1px solid var(--border-soft);">
+  <img src="RESIM_URL_BURAYA" alt="Açıklama" style="width:100%; height:100%; object-fit:cover;" />
+</figure>`,
+
+    'youtube': `<div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; margin: 20px 0; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+  <iframe
+    src="https://www.youtube.com/embed/VIDEO_ID_BURAYA"
+    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 12px;"
+    title="YouTube video"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    allowfullscreen>
+  </iframe>
+</div>`,
+
+    'link': `<a href="https://3d-labx.com" style="color: var(--primary); text-decoration: underline;">Bağlantı metni</a>`,
+
+    'button': `<a href="https://3d-labx.com" class="btn btn-primary" style="background: #2563EB; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center;">
+  Buton Metni
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 6px;"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
+</a>`,
+
+    'info-box': `<div class="message message-info" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 15px; border-radius: 8px; margin: 15px 0;">
+  <strong>Bilgi:</strong> Bilgilendirme mesajınızı buraya yazın.
+</div>`,
+
+    'warning-box': `<div class="message message-warning" style="background: #fef3c7; border: 1px solid #fde68a; color: #92400e; padding: 15px; border-radius: 8px; margin: 15px 0;">
+  <strong>Uyarı:</strong> Uyarı mesajınızı buraya yazın.
+</div>`,
+
+    'quote': `<blockquote style="border-left: 4px solid var(--accent, #6366F1); background: var(--bg-code, #f1f5f9); padding: 15px; margin: 20px 0; font-style: italic;">
+  <strong>Not:</strong> Alıntı metninizi buraya yazın.
+</blockquote>`,
+
+    'card': `<div class="bento-card" style="background: var(--bg-code, #f1f5f9); padding: 20px; border-radius: 12px; border: 1px solid var(--border-soft, #e2e8f0); margin: 15px 0;">
+  <h3 style="margin-top:0; font-size: 1.2rem;">🏆 Kart Başlığı</h3>
+  <ul style="margin-bottom:0; padding-left: 20px;">
+    <li><strong>Madde 1:</strong> Açıklama</li>
+    <li><strong>Madde 2:</strong> Açıklama</li>
+    <li><strong>Madde 3:</strong> Açıklama</li>
+  </ul>
+</div>`,
+
+    'table': `<div style="overflow-x: auto;">
+  <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+    <thead>
+      <tr style="background: var(--bg-code, #f1f5f9); text-align: left;">
+        <th style="padding: 12px; border-radius: 8px 0 0 8px;">Başlık 1</th>
+        <th style="padding: 12px;">Başlık 2</th>
+        <th style="padding: 12px; border-radius: 0 8px 8px 0;">Başlık 3</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding: 12px; border-bottom: 1px solid var(--border-soft, #e2e8f0);"><strong>Veri 1</strong></td>
+        <td style="padding: 12px; border-bottom: 1px solid var(--border-soft, #e2e8f0);">Veri 2</td>
+        <td style="padding: 12px; border-bottom: 1px solid var(--border-soft, #e2e8f0);">Veri 3</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px; border-bottom: 1px solid var(--border-soft, #e2e8f0);"><strong>Veri 4</strong></td>
+        <td style="padding: 12px; border-bottom: 1px solid var(--border-soft, #e2e8f0);">Veri 5</td>
+        <td style="padding: 12px; border-bottom: 1px solid var(--border-soft, #e2e8f0);">Veri 6</td>
+      </tr>
+    </tbody>
+  </table>
+</div>`,
+
+    'cta': `<div class="bento-card" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(59, 130, 246, 0.1)); border: 1px solid var(--accent, #6366F1); padding: 30px; border-radius: 16px; margin: 20px 0;">
+  <div style="display:flex; flex-direction:column; align-items:center; text-align:center;">
+    <div style="width: 48px; height: 48px; display:flex; align-items:center; justify-content:center; background: rgba(59, 130, 246, 0.2); border-radius: 12px; color: #2563EB; margin-bottom: 15px;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+    </div>
+    <h3 style="font-size: 1.4rem; margin-bottom: 10px;">CTA Başlığı</h3>
+    <p style="margin-bottom: 20px;">Açıklama metni buraya gelecek.</p>
+    <a href="https://3d-labx.com" class="btn btn-primary btn-lg" style="background: #2563EB; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center;">
+      Buton Metni
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 6px;"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
+    </a>
+  </div>
+</div>`,
+
+    'grid-2': `<div class="grid grid-2 gap-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 15px 0;">
+  <div class="bento-card" style="padding: 16px; border-radius: 12px; border: 1px solid var(--border-soft, #e2e8f0);">
+    <h4 style="margin-top: 0;">Sol Kolon</h4>
+    <p>Sol taraftaki içerik...</p>
+  </div>
+  <div class="bento-card" style="padding: 16px; border-radius: 12px; border: 1px solid var(--border-soft, #e2e8f0);">
+    <h4 style="margin-top: 0;">Sağ Kolon</h4>
+    <p>Sağ taraftaki içerik...</p>
+  </div>
+</div>`,
+
+    'hr': `<hr style="margin: 30px 0; border: 0; border-top: 1px solid var(--border-soft, #e2e8f0);" />`
+  };
+
+  // Toolbar butonlarını dinle
+  document.querySelectorAll('.toolbar-btn[data-insert]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const insertType = btn.getAttribute('data-insert');
+      if (!insertType || !contentTextarea) return;
+
+      const template = htmlTemplates[insertType];
+      if (!template) return;
+
+      // Cursor pozisyonunu al
+      const cursorPos = contentTextarea.selectionStart;
+      const textBefore = contentTextarea.value.substring(0, cursorPos);
+      const textAfter = contentTextarea.value.substring(cursorPos);
+
+      // Şablonu ekle
+      contentTextarea.value = textBefore + '\n' + template + '\n' + textAfter;
+
+      // Cursor'u yeni eklenen içeriğin sonuna taşı
+      const newPos = cursorPos + template.length + 2;
+      contentTextarea.setSelectionRange(newPos, newPos);
+      contentTextarea.focus();
+    });
+  });
+
+  // Real-time preview update (debounced)
+  let previewTimeout: any;
+  contentTextarea?.addEventListener('input', () => {
+    clearTimeout(previewTimeout);
+    previewTimeout = setTimeout(() => {
+      if (previewContent && !previewPanel?.classList.contains('hidden')) {
+        const html = contentTextarea.value.trim();
+        if (html) {
+          previewContent.innerHTML = processPreviewContent(html);
+          attachPlaceholderListeners();
+        } else {
+          previewContent.innerHTML = '<p class="text-muted">İçerik önizlemesi burada görünecek...</p>';
+        }
+      }
+    }, 300);
+  });
+
+  // Resim yükleme fonksiyonu
+  async function uploadImage(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch(`${API_BASE}/admin/upload-image`, {
+      method: 'POST',
+      headers: {
+        'X-ADMIN-SECRET': secret!
+      },
+      body: formData
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Yükleme başarısız');
+    }
+
+    return await res.json();
+  }
+
+  // Kapak görseli yükleme
+  const coverUpload = document.getElementById('cover_upload') as HTMLInputElement;
+  const imageUrlInput = document.getElementById('image_url') as HTMLInputElement;
+  const coverPreview = document.getElementById('cover_preview');
+
+  coverUpload?.addEventListener('change', async (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+
+    // Progress göster
+    if (coverPreview) {
+      coverPreview.innerHTML = '<div class="upload-progress"><span class="spinner"></span> Yükleniyor...</div>';
+      coverPreview.classList.remove('hidden');
+    }
+
+    try {
+      const result = await uploadImage(file);
+      imageUrlInput.value = result.url;
+      if (coverPreview) {
+        coverPreview.innerHTML = `<img src="${result.url}" alt="Kapak görseli" />`;
+      }
+    } catch (err: any) {
+      if (coverPreview) {
+        coverPreview.innerHTML = `<span style="color: #e53e3e;">❌ ${err.message}</span>`;
+        setTimeout(() => coverPreview.classList.add('hidden'), 3000);
+      }
+    }
+  });
+
+  // İçerik resmi yükleme
+  const contentUpload = document.getElementById('content_upload') as HTMLInputElement;
+
+  contentUpload?.addEventListener('change', async (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file || !contentTextarea) return;
+
+    // Cursor pozisyonunu al
+    const cursorPos = contentTextarea.selectionStart;
+    const textBefore = contentTextarea.value.substring(0, cursorPos);
+    const textAfter = contentTextarea.value.substring(cursorPos);
+
+    // Geçici placeholder ekle
+    const placeholder = '\n<p><img src="Yükleniyor..." alt="Resim yükleniyor..." /></p>\n';
+    contentTextarea.value = textBefore + placeholder + textAfter;
+
+    try {
+      const result = await uploadImage(file);
+      // Placeholder'ı gerçek resim ile değiştir
+      const imageHtml = `\n<p><img src="${result.url}" alt="${file.name}" style="max-width: 100%; border-radius: 8px;" /></p>\n`;
+      contentTextarea.value = textBefore + imageHtml + textAfter;
+    } catch (err: any) {
+      // Hata durumunda placeholder'ı kaldır
+      contentTextarea.value = textBefore + textAfter;
+      alert('Resim yüklenemedi: ' + err.message);
+    }
+
+    // Input'u temizle (aynı dosyayı tekrar seçebilmek için)
+    contentUpload.value = '';
+  });
+
+  // AI görsel oluşturma
+  const aiImageBtn = document.getElementById('ai_image_btn') as HTMLButtonElement;
+  const titleInput = document.getElementById('title_tr') as HTMLInputElement;
+  const categorySelect = document.getElementById('category') as HTMLSelectElement;
+
+  aiImageBtn?.addEventListener('click', async () => {
+    const title = titleInput?.value;
+    const category = categorySelect?.value;
+
+    if (!title) {
+      alert('Lütfen önce bir başlık girin');
+      return;
+    }
+
+    // Disable button and show progress
+    aiImageBtn.disabled = true;
+    aiImageBtn.innerHTML = '⏳';
+    if (coverPreview) {
+      coverPreview.innerHTML = '<div class="upload-progress"><span class="spinner"></span> AI görsel oluşturuluyor...</div>';
+      coverPreview.classList.remove('hidden');
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/ai-image`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-ADMIN-SECRET': secret!
+        },
+        body: JSON.stringify({ title, category })
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'AI görsel oluşturulamadı');
+      }
+
+      const result = await res.json();
+      imageUrlInput.value = result.url;
+      if (coverPreview) {
+        coverPreview.innerHTML = `<img src="${result.url}" alt="AI görseli" />`;
+      }
+    } catch (err: any) {
+      if (coverPreview) {
+        coverPreview.innerHTML = `<span style="color: #e53e3e;">❌ ${err.message}</span>`;
+        setTimeout(() => coverPreview.classList.add('hidden'), 3000);
+      }
+    } finally {
+      aiImageBtn.disabled = false;
+      aiImageBtn.innerHTML = '🤖';
+    }
+  });
+
+  // Form submit
+  const form = document.getElementById('postForm') as HTMLFormElement;
+  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+  const btnText = submitBtn.querySelector('.btn-text') as HTMLSpanElement;
+  const btnLoading = submitBtn.querySelector('.btn-loading') as HTMLSpanElement;
+  const messageDiv = document.getElementById('message') as HTMLDivElement;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Loading state
+    btnText.classList.add('hidden');
+    btnLoading.classList.remove('hidden');
+    submitBtn.disabled = true;
+    messageDiv.classList.add('hidden');
+
+    const formData = new FormData(form);
+    const data: any = {
+      title_tr: formData.get('title_tr'),
+      summary_tr: formData.get('summary_tr'),
+      content_tr: formData.get('content_tr'),
+      title_en: formData.get('title_en') || null,
+      summary_en: formData.get('summary_en') || null,
+      category: formData.get('category'),
+      image_url: formData.get('image_url') || null,
+      source_url: formData.get('source_url') || null,
+      is_featured: (document.getElementById('is_featured') as HTMLInputElement).checked ? 1 : 0,
+      published: (document.getElementById('published') as HTMLInputElement).checked ? 1 : 0
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-ADMIN-SECRET': secret!
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        messageDiv.className = 'message message-success';
+        messageDiv.textContent = 'Yazı başarıyla oluşturuldu! Yönlendiriliyorsunuz...';
+        messageDiv.classList.remove('hidden');
+
+        setTimeout(() => {
+          window.location.href = '/admin/posts';
+        }, 1500);
+      } else {
+        throw new Error(result.error || 'Bir hata oluştu');
+      }
+    } catch (err: any) {
+      messageDiv.className = 'message message-error';
+      messageDiv.textContent = err.message || 'Bir hata oluştu';
+      messageDiv.classList.remove('hidden');
+    } finally {
+      btnText.classList.remove('hidden');
+      btnLoading.classList.add('hidden');
+      submitBtn.disabled = false;
+    }
+  });
+</script>

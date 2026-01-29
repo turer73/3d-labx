@@ -1,0 +1,538 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+
+export const prerender = false;
+
+const API_BASE = "https://tech-portal-api.turgut-d01.workers.dev";
+const { slug } = Astro.params;
+
+let post: any = null;
+let relatedPosts: any[] = [];
+let fetchError = "";
+
+try {
+  // Ana makaleyi çek
+  const res = await fetch(`${API_BASE}/api/post/${slug}`);
+  if (res.ok) {
+    post = await res.json();
+  }
+
+  // İlgili yazıları çek (aynı kategori)
+  if (post) {
+    const relatedRes = await fetch(`${API_BASE}/api/posts?category=${post.category}&limit=4`);
+    if (relatedRes.ok) {
+      const relatedData = await relatedRes.json();
+      // API { posts: [...], pagination: {...} } yapısında dönüyor
+      const allRelated = relatedData.posts || [];
+      // Mevcut makaleyi çıkar
+      relatedPosts = allRelated.filter((p: any) => p.slug !== slug).slice(0, 3);
+    }
+  }
+} catch (e: any) {
+  fetchError = e?.message || "Fetch error";
+}
+
+const title = post?.title_tr || "İçerik Bulunamadı";
+
+// İçerik HTML mi yoksa düz metin mi kontrol et
+function formatContent(content: string): string {
+  if (!content) return "";
+  if (content.includes("<p>") || content.includes("<h2>") || content.includes("<div>")) {
+    return content;
+  }
+  return content
+    .split(/\n\n+/)
+    .map(p => `<p>${p.replace(/\n/g, "<br/>")}</p>`)
+    .join("");
+}
+
+// H2 başlıklarını çıkar (içindekiler için)
+function extractHeadings(content: string): {id: string, text: string}[] {
+  const headings: {id: string, text: string}[] = [];
+  const regex = /<h2[^>]*>(.*?)<\/h2>/gi;
+  let match;
+  while ((match = regex.exec(content)) !== null) {
+    const text = match[1].replace(/<[^>]+>/g, ''); // HTML etiketlerini temizle
+    const id = text.toLowerCase().replace(/[^a-z0-9ğüşıöç]/gi, '-').replace(/-+/g, '-');
+    headings.push({ id, text });
+  }
+  return headings;
+}
+
+// Okuma süresini hesapla
+function calculateReadTime(content: string): number {
+  const text = content.replace(/<[^>]+>/g, '');
+  const words = text.split(/\s+/).length;
+  return Math.ceil(words / 200); // 200 kelime/dakika
+}
+
+const formattedContent = post ? formatContent(post.content_tr) : "";
+const headings = extractHeadings(formattedContent);
+const readTime = post ? calculateReadTime(post.content_tr || "") : 0;
+
+// Tarihi formatla
+const formattedDate = post?.created_at
+  ? new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })
+  : "";
+
+// Kategori bilgileri
+const categoryInfo: Record<string, {name: string, color: string, icon: string}> = {
+  "teknoloji": { name: "Teknoloji", color: "#3b82f6", icon: "💻" },
+  "yapay-zeka": { name: "Yapay Zeka", color: "#8b5cf6", icon: "🤖" },
+  "3d-baski": { name: "3D Baskı", color: "#22c55e", icon: "🖨️" },
+  "rehberler": { name: "Rehber", color: "#06b6d4", icon: "📚" },
+  "incelemeler": { name: "İnceleme", color: "#f59e0b", icon: "⭐" },
+  "sorun-cozumleri": { name: "Sorun Çözümü", color: "#ef4444", icon: "🔧" },
+};
+
+const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f6", icon: "📄" };
+---
+
+<BaseLayout title={title}>
+  <Header />
+
+  {fetchError && (
+    <main class="error-page">
+      <p style="color: red;">Hata: {fetchError}</p>
+      <a href="/3d-baski">← Geri dön</a>
+    </main>
+  )}
+
+  {!post && !fetchError && (
+    <main class="error-page">
+      <h1>İçerik Bulunamadı</h1>
+      <a href="/3d-baski">← Geri dön</a>
+    </main>
+  )}
+
+  {post && (
+    <>
+      <!-- Hero Section -->
+      <section class="article-hero">
+        <div class="hero-container">
+          <div class="hero-meta">
+            <span class="category-badge" style={`background: ${catInfo.color}`}>
+              {catInfo.icon} {catInfo.name}
+            </span>
+            <span class="meta-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              {formattedDate}
+            </span>
+            <span class="meta-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              {readTime} dk okuma
+            </span>
+          </div>
+          <h1 class="hero-title">{post.title_tr}</h1>
+          <p class="hero-summary">{post.summary_tr}</p>
+        </div>
+      </section>
+
+      <!-- Main Layout -->
+      <div class="article-layout">
+        <!-- Article Content -->
+        <main class="article-main">
+          <div class="article-content" set:html={formattedContent} />
+
+          <a href="/3d-baski" class="back-link">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Tüm 3D Baskı Yazıları
+          </a>
+        </main>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <!-- İçindekiler -->
+          {headings.length > 0 && (
+            <div class="sidebar-card">
+              <h3 class="sidebar-title">📑 İçindekiler</h3>
+              <ul class="toc-list">
+                {headings.map(h => (
+                  <li><a href={`#${h.id}`}>{h.text}</a></li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <!-- Paylaş -->
+          <div class="sidebar-card">
+            <h3 class="sidebar-title">🔗 Paylaş</h3>
+            <div class="share-buttons">
+              <button class="share-btn" id="share-x" title="X'te Paylaş">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              </button>
+              <button class="share-btn" id="share-linkedin" title="LinkedIn'de Paylaş">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+              </button>
+              <button class="share-btn" id="share-copy" title="Linki Kopyala">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- İlgili Yazılar -->
+          {relatedPosts.length > 0 && (
+            <div class="sidebar-card">
+              <h3 class="sidebar-title">📚 İlgili Yazılar</h3>
+              {relatedPosts.map(rp => (
+                <a href={`/3d-baski/${rp.slug}`} class="related-post">
+                  <div class="related-post-icon">{catInfo.icon}</div>
+                  <div>
+                    <div class="related-post-title">{rp.title_tr}</div>
+                    <div class="related-post-cat">{catInfo.name}</div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
+        </aside>
+      </div>
+    </>
+  )}
+</BaseLayout>
+
+<style>
+  .error-page {
+    padding-top: 160px;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 160px 20px 80px;
+  }
+
+  /* Hero Section */
+  .article-hero {
+    padding: 140px 20px 50px;
+    background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-main) 100%);
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .hero-container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .hero-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .category-badge {
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    color: var(--text-main);
+  }
+
+  .hero-summary {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 700px;
+  }
+
+  /* Main Layout */
+  .article-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  @media (max-width: 900px) {
+    .article-layout {
+      grid-template-columns: 1fr;
+    }
+    .sidebar {
+      order: -1;
+    }
+    .hero-title {
+      font-size: 1.8rem;
+    }
+  }
+
+  /* Article Content */
+  .article-main {
+    min-width: 0;
+  }
+
+  .article-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 36px;
+    color: var(--text-main);
+    line-height: 1.8;
+    font-size: 1.05rem;
+  }
+
+  .article-content :global(p) {
+    margin-bottom: 18px;
+  }
+
+  .article-content :global(h2) {
+    font-size: 1.4rem;
+    margin-top: 36px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent);
+    color: var(--text-main);
+  }
+
+  .article-content :global(h3) {
+    font-size: 1.15rem;
+    margin-top: 28px;
+    margin-bottom: 12px;
+    color: var(--text-main);
+  }
+
+  .article-content :global(ul),
+  .article-content :global(ol) {
+    margin-bottom: 18px;
+    padding-left: 24px;
+  }
+
+  .article-content :global(li) {
+    margin-bottom: 10px;
+  }
+
+  .article-content :global(strong),
+  .article-content :global(b) {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .article-content :global(.message-warning),
+  .article-content :global(.info-box) {
+    background: rgba(249, 115, 22, 0.1);
+    border: 1px solid rgba(249, 115, 22, 0.3);
+    border-left: 4px solid #f97316;
+    padding: 16px 20px;
+    border-radius: 0 12px 12px 0;
+    margin: 20px 0;
+  }
+
+  .article-content :global(.bento-card) {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 16px;
+    padding: 24px;
+    margin: 24px 0;
+    text-align: center;
+  }
+
+  .article-content :global(.btn) {
+    display: inline-block;
+    padding: 12px 24px;
+    background: var(--accent);
+    color: white;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    margin-top: 12px;
+  }
+
+  /* YouTube Video Container - Responsive */
+  .article-content :global(.video-container) {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
+    max-width: 100%;
+    margin: 24px 0;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    background: #000;
+  }
+
+  .article-content :global(.video-container iframe) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 12px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    margin-top: 32px;
+    padding: 12px 20px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 10px;
+    transition: all 0.2s;
+  }
+
+  .back-link:hover {
+    background: var(--accent);
+    color: white;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: sticky;
+    top: 100px;
+    align-self: start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+  }
+
+  .sidebar-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 20px;
+  }
+
+  .sidebar-title {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+
+  /* Table of Contents */
+  .toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .toc-list li {
+    margin-bottom: 8px;
+  }
+
+  .toc-list a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: block;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    border-left: 2px solid transparent;
+  }
+
+  .toc-list a:hover {
+    color: var(--text-main);
+    background: var(--bg-hover);
+    border-left-color: var(--accent);
+  }
+
+  /* Share Buttons */
+  .share-buttons {
+    display: flex;
+    gap: 10px;
+  }
+
+  .share-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    border-radius: 10px;
+    background: var(--bg-hover);
+    border: 1px solid var(--border-soft);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.8rem;
+  }
+
+  .share-btn:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  /* Related Posts */
+  .related-post {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    transition: background 0.2s;
+    text-decoration: none;
+    margin-bottom: 8px;
+  }
+
+  .related-post:hover {
+    background: var(--bg-hover);
+  }
+
+  .related-post-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--bg-hover);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  .related-post-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-main);
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+
+  .related-post-cat {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+</style>
+
+<script>
+  document.getElementById('share-x')?.addEventListener('click', () => {
+    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(document.title)}`, '_blank');
+  });
+  document.getElementById('share-linkedin')?.addEventListener('click', () => {
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank');
+  });
+  document.getElementById('share-copy')?.addEventListener('click', function() {
+    navigator.clipboard.writeText(window.location.href);
+    const btn = this;
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '✓';
+    setTimeout(() => btn.innerHTML = originalHTML, 2000);
+  });
+</script>

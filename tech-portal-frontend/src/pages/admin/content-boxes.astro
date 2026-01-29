@@ -1,0 +1,829 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import "../../styles/admin.css";
+---
+
+<BaseLayout title="İçerik Kutuları – Admin Panel" noIndex={true}>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="/" class="logo">3D-labX</a>
+        <span class="badge badge-primary">Admin</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-item">
+          <span class="icon">📊</span>
+          Dashboard
+        </a>
+        <a href="/admin/posts" class="nav-item">
+          <span class="icon">📝</span>
+          Yazılar
+        </a>
+        <a href="/admin/users" class="nav-item">
+          <span class="icon">👥</span>
+          Üyeler
+        </a>
+        <a href="/admin/rss" class="nav-item">
+          <span class="icon">📡</span>
+          RSS Kaynakları
+        </a>
+        <a href="/admin/content-boxes" class="nav-item active">
+          <span class="icon">📦</span>
+          İçerik Kutuları
+        </a>
+        <a href="/admin/new" class="nav-item">
+          <span class="icon">➕</span>
+          Yeni Yazı
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="logoutBtn" class="btn btn-ghost btn-full">
+          🚪 Çıkış Yap
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="content-header">
+        <div>
+          <h1>İçerik Kutuları</h1>
+          <p class="text-muted">Anasayfa bento grid kutularını yönetin</p>
+        </div>
+        <button id="addBoxBtn" class="btn btn-primary">
+          ➕ Yeni Kutu Ekle
+        </button>
+      </header>
+
+      <!-- İstatistikler -->
+      <div class="stats-grid" id="boxStats">
+        <div class="stat-card">
+          <div class="stat-icon">📦</div>
+          <div class="stat-info">
+            <span class="stat-value" id="totalBoxes">-</span>
+            <span class="stat-label">Toplam Kutu</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔄</div>
+          <div class="stat-info">
+            <span class="stat-value" id="dynamicBoxes">-</span>
+            <span class="stat-label">Dinamik</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✏️</div>
+          <div class="stat-info">
+            <span class="stat-value" id="customBoxes">-</span>
+            <span class="stat-label">Özel İçerik</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">👁️</div>
+          <div class="stat-info">
+            <span class="stat-value" id="hiddenBoxes">-</span>
+            <span class="stat-label">Gizli</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kutular Listesi -->
+      <section class="recent-section">
+        <div class="section-header">
+          <h2>Kutular</h2>
+        </div>
+        <div id="boxesList" class="cb-list">
+          <div class="loading-row"><span class="spinner"></span> Yükleniyor...</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Ekle/Düzenle Modal -->
+  <div id="editModal" class="modal hidden">
+    <div class="modal-backdrop" id="editBackdrop"></div>
+    <div class="modal-content modal-lg">
+      <h3 id="modalTitle">Yeni İçerik Kutusu</h3>
+      <form id="boxForm">
+        <input type="hidden" id="boxId" value="">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="slotKey">Kutu Kimliği *</label>
+            <input type="text" id="slotKey" required placeholder="ornek-kutu">
+          </div>
+          <div class="form-group">
+            <label for="contentType">İçerik Tipi *</label>
+            <select id="contentType" required>
+              <option value="">Seçin...</option>
+              <option value="category_post">Kategori Yazısı</option>
+              <option value="custom_html">Özel İçerik</option>
+              <option value="poll">Anket</option>
+              <option value="filament_prices">Filament Fiyatları</option>
+              <option value="ai_tools">AI Araçları</option>
+              <option value="community">Topluluk</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="boxSize">Boyut</label>
+            <select id="boxSize">
+              <option value="normal">Normal</option>
+              <option value="large">Büyük (2 sütun)</option>
+              <option value="wide">Geniş (2 sütun alt)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="colorTheme">Renk Teması</label>
+            <select id="colorTheme">
+              <option value="orange">🟠 Turuncu</option>
+              <option value="cyan">🔵 Camgöbeği</option>
+              <option value="purple">🟣 Mor</option>
+              <option value="green">🟢 Yeşil</option>
+              <option value="yellow">🟡 Sarı</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="isVisible" checked> Görünür
+          </label>
+        </div>
+
+        <!-- Dinamik config alanları -->
+        <div id="configFields"></div>
+
+        <div class="modal-actions">
+          <button type="button" id="cancelEditBtn" class="btn btn-secondary">İptal</button>
+          <button type="submit" class="btn btn-primary">Kaydet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Silme Onay Modal -->
+  <div id="deleteModal" class="modal hidden">
+    <div class="modal-backdrop" id="deleteBackdrop"></div>
+    <div class="modal-content">
+      <h3>⚠️ Kutuyu Sil</h3>
+      <p>Bu içerik kutusunu silmek istediğinizden emin misiniz?</p>
+      <p><strong id="deleteBoxName"></strong></p>
+      <div class="modal-actions">
+        <button type="button" id="cancelDeleteBtn" class="btn btn-secondary">İptal</button>
+        <button type="button" id="confirmDeleteBtn" class="btn btn-danger">Sil</button>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .cb-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .cb-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.2s;
+  }
+
+  .cb-card:hover {
+    border-color: var(--admin-primary);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+
+  .cb-order {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .cb-order button {
+    background: none;
+    border: 1px solid var(--admin-border);
+    border-radius: 6px;
+    padding: 2px 8px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    color: var(--admin-text-muted);
+    transition: all 0.2s;
+  }
+
+  .cb-order button:hover {
+    background: var(--admin-primary);
+    color: white;
+    border-color: var(--admin-primary);
+  }
+
+  .cb-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .cb-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .cb-info h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--admin-text);
+  }
+
+  .cb-info p {
+    margin: 2px 0 0;
+    font-size: 0.8rem;
+    color: var(--admin-text-muted);
+  }
+
+  .cb-badges {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .cb-badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: var(--admin-surface-hover);
+    color: var(--admin-text-muted);
+    white-space: nowrap;
+  }
+
+  .cb-badge.type {
+    background: rgba(234,88,12,0.1);
+    color: var(--admin-primary);
+  }
+
+  .cb-badge.size-large {
+    background: rgba(59,130,246,0.1);
+    color: #3B82F6;
+  }
+
+  .cb-badge.size-wide {
+    background: rgba(16,185,129,0.1);
+    color: #10B981;
+  }
+
+  .cb-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .modal-lg {
+    max-width: 640px;
+  }
+
+  #configFields .form-group {
+    margin-top: 12px;
+  }
+
+  .config-section-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--admin-primary);
+    margin: 16px 0 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--admin-border);
+  }
+
+  /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+    .cb-card {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    .cb-card:hover {
+      border-color: var(--admin-primary);
+    }
+
+    .cb-info h4 {
+      color: #F1F5F9;
+    }
+
+    .cb-info p {
+      color: #94A3B8;
+    }
+
+    .cb-order button {
+      background: #0F172A;
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    .cb-order button:hover {
+      background: var(--admin-primary);
+      color: white;
+    }
+
+    .cb-badge {
+      background: #334155;
+      color: #94A3B8;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+    .cb-card {
+      flex-wrap: wrap;
+    }
+    .cb-badges {
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  const API_BASE = 'https://tech-portal-api.turgut-d01.workers.dev';
+  const secret = localStorage.getItem('adminSecret');
+  if (!secret) { window.location.href = '/admin'; }
+
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    localStorage.removeItem('adminSecret');
+    window.location.href = '/admin';
+  });
+
+  const contentTypeNames: Record<string, string> = {
+    'category_post': 'Kategori Yazısı',
+    'custom_html': 'Özel İçerik',
+    'poll': 'Anket',
+    'filament_prices': 'Filament Fiyatları',
+    'ai_tools': 'AI Araçları',
+    'community': 'Topluluk'
+  };
+
+  const colorMap: Record<string, string> = {
+    'orange': '#EA580C',
+    'cyan': '#06B6D4',
+    'purple': '#8B5CF6',
+    'green': '#10B981',
+    'yellow': '#EAB308'
+  };
+
+  let allBoxes: any[] = [];
+  let editingId: number | null = null;
+  let deleteId: number | null = null;
+
+  async function loadBoxes() {
+    try {
+      const res = await fetch(`${API_BASE}/admin/content-boxes`, {
+        headers: { 'X-ADMIN-SECRET': secret! }
+      });
+      if (!res.ok) throw new Error('Unauthorized');
+      allBoxes = await res.json();
+      updateStats();
+      renderBoxes();
+    } catch (err) {
+      console.error('Yüklenemedi:', err);
+      document.getElementById('boxesList')!.innerHTML = '<div class="error-row">Yüklenirken hata oluştu</div>';
+    }
+  }
+
+  function updateStats() {
+    const visible = allBoxes.filter(b => b.is_visible);
+    const dynamic = allBoxes.filter(b => b.content_type === 'category_post');
+    const custom = allBoxes.filter(b => b.content_type === 'custom_html');
+    const hidden = allBoxes.filter(b => !b.is_visible);
+
+    document.getElementById('totalBoxes')!.textContent = visible.length.toString();
+    document.getElementById('dynamicBoxes')!.textContent = dynamic.length.toString();
+    document.getElementById('customBoxes')!.textContent = custom.length.toString();
+    document.getElementById('hiddenBoxes')!.textContent = hidden.length.toString();
+  }
+
+  function renderBoxes() {
+    const container = document.getElementById('boxesList')!;
+
+    if (allBoxes.length === 0) {
+      container.innerHTML = '<div class="empty-row">Henüz içerik kutusu yok</div>';
+      return;
+    }
+
+    container.innerHTML = allBoxes.map((box: any, idx: number) => {
+      const config = JSON.parse(box.config || '{}');
+      const title = config.title || config.category || box.slot_key;
+      const typeName = contentTypeNames[box.content_type] || box.content_type;
+      const sizeLabel = box.size === 'large' ? 'Büyük' : box.size === 'wide' ? 'Geniş' : 'Normal';
+      const sizeBadgeClass = box.size !== 'normal' ? `size-${box.size}` : '';
+
+      return `
+        <div class="cb-card" data-id="${box.id}">
+          <div class="cb-order">
+            <button class="move-btn" data-id="${box.id}" data-dir="up" ${idx === 0 ? 'disabled' : ''}>▲</button>
+            <button class="move-btn" data-id="${box.id}" data-dir="down" ${idx === allBoxes.length - 1 ? 'disabled' : ''}>▼</button>
+          </div>
+          <div class="cb-color" style="background: ${colorMap[box.color_theme] || '#EA580C'}"></div>
+          <div class="cb-info">
+            <h4>${title}</h4>
+            <p>${box.slot_key} · Sıra: ${box.display_order}</p>
+          </div>
+          <div class="cb-badges">
+            <span class="cb-badge type">${typeName}</span>
+            <span class="cb-badge ${sizeBadgeClass}">${sizeLabel}</span>
+            <button class="status-toggle ${box.is_visible ? 'published' : 'draft'}" data-id="${box.id}" data-visible="${box.is_visible}">
+              ${box.is_visible ? 'Görünür' : 'Gizli'}
+            </button>
+          </div>
+          <div class="cb-actions">
+            <button class="btn btn-ghost btn-sm edit-btn" data-id="${box.id}">✏️</button>
+            <button class="btn btn-ghost btn-sm delete-btn" data-id="${box.id}" data-name="${title}">🗑️</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Event listeners
+    document.querySelectorAll('.move-btn').forEach(btn => {
+      btn.addEventListener('click', handleMove);
+    });
+    document.querySelectorAll('.status-toggle').forEach(btn => {
+      btn.addEventListener('click', handleToggleVisibility);
+    });
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+      btn.addEventListener('click', handleEdit);
+    });
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', handleDelete);
+    });
+  }
+
+  async function handleMove(e: Event) {
+    const btn = e.target as HTMLButtonElement;
+    const id = parseInt(btn.dataset.id || '0');
+    const dir = btn.dataset.dir;
+    const idx = allBoxes.findIndex(b => b.id === id);
+    if (idx < 0) return;
+
+    const swapIdx = dir === 'up' ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= allBoxes.length) return;
+
+    // Swap display_order
+    const orderA = allBoxes[idx].display_order;
+    const orderB = allBoxes[swapIdx].display_order;
+
+    const newOrder = allBoxes.map((b: any, i: number) => {
+      if (i === idx) return { id: b.id, display_order: orderB };
+      if (i === swapIdx) return { id: b.id, display_order: orderA };
+      return { id: b.id, display_order: b.display_order };
+    });
+
+    try {
+      await fetch(`${API_BASE}/admin/content-boxes/reorder`, {
+        method: 'POST',
+        headers: { 'X-ADMIN-SECRET': secret!, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order: newOrder })
+      });
+      loadBoxes();
+    } catch (err) {
+      console.error('Sıralama hatası:', err);
+    }
+  }
+
+  async function handleToggleVisibility(e: Event) {
+    const btn = e.target as HTMLButtonElement;
+    const id = parseInt(btn.dataset.id || '0');
+    const currentVisible = btn.dataset.visible === '1';
+
+    try {
+      await fetch(`${API_BASE}/admin/content-boxes/${id}`, {
+        method: 'PUT',
+        headers: { 'X-ADMIN-SECRET': secret!, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_visible: !currentVisible })
+      });
+      loadBoxes();
+    } catch (err) {
+      console.error('Toggle hatası:', err);
+    }
+  }
+
+  function handleEdit(e: Event) {
+    const btn = e.target as HTMLButtonElement;
+    const id = parseInt(btn.dataset.id || '0');
+    const box = allBoxes.find(b => b.id === id);
+    if (!box) return;
+
+    editingId = id;
+    document.getElementById('modalTitle')!.textContent = 'İçerik Kutusunu Düzenle';
+    (document.getElementById('boxId') as HTMLInputElement).value = id.toString();
+    (document.getElementById('slotKey') as HTMLInputElement).value = box.slot_key;
+    (document.getElementById('contentType') as HTMLSelectElement).value = box.content_type;
+    (document.getElementById('boxSize') as HTMLSelectElement).value = box.size;
+    (document.getElementById('colorTheme') as HTMLSelectElement).value = box.color_theme;
+    (document.getElementById('isVisible') as HTMLInputElement).checked = !!box.is_visible;
+
+    updateConfigFields(box.content_type, JSON.parse(box.config || '{}'));
+    document.getElementById('editModal')!.classList.remove('hidden');
+  }
+
+  function handleDelete(e: Event) {
+    const btn = e.target as HTMLButtonElement;
+    deleteId = parseInt(btn.dataset.id || '0');
+    document.getElementById('deleteBoxName')!.textContent = btn.dataset.name || '';
+    document.getElementById('deleteModal')!.classList.remove('hidden');
+  }
+
+  function updateConfigFields(type: string, config: any = {}) {
+    const container = document.getElementById('configFields')!;
+
+    if (type === 'category_post') {
+      container.innerHTML = `
+        <div class="config-section-title">Kategori Yazısı Ayarları</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cfgCategory">Kategori *</label>
+            <select id="cfgCategory">
+              <option value="3d-baski" ${config.category === '3d-baski' ? 'selected' : ''}>3D Baskı</option>
+              <option value="teknoloji" ${config.category === 'teknoloji' ? 'selected' : ''}>Teknoloji</option>
+              <option value="yapay-zeka" ${config.category === 'yapay-zeka' ? 'selected' : ''}>Yapay Zeka</option>
+              <option value="incelemeler" ${config.category === 'incelemeler' ? 'selected' : ''}>İncelemeler</option>
+              <option value="rehberler" ${config.category === 'rehberler' ? 'selected' : ''}>Rehberler</option>
+              <option value="sorun-cozumleri" ${config.category === 'sorun-cozumleri' ? 'selected' : ''}>Sorun Çözümleri</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="cfgTagLabel">Etiket</label>
+            <input type="text" id="cfgTagLabel" value="${config.tag_label || ''}" placeholder="Katmanlı İmalat">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="cfgStatText">İstatistik Metni</label>
+          <input type="text" id="cfgStatText" value="${config.stat_text || ''}" placeholder="+%12 Hız Artışı">
+        </div>
+      `;
+    } else if (type === 'custom_html') {
+      container.innerHTML = `
+        <div class="config-section-title">Özel İçerik Ayarları</div>
+        <div class="form-group">
+          <label for="cfgTitle">Başlık *</label>
+          <input type="text" id="cfgTitle" value="${config.title || ''}" placeholder="Klipper Kurulum Rehberi">
+        </div>
+        <div class="form-group">
+          <label for="cfgDescription">Açıklama</label>
+          <textarea id="cfgDescription" rows="3" placeholder="Kısa açıklama...">${config.description || ''}</textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cfgTagLabel">Etiket</label>
+            <input type="text" id="cfgTagLabel" value="${config.tag_label || ''}" placeholder="Rehberler">
+          </div>
+          <div class="form-group">
+            <label for="cfgLinkUrl">Link URL</label>
+            <input type="text" id="cfgLinkUrl" value="${config.link_url || ''}" placeholder="/rehberler">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cfgCodeBlock">Kod Bloğu</label>
+            <textarea id="cfgCodeBlock" rows="2" placeholder="$ git clone ...">${config.code_block || ''}</textarea>
+          </div>
+          <div class="form-group">
+            <label for="cfgVersion">Versiyon Etiketi</label>
+            <input type="text" id="cfgVersion" value="${config.version || ''}" placeholder="v2.1.0">
+          </div>
+        </div>
+      `;
+    } else if (type === 'ai_tools') {
+      container.innerHTML = `
+        <div class="config-section-title">AI Araçları Ayarları</div>
+        <div class="form-group">
+          <label for="cfgTitle">Başlık</label>
+          <input type="text" id="cfgTitle" value="${config.title || ''}" placeholder="Dijital Asistanlar">
+        </div>
+        <div class="form-group">
+          <label for="cfgDescription">Açıklama</label>
+          <input type="text" id="cfgDescription" value="${config.description || ''}" placeholder="3D tasarım için AI araçları">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cfgTools">Araç Listesi (virgülle)</label>
+            <input type="text" id="cfgTools" value="${(config.tools || []).join(', ')}" placeholder="Obico, Luma AI, Meshy">
+          </div>
+          <div class="form-group">
+            <label for="cfgExtraCount">Ek Araç Sayısı</label>
+            <input type="number" id="cfgExtraCount" value="${config.extra_count || 0}">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cfgTagLabel">Etiket</label>
+            <input type="text" id="cfgTagLabel" value="${config.tag_label || ''}" placeholder="AI Studyo">
+          </div>
+          <div class="form-group">
+            <label for="cfgLinkUrl">Link URL</label>
+            <input type="text" id="cfgLinkUrl" value="${config.link_url || ''}" placeholder="/ai-araclar">
+          </div>
+        </div>
+      `;
+    } else if (type === 'community') {
+      container.innerHTML = `
+        <div class="config-section-title">Topluluk Ayarları</div>
+        <div class="form-group">
+          <label for="cfgTitle">Başlık</label>
+          <input type="text" id="cfgTitle" value="${config.title || ''}" placeholder="ABS Çatlama Sorunu">
+        </div>
+        <div class="form-group">
+          <label for="cfgDescription">Açıklama</label>
+          <input type="text" id="cfgDescription" value="${config.description || ''}" placeholder="Kısa açıklama">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cfgComments">Yorum Sayısı</label>
+            <input type="number" id="cfgComments" value="${config.comments || 0}">
+          </div>
+          <div class="form-group">
+            <label for="cfgLikes">Beğeni Sayısı</label>
+            <input type="number" id="cfgLikes" value="${config.likes || 0}">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cfgTagLabel">Etiket</label>
+            <input type="text" id="cfgTagLabel" value="${config.tag_label || ''}" placeholder="Sıcak Tartışma">
+          </div>
+          <div class="form-group">
+            <label for="cfgLinkUrl">Link URL</label>
+            <input type="text" id="cfgLinkUrl" value="${config.link_url || ''}" placeholder="/topluluk">
+          </div>
+        </div>
+      `;
+    } else if (type === 'poll') {
+      container.innerHTML = `
+        <div class="config-section-title">Anket Ayarları</div>
+        <div class="form-group">
+          <label for="cfgTagLabel">Etiket</label>
+          <input type="text" id="cfgTagLabel" value="${config.tag_label || 'Anket'}" placeholder="Anket">
+        </div>
+        <p class="text-muted" style="font-size:0.8rem; margin-top:8px;">Aktif anket otomatik olarak gösterilir. Anket yönetimi için ayrı bir panel kullanın.</p>
+      `;
+    } else if (type === 'filament_prices') {
+      container.innerHTML = `
+        <div class="config-section-title">Filament Fiyatları</div>
+        <p class="text-muted" style="font-size:0.8rem;">Filament fiyatları otomatik olarak veritabanından çekilir. Ek ayar gerekmez.</p>
+      `;
+    } else {
+      container.innerHTML = '';
+    }
+  }
+
+  function getConfigFromForm(type: string): any {
+    const config: any = {};
+
+    const tagLabel = (document.getElementById('cfgTagLabel') as HTMLInputElement)?.value;
+    if (tagLabel) config.tag_label = tagLabel;
+
+    const linkUrl = (document.getElementById('cfgLinkUrl') as HTMLInputElement)?.value;
+    if (linkUrl) config.link_url = linkUrl;
+
+    if (type === 'category_post') {
+      config.category = (document.getElementById('cfgCategory') as HTMLSelectElement)?.value || '3d-baski';
+      const statText = (document.getElementById('cfgStatText') as HTMLInputElement)?.value;
+      if (statText) config.stat_text = statText;
+    } else if (type === 'custom_html') {
+      config.title = (document.getElementById('cfgTitle') as HTMLInputElement)?.value || '';
+      config.description = (document.getElementById('cfgDescription') as HTMLTextAreaElement)?.value || '';
+      const codeBlock = (document.getElementById('cfgCodeBlock') as HTMLTextAreaElement)?.value;
+      if (codeBlock) config.code_block = codeBlock;
+      const version = (document.getElementById('cfgVersion') as HTMLInputElement)?.value;
+      if (version) config.version = version;
+    } else if (type === 'ai_tools') {
+      config.title = (document.getElementById('cfgTitle') as HTMLInputElement)?.value || '';
+      config.description = (document.getElementById('cfgDescription') as HTMLInputElement)?.value || '';
+      const toolsStr = (document.getElementById('cfgTools') as HTMLInputElement)?.value || '';
+      config.tools = toolsStr.split(',').map((t: string) => t.trim()).filter(Boolean);
+      config.extra_count = parseInt((document.getElementById('cfgExtraCount') as HTMLInputElement)?.value || '0');
+    } else if (type === 'community') {
+      config.title = (document.getElementById('cfgTitle') as HTMLInputElement)?.value || '';
+      config.description = (document.getElementById('cfgDescription') as HTMLInputElement)?.value || '';
+      config.comments = parseInt((document.getElementById('cfgComments') as HTMLInputElement)?.value || '0');
+      config.likes = parseInt((document.getElementById('cfgLikes') as HTMLInputElement)?.value || '0');
+    }
+
+    return config;
+  }
+
+  // Content type değişince config alanlarını güncelle
+  document.getElementById('contentType')?.addEventListener('change', (e) => {
+    const type = (e.target as HTMLSelectElement).value;
+    updateConfigFields(type);
+  });
+
+  // Yeni kutu ekleme
+  document.getElementById('addBoxBtn')?.addEventListener('click', () => {
+    editingId = null;
+    document.getElementById('modalTitle')!.textContent = 'Yeni İçerik Kutusu';
+    (document.getElementById('boxForm') as HTMLFormElement).reset();
+    (document.getElementById('boxId') as HTMLInputElement).value = '';
+    (document.getElementById('isVisible') as HTMLInputElement).checked = true;
+    document.getElementById('configFields')!.innerHTML = '';
+    document.getElementById('editModal')!.classList.remove('hidden');
+  });
+
+  // Form gönderme
+  document.getElementById('boxForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const id = (document.getElementById('boxId') as HTMLInputElement).value;
+    const contentType = (document.getElementById('contentType') as HTMLSelectElement).value;
+
+    const payload: any = {
+      slot_key: (document.getElementById('slotKey') as HTMLInputElement).value,
+      content_type: contentType,
+      size: (document.getElementById('boxSize') as HTMLSelectElement).value,
+      color_theme: (document.getElementById('colorTheme') as HTMLSelectElement).value,
+      is_visible: (document.getElementById('isVisible') as HTMLInputElement).checked,
+      config: getConfigFromForm(contentType)
+    };
+
+    if (!id) {
+      // Yeni oluştur - en yüksek display_order + 1
+      const maxOrder = allBoxes.reduce((max: number, b: any) => Math.max(max, b.display_order || 0), 0);
+      payload.display_order = maxOrder + 1;
+    }
+
+    try {
+      const url = id ? `${API_BASE}/admin/content-boxes/${id}` : `${API_BASE}/admin/content-boxes`;
+      const method = id ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'X-ADMIN-SECRET': secret!, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        document.getElementById('editModal')!.classList.add('hidden');
+        loadBoxes();
+      } else {
+        alert(data.error || data.message || 'İşlem başarısız');
+      }
+    } catch (err) {
+      console.error('Kaydetme hatası:', err);
+      alert('Bir hata oluştu');
+    }
+  });
+
+  // Silme
+  async function deleteBox() {
+    if (!deleteId) return;
+    try {
+      const res = await fetch(`${API_BASE}/admin/content-boxes/${deleteId}`, {
+        method: 'DELETE',
+        headers: { 'X-ADMIN-SECRET': secret! }
+      });
+      if (res.ok) {
+        document.getElementById('deleteModal')!.classList.add('hidden');
+        deleteId = null;
+        loadBoxes();
+      }
+    } catch (err) {
+      console.error('Silme hatası:', err);
+    }
+  }
+
+  // Modal kapatma
+  document.getElementById('cancelEditBtn')?.addEventListener('click', () => {
+    document.getElementById('editModal')!.classList.add('hidden');
+  });
+  document.getElementById('editBackdrop')?.addEventListener('click', () => {
+    document.getElementById('editModal')!.classList.add('hidden');
+  });
+  document.getElementById('cancelDeleteBtn')?.addEventListener('click', () => {
+    document.getElementById('deleteModal')!.classList.add('hidden');
+    deleteId = null;
+  });
+  document.getElementById('deleteBackdrop')?.addEventListener('click', () => {
+    document.getElementById('deleteModal')!.classList.add('hidden');
+    deleteId = null;
+  });
+  document.getElementById('confirmDeleteBtn')?.addEventListener('click', deleteBox);
+
+  // Yükle
+  loadBoxes();
+</script>

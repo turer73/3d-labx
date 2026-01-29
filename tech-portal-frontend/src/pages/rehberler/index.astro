@@ -1,0 +1,892 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+import { getApiBase } from "../../lib/api";
+
+type Post = {
+  id: number;
+  title_tr: string;
+  summary_tr: string;
+  slug: string;
+  category: string;
+  image_url?: string;
+  is_featured: number;
+  created_at?: string;
+};
+
+type Pagination = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+};
+
+type ApiResponse = {
+  posts: Post[];
+  pagination: Pagination;
+};
+
+export const prerender = false;
+
+const API_BASE = getApiBase(Astro.request);
+
+const url = new URL(Astro.request.url);
+const currentPage = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
+const POSTS_PER_PAGE = 12;
+
+let posts: Post[] = [];
+let pagination: Pagination | null = null;
+let error: string | null = null;
+
+try {
+  const res = await fetch(
+    `${API_BASE}/api/posts?category=rehberler&page=${currentPage}&limit=${POSTS_PER_PAGE}`,
+    { headers: { "Accept": "application/json" } }
+  );
+
+  if (!res.ok) {
+    throw new Error(`API hatası: ${res.status}`);
+  }
+
+  const data: ApiResponse = await res.json();
+  posts = data.posts;
+  pagination = data.pagination;
+} catch (e) {
+  error = e instanceof Error ? e.message : "Bilinmeyen hata";
+  console.error("Rehberler sayfası hatası:", error);
+}
+
+const title = currentPage > 1
+  ? `Rehberler - Sayfa ${currentPage} - 3D-labX`
+  : "Rehberler - 3D-labX";
+
+const description = posts.length > 0
+  ? `3D baskı rehberleri: ${posts.slice(0, 3).map((p) => p.title_tr).join(", ")}`
+  : "3D baskı rehberleri, nasıl yapılır yazıları ve başlangıç kılavuzları.";
+
+const prevUrl = pagination?.hasPrev ? `/rehberler?page=${currentPage - 1}` : null;
+const nextUrl = pagination?.hasNext ? `/rehberler?page=${currentPage + 1}` : null;
+---
+
+<BaseLayout title={title} description={description}>
+  <Header />
+
+  <main class="category-page">
+    <div class="container">
+      <div class="page-header">
+        <div class="page-title-group">
+          <h1>Rehberler</h1>
+          <p class="page-desc">Adım adım kılavuzlar ve nasıl yapılır yazıları</p>
+        </div>
+        {pagination && (
+          <span class="post-count">{pagination.total} rehber</span>
+        )}
+      </div>
+
+      <!-- FİLAMENT FİYAT KARŞILAŞTIRMA - BENTO GRID -->
+      <section class="filament-bento" id="filamentSection">
+        <div class="filament-bento-header">
+          <div class="filament-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span>Fiyat Takibi</span>
+          </div>
+          <h2>Filament & Reçine Fiyatları</h2>
+          <span class="filament-update" id="filamentUpdate"></span>
+        </div>
+
+        <div class="filament-bento-grid" id="filamentGrid">
+          <div class="filament-loading">
+            <div class="spinner"></div>
+            <span>Yükleniyor...</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Rehber Yazıları Başlığı -->
+      <div class="section-divider">
+        <h2 class="section-title">Rehber Yazıları</h2>
+      </div>
+
+      {error && (
+        <div class="message message-error">
+          <p><strong>İçerikler yüklenirken bir hata oluştu.</strong></p>
+          <p class="text-sm">{error}</p>
+        </div>
+      )}
+
+      {!error && posts.length === 0 && (
+        <div class="empty-state">
+          <div class="empty-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="m9 10 2 2 4-4"/></svg>
+          </div>
+          <h2>Henüz Rehber Yok</h2>
+          <p>Bu kategoride henüz içerik bulunmuyor. Yakında detaylı rehberler eklenecek!</p>
+          <a href="/" class="btn btn-primary">Ana Sayfaya Dön</a>
+        </div>
+      )}
+
+      {posts.length > 0 && (
+        <div class="posts-grid">
+          {posts.map((post) => (
+            <article class={`post-card ${post.is_featured ? 'featured' : ''}`}>
+              {post.image_url && (
+                <a href={`/rehberler/${post.slug}`} class="post-image">
+                  <img src={post.image_url} alt={post.title_tr} loading="lazy" />
+                </a>
+              )}
+              <div class="post-content">
+                {post.is_featured === 1 && (
+                  <span class="badge badge-guide">Kapsamli Rehber</span>
+                )}
+                <h2>
+                  <a href={`/rehberler/${post.slug}`}>{post.title_tr}</a>
+                </h2>
+                <p>{post.summary_tr}</p>
+                {post.created_at && (
+                  <time class="post-date" datetime={post.created_at}>
+                    {new Date(post.created_at).toLocaleDateString("tr-TR", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric"
+                    })}
+                  </time>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+
+      {pagination && pagination.totalPages > 1 && (
+        <nav class="pagination" aria-label="Sayfa navigasyonu">
+          <a
+            href={prevUrl || "#"}
+            class={`pagination-btn ${!prevUrl ? 'disabled' : ''}`}
+            aria-disabled={!prevUrl}
+          >
+            &larr; Onceki
+          </a>
+
+          <span class="pagination-info">
+            Sayfa {pagination.page} / {pagination.totalPages}
+          </span>
+
+          <a
+            href={nextUrl || "#"}
+            class={`pagination-btn ${!nextUrl ? 'disabled' : ''}`}
+            aria-disabled={!nextUrl}
+          >
+            Sonraki &rarr;
+          </a>
+        </nav>
+      )}
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .category-page {
+    padding-top: 156px;
+    padding-bottom: 64px;
+    min-height: 100vh;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-xl);
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+
+  .page-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .page-header h1 {
+    margin: 0;
+  }
+
+  .page-desc {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  .post-count {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+  }
+
+  .post-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+  }
+
+  .post-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .post-card.featured {
+    border-color: #06b6d4;
+    border-width: 2px;
+  }
+
+  .post-image {
+    display: block;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+  }
+
+  .post-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+  }
+
+  .post-card:hover .post-image img {
+    transform: scale(1.05);
+  }
+
+  .post-content {
+    padding: var(--spacing-lg);
+  }
+
+  .badge-guide {
+    background: #06b6d4;
+    color: #fff;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .post-content h2 {
+    font-size: 1.1rem;
+    margin: var(--spacing-sm) 0;
+    line-height: 1.4;
+  }
+
+  .post-content h2 a {
+    color: var(--text-main);
+    text-decoration: none;
+  }
+
+  .post-content h2 a:hover {
+    color: var(--accent);
+  }
+
+  .post-content p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .post-date {
+    display: block;
+    margin-top: var(--spacing-md);
+    font-size: 0.8rem;
+    color: var(--text-light);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--spacing-2xl) var(--spacing-lg);
+  }
+
+  .empty-icon {
+    color: var(--text-light);
+    margin-bottom: var(--spacing-md);
+    opacity: 0.5;
+  }
+
+  .empty-state h2 {
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .empty-state p {
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-2xl);
+    flex-wrap: wrap;
+  }
+
+  .pagination-btn {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    color: var(--text-main);
+    font-weight: 500;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+  }
+
+  .pagination-btn:hover:not(.disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .pagination-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .pagination-info {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 640px) {
+    .posts-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+  .section-divider {
+    margin: 40px 0 24px;
+    padding-top: 24px;
+    border-top: 2px solid var(--border-soft);
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+    margin: 0;
+    background: linear-gradient(135deg, var(--text-main) 0%, var(--text-muted) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+</style>
+
+<style is:global>
+  /* === FİLAMENT BENTO GRID === */
+  .filament-bento {
+    margin-bottom: 32px;
+    padding: 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    position: relative;
+  }
+
+  .filament-bento::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #F97316, #EAB308, #22C55E, #06B6D4, #A855F7, #EF4444);
+    border-radius: 20px 20px 0 0;
+  }
+
+  .filament-bento-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .filament-bento-header h2 {
+    font-size: 1.1rem;
+    margin: 0;
+    background: linear-gradient(135deg, var(--text-main) 0%, var(--text-muted) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .filament-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #EAB308;
+    background: rgba(234, 179, 8, 0.1);
+    padding: 4px 10px;
+    border-radius: 12px;
+  }
+
+  .filament-update {
+    margin-left: auto;
+    font-size: 0.7rem;
+    color: var(--text-light);
+  }
+
+  .filament-bento-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  @media (min-width: 640px) {
+    .filament-bento-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (min-width: 1024px) {
+    .filament-bento-grid { grid-template-columns: repeat(6, 1fr); }
+  }
+
+  /* Kategori Kartı */
+  .filament-category-card {
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .filament-category-card:hover {
+    border-color: var(--card-color, #EAB308);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  }
+
+  .filament-category-card.expanded {
+    border-color: var(--card-color, #EAB308);
+    background: var(--bg-card);
+  }
+
+  .filament-category-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .filament-category-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--card-color, #EAB308);
+  }
+
+  .filament-category-count {
+    font-size: 0.65rem;
+    color: var(--text-light);
+    background: var(--bg-card);
+    padding: 2px 6px;
+    border-radius: 8px;
+  }
+
+  .filament-best-price {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .filament-best-label {
+    font-size: 0.6rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .filament-best-value {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+
+  .filament-best-amount {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-main);
+  }
+
+  .filament-best-currency {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .filament-best-brand {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .filament-expand-icon {
+    position: absolute;
+    bottom: 6px;
+    right: 8px;
+    color: var(--text-light);
+    transition: transform 0.2s ease;
+  }
+
+  .filament-category-card.expanded .filament-expand-icon {
+    transform: rotate(180deg);
+  }
+
+  /* Alternatifler Paneli */
+  .filament-alternatives {
+    grid-column: 1 / -1;
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    padding: 16px;
+    display: none;
+    animation: slideDown 0.2s ease;
+  }
+
+  .filament-alternatives.visible {
+    display: block;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .filament-alternatives-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .filament-alternatives-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .filament-alternatives-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 4px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .filament-alternatives-close:hover {
+    background: var(--bg-card);
+    color: var(--text-main);
+  }
+
+  .filament-alternatives-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .filament-alt-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+  }
+
+  .filament-alt-item:hover {
+    border-color: var(--card-color, #EAB308);
+    transform: translateX(4px);
+  }
+
+  .filament-alt-item:first-child {
+    background: linear-gradient(135deg, rgba(234, 179, 8, 0.08), rgba(249, 115, 22, 0.05));
+    border-color: rgba(234, 179, 8, 0.3);
+  }
+
+  .filament-alt-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .filament-alt-brand {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .filament-alt-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .filament-alt-meta {
+    display: flex;
+    gap: 8px;
+    font-size: 0.65rem;
+    color: var(--text-light);
+  }
+
+  .filament-alt-price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+
+  .filament-alt-amount {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text-main);
+  }
+
+  .filament-alt-store {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+  }
+
+  .filament-loading {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 32px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-soft);
+    border-top-color: #EAB308;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .filament-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 24px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  /* Renk temaları */
+  .filament-category-card[data-type="PLA"] { --card-color: #F97316; }
+  .filament-category-card[data-type="PETG"] { --card-color: #06B6D4; }
+  .filament-category-card[data-type="ABS"] { --card-color: #EF4444; }
+  .filament-category-card[data-type="TPU"] { --card-color: #A855F7; }
+  .filament-category-card[data-type="ASA"] { --card-color: #EAB308; }
+  .filament-category-card[data-type="Reçine"] { --card-color: #22C55E; }
+
+  @media (max-width: 640px) {
+    .filament-bento { padding: 16px; }
+    .filament-bento-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .filament-update { margin-left: 0; }
+  }
+</style>
+
+<script>
+  const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
+
+  interface FilamentPrice {
+    filament_type: string;
+    brand: string;
+    product_name: string;
+    price_tl: number;
+    weight_grams: number;
+    color: string;
+    store_name: string;
+    store_url: string;
+  }
+
+  let allFilamentPrices: FilamentPrice[] = [];
+  let expandedCategory: string | null = null;
+
+  const CATEGORIES = ['PLA', 'PETG', 'ABS', 'TPU', 'ASA', 'Reçine'];
+
+  async function loadFilamentPrices() {
+    const grid = document.getElementById('filamentGrid');
+    const updateEl = document.getElementById('filamentUpdate');
+    if (!grid) return;
+
+    try {
+      const res = await fetch(`${API_URL}/api/filament-prices`);
+      const data = await res.json();
+
+      allFilamentPrices = data.prices || [];
+
+      if (updateEl && data.lastUpdated) {
+        const date = new Date(data.lastUpdated);
+        updateEl.textContent = `${date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}`;
+      }
+
+      renderBentoGrid();
+    } catch (err) {
+      console.error('Filament prices error:', err);
+      grid.innerHTML = '<div class="filament-empty">Fiyatlar yüklenemedi.</div>';
+    }
+  }
+
+  function renderBentoGrid() {
+    const grid = document.getElementById('filamentGrid');
+    if (!grid) return;
+
+    const categoryCards = CATEGORIES.map(cat => {
+      const items = allFilamentPrices.filter(p => p.filament_type === cat);
+      if (items.length === 0) return '';
+
+      const sorted = [...items].sort((a, b) => a.price_tl - b.price_tl);
+      const best = sorted[0];
+      const isExpanded = expandedCategory === cat;
+
+      return `
+        <div class="filament-category-card ${isExpanded ? 'expanded' : ''}" data-type="${cat}" data-category="${cat}">
+          <div class="filament-category-header">
+            <span class="filament-category-name">${cat}</span>
+            <span class="filament-category-count">${items.length} ürün</span>
+          </div>
+          <div class="filament-best-price">
+            <span class="filament-best-label">En uygun</span>
+            <div class="filament-best-value">
+              <span class="filament-best-amount">${Math.round(best.price_tl)}</span>
+              <span class="filament-best-currency">TL</span>
+            </div>
+            <span class="filament-best-brand">${best.brand}</span>
+          </div>
+          <svg class="filament-expand-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      `;
+    }).filter(Boolean).join('');
+
+    // Alternatifler paneli
+    let alternativesHtml = '';
+    if (expandedCategory) {
+      const items = allFilamentPrices.filter(p => p.filament_type === expandedCategory);
+      const sorted = [...items].sort((a, b) => a.price_tl - b.price_tl).slice(0, 6);
+
+      alternativesHtml = `
+        <div class="filament-alternatives visible" data-for="${expandedCategory}">
+          <div class="filament-alternatives-header">
+            <span class="filament-alternatives-title">${expandedCategory} Alternatifleri (Fiyat Sıralı)</span>
+            <button class="filament-alternatives-close" data-close="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+          </div>
+          <div class="filament-alternatives-list">
+            ${sorted.map((p, i) => `
+              <a href="${p.store_url || '#'}" target="_blank" rel="noopener noreferrer" class="filament-alt-item" style="--card-color: ${getColorForType(expandedCategory!)}">
+                <div class="filament-alt-info">
+                  <span class="filament-alt-brand">${p.brand}</span>
+                  <span class="filament-alt-name">${p.product_name}</span>
+                  <div class="filament-alt-meta">
+                    <span>${p.weight_grams}g</span>
+                    <span>${p.color}</span>
+                  </div>
+                </div>
+                <div class="filament-alt-price">
+                  <span class="filament-alt-amount">${p.price_tl.toFixed(0)} TL</span>
+                  <span class="filament-alt-store">${p.store_name}</span>
+                </div>
+              </a>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    grid.innerHTML = categoryCards + alternativesHtml;
+    setupCardListeners();
+  }
+
+  function getColorForType(type: string): string {
+    const colors: Record<string, string> = {
+      'PLA': '#F97316',
+      'PETG': '#06B6D4',
+      'ABS': '#EF4444',
+      'TPU': '#A855F7',
+      'ASA': '#EAB308',
+      'Reçine': '#22C55E'
+    };
+    return colors[type] || '#EAB308';
+  }
+
+  function setupCardListeners() {
+    const cards = document.querySelectorAll('.filament-category-card');
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        const cat = (card as HTMLElement).dataset.category;
+        if (expandedCategory === cat) {
+          expandedCategory = null;
+        } else {
+          expandedCategory = cat || null;
+        }
+        renderBentoGrid();
+      });
+    });
+
+    const closeBtn = document.querySelector('.filament-alternatives-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        expandedCategory = null;
+        renderBentoGrid();
+      });
+    }
+  }
+
+  loadFilamentPrices();
+
+  document.addEventListener('astro:after-swap', () => {
+    expandedCategory = null;
+    loadFilamentPrices();
+  });
+</script>
