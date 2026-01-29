@@ -677,7 +677,7 @@ export default {
         }
 
         // Total count
-        const countQuery = query.replace(/SELECT .* FROM/, "SELECT COUNT(*) as total FROM");
+        const countQuery = query.replace(/SELECT[\s\S]*?FROM/i, "SELECT COUNT(*) as total FROM");
         const countResult = await env.DB.prepare(countQuery).bind(...bindings).first();
         const total = countResult?.total || 0;
 
@@ -2150,7 +2150,7 @@ ${sourceText}`;
             is_visible !== undefined ? (is_visible ? 1 : 0) : 1
           ).run();
 
-          await logAdminAction(env, "content_box_create", null, request);
+          await logAdminAction(env, request, "content_box_create", null);
           return jsonResponse({ success: true, id: result.meta.last_row_id, message: "İçerik kutusu oluşturuldu" }, 201);
         }
 
@@ -2186,7 +2186,7 @@ ${sourceText}`;
           params.push(id);
 
           await env.DB.prepare(`UPDATE content_boxes SET ${updates.join(", ")} WHERE id = ?`).bind(...params).run();
-          await logAdminAction(env, "content_box_update", id, request);
+          await logAdminAction(env, request, "content_box_update", id);
           return jsonResponse({ success: true, message: "İçerik kutusu güncellendi" });
         }
 
@@ -2200,7 +2200,7 @@ ${sourceText}`;
           }
 
           await env.DB.prepare(`DELETE FROM content_boxes WHERE id = ?`).bind(id).run();
-          await logAdminAction(env, "content_box_delete", id, request);
+          await logAdminAction(env, request, "content_box_delete", id);
           return jsonResponse({ success: true, message: "İçerik kutusu silindi" });
         }
 
@@ -2220,7 +2220,7 @@ ${sourceText}`;
             }
           }
 
-          await logAdminAction(env, "content_boxes_reorder", null, request);
+          await logAdminAction(env, request, "content_boxes_reorder", null);
           return jsonResponse({ success: true, message: "Sıralama güncellendi" });
         }
 
@@ -2243,7 +2243,7 @@ ${sourceText}`;
             ('yazilim', 8, 'wide', 'custom_html', '{"title":"OrcaSlicer: Yeni Ağaç Destekleri","description":"Daha az malzeme harcayan yeni destek algoritması geldi.","version":"v2.1.0","tag_label":"Yazılım","link_url":"/teknoloji"}', 'cyan', 1)
           `).run();
 
-          await logAdminAction(env, "content_boxes_seed", null, request);
+          await logAdminAction(env, request, "content_boxes_seed", null);
           return jsonResponse({ success: true, message: "8 varsayılan içerik kutusu yüklendi" });
         }
 
