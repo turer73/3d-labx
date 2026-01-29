@@ -128,9 +128,9 @@ const nextUrl = pagination?.hasNext ? `/rehberler?page=${currentPage + 1}` : nul
       )}
 
       {posts.length > 0 && (
-        <div class="posts-grid">
+        <div class="posts-grid" id="postsGrid">
           {posts.map((post) => (
-            <article class={`post-card ${post.is_featured ? 'featured' : ''}`}>
+            <article class={`post-card ${post.is_featured ? 'featured' : ''}`} data-post-id={post.id}>
               {post.image_url && (
                 <a href={`/rehberler/${post.slug}`} class="post-image">
                   <img src={post.image_url} alt={post.title_tr} loading="lazy" />
@@ -159,35 +159,32 @@ const nextUrl = pagination?.hasNext ? `/rehberler?page=${currentPage + 1}` : nul
         </div>
       )}
 
-      {pagination && pagination.totalPages > 1 && (
-        <nav class="pagination" aria-label="Sayfa navigasyonu">
-          <div class="pagination-wrapper">
-            <a
-              href={prevUrl || "#"}
-              class={`pagination-btn ${!prevUrl ? 'disabled' : ''}`}
-              aria-disabled={!prevUrl}
-            >
-              <svg class="arrow-left" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-              <span class="btn-text">Önceki</span>
-            </a>
-
-            <div class="pagination-info">
-              <span class="current-page">{pagination.page}</span>
-              <span class="separator">/</span>
-              <span class="total-pages">{pagination.totalPages}</span>
-            </div>
-
-            <a
-              href={nextUrl || "#"}
-              class={`pagination-btn ${!nextUrl ? 'disabled' : ''}`}
-              aria-disabled={!nextUrl}
-            >
-              <span class="btn-text">Sonraki</span>
-              <svg class="arrow-right" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-            </a>
+      <!-- Infinite Scroll: Devam Et Butonu ve Loading -->
+      <div class="infinite-scroll-container" id="infiniteScrollContainer">
+        <div class="load-more-wrapper" id="loadMoreWrapper">
+          <button class="load-more-btn" id="loadMoreBtn">
+            <span class="btn-text">Devam Et</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="scroll-progress" id="scrollProgress">
+            <span id="loadedCount">{posts.length}</span> / <span id="totalCount">{pagination?.total || posts.length}</span> rehber
           </div>
-        </nav>
-      )}
+        </div>
+        <div class="loading-more hidden" id="loadingMore">
+          <div class="spinner"></div>
+          <span>Yükleniyor...</span>
+        </div>
+        <div class="all-loaded hidden" id="allLoaded">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <span>Tüm rehberler yüklendi</span>
+        </div>
+      </div>
+
+      <!-- Data for JavaScript -->
+      <script define:vars={{ initialPosts: posts, initialPagination: pagination }}>
+        window.__INITIAL_POSTS__ = initialPosts;
+        window.__INITIAL_PAGINATION__ = initialPagination;
+      </script>
     </div>
   </main>
 </BaseLayout>
@@ -359,6 +356,119 @@ const nextUrl = pagination?.hasNext ? `/rehberler?page=${currentPage + 1}` : nul
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  /* Infinite Scroll Styles */
+  .infinite-scroll-container {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .load-more-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .load-more-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 32px;
+    background: linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+  }
+
+  .load-more-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(6, 182, 212, 0.4);
+  }
+
+  .load-more-btn:active {
+    transform: translateY(0);
+  }
+
+  .load-more-btn svg {
+    transition: transform 0.3s ease;
+  }
+
+  .load-more-btn:hover svg {
+    transform: translateY(3px);
+  }
+
+  .scroll-progress {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .loading-more {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .loading-more .spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--border-soft);
+    border-top-color: #06B6D4;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  .all-loaded {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 30px;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 50px;
+    color: #22C55E;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  /* New post animation */
+  .post-card.new-post {
+    animation: fadeInUp 0.5s ease forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .load-more-btn {
+      padding: 12px 24px;
+      font-size: 0.9rem;
+    }
   }
 </style>
 
@@ -912,4 +1022,139 @@ const nextUrl = pagination?.hasNext ? `/rehberler?page=${currentPage + 1}` : nul
     expandedCategory = null;
     loadFilamentPrices();
   });
+
+  // ========================================
+  // INFINITE SCROLL - Rehberler
+  // ========================================
+  (function initInfiniteScroll() {
+    const postsGrid = document.getElementById('postsGrid');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const loadMoreWrapper = document.getElementById('loadMoreWrapper');
+    const loadingMore = document.getElementById('loadingMore');
+    const allLoaded = document.getElementById('allLoaded');
+    const loadedCountEl = document.getElementById('loadedCount');
+    const totalCountEl = document.getElementById('totalCount');
+
+    if (!postsGrid || !loadMoreBtn) return;
+
+    // Initial data from server
+    const initialPagination = (window as any).__INITIAL_PAGINATION__;
+    if (!initialPagination) return;
+
+    let currentPage = initialPagination.page || 1;
+    let totalPages = initialPagination.totalPages || 1;
+    let totalPosts = initialPagination.total || 0;
+    let loadedPosts = initialPagination.page * initialPagination.limit;
+    let isLoading = false;
+
+    // Update UI based on initial state
+    function updateUI() {
+      const currentLoaded = postsGrid.querySelectorAll('.post-card').length;
+      if (loadedCountEl) loadedCountEl.textContent = currentLoaded.toString();
+      if (totalCountEl) totalCountEl.textContent = totalPosts.toString();
+
+      if (currentPage >= totalPages) {
+        loadMoreWrapper?.classList.add('hidden');
+        allLoaded?.classList.remove('hidden');
+      } else {
+        loadMoreWrapper?.classList.remove('hidden');
+        allLoaded?.classList.add('hidden');
+      }
+    }
+
+    // Load more posts
+    async function loadMorePosts() {
+      if (isLoading || currentPage >= totalPages) return;
+
+      isLoading = true;
+      loadMoreBtn?.classList.add('hidden');
+      loadingMore?.classList.remove('hidden');
+
+      try {
+        const nextPage = currentPage + 1;
+        const res = await fetch(`${API_URL}/api/posts?category=rehberler&page=${nextPage}&limit=12`);
+        const data = await res.json();
+
+        if (data.posts && data.posts.length > 0) {
+          // Add new posts to grid with animation
+          data.posts.forEach((post: any, index: number) => {
+            const article = createPostCard(post);
+            article.style.animationDelay = `${index * 0.1}s`;
+            postsGrid.appendChild(article);
+          });
+
+          currentPage = nextPage;
+          updateUI();
+        }
+      } catch (err) {
+        console.error('Load more error:', err);
+      } finally {
+        isLoading = false;
+        loadingMore?.classList.add('hidden');
+        if (currentPage < totalPages) {
+          loadMoreBtn?.classList.remove('hidden');
+        }
+      }
+    }
+
+    // Create post card HTML
+    function createPostCard(post: any): HTMLElement {
+      const article = document.createElement('article');
+      article.className = `post-card new-post ${post.is_featured ? 'featured' : ''}`;
+      article.dataset.postId = post.id;
+
+      const dateFormatted = post.created_at
+        ? new Date(post.created_at).toLocaleDateString('tr-TR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })
+        : '';
+
+      article.innerHTML = `
+        ${post.image_url ? `
+          <a href="/rehberler/${post.slug}" class="post-image">
+            <img src="${post.image_url}" alt="${post.title_tr}" loading="lazy" />
+          </a>
+        ` : ''}
+        <div class="post-content">
+          ${post.is_featured === 1 ? '<span class="badge badge-guide">Kapsamli Rehber</span>' : ''}
+          <h2>
+            <a href="/rehberler/${post.slug}">${post.title_tr}</a>
+          </h2>
+          <p>${post.summary_tr}</p>
+          ${dateFormatted ? `<time class="post-date" datetime="${post.created_at}">${dateFormatted}</time>` : ''}
+        </div>
+      `;
+
+      return article;
+    }
+
+    // Button click handler
+    loadMoreBtn.addEventListener('click', loadMorePosts);
+
+    // Auto-load when scrolling near bottom (optional - for seamless experience)
+    let scrollTimeout: number;
+    function handleScroll() {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = window.setTimeout(() => {
+        const scrollPosition = window.innerHeight + window.scrollY;
+        const threshold = document.body.offsetHeight - 500;
+
+        if (scrollPosition >= threshold && !isLoading && currentPage < totalPages) {
+          loadMorePosts();
+        }
+      }, 100);
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    // Initial UI update
+    updateUI();
+
+    // Cleanup on page navigation
+    document.addEventListener('astro:before-swap', () => {
+      window.removeEventListener('scroll', handleScroll);
+    });
+  })();
 </script>
