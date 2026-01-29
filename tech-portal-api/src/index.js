@@ -1362,14 +1362,50 @@ export default {
 
         // Admin: Tüm Yazılar
         if (path === "/admin/posts" && method === "GET") {
-          const posts = await env.DB.prepare(`
+          const page = parseInt(url.searchParams.get("page") || "1");
+          const limit = parseInt(url.searchParams.get("limit") || "50");
+          const search = sanitizeString(url.searchParams.get("search"), 100);
+          const category = sanitizeString(url.searchParams.get("category"), 50);
+          const offset = (page - 1) * limit;
+
+          let query = `
             SELECT id, title_tr, summary_tr, slug, category, post_type, is_featured, published, status, ai_generated, created_at
             FROM posts
-            ORDER BY created_at DESC
-            LIMIT 200
-          `).all();
+          `;
+          let countQuery = `SELECT COUNT(*) as total FROM posts`;
+          const conditions = [];
+          const params = [];
 
-          return jsonResponse(posts.results || []);
+          if (search) {
+            conditions.push(`(title_tr LIKE ? OR summary_tr LIKE ?)`);
+            params.push(`%${search}%`, `%${search}%`);
+          }
+          if (category) {
+            conditions.push(`category = ?`);
+            params.push(category);
+          }
+
+          if (conditions.length > 0) {
+            const whereClause = ` WHERE ${conditions.join(' AND ')}`;
+            query += whereClause;
+            countQuery += whereClause;
+          }
+
+          query += ` ORDER BY id DESC LIMIT ? OFFSET ?`;
+          params.push(limit, offset);
+
+          const [postsResult, countResult] = await Promise.all([
+            env.DB.prepare(query).bind(...params).all(),
+            env.DB.prepare(countQuery).bind(...params.slice(0, -2)).all()
+          ]);
+
+          const total = countResult.results?.[0]?.total || 0;
+          const totalPages = Math.ceil(total / limit);
+
+          return jsonResponse({
+            posts: postsResult.results || [],
+            pagination: { page, limit, total, totalPages }
+          });
         }
 
         // Admin: Tek Post Detay
@@ -2627,16 +2663,11 @@ async function updateFilamentPrices(env) {
   console.log("Filament price update started:", new Date().toISOString());
 
   const sources = [
-    // Robo90
-    { url: "https://www.robo90.com/filament", name: "Robo90" },
-    { url: "https://www.robo90.com/filament?pg=2", name: "Robo90" },
-    { url: "https://www.robo90.com/filament?pg=3", name: "Robo90" },
-    { url: "https://www.robo90.com/recine", name: "Robo90" },
-    // Filament Marketim
-    { url: "https://www.filamentmarketim.com/pla-filament", name: "FilamentMarketim" },
-    { url: "https://www.filamentmarketim.com/petg-filament", name: "FilamentMarketim" },
-    { url: "https://www.filamentmarketim.com/abs-filament", name: "FilamentMarketim" },
-    { url: "https://www.filamentmarketim.com/asa-filament", name: "FilamentMarketim" },
+    // Filament Marketim - en düşük fiyata göre sıralı
+    { url: "https://www.filamentmarketim.com/pla-filament?siralama=en-dusuk-fiyat", name: "FilamentMarketim", type: "PLA" },
+    { url: "https://www.filamentmarketim.com/petg-filament?siralama=en-dusuk-fiyat", name: "FilamentMarketim", type: "PETG" },
+    { url: "https://www.filamentmarketim.com/abs-filament?siralama=en-dusuk-fiyat", name: "FilamentMarketim", type: "ABS" },
+    { url: "https://www.filamentmarketim.com/asa-filament?siralama=en-dusuk-fiyat", name: "FilamentMarketim", type: "ASA" },
   ];
 
   const allProducts = [];
@@ -2658,7 +2689,7 @@ async function updateFilamentPrices(env) {
 
       const html = await response.text();
       const products = source.name === "FilamentMarketim"
-        ? parseFilamentMarketimHtml(html, source.url)
+        ? parseFilamentMarketimHtml(html, source.url, source.type)
         : parseFilamentHtml(html, source.name);
       allProducts.push(...products);
 
@@ -2718,80 +2749,86 @@ async function updateFilamentPrices(env) {
   }
 }
 
-// FilamentMarketim için özel parser
-function parseFilamentMarketimHtml(html, sourceUrl) {
+// FilamentMarketim için özel parser - geliştirilmiş versiyon
+function parseFilamentMarketimHtml(html, sourceUrl, forceType = null) {
   const products = [];
 
-  // URL'den filament türünü belirle
-  let defaultType = "PLA";
-  if (sourceUrl.includes("petg")) defaultType = "PETG";
-  else if (sourceUrl.includes("abs-filament")) defaultType = "ABS";
-  else if (sourceUrl.includes("asa")) defaultType = "ASA";
-  else if (sourceUrl.includes("tpu")) defaultType = "TPU";
+  // URL'den veya parametreden filament türünü belirle
+  let defaultType = forceType || "PLA";
+  if (!forceType) {
+    if (sourceUrl.includes("petg")) defaultType = "PETG";
+    else if (sourceUrl.includes("abs-filament")) defaultType = "ABS";
+    else if (sourceUrl.includes("asa")) defaultType = "ASA";
+    else if (sourceUrl.includes("tpu")) defaultType = "TPU";
+  }
 
-  // Fiyat pattern: 608,43 TL veya 608.43 TL
-  const pricePattern = /(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?)\s*(?:TL|₺)/gi;
+  // Ürün linklerinden veri çıkar
+  // FilamentMarketim'de ürünler <a> tagları içinde, title attribute'unda ürün adı var
+  const productLinkRegex = /<a[^>]+href="([^"]+)"[^>]+title="([^"]+)"[^>]*>/gi;
+  const priceRegex = /(\d{1,3}(?:\.\d{3})*|\d+),(\d{2})\s*(?:TL|₺)/g;
 
-  // Ürün bloklarını bul - col-list-p-v-1 FilamentMarketim'in ürün kartı class'ı
-  const productBlocks = html.split(/class="[^"]*col-list-p-v-1[^"]*"|class="[^"]*product-item[^"]*"|class="[^"]*product-card[^"]*"/gi);
-
-  for (const block of productBlocks.slice(1)) {
-    try {
-      // Fiyat bul
-      const priceMatches = block.match(pricePattern);
-      if (!priceMatches) continue;
-
-      // İlk fiyatı al (genelde güncel fiyat)
-      let priceStr = priceMatches[0].replace(/[^\d.,]/g, "");
-      // Türk formatı: 1.234,56 -> 1234.56
-      if (priceStr.includes(",")) {
-        priceStr = priceStr.replace(/\./g, "").replace(",", ".");
-      }
-      const price = parseFloat(priceStr);
-      if (isNaN(price) || price < 50 || price > 10000) continue;
-
-      // Ürün adı bul
-      const titleMatch = block.match(/title="([^"]{10,})"/i) ||
-                         block.match(/<h[234][^>]*>([^<]{10,})</i) ||
-                         block.match(/alt="([^"]{10,})"/i) ||
-                         block.match(/class="[^"]*product-name[^"]*"[^>]*>([^<]+)</i);
-      if (!titleMatch) continue;
-
-      const productName = titleMatch[1].trim();
-      if (productName.length < 5 || productName.includes("undefined")) continue;
-
-      // Tür belirle (ürün adından veya URL'den)
-      let type = detectFilamentType(productName) || defaultType;
-
-      // Marka bul
-      const brand = detectBrand(productName);
-
-      // Renk bul
-      const color = detectColor(productName);
-
-      // Duplicate kontrolü
-      const isDuplicate = products.some(p =>
-        p.product_name === productName && p.price_tl === price
-      );
-      if (isDuplicate) continue;
-
-      products.push({
-        filament_type: type,
-        brand: brand,
-        product_name: productName,
-        weight_grams: 1000,
-        color: color,
-        price_tl: price,
-        original_price_tl: 0,
-        discount_percent: 0,
-        rating: 0,
-        store_name: "FilamentMarketim",
-        store_url: "https://www.filamentmarketim.com",
-        is_best_deal: 0
-      });
-    } catch (e) {
-      // Skip invalid blocks
+  // Tüm fiyatları bul
+  const allPrices = [];
+  let priceMatch;
+  while ((priceMatch = priceRegex.exec(html)) !== null) {
+    const intPart = priceMatch[1].replace(/\./g, '');
+    const decPart = priceMatch[2];
+    const price = parseFloat(`${intPart}.${decPart}`);
+    if (price >= 100 && price <= 5000) {
+      allPrices.push({ price, index: priceMatch.index });
     }
+  }
+
+  // Ürün linklerini bul
+  let linkMatch;
+  while ((linkMatch = productLinkRegex.exec(html)) !== null) {
+    const url = linkMatch[1];
+    const title = linkMatch[2].trim();
+
+    // Filament ürünü mü kontrol et
+    if (!url.includes('filament') && !title.toLowerCase().includes('filament') &&
+        !title.toLowerCase().includes('pla') && !title.toLowerCase().includes('petg') &&
+        !title.toLowerCase().includes('abs') && !title.toLowerCase().includes('asa')) {
+      continue;
+    }
+
+    // Ürün adı çok kısa veya geçersizse atla
+    if (title.length < 10 || title.includes('undefined')) continue;
+
+    // En yakın fiyatı bul (link'ten sonraki ilk fiyat)
+    const nearestPrice = allPrices.find(p => p.index > linkMatch.index && p.index < linkMatch.index + 2000);
+    if (!nearestPrice) continue;
+
+    // Marka bul
+    const brand = detectBrand(title);
+
+    // Renk bul
+    const color = detectColor(title);
+
+    // Duplicate kontrolü
+    const isDuplicate = products.some(p =>
+      p.product_name === title ||
+      (p.brand === brand && Math.abs(p.price_tl - nearestPrice.price) < 1)
+    );
+    if (isDuplicate) continue;
+
+    products.push({
+      filament_type: defaultType,
+      brand: brand,
+      product_name: title,
+      weight_grams: 1000,
+      color: color,
+      price_tl: nearestPrice.price,
+      original_price_tl: 0,
+      discount_percent: 0,
+      rating: 0,
+      store_name: "FilamentMarketim",
+      store_url: `https://www.filamentmarketim.com${url.startsWith('/') ? url : '/' + url}`,
+      is_best_deal: 0
+    });
+
+    // Sadece ilk 10 ürünü al (en ucuzlar zaten sıralı)
+    if (products.length >= 10) break;
   }
 
   return products;

@@ -700,6 +700,52 @@ const nextUrl = pagination?.hasNext ? `/rehberler?page=${currentPage + 1}` : nul
     .filament-bento-header { flex-direction: column; align-items: flex-start; gap: 8px; }
     .filament-update { margin-left: 0; }
   }
+
+  /* Best deal badge */
+  .filament-alt-item.best-deal {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%);
+    border: 2px solid rgba(34, 197, 94, 0.4);
+    position: relative;
+  }
+
+  .best-badge {
+    position: absolute;
+    top: -10px;
+    left: 12px;
+    background: linear-gradient(135deg, #22c55e, #10b981);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+  }
+
+  /* Tümünü Gör butonu */
+  .filament-view-all {
+    display: block;
+    text-align: center;
+    padding: 14px 20px;
+    margin-top: 12px;
+    background: linear-gradient(135deg, var(--card-color, #F97316) 0%, color-mix(in srgb, var(--card-color, #F97316) 80%, black) 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .filament-view-all:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .filament-alternatives[data-for="PLA"] .filament-view-all { --card-color: #F97316; }
+  .filament-alternatives[data-for="PETG"] .filament-view-all { --card-color: #06B6D4; }
+  .filament-alternatives[data-for="ABS"] .filament-view-all { --card-color: #EF4444; }
+  .filament-alternatives[data-for="ASA"] .filament-view-all { --card-color: #EAB308; }
 </style>
 
 <script>
@@ -781,17 +827,25 @@ const nextUrl = pagination?.hasNext ? `/rehberler?page=${currentPage + 1}` : nul
       const items = allFilamentPrices.filter(p => p.filament_type === expandedCategory);
       const sorted = [...items].sort((a, b) => a.price_tl - b.price_tl).slice(0, 6);
 
+      const categoryUrls: Record<string, string> = {
+        'PLA': 'https://www.filamentmarketim.com/pla-filament?siralama=en-dusuk-fiyat',
+        'PETG': 'https://www.filamentmarketim.com/petg-filament?siralama=en-dusuk-fiyat',
+        'ABS': 'https://www.filamentmarketim.com/abs-filament?siralama=en-dusuk-fiyat',
+        'ASA': 'https://www.filamentmarketim.com/asa-filament?siralama=en-dusuk-fiyat'
+      };
+
       alternativesHtml = `
         <div class="filament-alternatives visible" data-for="${expandedCategory}">
           <div class="filament-alternatives-header">
-            <span class="filament-alternatives-title">${expandedCategory} Alternatifleri (Fiyat Sıralı)</span>
+            <span class="filament-alternatives-title">${expandedCategory} Fiyatları (En Ucuzdan Pahalıya)</span>
             <button class="filament-alternatives-close" data-close="true">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>
           </div>
           <div class="filament-alternatives-list">
             ${sorted.map((p, i) => `
-              <a href="${p.store_url || '#'}" target="_blank" rel="noopener noreferrer" class="filament-alt-item" style="--card-color: ${getColorForType(expandedCategory!)}">
+              <a href="${p.store_url || '#'}" target="_blank" rel="noopener noreferrer" class="filament-alt-item ${i === 0 ? 'best-deal' : ''}" style="--card-color: ${getColorForType(expandedCategory!)}">
+                ${i === 0 ? '<span class="best-badge">🏆 En Uygun</span>' : ''}
                 <div class="filament-alt-info">
                   <span class="filament-alt-brand">${p.brand}</span>
                   <span class="filament-alt-name">${p.product_name}</span>
@@ -807,6 +861,9 @@ const nextUrl = pagination?.hasNext ? `/rehberler?page=${currentPage + 1}` : nul
               </a>
             `).join('')}
           </div>
+          <a href="${categoryUrls[expandedCategory] || '#'}" target="_blank" rel="noopener noreferrer" class="filament-view-all">
+            Tüm ${expandedCategory} Fiyatlarını Gör →
+          </a>
         </div>
       `;
     }

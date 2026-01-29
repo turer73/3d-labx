@@ -170,6 +170,24 @@ function getCategoryColor(cat: string) {
         </div>
       </a>
 
+      <!-- Filament Fiyatları - Rehberler'e Yönlendir -->
+      <a href="/rehberler" class="bento-card filament-promo">
+        <div class="bento-glow"></div>
+        <div class="bento-content">
+          <div class="bento-header">
+            <div class="bento-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <span class="bento-tag">Güncel Fiyatlar</span>
+          </div>
+          <h3>Filament & Reçine Fiyatları</h3>
+          <p>Türkiye'nin en güncel 3D baskı malzeme fiyatları. Markaları karşılaştır, en uygun fiyatı bul.</p>
+          <div class="filament-promo-footer">
+            <span class="promo-cta">Fiyatları Gör →</span>
+          </div>
+        </div>
+      </a>
+
       <!-- Anket 1: API Anketi - Varsayılan değerlerle -->
       <div class="bento-card poll poll-gradient-1" id="pollCard">
         <div class="bento-content">
@@ -665,6 +683,35 @@ function getCategoryColor(cat: string) {
   .bento-card.green .bento-icon { background: rgba(34, 197, 94, 0.1); color: #22C55E; }
   .bento-card.green:hover { border-color: rgba(34, 197, 94, 0.5); }
   .bento-card.green .bento-glow { background: radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%); }
+
+  /* Filament Promo Card */
+  .bento-card.filament-promo {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(234, 179, 8, 0.1) 50%, var(--bg-card) 100%);
+    border-color: rgba(249, 115, 22, 0.3);
+  }
+  .bento-card.filament-promo .bento-icon { background: linear-gradient(135deg, #F97316, #EAB308); color: white; }
+  .bento-card.filament-promo .bento-tag { background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(234, 179, 8, 0.2)); color: #F97316; }
+  .bento-card.filament-promo:hover { border-color: rgba(249, 115, 22, 0.6); box-shadow: 0 0 30px rgba(249, 115, 22, 0.15); transform: translateY(-4px); }
+  .bento-card.filament-promo .bento-glow { background: radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, transparent 70%); }
+
+  .filament-promo-footer {
+    margin-top: auto;
+    padding-top: 12px;
+  }
+
+  .promo-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #F97316;
+    transition: all 0.2s;
+  }
+
+  .bento-card.filament-promo:hover .promo-cta {
+    gap: 10px;
+  }
 
   .bento-card h3 { font-size: 1.25rem; margin: 0 0 8px; line-height: 1.3; color: var(--text-main); }
   .bento-large h3 { font-size: 1.5rem; }

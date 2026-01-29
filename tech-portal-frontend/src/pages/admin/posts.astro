@@ -154,6 +154,10 @@ import "../../styles/admin.css";
 
   let allPosts: any[] = [];
   let deletePostId: number | null = null;
+  let currentPage = 1;
+  let totalPages = 1;
+  let currentSearch = '';
+  let currentCategory = '';
 
   const categoryNames: Record<string, string> = {
     '3d-baski': '3D Baskı',
@@ -165,19 +169,34 @@ import "../../styles/admin.css";
   };
 
   // Yazıları yükle
-  async function loadPosts() {
+  async function loadPosts(page = 1) {
+    currentPage = page;
+    const tbody = document.querySelector('#postsTable tbody')!;
+    tbody.innerHTML = '<tr><td colspan="6" class="loading-row"><span class="spinner"></span> Yükleniyor...</td></tr>';
+
     try {
-      const res = await fetch(`${API_BASE}/admin/posts`, {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: '50'
+      });
+
+      if (currentSearch) params.append('search', currentSearch);
+      if (currentCategory) params.append('category', currentCategory);
+
+      const res = await fetch(`${API_BASE}/admin/posts?${params}`, {
         headers: { 'X-ADMIN-SECRET': secret! }
       });
 
       if (!res.ok) throw new Error('Unauthorized');
 
-      allPosts = await res.json();
+      const data = await res.json();
+      allPosts = data.posts || data;
+      totalPages = data.pagination?.totalPages || 1;
+
       renderPosts(allPosts);
+      renderPagination();
     } catch (err) {
       console.error('Posts yüklenemedi:', err);
-      const tbody = document.querySelector('#postsTable tbody')!;
       tbody.innerHTML = '<tr><td colspan="6" class="error-row">Yüklenirken hata oluştu</td></tr>';
     }
   }
@@ -286,35 +305,85 @@ import "../../styles/admin.css";
     });
   }
 
-  // Filtreleme
-  function filterPosts() {
-    const category = (document.getElementById('categoryFilter') as HTMLSelectElement).value;
-    const status = (document.getElementById('statusFilter') as HTMLSelectElement).value;
-    const search = (document.getElementById('searchInput') as HTMLInputElement).value.toLowerCase();
+  // Pagination render
+  function renderPagination() {
+    const paginationEl = document.getElementById('pagination')!;
 
-    let filtered = allPosts;
-
-    if (category) {
-      filtered = filtered.filter(p => p.category === category);
+    if (totalPages <= 1) {
+      paginationEl.innerHTML = '';
+      return;
     }
 
-    if (status !== '') {
-      filtered = filtered.filter(p => p.published === parseInt(status));
+    let buttons = '';
+
+    // Önceki buton
+    if (currentPage > 1) {
+      buttons += `<button class="pagination-btn" data-page="${currentPage - 1}">← Önceki</button>`;
     }
 
-    if (search) {
-      filtered = filtered.filter(p =>
-        p.title_tr?.toLowerCase().includes(search) ||
-        p.summary_tr?.toLowerCase().includes(search)
-      );
+    // Sayfa numaraları
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
+
+    if (startPage > 1) {
+      buttons += `<button class="pagination-btn" data-page="1">1</button>`;
+      if (startPage > 2) buttons += `<span class="pagination-dots">...</span>`;
     }
 
-    renderPosts(filtered);
+    for (let i = startPage; i <= endPage; i++) {
+      buttons += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) buttons += `<span class="pagination-dots">...</span>`;
+      buttons += `<button class="pagination-btn" data-page="${totalPages}">${totalPages}</button>`;
+    }
+
+    // Sonraki buton
+    if (currentPage < totalPages) {
+      buttons += `<button class="pagination-btn" data-page="${currentPage + 1}">Sonraki →</button>`;
+    }
+
+    paginationEl.innerHTML = buttons;
+
+    // Event listeners
+    paginationEl.querySelectorAll('.pagination-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const page = parseInt((e.target as HTMLButtonElement).dataset.page!);
+        loadPosts(page);
+      });
+    });
   }
 
-  document.getElementById('categoryFilter')?.addEventListener('change', filterPosts);
-  document.getElementById('statusFilter')?.addEventListener('change', filterPosts);
-  document.getElementById('searchInput')?.addEventListener('input', filterPosts);
+  // Filtreleme - server-side
+  let searchTimeout: number;
+
+  function handleSearch() {
+    clearTimeout(searchTimeout);
+    searchTimeout = window.setTimeout(() => {
+      currentSearch = (document.getElementById('searchInput') as HTMLInputElement).value.trim();
+      loadPosts(1);
+    }, 300);
+  }
+
+  function handleCategoryChange() {
+    currentCategory = (document.getElementById('categoryFilter') as HTMLSelectElement).value;
+    loadPosts(1);
+  }
+
+  // Client-side status filtresi (API'de yok)
+  function filterByStatus() {
+    const status = (document.getElementById('statusFilter') as HTMLSelectElement).value;
+    if (status === '') {
+      renderPosts(allPosts);
+    } else {
+      renderPosts(allPosts.filter(p => p.published === parseInt(status)));
+    }
+  }
+
+  document.getElementById('categoryFilter')?.addEventListener('change', handleCategoryChange);
+  document.getElementById('statusFilter')?.addEventListener('change', filterByStatus);
+  document.getElementById('searchInput')?.addEventListener('input', handleSearch);
 
   // Modal
   document.getElementById('cancelDelete')?.addEventListener('click', () => {
