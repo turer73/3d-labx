@@ -432,7 +432,7 @@ const nextUrl = pagination?.hasNext ? `/rehberler?page=${currentPage + 1}` : nul
   }
 
   @media (min-width: 1024px) {
-    .filament-bento-grid { grid-template-columns: repeat(6, 1fr); }
+    .filament-bento-grid { grid-template-columns: repeat(4, 1fr); }
   }
 
   /* Kategori Kartı */
@@ -693,9 +693,7 @@ const nextUrl = pagination?.hasNext ? `/rehberler?page=${currentPage + 1}` : nul
   .filament-category-card[data-type="PLA"] { --card-color: #F97316; }
   .filament-category-card[data-type="PETG"] { --card-color: #06B6D4; }
   .filament-category-card[data-type="ABS"] { --card-color: #EF4444; }
-  .filament-category-card[data-type="TPU"] { --card-color: #A855F7; }
   .filament-category-card[data-type="ASA"] { --card-color: #EAB308; }
-  .filament-category-card[data-type="Reçine"] { --card-color: #22C55E; }
 
   @media (max-width: 640px) {
     .filament-bento { padding: 16px; }
@@ -721,7 +719,7 @@ const nextUrl = pagination?.hasNext ? `/rehberler?page=${currentPage + 1}` : nul
   let allFilamentPrices: FilamentPrice[] = [];
   let expandedCategory: string | null = null;
 
-  const CATEGORIES = ['PLA', 'PETG', 'ABS', 'TPU', 'ASA', 'Reçine'];
+  const CATEGORIES = ['PLA', 'PETG', 'ABS', 'ASA'];
 
   async function loadFilamentPrices() {
     const grid = document.getElementById('filamentGrid');
@@ -822,9 +820,7 @@ const nextUrl = pagination?.hasNext ? `/rehberler?page=${currentPage + 1}` : nul
       'PLA': '#F97316',
       'PETG': '#06B6D4',
       'ABS': '#EF4444',
-      'TPU': '#A855F7',
-      'ASA': '#EAB308',
-      'Reçine': '#22C55E'
+      'ASA': '#EAB308'
     };
     return colors[type] || '#EAB308';
   }
