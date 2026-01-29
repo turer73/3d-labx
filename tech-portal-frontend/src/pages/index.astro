@@ -271,30 +271,116 @@ function getCategoryColor(cat: string) {
       </div>
     </section>
 
-    <!-- LATEST POSTS - 3D Baskı Odaklı -->
-    {(printPosts.length > 1 || rehberPosts.length > 0 || incelemePosts.length > 0 || sorunPosts.length > 0) && (
-      <section class="latest-section">
-        <h2>Son İçerikler</h2>
-        <div class="latest-bento">
-          {[...printPosts.slice(1, 4), ...rehberPosts.slice(0, 3), ...incelemePosts.slice(0, 2), ...sorunPosts.slice(0, 2)].slice(0, 9).map((post, i) => {
-            const catLabel = getCategoryLabel(post.category);
-            const catColor = getCategoryColor(post.category);
-            const sizeClass = i === 0 ? "lb-hero" : i === 6 ? "lb-wide" : "";
-            return (
-              <a href={`/${post.category}/${post.slug}`} class={`lb-card ${sizeClass} ${catColor}`}>
-                {post.image_url && (
-                  <div class="lb-image">
-                    <img src={post.image_url} alt={post.title_tr} loading="lazy" />
-                  </div>
-                )}
-                <div class="lb-content">
-                  <span class="lb-cat">{catLabel}</span>
-                  <h3>{post.title_tr}</h3>
-                  <p>{post.summary_tr}</p>
+    <!-- KATEGORİLERE GÖRE İÇERİKLER -->
+
+    <!-- 3D Baskı Haberleri -->
+    {printPosts.length > 1 && (
+      <section class="category-section">
+        <div class="category-header">
+          <div class="category-title-group">
+            <span class="category-icon orange">📰</span>
+            <h2>3D Baskı Haberleri</h2>
+          </div>
+          <a href="/3d-baski" class="category-link">Tümünü Gör →</a>
+        </div>
+        <div class="category-grid">
+          {printPosts.slice(1, 5).map((post, i) => (
+            <a href={`/${post.category}/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} orange`}>
+              {post.image_url && (
+                <div class="cat-image">
+                  <img src={post.image_url} alt={post.title_tr} loading="lazy" />
                 </div>
-              </a>
-            );
-          })}
+              )}
+              <div class="cat-content">
+                <h3>{post.title_tr}</h3>
+                <p>{post.summary_tr}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Rehberler -->
+    {rehberPosts.length > 0 && (
+      <section class="category-section">
+        <div class="category-header">
+          <div class="category-title-group">
+            <span class="category-icon cyan">📘</span>
+            <h2>Rehberler</h2>
+          </div>
+          <a href="/rehberler" class="category-link">Tümünü Gör →</a>
+        </div>
+        <div class="category-grid">
+          {rehberPosts.slice(0, 4).map((post, i) => (
+            <a href={`/${post.category}/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} cyan`}>
+              {post.image_url && (
+                <div class="cat-image">
+                  <img src={post.image_url} alt={post.title_tr} loading="lazy" />
+                </div>
+              )}
+              <div class="cat-content">
+                <h3>{post.title_tr}</h3>
+                <p>{post.summary_tr}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- İncelemeler -->
+    {incelemePosts.length > 0 && (
+      <section class="category-section">
+        <div class="category-header">
+          <div class="category-title-group">
+            <span class="category-icon purple">⭐</span>
+            <h2>İncelemeler</h2>
+          </div>
+          <a href="/incelemeler" class="category-link">Tümünü Gör →</a>
+        </div>
+        <div class="category-grid">
+          {incelemePosts.slice(0, 4).map((post, i) => (
+            <a href={`/${post.category}/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} purple`}>
+              {post.image_url && (
+                <div class="cat-image">
+                  <img src={post.image_url} alt={post.title_tr} loading="lazy" />
+                </div>
+              )}
+              <div class="cat-content">
+                <h3>{post.title_tr}</h3>
+                <p>{post.summary_tr}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Sorun Çözümleri -->
+    {sorunPosts.length > 0 && (
+      <section class="category-section">
+        <div class="category-header">
+          <div class="category-title-group">
+            <span class="category-icon green">🔧</span>
+            <h2>Sorun Çözümleri</h2>
+          </div>
+          <a href="/sorun-cozumleri" class="category-link">Tümünü Gör →</a>
+        </div>
+        <div class="category-grid">
+          {sorunPosts.slice(0, 4).map((post, i) => (
+            <a href={`/${post.category}/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} green`}>
+              {post.image_url && (
+                <div class="cat-image">
+                  <img src={post.image_url} alt={post.title_tr} loading="lazy" />
+                </div>
+              )}
+              <div class="cat-content">
+                <h3>{post.title_tr}</h3>
+                <p>{post.summary_tr}</p>
+              </div>
+            </a>
+          ))}
         </div>
       </section>
     )}
@@ -770,54 +856,114 @@ function getCategoryColor(cat: string) {
   .poll-option.selected { border-color: #22C55E; box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3); }
   .poll-option.selected .poll-label { color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
 
-  /* LATEST SECTION */
-  .latest-section h2 {
-    margin-bottom: 32px;
-    background: linear-gradient(135deg, var(--text-main) 0%, #F97316 50%, #EAB308 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    display: inline-block;
+  /* CATEGORY SECTIONS */
+  .category-section {
+    margin-bottom: 48px;
   }
 
-  .latest-bento {
+  .category-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border-soft);
+  }
+
+  .category-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .category-icon {
+    font-size: 1.5rem;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+  }
+
+  .category-icon.orange { background: rgba(249, 115, 22, 0.15); }
+  .category-icon.cyan { background: rgba(6, 182, 212, 0.15); }
+  .category-icon.purple { background: rgba(168, 85, 247, 0.15); }
+  .category-icon.green { background: rgba(34, 197, 94, 0.15); }
+
+  .category-header h2 {
+    font-size: 1.4rem;
+    margin: 0;
+    color: var(--text-main);
+  }
+
+  .category-link {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .category-link:hover {
+    gap: 8px;
+  }
+
+  .category-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
   }
 
-  @media (max-width: 1024px) { .latest-bento { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 768px) {
-    .latest-section h2 { font-size: 1.3rem; margin-bottom: 16px; }
-    .latest-bento { grid-template-columns: 1fr; gap: 12px; }
+  @media (max-width: 1024px) {
+    .category-grid { grid-template-columns: repeat(2, 1fr); }
   }
 
-  .lb-card {
+  @media (max-width: 640px) {
+    .category-grid { grid-template-columns: 1fr; gap: 12px; }
+    .category-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .category-header h2 { font-size: 1.2rem; }
+    .category-icon { width: 36px; height: 36px; font-size: 1.2rem; }
+  }
+
+  /* Category Cards */
+  .cat-card {
     position: relative;
     border-radius: 16px;
     text-decoration: none;
     color: white;
     transition: all 0.3s;
     overflow: hidden;
-    min-height: 280px;
+    min-height: 220px;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
   }
 
-  .lb-card:hover {
+  .cat-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 12px 40px rgba(0,0,0,0.3);
   }
 
-  .lb-card.orange:hover { box-shadow: 0 12px 40px rgba(249, 115, 22, 0.3); }
-  .lb-card.cyan:hover { box-shadow: 0 12px 40px rgba(6, 182, 212, 0.3); }
-  .lb-card.purple:hover { box-shadow: 0 12px 40px rgba(168, 85, 247, 0.3); }
+  .cat-card.orange:hover { box-shadow: 0 12px 40px rgba(249, 115, 22, 0.3); }
+  .cat-card.cyan:hover { box-shadow: 0 12px 40px rgba(6, 182, 212, 0.3); }
+  .cat-card.purple:hover { box-shadow: 0 12px 40px rgba(168, 85, 247, 0.3); }
+  .cat-card.green:hover { box-shadow: 0 12px 40px rgba(34, 197, 94, 0.3); }
 
-  .lb-hero { grid-column: span 2; grid-row: span 2; min-height: 500px; }
+  /* Featured card - first in each section */
+  .cat-card.cat-featured {
+    grid-column: span 2;
+    min-height: 280px;
+  }
 
-  /* Resim arka plan olarak tüm kartı kaplar */
-  .lb-image {
+  @media (max-width: 640px) {
+    .cat-card.cat-featured { grid-column: span 1; min-height: 200px; }
+  }
+
+  .cat-image {
     position: absolute;
     top: 0;
     left: 0;
@@ -827,56 +973,72 @@ function getCategoryColor(cat: string) {
     height: 100%;
     z-index: 0;
   }
-  .lb-image img {
+
+  .cat-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: transform 0.4s ease;
   }
-  .lb-card:hover .lb-image img {
+
+  .cat-card:hover .cat-image img {
     transform: scale(1.08);
   }
 
-  /* İçerik overlay */
-  .lb-content {
+  .cat-content {
     position: relative;
     z-index: 2;
-    padding: 20px;
+    padding: 16px;
     background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, transparent 100%);
     margin-top: auto;
   }
 
-  .lb-cat {
-    display: inline-block;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    padding: 4px 10px;
-    border-radius: 6px;
-    margin-bottom: 10px;
+  .cat-card.cat-featured .cat-content {
+    padding: 24px;
   }
 
-  .lb-card.orange .lb-cat { background: rgba(249, 115, 22, 0.9); color: white; }
-  .lb-card.cyan .lb-cat { background: rgba(6, 182, 212, 0.9); color: white; }
-  .lb-card.purple .lb-cat { background: rgba(168, 85, 247, 0.9); color: white; }
+  .cat-content h3 {
+    font-size: 1rem;
+    margin: 0 0 6px;
+    line-height: 1.3;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 
-  .lb-card h3 { font-size: 1.1rem; margin: 0 0 6px; line-height: 1.3; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-  .lb-card p { font-size: 0.85rem; color: rgba(255,255,255,0.85); line-height: 1.5; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .cat-card.cat-featured .cat-content h3 {
+    font-size: 1.3rem;
+    -webkit-line-clamp: 3;
+  }
 
-  .lb-hero h3 { font-size: 1.6rem; }
-  .lb-hero p { -webkit-line-clamp: 3; }
-  .lb-hero .lb-content { padding: 30px; }
+  .cat-content p {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .cat-card.cat-featured .cat-content p {
+    font-size: 0.9rem;
+    -webkit-line-clamp: 2;
+  }
 
   @media (max-width: 768px) {
-    .lb-card { min-height: 180px; border-radius: 12px; }
-    .lb-hero { grid-column: span 1; grid-row: span 1; min-height: 200px; }
-    .lb-content { padding: 14px; }
-    .lb-cat { font-size: 0.6rem; padding: 3px 8px; margin-bottom: 6px; }
-    .lb-card h3 { font-size: 0.9rem; margin-bottom: 4px; }
-    .lb-card p { font-size: 0.75rem; -webkit-line-clamp: 2; }
-    .lb-hero h3 { font-size: 1rem; }
-    .lb-hero .lb-content { padding: 14px; }
+    .category-section { margin-bottom: 32px; }
+    .cat-card { min-height: 180px; border-radius: 12px; }
+    .cat-content { padding: 12px; }
+    .cat-content h3 { font-size: 0.9rem; }
+    .cat-content p { font-size: 0.75rem; -webkit-line-clamp: 2; }
+    .cat-card.cat-featured .cat-content h3 { font-size: 1rem; }
   }
+
 </style>
 
 <script is:inline>
