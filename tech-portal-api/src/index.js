@@ -422,7 +422,19 @@ function parseRSS(xml) {
       ];
       for (const pattern of patterns) {
         const m = item.match(pattern);
-        if (m) return m[1];
+        if (m) {
+          let imageUrl = m[1];
+          // Düşük kaliteli boyut parametrelerini temizle
+          imageUrl = imageUrl
+            .replace(/-\d{2,3}x\d{2,3}\./, '.')  // -150x100. gibi
+            .replace(/\.max-\d+x\d+/, '.max-1200x1200')  // Google storage boyutları
+            .replace(/-small\./, '.')
+            .replace(/-thumb\./, '.')
+            .replace(/_thumb\./, '.')
+            .replace(/\?w=\d+/, '?w=1200')  // Unsplash boyutları
+            .replace(/&w=\d+/, '&w=1200');
+          return imageUrl;
+        }
       }
       return null;
     };
