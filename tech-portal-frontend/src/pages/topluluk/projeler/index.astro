@@ -14,15 +14,23 @@ const sort = url.searchParams.get("sort") || "latest";
 let projects: any[] = [];
 let pagination: any = null;
 
+// Forum'daki "Projeler & Showcase" kategorisinden projeleri çek
 try {
-  const res = await fetch(`${API_BASE}/api/projects?page=${currentPage}&limit=12&sort=${sort}`);
+  const sortParam = sort === "popular" ? "popular" : "latest";
+  const res = await fetch(`${API_BASE}/api/forum/categories/projeler/threads?page=${currentPage}&limit=12&sort=${sortParam}`);
   if (res.ok) {
     const data = await res.json();
-    projects = data.projects || [];
+    projects = data.threads || [];
     pagination = data.pagination;
   }
 } catch (e) {
   console.error("Projeler yüklenemedi:", e);
+}
+
+// İçerikten özet çıkar
+function getExcerpt(content: string, length: number = 100): string {
+  if (!content) return '';
+  return content.replace(/[#*|\[\]`\n]/g, ' ').replace(/\s+/g, ' ').trim().substring(0, length) + '...';
 }
 ---
 
@@ -45,7 +53,7 @@ try {
           <p>Topluluk tarafından paylaşılan 3D baskı projeleri</p>
         </div>
         <div class="header-right">
-          <a href="/topluluk/projeler/yeni" class="btn btn-primary" id="newProjectBtn">
+          <a href="/topluluk/forum/projeler-showcase" class="btn btn-primary" id="newProjectBtn">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
             Proje Paylaş
           </a>
@@ -65,25 +73,20 @@ try {
       <!-- Projeler Grid -->
       <div class="projects-grid">
         {projects.length > 0 ? projects.map((project) => {
-          const images = JSON.parse(project.images || '[]');
-          const firstImage = images[0];
           return (
-            <a href={`/topluluk/projeler/${project.slug}`} class={`project-card ${project.is_featured ? 'featured' : ''}`}>
+            <a href={`/topluluk/forum/konu/${project.slug}`} class={`project-card ${project.is_pinned ? 'featured' : ''}`}>
               <div class="project-image">
-                {firstImage ? (
-                  <img src={firstImage} alt={project.title} loading="lazy" />
-                ) : (
-                  <div class="no-image">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-                  </div>
-                )}
-                {project.is_featured === 1 && <span class="featured-badge">⭐ Öne Çıkan</span>}
+                <div class="no-image gradient-bg">
+                  <span class="project-emoji">🏆</span>
+                </div>
+                {project.is_pinned === 1 && <span class="featured-badge">📌 Sabitlenmiş</span>}
                 <div class="image-overlay">
-                  <span class="view-btn">Detayları Gör</span>
+                  <span class="view-btn">Projeyi Gör</span>
                 </div>
               </div>
               <div class="project-info">
                 <h3>{project.title}</h3>
+                <p class="project-excerpt">{getExcerpt(project.content, 80)}</p>
                 <div class="project-meta">
                   <div class="author">
                     {project.avatar_url ? (
@@ -94,16 +97,11 @@ try {
                     <span>@{project.username}</span>
                   </div>
                   <div class="stats">
-                    <span>❤️ {project.like_count}</span>
-                    <span>👁️ {project.view_count}</span>
+                    <span>❤️ {project.like_count || 0}</span>
+                    <span>👁️ {project.view_count || 0}</span>
+                    <span>💬 {project.reply_count || 0}</span>
                   </div>
                 </div>
-                {(project.printer_model || project.filament_type) && (
-                  <div class="project-tags">
-                    {project.printer_model && <span class="tag">{project.printer_model}</span>}
-                    {project.filament_type && <span class="tag">{project.filament_type}</span>}
-                  </div>
-                )}
               </div>
             </a>
           );
@@ -112,7 +110,7 @@ try {
             <div class="empty-icon">🎨</div>
             <h3>Henüz proje yok</h3>
             <p>İlk projeyi paylaşan sen ol!</p>
-            <a href="/topluluk/projeler/yeni" class="btn btn-primary">Proje Paylaş</a>
+            <a href="/topluluk/forum/projeler-showcase" class="btn btn-primary">Proje Paylaş</a>
           </div>
         )}
       </div>
@@ -258,6 +256,36 @@ try {
     align-items: center;
     justify-content: center;
     color: var(--text-light);
+  }
+
+  .no-image.gradient-bg {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    position: relative;
+  }
+
+  .no-image.gradient-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(236, 72, 153, 0.2) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.2) 0%, transparent 50%);
+  }
+
+  .project-emoji {
+    font-size: 3rem;
+    z-index: 1;
+  }
+
+  .project-excerpt {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0 0 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .featured-badge {
