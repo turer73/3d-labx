@@ -83,7 +83,8 @@
       "WebFetch(domain:www.klipper3d.org)",
       "WebFetch(domain:www.printables.com)",
       "Bash(gh auth status:*)",
-      "Bash(./scripts/auto-backup.sh:*)"
+      "Bash(./scripts/auto-backup.sh:*)",
+      "Bash(nslookup:*)"
     ],
     "deny": []
   }
