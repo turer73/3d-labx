@@ -238,9 +238,9 @@ async function sendVerificationEmail(env, email, token, username) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'onboarding@resend.dev',
+        from: '3D-labX <noreply@3d-labx.com>',
         to: email,
-      subject: '3D-labX - E-posta Adresinizi Doğrulayın',
+        subject: '3D-labX - E-posta Adresinizi Doğrulayın',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h1 style="color: #2563EB;">3D-labX'e Hoş Geldiniz!</h1>
@@ -252,7 +252,7 @@ async function sendVerificationEmail(env, email, token, username) {
           <p style="color: #666; font-size: 14px;">Bu link 24 saat geçerlidir.</p>
           <p style="color: #666; font-size: 14px;">Eğer bu hesabı siz oluşturmadıysanız, bu e-postayı görmezden gelebilirsiniz.</p>
           <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
-          <p style="color: #999; font-size: 12px;">3D-labX - 3D Baskı, Teknoloji ve Yapay Zeka</p>
+          <p style="color: #999; font-size: 12px;">3D-labX - Türkiye'nin 3D Baskı Topluluğu</p>
         </div>
       `
       })
@@ -283,7 +283,7 @@ async function sendPasswordResetEmail(env, email, token, username) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'onboarding@resend.dev',
+        from: '3D-labX <noreply@3d-labx.com>',
         to: email,
         subject: '3D-labX - Şifre Sıfırlama',
         html: `
@@ -297,7 +297,7 @@ async function sendPasswordResetEmail(env, email, token, username) {
             <p style="color: #666; font-size: 14px;">Bu link 1 saat geçerlidir.</p>
             <p style="color: #666; font-size: 14px;">Eğer bu talebi siz yapmadıysanız, bu e-postayı görmezden gelebilirsiniz.</p>
             <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
-            <p style="color: #999; font-size: 12px;">3D-labX - 3D Baskı, Teknoloji ve Yapay Zeka</p>
+            <p style="color: #999; font-size: 12px;">3D-labX - Türkiye'nin 3D Baskı Topluluğu</p>
           </div>
         `
       })
@@ -1139,8 +1139,8 @@ export default {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              from: 'onboarding@resend.dev',
-              to: '3d-labx@3d-labx.com',
+              from: '3D-labX <noreply@3d-labx.com>',
+              to: 'turgut.urer@gmail.com',
               reply_to: email,
               subject: `[3D-labX İletişim] ${subjectLabel} - ${name}`,
               html: `
