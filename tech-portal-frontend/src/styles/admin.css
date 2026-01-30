@@ -476,15 +476,6 @@
   color: #1E40AF;
 }
 
-.category-badge.teknoloji {
-  background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
-  color: #065F46;
-}
-
-.category-badge.yapay-zeka {
-  background: linear-gradient(135deg, #FCE7F3 0%, #FBCFE8 100%);
-  color: #9D174D;
-}
 
 .status-toggle.published,
 .status-badge.published {

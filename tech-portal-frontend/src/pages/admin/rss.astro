@@ -78,17 +78,17 @@ import "../../styles/admin.css";
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">💻</div>
+          <div class="stat-icon">📘</div>
           <div class="stat-info">
-            <span class="stat-value" id="sourcesTech">-</span>
-            <span class="stat-label">Teknoloji</span>
+            <span class="stat-value" id="sourcesRehber">-</span>
+            <span class="stat-label">Rehberler</span>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">🤖</div>
+          <div class="stat-icon">🔧</div>
           <div class="stat-info">
-            <span class="stat-value" id="sourcesAI">-</span>
-            <span class="stat-label">Yapay Zeka</span>
+            <span class="stat-value" id="sourcesSorun">-</span>
+            <span class="stat-label">Sorun Çözümleri</span>
           </div>
         </div>
       </div>
@@ -98,8 +98,9 @@ import "../../styles/admin.css";
         <select id="categoryFilter" class="filter-select">
           <option value="">Tüm Kategoriler</option>
           <option value="3d-baski">3D Baskı</option>
-          <option value="teknoloji">Teknoloji</option>
-          <option value="yapay-zeka">Yapay Zeka</option>
+          <option value="rehberler">Rehberler</option>
+          <option value="sorun-cozumleri">Sorun Çözümleri</option>
+          <option value="incelemeler">İncelemeler</option>
         </select>
         <input type="text" id="searchInput" class="search-input" placeholder="Kaynak ara...">
       </div>
@@ -157,8 +158,9 @@ import "../../styles/admin.css";
           <select id="rssCategory" required>
             <option value="">Seçin...</option>
             <option value="3d-baski">3D Baskı</option>
-            <option value="teknoloji">Teknoloji</option>
-            <option value="yapay-zeka">Yapay Zeka</option>
+            <option value="rehberler">Rehberler</option>
+            <option value="sorun-cozumleri">Sorun Çözümleri</option>
+            <option value="incelemeler">İncelemeler</option>
           </select>
         </div>
         <div class="modal-actions">
@@ -250,8 +252,9 @@ import "../../styles/admin.css";
 
   const categoryNames: Record<string, string> = {
     '3d-baski': '3D Baskı',
-    'teknoloji': 'Teknoloji',
-    'yapay-zeka': 'Yapay Zeka'
+    'rehberler': 'Rehberler',
+    'sorun-cozumleri': 'Sorun Çözümleri',
+    'incelemeler': 'İncelemeler'
   };
 
   let allSources: any[] = [];
@@ -293,8 +296,8 @@ import "../../styles/admin.css";
     const active = allSources.filter(s => s.is_active);
     document.getElementById('totalSources')!.textContent = active.length.toString();
     document.getElementById('sources3d')!.textContent = active.filter(s => s.category === '3d-baski').length.toString();
-    document.getElementById('sourcesTech')!.textContent = active.filter(s => s.category === 'teknoloji').length.toString();
-    document.getElementById('sourcesAI')!.textContent = active.filter(s => s.category === 'yapay-zeka').length.toString();
+    document.getElementById('sourcesRehber')!.textContent = active.filter(s => s.category === 'rehberler').length.toString();
+    document.getElementById('sourcesSorun')!.textContent = active.filter(s => s.category === 'sorun-cozumleri').length.toString();
   }
 
   function renderTable() {

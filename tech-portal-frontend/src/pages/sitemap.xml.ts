@@ -14,8 +14,10 @@ export const GET: APIRoute = async ({ request }) => {
   const staticPages = [
     "",
     "/3d-baski",
-    "/teknoloji",
-    "/yapay-zeka",
+    "/rehberler",
+    "/sorun-cozumleri",
+    "/incelemeler",
+    "/topluluk",
     "/search",
   ];
 

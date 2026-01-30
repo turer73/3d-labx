@@ -119,22 +119,8 @@ import "../../styles/admin.css";
         </div>
       </div>
 
-      <!-- İkincil Kategoriler -->
+      <!-- Yayın Durumu -->
       <div class="stats-grid secondary">
-        <div class="stat-card small">
-          <div class="stat-icon small">💻</div>
-          <div class="stat-info">
-            <span class="stat-value" id="postsTech">-</span>
-            <span class="stat-label">Teknoloji</span>
-          </div>
-        </div>
-        <div class="stat-card small">
-          <div class="stat-icon small">🤖</div>
-          <div class="stat-info">
-            <span class="stat-value" id="postsAI">-</span>
-            <span class="stat-label">Yapay Zeka</span>
-          </div>
-        </div>
         <div class="stat-card small">
           <div class="stat-icon small">✅</div>
           <div class="stat-info">
@@ -231,8 +217,9 @@ import "../../styles/admin.css";
 
       document.getElementById('totalPosts')!.textContent = data.total || '0';
       document.getElementById('posts3d')!.textContent = data.baski_3d || '0';
-      document.getElementById('postsTech')!.textContent = data.teknoloji || '0';
-      document.getElementById('postsAI')!.textContent = data.yapay_zeka || '0';
+      document.getElementById('postsRehber')!.textContent = data.rehberler || '0';
+      document.getElementById('postsSorun')!.textContent = data.sorun_cozumleri || '0';
+      document.getElementById('postsInceleme')!.textContent = data.incelemeler || '0';
       document.getElementById('publishedPosts')!.textContent = data.published || '0';
 
       // Dashboard istatistikleri
@@ -272,9 +259,7 @@ import "../../styles/admin.css";
         '3d-baski': '3D Baskı',
         'rehberler': 'Rehber',
         'sorun-cozumleri': 'Sorun Çözümü',
-        'incelemeler': 'İnceleme',
-        'teknoloji': 'Teknoloji',
-        'yapay-zeka': 'Yapay Zeka'
+        'incelemeler': 'İnceleme'
       };
 
       tbody.innerHTML = posts.map((post: any) => `
