@@ -40,11 +40,11 @@ const rehberPosts = data["rehberler"] || [];
 const incelemePosts = data["incelemeler"] || [];
 const sorunPosts = data["sorun-cozumleri"] || [];
 
-// Hero slider için sadece 3D Baskı içerikleri (ilk 3 post)
+// Hero slider için 3D Baskı, Rehberler ve Sorun Çözümleri'nden birer içerik
 const heroSlides = [
-  printPosts[0],
-  printPosts[1],
-  printPosts[2]
+  printPosts[0],      // 3D Baskı
+  rehberPosts[0],     // Rehberler
+  sorunPosts[0],      // Sorun Çözümleri
 ].filter(Boolean);
 
 function getCategoryLabel(cat: string) {
@@ -188,14 +188,26 @@ function getCategoryColor(cat: string) {
         </div>
       </a>
 
-      <!-- Anket 1: API Anketi - Varsayılan değerlerle -->
-      <div class="bento-card poll poll-gradient-1" id="pollCard">
-        <div class="bento-content">
-          <div class="bento-header">
-            <div class="bento-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+    </section>
+
+    <!-- ANKETLER BÖLÜMÜ -->
+    <section class="polls-section">
+      <div class="category-header">
+        <div class="category-title-group">
+          <span class="category-icon poll-icon">📊</span>
+          <h2>Anketler</h2>
+        </div>
+        <span class="poll-subtitle">Topluluğun tercihleri</span>
+      </div>
+
+      <div class="polls-grid">
+        <!-- Anket 1: API Anketi -->
+        <div class="poll-card poll-gradient-1" id="pollCard">
+          <div class="poll-card-header">
+            <div class="poll-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+              Aktif Anket
             </div>
-            <span class="bento-tag">Anket</span>
           </div>
           <h3 id="pollQuestion">En çok kullandığınız 3D yazıcı markası?</h3>
           <div class="poll-options" id="pollOptions">
@@ -225,18 +237,18 @@ function getCategoryColor(cat: string) {
               <span class="poll-percent">%6</span>
             </div>
           </div>
-          <div class="poll-votes" id="pollVotes">127 Oy</div>
+          <div class="poll-footer">
+            <span class="poll-votes" id="pollVotes">127 Oy</span>
+          </div>
         </div>
-      </div>
 
-      <!-- Anket 2: Slicer Anketi - Server-side rendered -->
-      <div class="bento-card poll poll-gradient-2" id="slicerPollCard">
-        <div class="bento-content">
-          <div class="bento-header">
-            <div class="bento-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+        <!-- Anket 2: Slicer Anketi -->
+        <div class="poll-card poll-gradient-2" id="slicerPollCard">
+          <div class="poll-card-header">
+            <div class="poll-badge cyan">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+              Slicer Anketi
             </div>
-            <span class="bento-tag">Slicer Anketi</span>
           </div>
           <h3>Hangi Slicer Kullanıyorsunuz?</h3>
           <div class="poll-options" id="slicerOptions">
@@ -266,7 +278,9 @@ function getCategoryColor(cat: string) {
               <span class="poll-percent">%5</span>
             </div>
           </div>
-          <div class="poll-votes" id="slicerVotes">700 Oy</div>
+          <div class="poll-footer">
+            <span class="poll-votes" id="slicerVotes">700 Oy</span>
+          </div>
         </div>
       </div>
     </section>
@@ -489,6 +503,7 @@ function getCategoryColor(cat: string) {
   .hero-badge.orange { border-color: rgba(249, 115, 22, 0.5); }
   .hero-badge.cyan { border-color: rgba(6, 182, 212, 0.5); }
   .hero-badge.purple { border-color: rgba(168, 85, 247, 0.5); }
+  .hero-badge.green { border-color: rgba(34, 197, 94, 0.5); }
 
   .pulse-dot {
     width: 8px;
@@ -500,6 +515,7 @@ function getCategoryColor(cat: string) {
   .hero-badge.orange .pulse-dot { background: #F97316; }
   .hero-badge.cyan .pulse-dot { background: #06B6D4; }
   .hero-badge.purple .pulse-dot { background: #A855F7; }
+  .hero-badge.green .pulse-dot { background: #22C55E; }
 
   @keyframes pulse {
     0%, 100% { opacity: 1; }
@@ -582,6 +598,7 @@ function getCategoryColor(cat: string) {
   .dot.active.orange { border-color: #F97316; box-shadow: 0 0 10px rgba(249, 115, 22, 0.4); }
   .dot.active.cyan { border-color: #06B6D4; box-shadow: 0 0 10px rgba(6, 182, 212, 0.4); }
   .dot.active.purple { border-color: #A855F7; box-shadow: 0 0 10px rgba(168, 85, 247, 0.4); }
+  .dot.active.green { border-color: #22C55E; box-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
 
   .dot-label {
     font-size: 0.65rem;
@@ -819,27 +836,113 @@ function getCategoryColor(cat: string) {
     .bento-card p { font-size: 0.8rem; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   }
 
-  /* POLL STYLES */
-  .bento-card.poll .bento-icon { background: rgba(234, 179, 8, 0.1); color: #EAB308; }
-  .bento-card.poll:hover { border-color: rgba(234, 179, 8, 0.5); }
-
-  .bento-card.poll-gradient-1 {
-    background: linear-gradient(135deg, rgba(234, 179, 8, 0.15) 0%, rgba(249, 115, 22, 0.1) 50%, var(--bg-card) 100%);
-    border-color: rgba(234, 179, 8, 0.3);
+  /* POLLS SECTION */
+  .polls-section {
+    margin-bottom: 48px;
+    padding: 28px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
   }
-  .bento-card.poll-gradient-1 .bento-icon { background: linear-gradient(135deg, #EAB308, #F97316); color: white; }
-  .bento-card.poll-gradient-1 .bento-tag { background: linear-gradient(135deg, rgba(234, 179, 8, 0.2), rgba(249, 115, 22, 0.2)); color: #EAB308; }
-  .bento-card.poll-gradient-1:hover { border-color: rgba(234, 179, 8, 0.6); box-shadow: 0 0 30px rgba(234, 179, 8, 0.15); }
 
-  .bento-card.poll-gradient-2 {
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(59, 130, 246, 0.1) 50%, var(--bg-card) 100%);
-    border-color: rgba(6, 182, 212, 0.3);
+  .polls-section .category-header {
+    margin-bottom: 24px;
+    border-bottom: none;
+    padding-bottom: 0;
   }
-  .bento-card.poll-gradient-2 .bento-icon { background: linear-gradient(135deg, #06B6D4, #3B82F6); color: white; }
-  .bento-card.poll-gradient-2 .bento-tag { background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(59, 130, 246, 0.2)); color: #06B6D4; }
-  .bento-card.poll-gradient-2:hover { border-color: rgba(6, 182, 212, 0.6); box-shadow: 0 0 30px rgba(6, 182, 212, 0.15); }
 
-  .poll-options { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .poll-icon {
+    background: linear-gradient(135deg, rgba(234, 179, 8, 0.2), rgba(249, 115, 22, 0.15)) !important;
+  }
+
+  .poll-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .polls-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  @media (max-width: 768px) {
+    .polls-grid {
+      grid-template-columns: 1fr;
+    }
+    .polls-section {
+      padding: 20px;
+    }
+  }
+
+  .poll-card {
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s ease;
+  }
+
+  .poll-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+  }
+
+  .poll-card.poll-gradient-1 {
+    background: linear-gradient(135deg, rgba(234, 179, 8, 0.08) 0%, var(--bg-main) 100%);
+    border-color: rgba(234, 179, 8, 0.25);
+  }
+
+  .poll-card.poll-gradient-1:hover {
+    border-color: rgba(234, 179, 8, 0.5);
+    box-shadow: 0 8px 30px rgba(234, 179, 8, 0.15);
+  }
+
+  .poll-card.poll-gradient-2 {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, var(--bg-main) 100%);
+    border-color: rgba(6, 182, 212, 0.25);
+  }
+
+  .poll-card.poll-gradient-2:hover {
+    border-color: rgba(6, 182, 212, 0.5);
+    box-shadow: 0 8px 30px rgba(6, 182, 212, 0.15);
+  }
+
+  .poll-card-header {
+    margin-bottom: 14px;
+  }
+
+  .poll-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, rgba(234, 179, 8, 0.2), rgba(249, 115, 22, 0.15));
+    color: #EAB308;
+  }
+
+  .poll-badge.cyan {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(59, 130, 246, 0.15));
+    color: #06B6D4;
+  }
+
+  .poll-card h3 {
+    font-size: 1.05rem;
+    margin: 0 0 14px;
+    color: var(--text-main);
+    line-height: 1.4;
+  }
+
+  .poll-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+  }
+
+  .poll-options { display: flex; flex-direction: column; gap: 8px; }
   .poll-option { position: relative; height: 38px; background: rgba(100, 100, 100, 0.1); border-radius: 10px; overflow: hidden; border: 1px solid var(--border-soft); transition: all 0.3s ease; cursor: pointer; }
   .poll-option.voted { pointer-events: none; }
   .poll-option.clickable:hover { transform: scale(1.02); }
@@ -852,7 +955,7 @@ function getCategoryColor(cat: string) {
   .poll-bar.gray { background: rgba(156, 163, 175, 0.4); }
   .poll-label { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; font-weight: 600; z-index: 1; }
   .poll-percent { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 0.75rem; font-weight: 700; color: var(--text-muted); z-index: 1; }
-  .poll-votes { margin-top: 10px; font-size: 0.75rem; color: var(--text-muted); text-align: right; }
+  .poll-votes { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
   .poll-option.selected { border-color: #22C55E; box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3); }
   .poll-option.selected .poll-label { color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
 

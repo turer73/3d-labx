@@ -37,6 +37,10 @@ const currentPath = Astro.url.pathname;
       <a href="/rehberler" class={currentPath.startsWith("/rehberler") ? "active" : ""}>Rehberler</a>
       <a href="/sorun-cozumleri" class={currentPath.startsWith("/sorun-cozumleri") ? "active" : ""}>Sorun Çözümleri</a>
       <a href="/incelemeler" class={currentPath.startsWith("/incelemeler") ? "active" : ""}>İncelemeler</a>
+      <a href="/topluluk" class={`nav-community ${currentPath.startsWith("/topluluk") ? "active" : ""}`}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Topluluk
+      </a>
     </nav>
 
     <div class="header-actions">
@@ -124,6 +128,7 @@ const currentPath = Astro.url.pathname;
       <a href="/rehberler" class={currentPath.startsWith("/rehberler") ? "active" : ""}>Rehberler</a>
       <a href="/sorun-cozumleri" class={currentPath.startsWith("/sorun-cozumleri") ? "active" : ""}>Sorun Çözümleri</a>
       <a href="/incelemeler" class={currentPath.startsWith("/incelemeler") ? "active" : ""}>İncelemeler</a>
+      <a href="/topluluk" class={currentPath.startsWith("/topluluk") ? "active" : ""}>Topluluk</a>
       <a href="/iletisim" class={currentPath.startsWith("/iletisim") ? "active" : ""}>İletişim</a>
     </nav>
     <form action="/search" method="get" class="mobile-search">
@@ -609,6 +614,33 @@ const currentPath = Astro.url.pathname;
   .desktop-nav a.active {
     color: var(--accent);
     background: rgba(37, 99, 235, 0.1);
+  }
+
+  /* Topluluk Button Special Style */
+  .desktop-nav a.nav-community {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(234, 179, 8, 0.1));
+    border: 1px solid rgba(249, 115, 22, 0.3);
+    color: #F97316;
+  }
+
+  .desktop-nav a.nav-community:hover {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.25), rgba(234, 179, 8, 0.2));
+    border-color: rgba(249, 115, 22, 0.5);
+    color: #F97316;
+  }
+
+  .desktop-nav a.nav-community.active {
+    background: linear-gradient(135deg, #F97316, #EAB308);
+    color: white;
+    border-color: transparent;
+  }
+
+  .desktop-nav a.nav-community svg {
+    width: 16px;
+    height: 16px;
   }
 
   /* Header Actions */

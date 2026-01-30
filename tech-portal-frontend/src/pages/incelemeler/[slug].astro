@@ -139,6 +139,47 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
         <main class="article-main">
           <div class="article-content" set:html={formattedContent} />
 
+          <!-- Yorum Bölümü -->
+          <section class="comments-section" id="comments">
+            <div class="comments-header">
+              <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Yorumlar
+                <span class="comment-count" id="commentCount">(0)</span>
+              </h3>
+            </div>
+            <div class="comment-form-box">
+              <div class="comment-login-prompt" id="loginPrompt">
+                <p>Yorum yapmak için giriş yapmalısınız</p>
+                <a href="/auth/giris" class="btn-login">Giriş Yap</a>
+              </div>
+              <form class="comment-form" id="commentForm" style="display: none;">
+                <div class="form-avatar" id="formAvatar"><span>?</span></div>
+                <div class="form-input-wrapper">
+                  <textarea id="commentInput" placeholder="Düşüncelerinizi paylaşın..." rows="3" maxlength="1000"></textarea>
+                  <div class="form-actions">
+                    <span class="char-count"><span id="charCount">0</span>/1000</span>
+                    <button type="submit" class="btn-submit" id="submitComment">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                      Gönder
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="comments-list" id="commentsList">
+              <div class="comments-loading" id="commentsLoading">
+                <div class="loading-spinner"></div>
+                <span>Yorumlar yükleniyor...</span>
+              </div>
+              <div class="no-comments" id="noComments" style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <p>Henüz yorum yok</p>
+                <span>İlk yorumu siz yazın!</span>
+              </div>
+            </div>
+          </section>
+
           <a href="/incelemeler" class="back-link">
             <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             Tüm İncelemeler
@@ -594,6 +635,46 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
     font-size: 0.75rem;
     color: var(--text-muted);
   }
+
+  /* Comments Section */
+  .comments-section { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 16px; padding: 28px; margin-top: 32px; }
+  .comments-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-soft); }
+  .comments-header h3 { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; color: var(--text-main); margin: 0; }
+  .comments-header svg { color: var(--accent); }
+  .comment-count { font-size: 0.9rem; color: var(--text-muted); font-weight: 400; }
+  .comment-form-box { margin-bottom: 24px; }
+  .comment-login-prompt { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px; background: var(--bg-hover); border-radius: 12px; text-align: center; }
+  .comment-login-prompt p { margin: 0; color: var(--text-muted); }
+  .btn-login { padding: 10px 24px; background: var(--accent); color: white; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.2s; }
+  .btn-login:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+  .comment-form { display: flex; gap: 14px; align-items: flex-start; }
+  .form-avatar { width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent), #8b5cf6); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+  .form-input-wrapper { flex: 1; }
+  .comment-form textarea { width: 100%; padding: 14px; border: 2px solid var(--border-soft); border-radius: 12px; background: var(--bg-main); color: var(--text-main); font-size: 0.95rem; resize: none; transition: border-color 0.2s; font-family: inherit; }
+  .comment-form textarea:focus { outline: none; border-color: var(--accent); }
+  .form-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+  .char-count { font-size: 0.8rem; color: var(--text-muted); }
+  .btn-submit { display: flex; align-items: center; gap: 6px; padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .comments-list { display: flex; flex-direction: column; gap: 16px; }
+  .comments-loading, .no-comments { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 40px 20px; color: var(--text-muted); text-align: center; }
+  .no-comments svg { opacity: 0.3; }
+  .no-comments p { margin: 0; font-size: 1.1rem; color: var(--text-main); }
+  .no-comments span { font-size: 0.9rem; }
+  .loading-spinner { width: 32px; height: 32px; border: 3px solid var(--border-soft); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .comment-item { display: flex; gap: 14px; padding: 16px; background: var(--bg-hover); border-radius: 12px; }
+  .comment-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #f59e0b, #f97316); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.95rem; flex-shrink: 0; }
+  .comment-content { flex: 1; min-width: 0; }
+  .comment-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .comment-author { font-weight: 600; color: var(--text-main); font-size: 0.95rem; }
+  .comment-date { font-size: 0.8rem; color: var(--text-muted); }
+  .comment-text { color: var(--text-main); line-height: 1.6; font-size: 0.95rem; margin: 0; }
+  .comment-actions { display: flex; gap: 16px; margin-top: 10px; }
+  .comment-action { display: flex; align-items: center; gap: 4px; font-size: 0.8rem; color: var(--text-muted); background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: all 0.2s; }
+  .comment-action:hover { background: var(--bg-card); color: var(--accent); }
+  @media (max-width: 640px) { .comments-section { padding: 20px; } .comment-form { flex-direction: column; } .form-avatar { display: none; } }
 </style>
 
 <script>
@@ -610,4 +691,84 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
     btn.innerHTML = '✓';
     setTimeout(() => btn.innerHTML = originalHTML, 2000);
   });
+</script>
+
+<script is:inline define:vars={{ postId: post?.id }}>
+  const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
+  const POST_ID = postId;
+  const loginPrompt = document.getElementById('loginPrompt');
+  const commentForm = document.getElementById('commentForm');
+  const commentInput = document.getElementById('commentInput');
+  const charCount = document.getElementById('charCount');
+  const submitBtn = document.getElementById('submitComment');
+  const commentsList = document.getElementById('commentsList');
+  const commentsLoading = document.getElementById('commentsLoading');
+  const noComments = document.getElementById('noComments');
+  const commentCount = document.getElementById('commentCount');
+  const formAvatar = document.getElementById('formAvatar');
+
+  function checkAuth() {
+    const token = localStorage.getItem('authToken');
+    const user = localStorage.getItem('authUser');
+    if (token && user) {
+      try {
+        const userData = JSON.parse(user);
+        if (loginPrompt) loginPrompt.style.display = 'none';
+        if (commentForm) commentForm.style.display = 'flex';
+        if (formAvatar) formAvatar.innerHTML = `<span>${(userData.displayName || userData.display_name || userData.username || 'U').charAt(0).toUpperCase()}</span>`;
+        return { token, user: userData };
+      } catch (e) {}
+    }
+    if (loginPrompt) loginPrompt.style.display = 'flex';
+    if (commentForm) commentForm.style.display = 'none';
+    return null;
+  }
+
+  async function loadComments() {
+    if (!POST_ID) return;
+    try {
+      const res = await fetch(`${API_URL}/api/posts/${POST_ID}/comments`);
+      const data = await res.json();
+      if (commentsLoading) commentsLoading.style.display = 'none';
+      const comments = data.comments || [];
+      if (commentCount) commentCount.textContent = `(${comments.length})`;
+      if (comments.length === 0) { if (noComments) noComments.style.display = 'flex'; return; }
+      if (noComments) noComments.style.display = 'none';
+      commentsList.innerHTML = comments.map(c => {
+        const initial = (c.display_name || c.username || 'K').charAt(0).toUpperCase();
+        const date = new Date(c.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+        return `<div class="comment-item"><div class="comment-avatar">${initial}</div><div class="comment-content"><div class="comment-header"><span class="comment-author">${c.display_name || c.username}</span><span class="comment-date">${date}</span></div><p class="comment-text">${escapeHtml(c.content)}</p><div class="comment-actions"><button class="comment-action"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span>${c.likes || 0}</span></button></div></div></div>`;
+      }).join('');
+    } catch (err) { if (commentsLoading) commentsLoading.innerHTML = '<p>Yorumlar yüklenemedi</p>'; }
+  }
+
+  function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+
+  if (commentInput) commentInput.addEventListener('input', () => { if (charCount) charCount.textContent = commentInput.value.length; });
+
+  if (commentForm) {
+    commentForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const auth = checkAuth();
+      if (!auth) return;
+      const content = commentInput?.value?.trim();
+      if (!content) return;
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<span>Gönderiliyor...</span>'; }
+      try {
+        const res = await fetch(`${API_URL}/api/posts/${POST_ID}/comments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${auth.token}` },
+          body: JSON.stringify({ content })
+        });
+        const data = await res.json();
+        if (data.success) { if (commentInput) commentInput.value = ''; if (charCount) charCount.textContent = '0'; loadComments(); }
+        else { alert(data.error || 'Yorum gönderilemedi'); }
+      } catch (err) { alert('Bağlantı hatası'); }
+      finally { if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Gönder'; } }
+    });
+  }
+
+  checkAuth();
+  loadComments();
+  document.addEventListener('astro:after-swap', () => { checkAuth(); loadComments(); });
 </script>

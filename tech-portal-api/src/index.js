@@ -2524,6 +2524,647 @@ ${sourceText}`;
         }
       }
 
+      // ================================
+      // 💬 YORUM SİSTEMİ API
+      // ================================
+
+      // Post yorumlarını getir
+      if (path.match(/^\/api\/posts\/(\d+)\/comments$/) && method === "GET") {
+        const postId = parseInt(path.split("/")[3], 10);
+        const { page, limit, offset } = validatePagination(
+          url.searchParams.get("page"),
+          url.searchParams.get("limit") || "20"
+        );
+
+        // Toplam yorum sayısı
+        const countResult = await env.DB.prepare(`
+          SELECT COUNT(*) as total FROM comments 
+          WHERE post_id = ? AND parent_id IS NULL AND is_deleted = 0
+        `).bind(postId).first();
+        const total = countResult?.total || 0;
+
+        // Ana yorumları getir
+        const comments = await env.DB.prepare(`
+          SELECT c.*, u.username, u.display_name, u.avatar_url,
+            (SELECT COUNT(*) FROM comments r WHERE r.parent_id = c.id AND r.is_deleted = 0) as reply_count
+          FROM comments c
+          JOIN users u ON c.user_id = u.id
+          WHERE c.post_id = ? AND c.parent_id IS NULL AND c.is_deleted = 0
+          ORDER BY c.created_at DESC
+          LIMIT ? OFFSET ?
+        `).bind(postId, limit, offset).all();
+
+        // Her yorum için cevapları getir (ilk 3)
+        const commentsWithReplies = await Promise.all(
+          (comments.results || []).map(async (comment) => {
+            const replies = await env.DB.prepare(`
+              SELECT c.*, u.username, u.display_name, u.avatar_url
+              FROM comments c
+              JOIN users u ON c.user_id = u.id
+              WHERE c.parent_id = ? AND c.is_deleted = 0
+              ORDER BY c.created_at ASC
+              LIMIT 3
+            `).bind(comment.id).all();
+            return { ...comment, replies: replies.results || [] };
+          })
+        );
+
+        return jsonResponse({
+          comments: commentsWithReplies,
+          pagination: { page, limit, total, totalPages: Math.ceil(total / limit), hasNext: offset + limit < total, hasPrev: page > 1 }
+        }, 200, 60);
+      }
+
+      // Yorum ekle
+      if (path.match(/^\/api\/posts\/(\d+)\/comments$/) && method === "POST") {
+        const postId = parseInt(path.split("/")[3], 10);
+        
+        // Auth kontrolü
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return errorResponse("Yorum yapmak için giriş yapmalısınız", 401, "UNAUTHORIZED");
+        }
+        const token = authHeader.substring(7);
+        const session = await env.DB.prepare(`
+          SELECT s.*, u.id as user_id, u.username FROM sessions s
+          JOIN users u ON s.user_id = u.id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+        if (!session) return errorResponse("Geçersiz oturum", 401, "INVALID_SESSION");
+
+        const body = await request.json();
+        const content = sanitizeString(body.content, 2000);
+        const parentId = body.parent_id ? parseInt(body.parent_id, 10) : null;
+
+        if (!content || content.length < 3) {
+          return errorResponse("Yorum en az 3 karakter olmalıdır", 400, "INVALID_CONTENT");
+        }
+
+        // Spam koruması - son 1 dakikada max 5 yorum
+        const recentComments = await env.DB.prepare(`
+          SELECT COUNT(*) as count FROM comments 
+          WHERE user_id = ? AND created_at > datetime('now', '-1 minute')
+        `).bind(session.user_id).first();
+        if (recentComments?.count >= 5) {
+          return errorResponse("Çok hızlı yorum yapıyorsunuz, lütfen bekleyin", 429, "RATE_LIMIT");
+        }
+
+        const ipHash = await sha256(clientIP);
+
+        // Yorum ekle
+        const result = await env.DB.prepare(`
+          INSERT INTO comments (post_id, user_id, parent_id, content, ip_hash)
+          VALUES (?, ?, ?, ?, ?)
+        `).bind(postId, session.user_id, parentId, content, ipHash).run();
+
+        // Parent varsa reply_count güncelle
+        if (parentId) {
+          await env.DB.prepare(`
+            UPDATE comments SET reply_count = reply_count + 1 WHERE id = ?
+          `).bind(parentId).run();
+        }
+
+        // Kullanıcı stats güncelle
+        await env.DB.prepare(`
+          INSERT INTO user_stats (user_id, comment_count) VALUES (?, 1)
+          ON CONFLICT(user_id) DO UPDATE SET comment_count = comment_count + 1, updated_at = CURRENT_TIMESTAMP
+        `).bind(session.user_id).run();
+
+        return jsonResponse({ success: true, comment_id: result.meta?.last_row_id }, 201);
+      }
+
+      // Yorum sil
+      if (path.match(/^\/api\/comments\/(\d+)$/) && method === "DELETE") {
+        const commentId = parseInt(path.split("/")[3], 10);
+        
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return errorResponse("Giriş yapmalısınız", 401, "UNAUTHORIZED");
+        }
+        const token = authHeader.substring(7);
+        const session = await env.DB.prepare(`
+          SELECT s.*, u.id as user_id, u.role FROM sessions s
+          JOIN users u ON s.user_id = u.id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+        if (!session) return errorResponse("Geçersiz oturum", 401, "INVALID_SESSION");
+
+        // Yorum sahibi veya admin kontrolü
+        const comment = await env.DB.prepare(`SELECT * FROM comments WHERE id = ?`).bind(commentId).first();
+        if (!comment) return errorResponse("Yorum bulunamadı", 404, "NOT_FOUND");
+        if (comment.user_id !== session.user_id && session.role !== 'admin') {
+          return errorResponse("Bu yorumu silme yetkiniz yok", 403, "FORBIDDEN");
+        }
+
+        await env.DB.prepare(`UPDATE comments SET is_deleted = 1 WHERE id = ?`).bind(commentId).run();
+        return jsonResponse({ success: true });
+      }
+
+      // ================================
+      // 📋 FORUM API
+      // ================================
+
+      // Forum kategorilerini getir
+      if (path === "/api/forum/categories" && method === "GET") {
+        const categories = await env.DB.prepare(`
+          SELECT * FROM forum_categories WHERE is_active = 1 ORDER BY display_order ASC
+        `).all();
+        return jsonResponse({ categories: categories.results || [] }, 200, 300);
+      }
+
+      // Kategori konularını getir
+      if (path.match(/^\/api\/forum\/categories\/([a-z0-9-]+)\/threads$/) && method === "GET") {
+        const categorySlug = path.split("/")[4];
+        const { page, limit, offset } = validatePagination(
+          url.searchParams.get("page"),
+          url.searchParams.get("limit") || "20"
+        );
+        const sort = url.searchParams.get("sort") || "latest";
+
+        const category = await env.DB.prepare(`
+          SELECT * FROM forum_categories WHERE slug = ? AND is_active = 1
+        `).bind(categorySlug).first();
+        if (!category) return errorResponse("Kategori bulunamadı", 404, "NOT_FOUND");
+
+        const countResult = await env.DB.prepare(`
+          SELECT COUNT(*) as total FROM forum_threads WHERE category_id = ? AND is_deleted = 0
+        `).bind(category.id).first();
+        const total = countResult?.total || 0;
+
+        let orderBy = "is_pinned DESC, last_reply_at DESC NULLS LAST, created_at DESC";
+        if (sort === "popular") orderBy = "is_pinned DESC, reply_count DESC, view_count DESC";
+        if (sort === "unsolved") orderBy = "is_pinned DESC, is_solved ASC, created_at DESC";
+
+        const threads = await env.DB.prepare(`
+          SELECT t.*, u.username, u.display_name, u.avatar_url,
+            lu.username as last_reply_username
+          FROM forum_threads t
+          JOIN users u ON t.user_id = u.id
+          LEFT JOIN users lu ON t.last_reply_user_id = lu.id
+          WHERE t.category_id = ? AND t.is_deleted = 0
+          ORDER BY ${orderBy}
+          LIMIT ? OFFSET ?
+        `).bind(category.id, limit, offset).all();
+
+        return jsonResponse({
+          category,
+          threads: threads.results || [],
+          pagination: { page, limit, total, totalPages: Math.ceil(total / limit), hasNext: offset + limit < total, hasPrev: page > 1 }
+        }, 200, 60);
+      }
+
+      // Tek konu detayı
+      if (path.match(/^\/api\/forum\/threads\/([a-z0-9-]+)$/) && method === "GET") {
+        const threadSlug = path.split("/")[4];
+
+        const thread = await env.DB.prepare(`
+          SELECT t.*, u.username, u.display_name, u.avatar_url,
+            c.name as category_name, c.slug as category_slug
+          FROM forum_threads t
+          JOIN users u ON t.user_id = u.id
+          JOIN forum_categories c ON t.category_id = c.id
+          WHERE t.slug = ? AND t.is_deleted = 0
+        `).bind(threadSlug).first();
+        if (!thread) return errorResponse("Konu bulunamadı", 404, "NOT_FOUND");
+
+        // View count artır
+        await env.DB.prepare(`
+          UPDATE forum_threads SET view_count = view_count + 1 WHERE id = ?
+        `).bind(thread.id).run();
+
+        // Cevapları getir
+        const { page, limit, offset } = validatePagination(
+          url.searchParams.get("page"),
+          url.searchParams.get("limit") || "20"
+        );
+
+        const countResult = await env.DB.prepare(`
+          SELECT COUNT(*) as total FROM forum_replies WHERE thread_id = ? AND is_deleted = 0
+        `).bind(thread.id).first();
+        const total = countResult?.total || 0;
+
+        const replies = await env.DB.prepare(`
+          SELECT r.*, u.username, u.display_name, u.avatar_url
+          FROM forum_replies r
+          JOIN users u ON r.user_id = u.id
+          WHERE r.thread_id = ? AND r.is_deleted = 0
+          ORDER BY r.is_best_answer DESC, r.created_at ASC
+          LIMIT ? OFFSET ?
+        `).bind(thread.id, limit, offset).all();
+
+        return jsonResponse({
+          thread: { ...thread, view_count: thread.view_count + 1 },
+          replies: replies.results || [],
+          pagination: { page, limit, total, totalPages: Math.ceil(total / limit), hasNext: offset + limit < total, hasPrev: page > 1 }
+        }, 200, 30);
+      }
+
+      // Yeni konu oluştur
+      if (path === "/api/forum/threads" && method === "POST") {
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return errorResponse("Konu açmak için giriş yapmalısınız", 401, "UNAUTHORIZED");
+        }
+        const token = authHeader.substring(7);
+        const session = await env.DB.prepare(`
+          SELECT s.*, u.id as user_id, u.username FROM sessions s
+          JOIN users u ON s.user_id = u.id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+        if (!session) return errorResponse("Geçersiz oturum", 401, "INVALID_SESSION");
+
+        const body = await request.json();
+        const title = sanitizeString(body.title, 200);
+        const content = sanitizeString(body.content, 10000);
+        const categoryId = parseInt(body.category_id, 10);
+
+        if (!title || title.length < 5) return errorResponse("Başlık en az 5 karakter olmalıdır", 400, "INVALID_TITLE");
+        if (!content || content.length < 20) return errorResponse("İçerik en az 20 karakter olmalıdır", 400, "INVALID_CONTENT");
+
+        // Kategori kontrolü
+        const category = await env.DB.prepare(`SELECT * FROM forum_categories WHERE id = ? AND is_active = 1`).bind(categoryId).first();
+        if (!category) return errorResponse("Geçersiz kategori", 400, "INVALID_CATEGORY");
+
+        // Spam koruması
+        const recentThreads = await env.DB.prepare(`
+          SELECT COUNT(*) as count FROM forum_threads 
+          WHERE user_id = ? AND created_at > datetime('now', '-10 minute')
+        `).bind(session.user_id).first();
+        if (recentThreads?.count >= 3) {
+          return errorResponse("Çok hızlı konu açıyorsunuz, lütfen bekleyin", 429, "RATE_LIMIT");
+        }
+
+        // Slug oluştur
+        const baseSlug = title.toLowerCase()
+          .replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's')
+          .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c')
+          .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        const slug = `${baseSlug}-${Date.now().toString(36)}`;
+
+        const result = await env.DB.prepare(`
+          INSERT INTO forum_threads (category_id, user_id, title, slug, content)
+          VALUES (?, ?, ?, ?, ?)
+        `).bind(categoryId, session.user_id, title, slug, content).run();
+
+        // Kategori thread_count güncelle
+        await env.DB.prepare(`
+          UPDATE forum_categories SET thread_count = thread_count + 1 WHERE id = ?
+        `).bind(categoryId).run();
+
+        // User stats güncelle
+        await env.DB.prepare(`
+          INSERT INTO user_stats (user_id, thread_count) VALUES (?, 1)
+          ON CONFLICT(user_id) DO UPDATE SET thread_count = thread_count + 1, updated_at = CURRENT_TIMESTAMP
+        `).bind(session.user_id).run();
+
+        return jsonResponse({ success: true, thread_id: result.meta?.last_row_id, slug }, 201);
+      }
+
+      // Konuya cevap yaz
+      if (path.match(/^\/api\/forum\/threads\/(\d+)\/replies$/) && method === "POST") {
+        const threadId = parseInt(path.split("/")[4], 10);
+
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return errorResponse("Cevap yazmak için giriş yapmalısınız", 401, "UNAUTHORIZED");
+        }
+        const token = authHeader.substring(7);
+        const session = await env.DB.prepare(`
+          SELECT s.*, u.id as user_id, u.username FROM sessions s
+          JOIN users u ON s.user_id = u.id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+        if (!session) return errorResponse("Geçersiz oturum", 401, "INVALID_SESSION");
+
+        // Konu kontrolü
+        const thread = await env.DB.prepare(`SELECT * FROM forum_threads WHERE id = ? AND is_deleted = 0`).bind(threadId).first();
+        if (!thread) return errorResponse("Konu bulunamadı", 404, "NOT_FOUND");
+        if (thread.is_locked) return errorResponse("Bu konu kilitli", 403, "THREAD_LOCKED");
+
+        const body = await request.json();
+        const content = sanitizeString(body.content, 10000);
+        if (!content || content.length < 10) return errorResponse("Cevap en az 10 karakter olmalıdır", 400, "INVALID_CONTENT");
+
+        // Spam koruması
+        const recentReplies = await env.DB.prepare(`
+          SELECT COUNT(*) as count FROM forum_replies 
+          WHERE user_id = ? AND created_at > datetime('now', '-1 minute')
+        `).bind(session.user_id).first();
+        if (recentReplies?.count >= 5) {
+          return errorResponse("Çok hızlı cevap yazıyorsunuz", 429, "RATE_LIMIT");
+        }
+
+        const ipHash = await sha256(clientIP);
+
+        const result = await env.DB.prepare(`
+          INSERT INTO forum_replies (thread_id, user_id, content, ip_hash)
+          VALUES (?, ?, ?, ?)
+        `).bind(threadId, session.user_id, content, ipHash).run();
+
+        // Thread güncelle
+        await env.DB.prepare(`
+          UPDATE forum_threads SET 
+            reply_count = reply_count + 1,
+            last_reply_at = CURRENT_TIMESTAMP,
+            last_reply_user_id = ?
+          WHERE id = ?
+        `).bind(session.user_id, threadId).run();
+
+        // Kategori post_count güncelle
+        await env.DB.prepare(`
+          UPDATE forum_categories SET post_count = post_count + 1 WHERE id = ?
+        `).bind(thread.category_id).run();
+
+        // User stats güncelle
+        await env.DB.prepare(`
+          INSERT INTO user_stats (user_id, reply_count) VALUES (?, 1)
+          ON CONFLICT(user_id) DO UPDATE SET reply_count = reply_count + 1, updated_at = CURRENT_TIMESTAMP
+        `).bind(session.user_id).run();
+
+        return jsonResponse({ success: true, reply_id: result.meta?.last_row_id }, 201);
+      }
+
+      // En iyi cevap işaretle
+      if (path.match(/^\/api\/forum\/replies\/(\d+)\/best$/) && method === "POST") {
+        const replyId = parseInt(path.split("/")[4], 10);
+
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return errorResponse("Giriş yapmalısınız", 401, "UNAUTHORIZED");
+        }
+        const token = authHeader.substring(7);
+        const session = await env.DB.prepare(`
+          SELECT s.*, u.id as user_id, u.role FROM sessions s
+          JOIN users u ON s.user_id = u.id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+        if (!session) return errorResponse("Geçersiz oturum", 401, "INVALID_SESSION");
+
+        // Cevap ve konu kontrolü
+        const reply = await env.DB.prepare(`SELECT * FROM forum_replies WHERE id = ?`).bind(replyId).first();
+        if (!reply) return errorResponse("Cevap bulunamadı", 404, "NOT_FOUND");
+
+        const thread = await env.DB.prepare(`SELECT * FROM forum_threads WHERE id = ?`).bind(reply.thread_id).first();
+        if (!thread) return errorResponse("Konu bulunamadı", 404, "NOT_FOUND");
+
+        // Sadece konu sahibi veya admin
+        if (thread.user_id !== session.user_id && session.role !== 'admin') {
+          return errorResponse("Bu işlem için yetkiniz yok", 403, "FORBIDDEN");
+        }
+
+        // Önceki best answer'ı kaldır
+        await env.DB.prepare(`
+          UPDATE forum_replies SET is_best_answer = 0 WHERE thread_id = ?
+        `).bind(thread.id).run();
+
+        // Yeni best answer
+        await env.DB.prepare(`
+          UPDATE forum_replies SET is_best_answer = 1 WHERE id = ?
+        `).bind(replyId).run();
+
+        // Thread'i solved olarak işaretle
+        await env.DB.prepare(`
+          UPDATE forum_threads SET is_solved = 1, best_reply_id = ? WHERE id = ?
+        `).bind(replyId, thread.id).run();
+
+        // Cevap sahibine puan ver
+        await env.DB.prepare(`
+          INSERT INTO user_stats (user_id, best_answer_count, reputation_points) VALUES (?, 1, 25)
+          ON CONFLICT(user_id) DO UPDATE SET 
+            best_answer_count = best_answer_count + 1, 
+            reputation_points = reputation_points + 25,
+            updated_at = CURRENT_TIMESTAMP
+        `).bind(reply.user_id).run();
+
+        return jsonResponse({ success: true });
+      }
+
+      // ================================
+      // 🎨 KULLANICI PROJELERİ (SHOWCASE) API
+      // ================================
+
+      // Projeleri listele
+      if (path === "/api/projects" && method === "GET") {
+        const { page, limit, offset } = validatePagination(
+          url.searchParams.get("page"),
+          url.searchParams.get("limit") || "12"
+        );
+        const sort = url.searchParams.get("sort") || "latest";
+
+        const countResult = await env.DB.prepare(`
+          SELECT COUNT(*) as total FROM user_projects WHERE is_approved = 1 AND is_deleted = 0
+        `).first();
+        const total = countResult?.total || 0;
+
+        let orderBy = "is_featured DESC, created_at DESC";
+        if (sort === "popular") orderBy = "is_featured DESC, like_count DESC, view_count DESC";
+
+        const projects = await env.DB.prepare(`
+          SELECT p.*, u.username, u.display_name, u.avatar_url
+          FROM user_projects p
+          JOIN users u ON p.user_id = u.id
+          WHERE p.is_approved = 1 AND p.is_deleted = 0
+          ORDER BY ${orderBy}
+          LIMIT ? OFFSET ?
+        `).bind(limit, offset).all();
+
+        return jsonResponse({
+          projects: projects.results || [],
+          pagination: { page, limit, total, totalPages: Math.ceil(total / limit), hasNext: offset + limit < total, hasPrev: page > 1 }
+        }, 200, 60);
+      }
+
+      // Tek proje detayı
+      if (path.match(/^\/api\/projects\/([a-z0-9-]+)$/) && method === "GET") {
+        const projectSlug = path.split("/")[3];
+
+        const project = await env.DB.prepare(`
+          SELECT p.*, u.username, u.display_name, u.avatar_url
+          FROM user_projects p
+          JOIN users u ON p.user_id = u.id
+          WHERE p.slug = ? AND p.is_approved = 1 AND p.is_deleted = 0
+        `).bind(projectSlug).first();
+        if (!project) return errorResponse("Proje bulunamadı", 404, "NOT_FOUND");
+
+        // View count artır
+        await env.DB.prepare(`
+          UPDATE user_projects SET view_count = view_count + 1 WHERE id = ?
+        `).bind(project.id).run();
+
+        return jsonResponse({ project: { ...project, view_count: project.view_count + 1 } }, 200, 60);
+      }
+
+      // Proje oluştur
+      if (path === "/api/projects" && method === "POST") {
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return errorResponse("Proje paylaşmak için giriş yapmalısınız", 401, "UNAUTHORIZED");
+        }
+        const token = authHeader.substring(7);
+        const session = await env.DB.prepare(`
+          SELECT s.*, u.id as user_id, u.username FROM sessions s
+          JOIN users u ON s.user_id = u.id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+        if (!session) return errorResponse("Geçersiz oturum", 401, "INVALID_SESSION");
+
+        const body = await request.json();
+        const title = sanitizeString(body.title, 200);
+        const description = sanitizeString(body.description, 5000);
+        const images = Array.isArray(body.images) ? JSON.stringify(body.images.slice(0, 10)) : '[]';
+        const printerModel = sanitizeString(body.printer_model, 100);
+        const filamentType = sanitizeString(body.filament_type, 50);
+        const filamentBrand = sanitizeString(body.filament_brand, 100);
+        const printSettings = sanitizeString(body.print_settings, 1000);
+        const printTimeHours = parseFloat(body.print_time_hours) || null;
+        const modelUrl = sanitizeString(body.model_url, 500);
+        const modelSource = sanitizeString(body.model_source, 100);
+
+        if (!title || title.length < 5) return errorResponse("Başlık en az 5 karakter olmalıdır", 400, "INVALID_TITLE");
+
+        // Slug oluştur
+        const baseSlug = title.toLowerCase()
+          .replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's')
+          .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c')
+          .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        const slug = `${baseSlug}-${Date.now().toString(36)}`;
+
+        const result = await env.DB.prepare(`
+          INSERT INTO user_projects (user_id, title, slug, description, images, printer_model, filament_type, filament_brand, print_settings, print_time_hours, model_url, model_source)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).bind(session.user_id, title, slug, description, images, printerModel, filamentType, filamentBrand, printSettings, printTimeHours, modelUrl, modelSource).run();
+
+        // User stats güncelle
+        await env.DB.prepare(`
+          INSERT INTO user_stats (user_id, project_count) VALUES (?, 1)
+          ON CONFLICT(user_id) DO UPDATE SET project_count = project_count + 1, updated_at = CURRENT_TIMESTAMP
+        `).bind(session.user_id).run();
+
+        return jsonResponse({ success: true, project_id: result.meta?.last_row_id, slug }, 201);
+      }
+
+      // ================================
+      // ❤️ BEĞENİ SİSTEMİ API
+      // ================================
+
+      // Beğen / Beğeniyi kaldır (toggle)
+      if (path === "/api/likes" && method === "POST") {
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return errorResponse("Beğenmek için giriş yapmalısınız", 401, "UNAUTHORIZED");
+        }
+        const token = authHeader.substring(7);
+        const session = await env.DB.prepare(`
+          SELECT s.*, u.id as user_id FROM sessions s
+          JOIN users u ON s.user_id = u.id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+        if (!session) return errorResponse("Geçersiz oturum", 401, "INVALID_SESSION");
+
+        const body = await request.json();
+        const likeableType = sanitizeString(body.type, 50); // comment, thread, reply, project
+        const likeableId = parseInt(body.id, 10);
+
+        if (!['comment', 'thread', 'reply', 'project'].includes(likeableType)) {
+          return errorResponse("Geçersiz tür", 400, "INVALID_TYPE");
+        }
+
+        // Mevcut beğeni kontrolü
+        const existingLike = await env.DB.prepare(`
+          SELECT id FROM likes WHERE user_id = ? AND likeable_type = ? AND likeable_id = ?
+        `).bind(session.user_id, likeableType, likeableId).first();
+
+        let liked = false;
+        if (existingLike) {
+          // Beğeniyi kaldır
+          await env.DB.prepare(`DELETE FROM likes WHERE id = ?`).bind(existingLike.id).run();
+          
+          // İlgili tablodaki like_count'u azalt
+          const table = likeableType === 'comment' ? 'comments' : 
+                       likeableType === 'thread' ? 'forum_threads' :
+                       likeableType === 'reply' ? 'forum_replies' : 'user_projects';
+          await env.DB.prepare(`UPDATE ${table} SET like_count = like_count - 1 WHERE id = ?`).bind(likeableId).run();
+        } else {
+          // Beğeni ekle
+          await env.DB.prepare(`
+            INSERT INTO likes (user_id, likeable_type, likeable_id) VALUES (?, ?, ?)
+          `).bind(session.user_id, likeableType, likeableId).run();
+          
+          // İlgili tablodaki like_count'u artır
+          const table = likeableType === 'comment' ? 'comments' : 
+                       likeableType === 'thread' ? 'forum_threads' :
+                       likeableType === 'reply' ? 'forum_replies' : 'user_projects';
+          await env.DB.prepare(`UPDATE ${table} SET like_count = like_count + 1 WHERE id = ?`).bind(likeableId).run();
+          liked = true;
+        }
+
+        return jsonResponse({ success: true, liked });
+      }
+
+      // ================================
+      // 👤 KULLANICI PROFİL API
+      // ================================
+
+      // Kullanıcı profili
+      if (path.match(/^\/api\/users\/([a-zA-Z0-9_-]+)$/) && method === "GET") {
+        const username = path.split("/")[3];
+
+        const user = await env.DB.prepare(`
+          SELECT id, username, display_name, avatar_url, created_at
+          FROM users WHERE username = ? AND is_active = 1
+        `).bind(username).first();
+        if (!user) return errorResponse("Kullanıcı bulunamadı", 404, "NOT_FOUND");
+
+        // Stats
+        const stats = await env.DB.prepare(`
+          SELECT * FROM user_stats WHERE user_id = ?
+        `).bind(user.id).first() || {};
+
+        // Rozetler
+        const badges = await env.DB.prepare(`
+          SELECT b.*, ub.earned_at
+          FROM user_badges ub
+          JOIN badges b ON ub.badge_id = b.id
+          WHERE ub.user_id = ?
+          ORDER BY ub.earned_at DESC
+        `).bind(user.id).all();
+
+        // Son projeler
+        const projects = await env.DB.prepare(`
+          SELECT id, title, slug, images, like_count, created_at
+          FROM user_projects
+          WHERE user_id = ? AND is_approved = 1 AND is_deleted = 0
+          ORDER BY created_at DESC LIMIT 6
+        `).bind(user.id).all();
+
+        // Son konular
+        const threads = await env.DB.prepare(`
+          SELECT t.id, t.title, t.slug, t.reply_count, t.is_solved, t.created_at, c.name as category_name
+          FROM forum_threads t
+          JOIN forum_categories c ON t.category_id = c.id
+          WHERE t.user_id = ? AND t.is_deleted = 0
+          ORDER BY t.created_at DESC LIMIT 5
+        `).bind(user.id).all();
+
+        return jsonResponse({
+          user,
+          stats,
+          badges: badges.results || [],
+          projects: projects.results || [],
+          threads: threads.results || []
+        }, 200, 120);
+      }
+
+      // ================================
+      // 🏅 ROZET API
+      // ================================
+
+      // Tüm rozetler
+      if (path === "/api/badges" && method === "GET") {
+        const badges = await env.DB.prepare(`SELECT * FROM badges ORDER BY points ASC`).all();
+        return jsonResponse({ badges: badges.results || [] }, 200, 300);
+      }
+
       return errorResponse("Not Found", 404, "NOT_FOUND");
 
     } catch (error) {
