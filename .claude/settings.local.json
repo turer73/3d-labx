@@ -82,7 +82,8 @@
       "WebFetch(domain:www.obico.io)",
       "WebFetch(domain:www.klipper3d.org)",
       "WebFetch(domain:www.printables.com)",
-      "Bash(gh auth status:*)"
+      "Bash(gh auth status:*)",
+      "Bash(./scripts/auto-backup.sh:*)"
     ],
     "deny": []
   }
