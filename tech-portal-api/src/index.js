@@ -2522,6 +2522,105 @@ ${sourceText}`;
             recentActivities: recentActivities.results || []
           });
         }
+
+        // Admin: Forum Thread Oluştur (kullanıcı adına)
+        if (path === "/admin/forum/threads" && method === "POST") {
+          const body = await request.json();
+          const title = sanitizeString(body.title, 200);
+          const content = sanitizeString(body.content, 10000);
+          const categoryId = parseInt(body.category_id, 10);
+          const userId = parseInt(body.user_id, 10);
+
+          if (!title || title.length < 5) return errorResponse("Başlık en az 5 karakter olmalıdır", 400, "INVALID_TITLE");
+          if (!content || content.length < 20) return errorResponse("İçerik en az 20 karakter olmalıdır", 400, "INVALID_CONTENT");
+
+          // Kullanıcı kontrolü
+          const user = await env.DB.prepare(`SELECT id, username FROM users WHERE id = ? AND is_active = 1`).bind(userId).first();
+          if (!user) return errorResponse("Geçersiz kullanıcı", 400, "INVALID_USER");
+
+          // Kategori kontrolü
+          const category = await env.DB.prepare(`SELECT * FROM forum_categories WHERE id = ? AND is_active = 1`).bind(categoryId).first();
+          if (!category) return errorResponse("Geçersiz kategori", 400, "INVALID_CATEGORY");
+
+          // Slug oluştur
+          const baseSlug = title.toLowerCase()
+            .replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's')
+            .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c')
+            .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+          const slug = `${baseSlug}-${Date.now().toString(36)}`;
+
+          const result = await env.DB.prepare(`
+            INSERT INTO forum_threads (category_id, user_id, title, slug, content)
+            VALUES (?, ?, ?, ?, ?)
+          `).bind(categoryId, userId, title, slug, content).run();
+
+          // Kategori thread_count güncelle
+          await env.DB.prepare(`
+            UPDATE forum_categories SET thread_count = thread_count + 1 WHERE id = ?
+          `).bind(categoryId).run();
+
+          // User stats güncelle
+          await env.DB.prepare(`
+            INSERT INTO user_stats (user_id, thread_count) VALUES (?, 1)
+            ON CONFLICT(user_id) DO UPDATE SET thread_count = thread_count + 1, updated_at = CURRENT_TIMESTAMP
+          `).bind(userId).run();
+
+          return jsonResponse({ success: true, thread_id: result.meta?.last_row_id, slug, username: user.username }, 201);
+        }
+
+        // Admin: Forum Thread Sil
+        if (path.match(/^\/admin\/forum\/threads\/(\d+)$/) && method === "DELETE") {
+          const threadId = parseInt(path.split("/").pop(), 10);
+
+          const thread = await env.DB.prepare(`SELECT * FROM forum_threads WHERE id = ?`).bind(threadId).first();
+          if (!thread) return errorResponse("Konu bulunamadı", 404, "NOT_FOUND");
+
+          // Thread'i sil
+          await env.DB.prepare(`DELETE FROM forum_threads WHERE id = ?`).bind(threadId).run();
+
+          // Kategori thread_count güncelle
+          await env.DB.prepare(`
+            UPDATE forum_categories SET thread_count = thread_count - 1 WHERE id = ? AND thread_count > 0
+          `).bind(thread.category_id).run();
+
+          return jsonResponse({ success: true, message: "Konu silindi" });
+        }
+
+        // Admin: Forum Thread Vitrine Al/Çıkar
+        if (path.match(/^\/admin\/forum\/threads\/(\d+)\/feature$/) && method === "POST") {
+          const threadId = parseInt(path.split("/")[4], 10);
+          const body = await request.json();
+          const featured = body.featured ? 1 : 0;
+
+          const thread = await env.DB.prepare(`SELECT * FROM forum_threads WHERE id = ?`).bind(threadId).first();
+          if (!thread) return errorResponse("Konu bulunamadı", 404, "NOT_FOUND");
+
+          await env.DB.prepare(`
+            UPDATE forum_threads SET is_featured = ?, featured_at = CASE WHEN ? = 1 THEN datetime('now') ELSE NULL END WHERE id = ?
+          `).bind(featured, featured, threadId).run();
+
+          return jsonResponse({
+            success: true,
+            message: featured ? "Konu vitrine alındı" : "Konu vitrinden çıkarıldı",
+            is_featured: featured
+          });
+        }
+
+        // Admin: Vitrine alınan konuları listele
+        if (path === "/admin/forum/featured" && method === "GET") {
+          const threads = await env.DB.prepare(`
+            SELECT t.id, t.title, t.slug, t.is_featured, t.featured_at, t.like_count, t.view_count, t.created_at,
+                   u.username, c.name as category_name
+            FROM forum_threads t
+            JOIN users u ON t.user_id = u.id
+            JOIN forum_categories c ON t.category_id = c.id
+            WHERE t.is_deleted = 0
+            ORDER BY t.is_featured DESC, t.featured_at DESC, t.like_count DESC
+            LIMIT 50
+          `).all();
+
+          return jsonResponse({ threads: threads.results || [] });
+        }
       }
 
       // ================================
@@ -3153,6 +3252,59 @@ ${sourceText}`;
           projects: projects.results || [],
           threads: threads.results || []
         }, 200, 120);
+      }
+
+      // ================================
+      // 🏆 TOPLULUK VİTRİN API
+      // ================================
+
+      // Öne çıkan projeler (Otomatik: en çok beğenilen + Admin seçmeli)
+      if (path === "/api/community/featured" && method === "GET") {
+        const limit = Math.min(6, parseInt(url.searchParams.get("limit") || "4", 10));
+
+        // Admin tarafından vitrine alınan projeler (is_featured = 1)
+        const featuredThreads = await env.DB.prepare(`
+          SELECT t.id, t.title, t.slug, t.content, t.view_count, t.reply_count, t.like_count, t.created_at,
+                 u.username, u.display_name, u.avatar_url,
+                 c.name as category_name, c.slug as category_slug, c.icon as category_icon
+          FROM forum_threads t
+          JOIN users u ON t.user_id = u.id
+          JOIN forum_categories c ON t.category_id = c.id
+          WHERE t.is_deleted = 0 AND t.is_featured = 1
+          ORDER BY t.featured_at DESC, t.created_at DESC
+          LIMIT ?
+        `).bind(limit).all();
+
+        // Eğer admin seçmeli yeterli değilse, otomatik olarak en popüler projeleri ekle
+        const featuredCount = featuredThreads.results?.length || 0;
+        let autoFeatured = { results: [] };
+
+        if (featuredCount < limit) {
+          const excludeIds = (featuredThreads.results || []).map(t => t.id);
+          const excludeClause = excludeIds.length > 0 ? `AND t.id NOT IN (${excludeIds.join(',')})` : '';
+
+          autoFeatured = await env.DB.prepare(`
+            SELECT t.id, t.title, t.slug, t.content, t.view_count, t.reply_count, t.like_count, t.created_at,
+                   u.username, u.display_name, u.avatar_url,
+                   c.name as category_name, c.slug as category_slug, c.icon as category_icon
+            FROM forum_threads t
+            JOIN users u ON t.user_id = u.id
+            JOIN forum_categories c ON t.category_id = c.id
+            WHERE t.is_deleted = 0 AND t.category_id = 2 ${excludeClause}
+            ORDER BY (t.like_count * 3 + t.reply_count * 2 + t.view_count) DESC, t.created_at DESC
+            LIMIT ?
+          `).bind(limit - featuredCount).all();
+        }
+
+        const allFeatured = [
+          ...(featuredThreads.results || []).map(t => ({ ...t, featured_type: 'admin' })),
+          ...(autoFeatured.results || []).map(t => ({ ...t, featured_type: 'auto' }))
+        ];
+
+        return jsonResponse({
+          projects: allFeatured,
+          total: allFeatured.length
+        }, 200, 60);
       }
 
       // ================================

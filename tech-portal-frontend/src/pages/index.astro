@@ -15,21 +15,46 @@ type Post = {
   is_featured: number;
 };
 
+type CommunityProject = {
+  id: number;
+  title: string;
+  slug: string;
+  content: string;
+  view_count: number;
+  reply_count: number;
+  like_count: number;
+  created_at: string;
+  username: string;
+  display_name: string;
+  avatar_url?: string;
+  category_name: string;
+  category_slug: string;
+  category_icon: string;
+  featured_type: 'admin' | 'auto';
+};
+
 const API_BASE = getApiBase(Astro.request);
 
 let data: Record<string, Post[]> = {};
+let communityProjects: CommunityProject[] = [];
 let error: string | null = null;
 
 try {
-  const res = await fetch(`${API_BASE}/api/home`, {
-    headers: { "Accept": "application/json" }
-  });
+  const [homeRes, communityRes] = await Promise.all([
+    fetch(`${API_BASE}/api/home`, { headers: { "Accept": "application/json" } }),
+    fetch(`${API_BASE}/api/community/featured?limit=4`, { headers: { "Accept": "application/json" } })
+  ]);
 
-  if (!res.ok) {
-    throw new Error(`API hatası: ${res.status}`);
+  if (!homeRes.ok) {
+    throw new Error(`API hatası: ${homeRes.status}`);
   }
 
-  data = await res.json();
+  data = await homeRes.json();
+
+  if (communityRes.ok) {
+    const communityData = await communityRes.json();
+    communityProjects = communityData.projects || [];
+  }
 } catch (e) {
   error = e instanceof Error ? e.message : "Bilinmeyen hata";
   console.error("Ana sayfa hatası:", error);
@@ -61,6 +86,10 @@ function getCategoryColor(cat: string) {
   if (cat === "incelemeler") return "purple";
   if (cat === "sorun-cozumleri") return "green";
   return "orange";
+}
+
+function getExcerpt(content: string, length: number = 120): string {
+  return content.replace(/[#*|\[\]`\n]/g, ' ').replace(/\s+/g, ' ').trim().substring(0, length) + '...';
 }
 ---
 
@@ -284,6 +313,66 @@ function getCategoryColor(cat: string) {
         </div>
       </div>
     </section>
+
+    <!-- TOPLULUK VİTRİN BÖLÜMÜ -->
+    {communityProjects.length > 0 && (
+      <section class="community-showcase">
+        <div class="category-header">
+          <div class="category-title-group">
+            <span class="category-icon showcase-icon">🏆</span>
+            <h2>Topluluk Vitrini</h2>
+          </div>
+          <a href="/topluluk/forum/projeler" class="category-link">Tüm Projeler →</a>
+        </div>
+
+        <div class="showcase-grid">
+          {communityProjects.map((project, index) => (
+            <a href={`/topluluk/forum/konu/${project.slug}`} class={`showcase-card ${index === 0 ? 'showcase-featured' : ''}`}>
+              <div class="showcase-header">
+                <div class="showcase-user">
+                  <div class="showcase-avatar">
+                    {project.avatar_url ? (
+                      <img src={project.avatar_url} alt={project.display_name || project.username} />
+                    ) : (
+                      <span>{(project.display_name || project.username).charAt(0).toUpperCase()}</span>
+                    )}
+                  </div>
+                  <div class="showcase-user-info">
+                    <span class="showcase-username">@{project.username}</span>
+                    <span class="showcase-date">{new Date(project.created_at).toLocaleDateString('tr-TR')}</span>
+                  </div>
+                </div>
+                {project.featured_type === 'admin' && (
+                  <span class="showcase-badge">⭐ Editör Seçimi</span>
+                )}
+              </div>
+
+              <h3 class="showcase-title">{project.title}</h3>
+
+              <p class="showcase-excerpt">
+                {getExcerpt(project.content)}
+              </p>
+
+              <div class="showcase-footer">
+                <div class="showcase-stats">
+                  <span class="stat">👁️ {project.view_count}</span>
+                  <span class="stat">💬 {project.reply_count}</span>
+                  <span class="stat">❤️ {project.like_count}</span>
+                </div>
+                <span class="showcase-category">{project.category_icon} {project.category_name}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+
+        <div class="showcase-cta">
+          <a href="/topluluk/forum/projeler" class="showcase-cta-btn">
+            <span>🎨</span>
+            <span>Projeni Paylaş</span>
+          </a>
+        </div>
+      </section>
+    )}
 
     <!-- KATEGORİLERE GÖRE İÇERİKLER -->
 
@@ -958,6 +1047,237 @@ function getCategoryColor(cat: string) {
   .poll-votes { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
   .poll-option.selected { border-color: #22C55E; box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3); }
   .poll-option.selected .poll-label { color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+
+  /* COMMUNITY SHOWCASE */
+  .community-showcase {
+    margin-bottom: 48px;
+    padding: 28px;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(236, 72, 153, 0.03) 50%, var(--bg-card) 100%);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .community-showcase::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 60%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .community-showcase .category-header {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .showcase-icon {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.15)) !important;
+  }
+
+  .showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (max-width: 1024px) {
+    .showcase-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 640px) {
+    .showcase-grid { grid-template-columns: 1fr; }
+    .community-showcase { padding: 20px; }
+  }
+
+  .showcase-card {
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 18px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: all 0.3s ease;
+  }
+
+  .showcase-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(168, 85, 247, 0.5);
+    box-shadow: 0 12px 40px rgba(168, 85, 247, 0.15);
+  }
+
+  .showcase-card.showcase-featured {
+    grid-column: span 2;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.08) 0%, var(--bg-main) 100%);
+    border-color: rgba(168, 85, 247, 0.3);
+  }
+
+  @media (max-width: 640px) {
+    .showcase-card.showcase-featured { grid-column: span 1; }
+  }
+
+  .showcase-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .showcase-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .showcase-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .showcase-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .showcase-avatar span {
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .showcase-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .showcase-username {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  .showcase-date {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  .showcase-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(234, 179, 8, 0.2), rgba(249, 115, 22, 0.15));
+    color: #EAB308;
+    white-space: nowrap;
+  }
+
+  .showcase-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.4;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .showcase-card.showcase-featured .showcase-title {
+    font-size: 1.15rem;
+  }
+
+  .showcase-excerpt {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex: 1;
+  }
+
+  .showcase-card.showcase-featured .showcase-excerpt {
+    -webkit-line-clamp: 3;
+  }
+
+  .showcase-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .showcase-stats {
+    display: flex;
+    gap: 12px;
+  }
+
+  .showcase-stats .stat {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .showcase-category {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+
+  .showcase-cta {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .showcase-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(168, 85, 247, 0.3);
+  }
+
+  .showcase-cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(168, 85, 247, 0.4);
+  }
 
   /* CATEGORY SECTIONS */
   .category-section {
