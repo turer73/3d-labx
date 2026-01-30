@@ -65,11 +65,24 @@ const rehberPosts = data["rehberler"] || [];
 const incelemePosts = data["incelemeler"] || [];
 const sorunPosts = data["sorun-cozumleri"] || [];
 
-// Hero slider için 3D Baskı, Rehberler ve Sorun Çözümleri'nden birer içerik
+// Hero slider için 3D Baskı, Rehberler, Sorun Çözümleri ve Topluluk Projesi
+const communityHeroSlide = communityProjects[0] ? {
+  id: communityProjects[0].id,
+  title_tr: communityProjects[0].title,
+  summary_tr: getExcerpt(communityProjects[0].content, 150),
+  slug: communityProjects[0].slug,
+  category: 'topluluk-projesi',
+  image_url: null, // Topluluk projelerinde görsel yok, gradient kullanacağız
+  is_featured: 1,
+  username: communityProjects[0].username,
+  display_name: communityProjects[0].display_name
+} : null;
+
 const heroSlides = [
-  printPosts[0],      // 3D Baskı
-  rehberPosts[0],     // Rehberler
-  sorunPosts[0],      // Sorun Çözümleri
+  printPosts[0],        // 3D Baskı
+  rehberPosts[0],       // Rehberler
+  communityHeroSlide,   // Topluluk Projesi
+  sorunPosts[0],        // Sorun Çözümleri
 ].filter(Boolean);
 
 function getCategoryLabel(cat: string) {
@@ -77,6 +90,7 @@ function getCategoryLabel(cat: string) {
   if (cat === "rehberler") return "Rehber";
   if (cat === "incelemeler") return "İnceleme";
   if (cat === "sorun-cozumleri") return "Sorun Çözümü";
+  if (cat === "topluluk-projesi") return "Topluluk Projesi";
   return "3D Baskı";
 }
 
@@ -85,6 +99,7 @@ function getCategoryColor(cat: string) {
   if (cat === "rehberler") return "cyan";
   if (cat === "incelemeler") return "purple";
   if (cat === "sorun-cozumleri") return "green";
+  if (cat === "topluluk-projesi") return "pink";
   return "orange";
 }
 
@@ -105,20 +120,27 @@ function getExcerpt(content: string, length: number = 120): string {
       <div class="hero-slider-box">
         <div class="slider-container">
           {heroSlides.map((slide, index) => (
-            <div class={`slide ${index === 0 ? 'active' : ''}`} data-index={index}>
+            <div class={`slide ${index === 0 ? 'active' : ''} ${slide.category === 'topluluk-projesi' ? 'community-slide' : ''}`} data-index={index}>
               <div class="slide-bg">
-                {slide.image_url && <img src={slide.image_url} alt={slide.title_tr} />}
+                {slide.image_url ? (
+                  <img src={slide.image_url} alt={slide.title_tr} />
+                ) : slide.category === 'topluluk-projesi' ? (
+                  <div class="community-gradient"></div>
+                ) : null}
                 <div class="slide-overlay"></div>
               </div>
               <div class="slide-content">
                 <div class={`hero-badge ${getCategoryColor(slide.category)}`}>
                   <span class="pulse-dot"></span>
                   <span>{getCategoryLabel(slide.category)}</span>
+                  {slide.category === 'topluluk-projesi' && slide.username && (
+                    <span class="hero-author">@{slide.username}</span>
+                  )}
                 </div>
                 <h1>{slide.title_tr}</h1>
                 <p>{slide.summary_tr}</p>
-                <a href={`/${slide.category}/${slide.slug}`} class="hero-btn">
-                  Devamını Oku
+                <a href={slide.category === 'topluluk-projesi' ? `/topluluk/forum/konu/${slide.slug}` : `/${slide.category}/${slide.slug}`} class="hero-btn">
+                  {slide.category === 'topluluk-projesi' ? 'Projeyi Gör' : 'Devamını Oku'}
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
                 </a>
               </div>
@@ -554,6 +576,46 @@ function getExcerpt(content: string, length: number = 120): string {
     object-fit: cover;
   }
 
+  /* Topluluk projesi için gradient arka plan */
+  .community-gradient {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg,
+      #1a1a2e 0%,
+      #16213e 25%,
+      #0f3460 50%,
+      #1a1a2e 75%,
+      #16213e 100%);
+    position: relative;
+  }
+
+  .community-gradient::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 60%);
+  }
+
+  .community-gradient::after {
+    content: '🏆';
+    position: absolute;
+    top: 50%;
+    right: 15%;
+    transform: translateY(-50%);
+    font-size: 8rem;
+    opacity: 0.08;
+  }
+
+  .slide.community-slide .slide-overlay {
+    background: linear-gradient(90deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.1) 100%);
+  }
+
   .slide-overlay {
     position: absolute;
     top: 0;
@@ -593,6 +655,15 @@ function getExcerpt(content: string, length: number = 120): string {
   .hero-badge.cyan { border-color: rgba(6, 182, 212, 0.5); }
   .hero-badge.purple { border-color: rgba(168, 85, 247, 0.5); }
   .hero-badge.green { border-color: rgba(34, 197, 94, 0.5); }
+  .hero-badge.pink { border-color: rgba(236, 72, 153, 0.5); }
+
+  .hero-author {
+    margin-left: 4px;
+    padding-left: 8px;
+    border-left: 1px solid rgba(255,255,255,0.3);
+    font-weight: 500;
+    opacity: 0.9;
+  }
 
   .pulse-dot {
     width: 8px;
@@ -605,6 +676,7 @@ function getExcerpt(content: string, length: number = 120): string {
   .hero-badge.cyan .pulse-dot { background: #06B6D4; }
   .hero-badge.purple .pulse-dot { background: #A855F7; }
   .hero-badge.green .pulse-dot { background: #22C55E; }
+  .hero-badge.pink .pulse-dot { background: #EC4899; }
 
   @keyframes pulse {
     0%, 100% { opacity: 1; }
@@ -688,6 +760,7 @@ function getExcerpt(content: string, length: number = 120): string {
   .dot.active.cyan { border-color: #06B6D4; box-shadow: 0 0 10px rgba(6, 182, 212, 0.4); }
   .dot.active.purple { border-color: #A855F7; box-shadow: 0 0 10px rgba(168, 85, 247, 0.4); }
   .dot.active.green { border-color: #22C55E; box-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
+  .dot.active.pink { border-color: #EC4899; box-shadow: 0 0 10px rgba(236, 72, 153, 0.4); }
 
   .dot-label {
     font-size: 0.65rem;
