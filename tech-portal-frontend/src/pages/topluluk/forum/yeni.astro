@@ -334,7 +334,7 @@ try {
   const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
 
   function getAuthToken() {
-    return localStorage.getItem('auth_token');
+    return localStorage.getItem('authToken');
   }
 
   // Login kontrolü
@@ -366,8 +366,7 @@ try {
 
     const token = getAuthToken();
     if (!token) {
-      alert('Lütfen giriş yapın');
-      window.location.href = '/auth/giris';
+      window.showToast('Lütfen <a href="/auth/giris">giriş yapın</a>', 'warning');
       return;
     }
 
@@ -376,17 +375,17 @@ try {
     const content = (document.getElementById('content') as HTMLTextAreaElement)?.value?.trim();
 
     if (!categoryId) {
-      alert('Lütfen bir kategori seçin');
+      window.showToast('Lütfen bir kategori seçin', 'warning');
       return;
     }
 
     if (!title || title.length < 5) {
-      alert('Başlık en az 5 karakter olmalıdır');
+      window.showToast('Başlık en az 5 karakter olmalıdır', 'warning');
       return;
     }
 
     if (!content || content.length < 20) {
-      alert('İçerik en az 20 karakter olmalıdır');
+      window.showToast('İçerik en az 20 karakter olmalıdır', 'warning');
       return;
     }
 
@@ -413,13 +412,14 @@ try {
       const data = await res.json();
 
       if (res.ok && data.slug) {
+        window.showToast('Konu başarıyla oluşturuldu!', 'success');
         window.location.href = `/topluluk/forum/konu/${data.slug}`;
       } else {
-        alert(data.error || 'Bir hata oluştu');
+        window.showToast(data.error || 'Bir hata oluştu', 'error');
       }
     } catch (err) {
       console.error('Thread create error:', err);
-      alert('Bir hata oluştu');
+      window.showToast('Bir hata oluştu, lütfen tekrar deneyin', 'error');
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;

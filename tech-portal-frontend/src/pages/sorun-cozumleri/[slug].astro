@@ -759,9 +759,9 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
           body: JSON.stringify({ content })
         });
         const data = await res.json();
-        if (data.success) { if (commentInput) commentInput.value = ''; if (charCount) charCount.textContent = '0'; loadComments(); }
-        else { alert(data.error || 'Yorum gönderilemedi'); }
-      } catch (err) { alert('Bağlantı hatası'); }
+        if (data.success) { if (commentInput) commentInput.value = ''; if (charCount) charCount.textContent = '0'; window.showToast('Yorumunuz gönderildi!', 'success'); loadComments(); }
+        else { window.showToast(data.error || 'Yorum gönderilemedi', 'error'); }
+      } catch (err) { window.showToast('Bağlantı hatası', 'error'); }
       finally { if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Gönder'; } }
     });
   }

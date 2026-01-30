@@ -109,13 +109,23 @@ const categories = [
 
           <div class="form-group">
             <label for="shopier_url">Shopier Ürün Linki *</label>
-            <input type="url" id="shopier_url" name="shopier_url" required
-                   placeholder="https://shopier.com/..." />
+            <div class="shopier-input-wrapper">
+              <input type="url" id="shopier_url" name="shopier_url" required
+                     placeholder="https://shopier.com/..." />
+              <button type="button" id="fetchShopierBtn" class="btn btn-secondary btn-fetch">
+                <span class="fetch-text">Bilgileri Çek</span>
+                <span class="fetch-loading" style="display: none;">
+                  <svg class="spinner-small" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="32" stroke-linecap="round"/></svg>
+                </span>
+              </button>
+            </div>
             <span class="form-hint">
-              Shopier'da ürününüzü oluşturup linkini buraya yapıştırın.
+              Shopier linki yapıştırıp "Bilgileri Çek" butonuna tıklayın. Ürün bilgileri otomatik doldurulacak.
               <a href="https://shopier.com" target="_blank" rel="noopener">Shopier'a Git →</a>
             </span>
           </div>
+
+          <div id="shopierFetchResult" class="fetch-result" style="display: none;"></div>
         </div>
 
         <div class="form-info">
@@ -186,7 +196,7 @@ const categories = [
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      alert('Dosya boyutu 5MB\'dan küçük olmalıdır');
+      window.showToast('Dosya boyutu 5MB\'dan küçük olmalıdır', 'warning');
       return;
     }
 
@@ -215,12 +225,13 @@ const categories = [
       if (res.ok) {
         const data = await res.json();
         imageUrlInput.value = data.url;
+        window.showToast('Görsel başarıyla yüklendi!', 'success');
       } else {
-        alert('Görsel yüklenirken hata oluştu');
+        window.showToast('Görsel yüklenirken hata oluştu', 'error');
       }
     } catch (err) {
       console.error('Upload error:', err);
-      alert('Görsel yüklenirken hata oluştu');
+      window.showToast('Görsel yüklenirken hata oluştu', 'error');
     }
   });
 
@@ -231,6 +242,103 @@ const categories = [
     previewImg.src = '';
     uploadPlaceholder.style.display = 'flex';
     imagePreview.style.display = 'none';
+  });
+
+  // Shopier'dan bilgi çekme
+  const fetchShopierBtn = document.getElementById('fetchShopierBtn');
+  const shopierUrlInput = document.getElementById('shopier_url');
+  const fetchResult = document.getElementById('shopierFetchResult');
+
+  fetchShopierBtn?.addEventListener('click', async () => {
+    const shopierUrl = shopierUrlInput.value.trim();
+
+    if (!shopierUrl) {
+      window.showToast('Lütfen önce Shopier linkini girin', 'warning');
+      return;
+    }
+
+    if (!shopierUrl.includes('shopier.com')) {
+      window.showToast('Geçerli bir Shopier linki girin', 'warning');
+      return;
+    }
+
+    const fetchText = fetchShopierBtn.querySelector('.fetch-text');
+    const fetchLoading = fetchShopierBtn.querySelector('.fetch-loading');
+
+    fetchShopierBtn.disabled = true;
+    fetchText.style.display = 'none';
+    fetchLoading.style.display = 'inline-flex';
+    fetchResult.style.display = 'none';
+
+    try {
+      const res = await fetch(`${API_URL}/api/scrape/shopier`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify({ url: shopierUrl })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        const product = data.product;
+
+        // Form alanlarını doldur
+        if (product.title) {
+          document.getElementById('title').value = product.title;
+        }
+        if (product.description) {
+          document.getElementById('description').value = product.description;
+        }
+        if (product.price) {
+          document.getElementById('price').value = product.price;
+        }
+
+        // Eğer görsel varsa ve henüz görsel yüklenmemişse
+        if (product.images && product.images.length > 0 && !imageUrlInput.value) {
+          // İlk görseli kullan
+          const imageUrl = product.images[0];
+          imageUrlInput.value = imageUrl;
+          previewImg.src = imageUrl;
+          uploadPlaceholder.style.display = 'none';
+          imagePreview.style.display = 'block';
+        }
+
+        fetchResult.innerHTML = `
+          <div class="fetch-success">
+            <span class="success-icon">✅</span>
+            <span>Ürün bilgileri başarıyla çekildi! Lütfen bilgileri kontrol edin.</span>
+          </div>
+        `;
+        fetchResult.style.display = 'block';
+
+      } else {
+        // Başarısız ama hata değil - bilgi mesajı göster
+        fetchResult.innerHTML = `
+          <div class="fetch-warning">
+            <span class="warning-icon">ℹ️</span>
+            <span>${data.message || 'Ürün bilgileri otomatik çekilemedi. Lütfen bilgileri manuel doldurun.'}</span>
+          </div>
+        `;
+        fetchResult.style.display = 'block';
+      }
+
+    } catch (err) {
+      console.error('Shopier fetch error:', err);
+      fetchResult.innerHTML = `
+        <div class="fetch-error">
+          <span class="error-icon">⚠️</span>
+          <span>Bağlantı hatası. Lütfen bilgileri manuel doldurun.</span>
+        </div>
+      `;
+      fetchResult.style.display = 'block';
+    } finally {
+      fetchShopierBtn.disabled = false;
+      fetchText.style.display = 'inline';
+      fetchLoading.style.display = 'none';
+    }
   });
 
   // Form gönderimi
@@ -269,13 +377,13 @@ const categories = [
       const result = await res.json();
 
       if (res.ok) {
-        alert('Ürününüz başarıyla eklendi! Yönetici onayından sonra mağazada görünecektir.');
-        window.location.href = '/urunlerim';
+        window.showToast('Ürününüz başarıyla eklendi! Yönetici onayından sonra mağazada görünecektir.', 'success');
+        setTimeout(() => { window.location.href = '/urunlerim'; }, 1500);
       } else {
-        alert('Hata: ' + (result.message || result.error));
+        window.showToast('Hata: ' + (result.message || result.error), 'error');
       }
     } catch (err) {
-      alert('Bir hata oluştu: ' + err.message);
+      window.showToast('Bir hata oluştu: ' + err.message, 'error');
     } finally {
       submitBtn.disabled = false;
       btnText.style.display = 'inline';
@@ -506,5 +614,90 @@ const categories = [
     display: flex;
     gap: 16px;
     justify-content: flex-end;
+  }
+
+  /* Shopier Input */
+  .shopier-input-wrapper {
+    display: flex;
+    gap: 12px;
+  }
+
+  .shopier-input-wrapper input {
+    flex: 1;
+  }
+
+  .btn-fetch {
+    white-space: nowrap;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .spinner-small {
+    width: 18px;
+    height: 18px;
+    animation: spin 1s linear infinite;
+  }
+
+  .fetch-loading {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Fetch Result */
+  .fetch-result {
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+  }
+
+  .fetch-success {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+  }
+
+  .fetch-error {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+
+  .fetch-warning {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(234, 179, 8, 0.1);
+    color: #eab308;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(234, 179, 8, 0.2);
+  }
+
+  .success-icon, .error-icon, .warning-icon {
+    font-size: 1.2rem;
+  }
+
+  @media (max-width: 600px) {
+    .shopier-input-wrapper {
+      flex-direction: column;
+    }
+
+    .btn-fetch {
+      width: 100%;
+      justify-content: center;
+    }
   }
 </style>

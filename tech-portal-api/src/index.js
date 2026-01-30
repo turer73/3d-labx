@@ -3311,6 +3311,147 @@ ${sourceText}`;
       // 🛒 MAĞAZA / ÜRÜN API
       // ================================
 
+      // Shopier'dan ürün bilgilerini çek
+      if (path === "/api/scrape/shopier" && method === "POST") {
+        const body = await request.json();
+        const shopierUrl = body.url;
+
+        if (!shopierUrl || !shopierUrl.includes("shopier.com")) {
+          return errorResponse("Geçerli bir Shopier linki girin", 400, "INVALID_URL");
+        }
+
+        try {
+          // Farklı User-Agent ve header kombinasyonları dene
+          const headers = {
+            "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "tr-TR,tr;q=0.9",
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache"
+          };
+
+          // Shopier URL'sini normalize et
+          let normalizedUrl = shopierUrl;
+          if (!normalizedUrl.startsWith("http")) {
+            normalizedUrl = "https://" + normalizedUrl;
+          }
+
+          const response = await fetch(normalizedUrl, {
+            headers,
+            redirect: "follow"
+          });
+
+          if (!response.ok) {
+            // 403 veya benzeri durumda alternatif bilgi dön
+            return jsonResponse({
+              success: false,
+              message: "Shopier sayfasına otomatik erişim kısıtlı. Lütfen bilgileri manuel girin.",
+              hint: "Shopier bot koruması nedeniyle otomatik çekme yapılamıyor."
+            });
+          }
+
+          const html = await response.text();
+
+          // Ürün bilgilerini parse et
+          let title = "";
+          let description = "";
+          let price = "";
+          let images = [];
+
+          // Title - og:title veya <title> tag'inden
+          const ogTitleMatch = html.match(/<meta\s+property=["']og:title["']\s+content=["']([^"']+)["']/i);
+          if (ogTitleMatch) {
+            title = ogTitleMatch[1].replace(/ - Shopier$/, "").replace(/ \| Shopier$/, "").trim();
+          } else {
+            const titleMatch = html.match(/<title>([^<]+)<\/title>/i);
+            if (titleMatch) {
+              title = titleMatch[1].replace(/ - Shopier$/, "").replace(/ \| Shopier$/, "").trim();
+            }
+          }
+
+          // Description - og:description veya meta description
+          const ogDescMatch = html.match(/<meta\s+property=["']og:description["']\s+content=["']([^"']+)["']/i);
+          if (ogDescMatch) {
+            description = ogDescMatch[1].trim();
+          } else {
+            const descMatch = html.match(/<meta\s+name=["']description["']\s+content=["']([^"']+)["']/i);
+            if (descMatch) {
+              description = descMatch[1].trim();
+            }
+          }
+
+          // Price - çeşitli formatlar
+          const pricePatterns = [
+            /"price":\s*"?(\d+(?:[.,]\d+)?)"?/i,
+            /product:price:amount["']\s+content=["'](\d+(?:[.,]\d+)?)["']/i,
+            /"priceCurrency".*?"price":\s*"?(\d+(?:[.,]\d+)?)"?/i,
+            /itemprop=["']price["']\s+content=["'](\d+(?:[.,]\d+)?)["']/i,
+            /class=["'][^"']*price[^"']*["'][^>]*>[\s₺TL]*(\d+(?:[.,]\d+)?)/i
+          ];
+
+          for (const pattern of pricePatterns) {
+            const match = html.match(pattern);
+            if (match) {
+              price = match[1].replace(",", ".");
+              break;
+            }
+          }
+
+          // Images - og:image
+          const ogImageMatch = html.match(/<meta\s+property=["']og:image["']\s+content=["']([^"']+)["']/i);
+          if (ogImageMatch) {
+            images.push(ogImageMatch[1]);
+          }
+
+          // Ek görseller - JSON-LD'den
+          const imagesMatch = html.match(/"image":\s*\[([^\]]+)\]/);
+          if (imagesMatch) {
+            const imageUrls = imagesMatch[1].match(/"(https?:[^"]+)"/g);
+            if (imageUrls) {
+              imageUrls.forEach(url => {
+                const cleanUrl = url.replace(/"/g, "");
+                if (!images.includes(cleanUrl)) {
+                  images.push(cleanUrl);
+                }
+              });
+            }
+          }
+
+          // Tek görsel varsa string olarak da çek
+          const singleImageMatch = html.match(/"image":\s*"(https?:[^"]+)"/);
+          if (singleImageMatch && !images.includes(singleImageMatch[1])) {
+            images.push(singleImageMatch[1]);
+          }
+
+          // Hiç bilgi bulunamadıysa
+          if (!title && !price && images.length === 0) {
+            return jsonResponse({
+              success: false,
+              message: "Ürün bilgileri bulunamadı. Lütfen manuel girin.",
+              hint: "Sayfa yapısı farklı olabilir veya ürün sayfası değil."
+            });
+          }
+
+          return jsonResponse({
+            success: true,
+            product: {
+              title: title || "",
+              description: description || "",
+              price: price || "",
+              images: images.slice(0, 5)
+            }
+          });
+
+        } catch (error) {
+          console.error("Shopier scrape error:", error);
+          return jsonResponse({
+            success: false,
+            message: "Ürün bilgileri alınamadı. Lütfen manuel girin.",
+            error: error.message
+          });
+        }
+      }
+
       // Tüm ürünleri listele (onaylı ve aktif olanlar)
       if (path === "/api/products" && method === "GET") {
         const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));

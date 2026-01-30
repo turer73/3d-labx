@@ -82,8 +82,9 @@ const currentPath = Astro.url.pathname;
 
       <!-- Auth Buttons (Guest) -->
       <div class="auth-buttons" id="authGuest">
-        <a href="/auth/giris" class="btn btn-outline btn-sm">Giriş Yap</a>
-        <a href="/auth/kayit" class="btn btn-primary btn-sm">Kayıt Ol</a>
+        <a href="/auth/giris" class="auth-link">Giriş</a>
+        <span class="auth-divider">|</span>
+        <a href="/auth/kayit" class="auth-link auth-register">Kayıt</a>
       </div>
 
       <!-- User Menu (Logged In) -->
@@ -577,9 +578,8 @@ const currentPath = Astro.url.pathname;
     font-size: 1.5rem;
     font-weight: 900;
     color: var(--text-main);
-    letter-spacing: -1px;
-    font-style: italic;
-    text-transform: uppercase;
+    letter-spacing: -0.5px;
+    white-space: nowrap;
   }
 
   .logo-x {
@@ -601,14 +601,15 @@ const currentPath = Astro.url.pathname;
 
   .desktop-nav a {
     padding: 10px 20px;
-    font-size: 0.75rem;
+    font-size: 0.9rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     color: var(--text-muted);
     text-decoration: none;
     border-radius: 12px;
     transition: all 0.3s ease;
+    white-space: nowrap;
   }
 
   .desktop-nav a:hover {
@@ -990,47 +991,41 @@ const currentPath = Astro.url.pathname;
     display: none;
   }
 
-  /* Auth Buttons */
+  /* Auth Buttons - Minimal Style */
   .auth-buttons {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 6px;
   }
 
-  .btn-sm {
-    padding: 8px 16px;
+  .auth-link {
     font-size: 0.85rem;
-  }
-
-  .btn-outline {
-    background: transparent;
-    border: 2px solid var(--border-soft);
-    color: var(--text-main);
-    border-radius: 10px;
     font-weight: 600;
+    color: var(--text-muted);
     text-decoration: none;
-    transition: all 0.3s ease;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
   }
 
-  .btn-outline:hover {
-    border-color: var(--accent);
+  .auth-link:hover {
+    color: var(--accent);
+    background: rgba(37, 99, 235, 0.08);
+  }
+
+  .auth-link.auth-register {
     color: var(--accent);
   }
 
-  .btn-primary.btn-sm {
-    padding: 10px 18px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.3s ease;
+  .auth-link.auth-register:hover {
+    color: var(--accent-hover);
+    background: rgba(37, 99, 235, 0.12);
   }
 
-  .btn-primary.btn-sm:hover {
-    background: var(--accent-hover);
-    transform: translateY(-1px);
+  .auth-divider {
+    color: var(--border-soft);
+    font-size: 0.8rem;
+    font-weight: 300;
   }
 
   /* User Menu */

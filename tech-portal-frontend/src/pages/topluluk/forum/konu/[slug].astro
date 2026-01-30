@@ -803,7 +803,7 @@ function timeAgo(dateStr: string) {
   
   // Auth token kontrolü
   function getAuthToken() {
-    return localStorage.getItem('auth_token');
+    return localStorage.getItem('authToken');
   }
 
   // Karakter sayacı
@@ -832,14 +832,13 @@ function timeAgo(dateStr: string) {
       
       const token = getAuthToken();
       if (!token) {
-        alert('Lütfen giriş yapın');
-        window.location.href = '/auth/giris';
+        window.showToast('Cevap yazmak için <a href="/auth/giris">giriş yapın</a>', 'info');
         return;
       }
 
       const content = textarea?.value?.trim();
       if (!content || content.length < 10) {
-        alert('Cevap en az 10 karakter olmalıdır');
+        window.showToast('Cevap en az 10 karakter olmalıdır', 'warning');
         return;
       }
 
@@ -862,14 +861,14 @@ function timeAgo(dateStr: string) {
         const data = await res.json();
 
         if (res.ok) {
-          // Sayfayı yenile
-          window.location.reload();
+          window.showToast('Cevabınız gönderildi!', 'success');
+          setTimeout(() => window.location.reload(), 1000);
         } else {
-          alert(data.error || 'Bir hata oluştu');
+          window.showToast(data.error || 'Bir hata oluştu', 'error');
         }
       } catch (err) {
         console.error('Reply error:', err);
-        alert('Bir hata oluştu');
+        window.showToast('Bir hata oluştu, lütfen tekrar deneyin', 'error');
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -884,7 +883,7 @@ function timeAgo(dateStr: string) {
     btn.addEventListener('click', async () => {
       const token = getAuthToken();
       if (!token) {
-        alert('Beğenmek için giriş yapın');
+        window.showToast('Beğenmek için <a href="/auth/giris">giriş yapın</a>', 'info');
         return;
       }
 
@@ -920,7 +919,7 @@ function timeAgo(dateStr: string) {
       });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert('Link kopyalandı!');
+      window.showToast('Link panoya kopyalandı!', 'success');
     }
   });
 </script>

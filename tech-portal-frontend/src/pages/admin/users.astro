@@ -381,6 +381,16 @@ import "../../styles/admin.css";
     border-color: #EF4444;
   }
 
+  .btn-icon.success {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.3);
+  }
+
+  .btn-icon.success:hover {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: #22C55E;
+  }
+
   .pagination {
     display: flex;
     justify-content: center;
@@ -698,6 +708,7 @@ import "../../styles/admin.css";
           <td>${user.last_login ? formatDate(user.last_login) : '-'}</td>
           <td>
             <div class="action-buttons">
+              ${!user.email_verified ? `<button class="btn-icon success" onclick="verifyUser(${user.id}, '${user.username}')" title="E-posta Onayla">✅</button>` : ''}
               <button class="btn-icon" onclick="editUser(${user.id})" title="Düzenle">✏️</button>
               <button class="btn-icon" onclick="openPasswordModal(${user.id})" title="Şifre Sıfırla">🔑</button>
               ${user.role !== 'admin' ? `<button class="btn-icon danger" onclick="deleteUser(${user.id}, '${user.username}')" title="Sil">🗑️</button>` : ''}
@@ -779,14 +790,16 @@ import "../../styles/admin.css";
 
     const userId = document.getElementById('editUserId').value;
     const data = {
-      display_name: document.getElementById('editDisplayName').value,
+      display_name: document.getElementById('editDisplayName').value || '',
       role: document.getElementById('editRole').value,
       is_active: document.getElementById('editStatus').value === '1',
       email_verified: document.getElementById('editVerified').checked,
-      bio: document.getElementById('editBio').value,
-      location: document.getElementById('editLocation').value,
-      website: document.getElementById('editWebsite').value
+      bio: document.getElementById('editBio').value || '',
+      location: document.getElementById('editLocation').value || '',
+      website: document.getElementById('editWebsite').value || ''
     };
+
+    console.log('Saving user:', userId, data);
 
     try {
       const res = await fetch(`${API_URL}/admin/users/${userId}`, {
@@ -798,17 +811,20 @@ import "../../styles/admin.css";
         body: JSON.stringify(data)
       });
 
+      console.log('Response status:', res.status);
       const result = await res.json();
+      console.log('Response body:', result);
 
       if (res.ok) {
         alert('Kullanıcı güncellendi');
         closeEditModal();
         loadUsers();
       } else {
-        alert('Hata: ' + (result.message || result.error));
+        alert('Hata: ' + (result.message || result.error || 'Bilinmeyen hata'));
       }
     } catch (error) {
-      alert('Hata: ' + error.message);
+      console.error('Save error:', error);
+      alert('Bağlantı hatası: ' + error.message);
     }
   }
 
@@ -857,6 +873,32 @@ import "../../styles/admin.css";
       if (res.ok) {
         alert('Şifre sıfırlandı');
         closePasswordModal();
+      } else {
+        alert('Hata: ' + (result.message || result.error));
+      }
+    } catch (error) {
+      alert('Hata: ' + error.message);
+    }
+  }
+
+  window.verifyUser = async function(userId, username) {
+    if (!confirm(`"${username}" kullanıcısının e-postasını manuel olarak doğrulamak istediğinize emin misiniz?`)) return;
+
+    try {
+      const res = await fetch(`${API_URL}/admin/users/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-ADMIN-SECRET': adminSecret
+        },
+        body: JSON.stringify({ email_verified: true })
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        alert('Kullanıcı e-postası doğrulandı');
+        loadUsers();
       } else {
         alert('Hata: ' + (result.message || result.error));
       }

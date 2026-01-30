@@ -568,7 +568,7 @@ Dikkat edilmesi gerekenler..."
   let uploadedImages = [];
 
   function getAuthToken() {
-    return localStorage.getItem('auth_token');
+    return localStorage.getItem('authToken');
   }
 
   // Login kontrolu
@@ -629,11 +629,11 @@ Dikkat edilmesi gerekenler..."
     for (const file of Array.from(files)) {
       if (!file.type.startsWith('image/')) continue;
       if (file.size > 5 * 1024 * 1024) {
-        alert(`${file.name} cok buyuk (max 5MB)`);
+        window.showToast(`${file.name} çok büyük (max 5MB)`, 'warning');
         continue;
       }
       if (uploadedImages.length >= 5) {
-        alert('En fazla 5 gorsel yukleyebilirsiniz');
+        window.showToast('En fazla 5 görsel yükleyebilirsiniz', 'warning');
         break;
       }
 
@@ -668,8 +668,7 @@ Dikkat edilmesi gerekenler..."
 
     const token = getAuthToken();
     if (!token) {
-      alert('Lutfen giris yapin');
-      window.location.href = '/auth/giris';
+      window.showToast('Lütfen <a href="/auth/giris">giriş yapın</a>', 'warning');
       return;
     }
 
@@ -682,12 +681,12 @@ Dikkat edilmesi gerekenler..."
     let content = (document.getElementById('content') as HTMLTextAreaElement)?.value?.trim();
 
     if (!title || title.length < 5) {
-      alert('Baslik en az 5 karakter olmalidir');
+      window.showToast('Başlık en az 5 karakter olmalıdır', 'warning');
       return;
     }
 
     if (!content || content.length < 20) {
-      alert('Icerik en az 20 karakter olmalidir');
+      window.showToast('İçerik en az 20 karakter olmalıdır', 'warning');
       return;
     }
 
@@ -763,13 +762,14 @@ Dikkat edilmesi gerekenler..."
       const data = await res.json();
 
       if (res.ok && data.slug) {
+        window.showToast('Projeniz başarıyla paylaşıldı!', 'success');
         window.location.href = `/topluluk/forum/konu/${data.slug}`;
       } else {
-        alert(data.error || 'Bir hata olustu');
+        window.showToast(data.error || 'Bir hata oluştu', 'error');
       }
     } catch (err) {
       console.error('Project create error:', err);
-      alert('Bir hata olustu');
+      window.showToast('Bir hata oluştu, lütfen tekrar deneyin', 'error');
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;
