@@ -22,6 +22,11 @@ C:\3dlabx\
 │   └── wrangler.json    # Cloudflare config
 ├── tech-portal-frontend/ # Astro SSR Frontend
 │   └── src/
+├── scripts/             # Deploy ve backup scriptleri
+│   ├── deploy-frontend.sh
+│   ├── deploy-api.sh
+│   ├── deploy-all.sh
+│   └── auto-backup.sh
 └── .claude-session.json  # Oturum durumu
 ```
 
@@ -49,3 +54,23 @@ Aşağıdaki komutlar onay olmadan çalıştırılabilir:
 - `git add`, `git commit`, `git push`
 - Dosya okuma/yazma/düzenleme
 - API testleri (curl/fetch)
+
+## Deploy Scriptleri
+
+Her deploy sonrası otomatik git backup yapılır:
+
+```bash
+# Sadece Frontend deploy
+./scripts/deploy-frontend.sh "Commit mesajı"
+
+# Sadece API deploy
+./scripts/deploy-api.sh "Commit mesajı"
+
+# Her ikisini birden deploy
+./scripts/deploy-all.sh "Commit mesajı"
+
+# Manuel backup
+./scripts/auto-backup.sh
+```
+
+**ÖNEMLİ:** Her değişiklik sonrası backup alınmalı!
