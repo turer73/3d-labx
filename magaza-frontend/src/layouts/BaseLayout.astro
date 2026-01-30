@@ -32,6 +32,32 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     const theme = localStorage.getItem('theme') ||
       (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     document.documentElement.setAttribute('data-theme', theme);
+
+    // URL'den token al ve localStorage'a kaydet (cross-domain auth)
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token');
+      const userBase64 = params.get('user');
+
+      if (token && userBase64) {
+        try {
+          const user = JSON.parse(atob(userBase64));
+          localStorage.setItem('authToken', token);
+          localStorage.setItem('authUser', JSON.stringify(user));
+
+          // URL'den token parametrelerini temizle
+          params.delete('token');
+          params.delete('user');
+          const cleanUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+          window.history.replaceState({}, '', cleanUrl);
+
+          // Sayfayı yenile (Header'ın giriş durumunu göstermesi için)
+          window.location.reload();
+        } catch (e) {
+          console.error('Auth token parse error:', e);
+        }
+      }
+    })();
   </script>
 </head>
 <body>

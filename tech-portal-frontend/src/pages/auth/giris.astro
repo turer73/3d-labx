@@ -99,8 +99,9 @@ const description = "3D-labX hesabınıza giriş yapın.";
     // Verify token
     fetch('https://tech-portal-api.turgut-d01.workers.dev/api/auth/me', {
       headers: { 'Authorization': `Bearer ${existingToken}` }
-    }).then(res => {
+    }).then(async res => {
       if (res.ok) {
+        const userData = await res.json();
         // Redirect parametresini kontrol et
         let redirect = new URLSearchParams(window.location.search).get('redirect') || '/';
         const trustedDomains = ['3d-labx.com', 'magaza.3d-labx.com', 'dergi.3d-labx.com'];
@@ -113,7 +114,16 @@ const description = "3D-labX hesabınıza giriş yapın.";
           );
         } catch {}
         if (!isRelativePath && !isTrustedDomain) redirect = '/';
-        window.location.href = redirect;
+
+        // Eğer farklı bir domaine yönlendiriliyorsa token'ı URL ile gönder
+        if (isTrustedDomain && redirect.startsWith('http')) {
+          const redirectUrl = new URL(redirect);
+          redirectUrl.searchParams.set('token', existingToken);
+          redirectUrl.searchParams.set('user', btoa(JSON.stringify(userData.user)));
+          window.location.href = redirectUrl.toString();
+        } else {
+          window.location.href = redirect;
+        }
       }
     });
   }
@@ -171,8 +181,16 @@ const description = "3D-labX hesabınıza giriş yapın.";
           redirect = '/';
         }
 
+        // Eğer farklı bir domaine yönlendiriliyorsa token'ı URL ile gönder
         setTimeout(() => {
-          window.location.href = redirect;
+          if (isTrustedDomain && redirect.startsWith('http')) {
+            const redirectUrl = new URL(redirect);
+            redirectUrl.searchParams.set('token', data.token);
+            redirectUrl.searchParams.set('user', btoa(JSON.stringify(data.user)));
+            window.location.href = redirectUrl.toString();
+          } else {
+            window.location.href = redirect;
+          }
         }, 1000);
       } else {
         message.className = 'form-message error';
