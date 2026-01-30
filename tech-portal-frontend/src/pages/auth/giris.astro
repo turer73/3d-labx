@@ -101,7 +101,19 @@ const description = "3D-labX hesabınıza giriş yapın.";
       headers: { 'Authorization': `Bearer ${existingToken}` }
     }).then(res => {
       if (res.ok) {
-        window.location.href = '/';
+        // Redirect parametresini kontrol et
+        let redirect = new URLSearchParams(window.location.search).get('redirect') || '/';
+        const trustedDomains = ['3d-labx.com', 'magaza.3d-labx.com', 'dergi.3d-labx.com'];
+        const isRelativePath = redirect.startsWith('/') && !redirect.startsWith('//');
+        let isTrustedDomain = false;
+        try {
+          const redirectUrl = new URL(redirect);
+          isTrustedDomain = trustedDomains.some(domain =>
+            redirectUrl.hostname === domain || redirectUrl.hostname.endsWith('.' + domain)
+          );
+        } catch {}
+        if (!isRelativePath && !isTrustedDomain) redirect = '/';
+        window.location.href = redirect;
       }
     });
   }
@@ -136,11 +148,29 @@ const description = "3D-labX hesabınıza giriş yapın.";
         message.className = 'form-message success';
         message.textContent = 'Giriş başarılı! Yönlendiriliyorsunuz...';
 
-        // Redirect (only allow relative paths to prevent open redirect)
+        // Redirect - allow relative paths and trusted domains
         let redirect = new URLSearchParams(window.location.search).get('redirect') || '/';
-        if (!redirect.startsWith('/') || redirect.startsWith('//')) {
+
+        // Güvenilir domainler (3d-labx.com alt domainleri)
+        const trustedDomains = ['3d-labx.com', 'magaza.3d-labx.com', 'dergi.3d-labx.com'];
+
+        // URL kontrolü
+        const isRelativePath = redirect.startsWith('/') && !redirect.startsWith('//');
+        let isTrustedDomain = false;
+
+        try {
+          const redirectUrl = new URL(redirect);
+          isTrustedDomain = trustedDomains.some(domain =>
+            redirectUrl.hostname === domain || redirectUrl.hostname.endsWith('.' + domain)
+          );
+        } catch {
+          // URL parse edilemezse, relative path değilse reddet
+        }
+
+        if (!isRelativePath && !isTrustedDomain) {
           redirect = '/';
         }
+
         setTimeout(() => {
           window.location.href = redirect;
         }, 1000);
