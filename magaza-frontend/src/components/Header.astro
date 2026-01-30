@@ -1,0 +1,319 @@
+---
+const currentPath = Astro.url.pathname;
+---
+
+<header class="header">
+  <div class="container">
+    <a href="/" class="logo">
+      <span class="logo-icon">🛒</span>
+      <span class="logo-text">3D-labX <span class="logo-accent">Mağaza</span></span>
+    </a>
+
+    <nav class="desktop-nav">
+      <a href="/" class={currentPath === "/" ? "active" : ""}>Ürünler</a>
+      <a href="/kategoriler" class={currentPath.startsWith("/kategoriler") ? "active" : ""}>Kategoriler</a>
+      <a href="/satici-ol" class={currentPath.startsWith("/satici-ol") ? "active" : ""}>Satıcı Ol</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Tema değiştir">
+        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5"></circle>
+          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+        </svg>
+        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+
+      <div class="user-area" id="userArea">
+        <a href="/giris" class="btn btn-outline btn-sm">Giriş Yap</a>
+      </div>
+
+      <a href="https://3d-labx.com" class="portal-link" target="_blank">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Portal
+      </a>
+    </div>
+
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menü">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu">
+  <nav class="mobile-nav">
+    <a href="/" class={currentPath === "/" ? "active" : ""}>Ürünler</a>
+    <a href="/kategoriler">Kategoriler</a>
+    <a href="/satici-ol">Satıcı Ol</a>
+    <a href="https://3d-labx.com" target="_blank">🌐 Ana Portal</a>
+  </nav>
+  <div class="mobile-user" id="mobileUserArea">
+    <a href="/giris" class="btn btn-primary">Giriş Yap</a>
+  </div>
+</div>
+
+<script>
+  // Mobile menu
+  const menuToggle = document.getElementById('mobileMenuToggle');
+  const mobileMenu = document.getElementById('mobileMenu');
+
+  menuToggle?.addEventListener('click', () => {
+    menuToggle.classList.toggle('active');
+    mobileMenu?.classList.toggle('active');
+  });
+
+  // Auth check
+  const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
+  const token = localStorage.getItem('authToken');
+  const userArea = document.getElementById('userArea');
+  const mobileUserArea = document.getElementById('mobileUserArea');
+
+  if (token) {
+    try {
+      const user = JSON.parse(localStorage.getItem('authUser') || '{}');
+      if (user.username) {
+        if (userArea) {
+          userArea.innerHTML = `
+            <a href="/urunlerim" class="user-link">
+              <span class="user-avatar">${user.username.charAt(0).toUpperCase()}</span>
+              ${user.username}
+            </a>
+          `;
+        }
+        if (mobileUserArea) {
+          mobileUserArea.innerHTML = `
+            <a href="/urunlerim" class="btn btn-primary">Ürünlerim</a>
+            <a href="/urun-ekle" class="btn btn-outline">+ Ürün Ekle</a>
+          `;
+        }
+      }
+    } catch {}
+  }
+</script>
+
+<style>
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: var(--bg-main);
+    border-bottom: 1px solid var(--border-soft);
+    backdrop-filter: blur(10px);
+  }
+
+  .header .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 70px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.3rem;
+    font-weight: 800;
+  }
+
+  .logo-icon {
+    font-size: 1.5rem;
+  }
+
+  .logo-accent {
+    color: var(--accent);
+  }
+
+  .desktop-nav {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .desktop-nav {
+      display: flex;
+      gap: 8px;
+    }
+  }
+
+  .desktop-nav a {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .desktop-nav a:hover {
+    background: var(--bg-soft);
+  }
+
+  .desktop-nav a.active {
+    background: var(--accent);
+    color: white;
+  }
+
+  .header-actions {
+    display: none;
+    align-items: center;
+    gap: 12px;
+  }
+
+  @media (min-width: 768px) {
+    .header-actions {
+      display: flex;
+    }
+  }
+
+  .theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    color: var(--text-main);
+  }
+
+  .theme-toggle:hover {
+    background: var(--bg-soft);
+  }
+
+  [data-theme="light"] .moon-icon,
+  [data-theme="dark"] .sun-icon {
+    display: none;
+  }
+
+  .user-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: var(--bg-soft);
+  }
+
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .portal-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+  }
+
+  .portal-link:hover {
+    color: var(--accent);
+    background: var(--bg-soft);
+  }
+
+  .btn-sm {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+
+  /* Mobile Menu Toggle */
+  .mobile-menu-toggle {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+  }
+
+  @media (min-width: 768px) {
+    .mobile-menu-toggle {
+      display: none;
+    }
+  }
+
+  .mobile-menu-toggle span {
+    width: 24px;
+    height: 2px;
+    background: var(--text-main);
+    transition: all 0.3s ease;
+  }
+
+  .mobile-menu-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+
+  .mobile-menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .mobile-menu-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+
+  /* Mobile Menu */
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-main);
+    z-index: 999;
+    padding: 20px;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .mobile-menu.active {
+    display: flex;
+  }
+
+  @media (min-width: 768px) {
+    .mobile-menu {
+      display: none !important;
+    }
+  }
+
+  .mobile-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mobile-nav a {
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-weight: 500;
+    transition: background 0.2s ease;
+  }
+
+  .mobile-nav a:hover,
+  .mobile-nav a.active {
+    background: var(--bg-soft);
+  }
+
+  .mobile-user {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-soft);
+  }
+</style>

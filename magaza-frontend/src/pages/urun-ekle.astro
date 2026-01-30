@@ -1,9 +1,10 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
-import Header from "../../components/Header.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
 
-const title = "Ürün Ekle - 3D Baskı Mağazası";
-const description = "3D baskı ürününüzü satışa sunun. Shopier üzerinden güvenli satış.";
+const title = "Ürün Ekle - 3D-labX Mağaza";
+const description = "3D baskı ürününüzü mağazamıza ekleyin.";
 
 const categories = [
   "Lamba",
@@ -23,21 +24,20 @@ const categories = [
   <main class="add-product-page">
     <div class="container">
       <div class="page-header">
-        <a href="/magaza" class="back-link">← Mağazaya Dön</a>
+        <a href="/" class="back-link">← Mağazaya Dön</a>
         <h1>Ürün Ekle</h1>
         <p>3D baskı ürününüzü satışa sunun</p>
       </div>
 
-      <!-- Giriş Yapılmamış Uyarısı -->
-      <div id="loginWarning" class="warning-box" style="display: none;">
+      <!-- Giriş Yapılmamış -->
+      <div id="loginWarning" class="warning-box">
         <div class="warning-icon">🔒</div>
         <h3>Giriş Yapmalısınız</h3>
-        <p>Ürün eklemek için giriş yapmanız gerekmektedir.</p>
-        <a href="/auth/giris" class="btn btn-primary">Giriş Yap</a>
-        <a href="/auth/kayit" class="btn btn-outline">Kayıt Ol</a>
+        <p>Ürün eklemek için 3D-labX hesabınızla giriş yapın.</p>
+        <a href="https://3d-labx.com/auth/giris" class="btn btn-primary" target="_blank">Giriş Yap</a>
       </div>
 
-      <!-- Ürün Ekleme Formu -->
+      <!-- Form -->
       <form id="productForm" class="product-form" style="display: none;">
         <div class="form-section">
           <h2>Ürün Bilgileri</h2>
@@ -133,6 +133,8 @@ const categories = [
       </form>
     </div>
   </main>
+
+  <Footer />
 </BaseLayout>
 
 <script>
@@ -156,6 +158,7 @@ const categories = [
       });
 
       if (res.ok) {
+        loginWarning.style.display = 'none';
         productForm.style.display = 'block';
       } else {
         localStorage.removeItem('authToken');
@@ -176,9 +179,9 @@ const categories = [
   const removeImageBtn = document.getElementById('removeImage');
   const imageUrlInput = document.getElementById('image_url');
 
-  imageUploadArea.addEventListener('click', () => imageInput.click());
+  imageUploadArea?.addEventListener('click', () => imageInput?.click());
 
-  imageInput.addEventListener('change', async (e) => {
+  imageInput?.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -221,7 +224,7 @@ const categories = [
     }
   });
 
-  removeImageBtn.addEventListener('click', (e) => {
+  removeImageBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
     imageInput.value = '';
     imageUrlInput.value = '';
@@ -231,7 +234,7 @@ const categories = [
   });
 
   // Form gönderimi
-  document.getElementById('productForm').addEventListener('submit', async (e) => {
+  document.getElementById('productForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const submitBtn = document.getElementById('submitBtn');
@@ -267,7 +270,7 @@ const categories = [
 
       if (res.ok) {
         alert('Ürününüz başarıyla eklendi! Yönetici onayından sonra mağazada görünecektir.');
-        window.location.href = '/magaza/urunlerim';
+        window.location.href = '/urunlerim';
       } else {
         alert('Hata: ' + (result.message || result.error));
       }
@@ -283,7 +286,7 @@ const categories = [
 
 <style>
   .add-product-page {
-    padding: 120px 0 60px;
+    padding: 100px 0 60px;
     min-height: 100vh;
   }
 
@@ -295,7 +298,6 @@ const categories = [
   .back-link {
     display: inline-block;
     color: var(--text-muted);
-    text-decoration: none;
     margin-bottom: 16px;
     font-size: 0.9rem;
   }
@@ -317,6 +319,7 @@ const categories = [
 
   /* Warning Box */
   .warning-box {
+    display: none;
     max-width: 500px;
     margin: 0 auto;
     text-align: center;
@@ -339,10 +342,6 @@ const categories = [
   .warning-box p {
     color: var(--text-muted);
     margin-bottom: 24px;
-  }
-
-  .warning-box .btn {
-    margin: 0 8px;
   }
 
   /* Form */
@@ -395,7 +394,7 @@ const categories = [
   .form-group select:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
   }
 
   .form-hint {
@@ -487,7 +486,7 @@ const categories = [
     display: flex;
     gap: 12px;
     padding: 16px 20px;
-    background: rgba(37, 99, 235, 0.1);
+    background: rgba(34, 197, 94, 0.1);
     border-radius: 12px;
     margin-bottom: 24px;
   }
@@ -507,44 +506,5 @@ const categories = [
     display: flex;
     gap: 16px;
     justify-content: flex-end;
-  }
-
-  .btn {
-    padding: 14px 28px;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-block;
-    text-align: center;
-  }
-
-  .btn-primary {
-    background: var(--accent);
-    color: white;
-    border: none;
-  }
-
-  .btn-primary:hover {
-    background: var(--accent-hover);
-    transform: translateY(-2px);
-  }
-
-  .btn-primary:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .btn-outline {
-    background: transparent;
-    border: 2px solid var(--border-soft);
-    color: var(--text-main);
-  }
-
-  .btn-outline:hover {
-    border-color: var(--accent);
-    color: var(--accent);
   }
 </style>

@@ -1,8 +1,9 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
-import Header from "../../components/Header.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
 
-const title = "Ürünlerim - 3D Baskı Mağazası";
+const title = "Ürünlerim - 3D-labX Mağaza";
 const description = "Satışa sunduğunuz 3D baskı ürünlerinizi yönetin.";
 ---
 
@@ -13,19 +14,19 @@ const description = "Satışa sunduğunuz 3D baskı ürünlerinizi yönetin.";
     <div class="container">
       <div class="page-header">
         <div class="header-left">
-          <a href="/magaza" class="back-link">← Mağazaya Dön</a>
+          <a href="/" class="back-link">← Mağazaya Dön</a>
           <h1>Ürünlerim</h1>
           <p>Satışa sunduğunuz ürünleri yönetin</p>
         </div>
-        <a href="/magaza/urun-ekle" class="btn btn-primary">+ Yeni Ürün Ekle</a>
+        <a href="/urun-ekle" class="btn btn-primary">+ Yeni Ürün Ekle</a>
       </div>
 
-      <!-- Giriş Yapılmamış Uyarısı -->
+      <!-- Giriş Yapılmamış -->
       <div id="loginWarning" class="warning-box" style="display: none;">
         <div class="warning-icon">🔒</div>
         <h3>Giriş Yapmalısınız</h3>
         <p>Ürünlerinizi görmek için giriş yapmanız gerekmektedir.</p>
-        <a href="/auth/giris" class="btn btn-primary">Giriş Yap</a>
+        <a href="https://3d-labx.com/auth/giris" class="btn btn-primary" target="_blank">Giriş Yap</a>
       </div>
 
       <!-- Loading -->
@@ -39,13 +40,15 @@ const description = "Satışa sunduğunuz 3D baskı ürünlerinizi yönetin.";
         <div class="empty-icon">📦</div>
         <h3>Henüz ürün eklememişsiniz</h3>
         <p>İlk ürününüzü ekleyerek satışa başlayın!</p>
-        <a href="/magaza/urun-ekle" class="btn btn-primary">İlk Ürünü Ekle</a>
+        <a href="/urun-ekle" class="btn btn-primary">İlk Ürünü Ekle</a>
       </div>
 
       <!-- Ürün Listesi -->
       <div id="productsContainer" class="products-list" style="display: none;"></div>
     </div>
   </main>
+
+  <Footer />
 </BaseLayout>
 
 <script>
@@ -151,7 +154,7 @@ const description = "Satışa sunduğunuz 3D baskı ürünlerinizi yönetin.";
 
 <style>
   .my-products-page {
-    padding: 120px 0 60px;
+    padding: 100px 0 60px;
     min-height: 100vh;
   }
 
@@ -167,7 +170,6 @@ const description = "Satışa sunduğunuz 3D baskı ürünlerinizi yönetin.";
   .back-link {
     display: block;
     color: var(--text-muted);
-    text-decoration: none;
     margin-bottom: 8px;
     font-size: 0.9rem;
   }
@@ -328,37 +330,16 @@ const description = "Satışa sunduğunuz 3D baskı ürünlerinizi yönetin.";
     gap: 8px;
   }
 
-  .btn {
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    text-align: center;
-    border: none;
-    transition: all 0.2s ease;
-    font-size: 0.85rem;
-  }
-
   .btn-sm {
     padding: 8px 14px;
     font-size: 0.8rem;
   }
 
-  .btn-primary {
-    background: var(--accent);
-    color: white;
-  }
-
-  .btn-outline {
-    background: transparent;
-    border: 2px solid var(--border-soft);
-    color: var(--text-main);
-  }
-
   .btn-ghost {
     background: transparent;
     color: var(--text-muted);
+    border: none;
+    cursor: pointer;
   }
 
   .btn-ghost:hover {

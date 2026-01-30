@@ -1,0 +1,311 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+
+const title = "Satıcı Ol - 3D-labX Mağaza";
+const description = "3D baskı ürünlerinizi satışa sunun. Shopier entegrasyonu ile güvenli ödeme ve kolay satış.";
+---
+
+<BaseLayout title={title} description={description}>
+  <Header />
+
+  <main class="seller-page">
+    <div class="container">
+      <section class="hero">
+        <h1>3D Baskı Ürünlerinizi Satın</h1>
+        <p>Toplulukla buluşun, Shopier ile güvenle satış yapın</p>
+      </section>
+
+      <section class="features">
+        <div class="feature">
+          <span class="feature-icon">🎨</span>
+          <h3>Ücretsiz Sergileme</h3>
+          <p>Ürünlerinizi mağazamızda ücretsiz sergileyin, binlerce 3D baskı meraklısına ulaşın.</p>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">🛡️</span>
+          <h3>Shopier Güvencesi</h3>
+          <p>Tüm ödemeler Shopier altyapısı ile güvenle gerçekleşir. Komisyonlar Shopier'a aittir.</p>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">📦</span>
+          <h3>Kolay Yönetim</h3>
+          <p>Ürün ekle, düzenle, stok takibi yap. Her şey elinizin altında.</p>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">👥</span>
+          <h3>Topluluk Desteği</h3>
+          <p>3D-labX topluluğunun bir parçası olun, deneyimlerinizi paylaşın.</p>
+        </div>
+      </section>
+
+      <section class="how-it-works">
+        <h2>Nasıl Çalışır?</h2>
+        <div class="steps">
+          <div class="step">
+            <span class="step-number">1</span>
+            <h4>3D-labX'e Üye Olun</h4>
+            <p>Ana portaldan ücretsiz hesap oluşturun</p>
+          </div>
+          <div class="step">
+            <span class="step-number">2</span>
+            <h4>Shopier'da Ürün Oluşturun</h4>
+            <p>Shopier hesabınızda ürününüzü listeleyin</p>
+          </div>
+          <div class="step">
+            <span class="step-number">3</span>
+            <h4>Mağazamıza Ekleyin</h4>
+            <p>Shopier linkini paylaşın, onaydan sonra yayına alınsın</p>
+          </div>
+          <div class="step">
+            <span class="step-number">4</span>
+            <h4>Satışa Başlayın</h4>
+            <p>Siparişler Shopier üzerinden size iletilir</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta-box">
+        <div id="notLoggedIn">
+          <h3>Hemen Başlayın!</h3>
+          <p>Satıcı olmak için önce 3D-labX'e giriş yapın.</p>
+          <div class="cta-actions">
+            <a href="https://3d-labx.com/auth/giris" class="btn btn-primary" target="_blank">Giriş Yap</a>
+            <a href="https://3d-labx.com/auth/kayit" class="btn btn-outline" target="_blank">Kayıt Ol</a>
+          </div>
+        </div>
+        <div id="loggedIn" style="display: none;">
+          <h3>Hazırsınız! 🎉</h3>
+          <p>İlk ürününüzü hemen ekleyin.</p>
+          <a href="/urun-ekle" class="btn btn-primary">+ Ürün Ekle</a>
+        </div>
+      </section>
+
+      <section class="faq">
+        <h2>Sıkça Sorulan Sorular</h2>
+        <div class="faq-list">
+          <details>
+            <summary>Satış yapmak ücretli mi?</summary>
+            <p>Hayır, mağazamızda ürün sergilemek tamamen ücretsizdir. Shopier'ın kendi komisyon oranları geçerlidir.</p>
+          </details>
+          <details>
+            <summary>Ürün onayı ne kadar sürer?</summary>
+            <p>Ürünler genellikle 24 saat içinde incelenir ve onaylanır.</p>
+          </details>
+          <details>
+            <summary>Hangi ürünleri satabilirim?</summary>
+            <p>3D baskı ile üretilmiş tüm ürünleri satabilirsiniz: lambalar, figürler, dekoratif objeler, fonksiyonel parçalar vb.</p>
+          </details>
+          <details>
+            <summary>Ödeme nasıl alırım?</summary>
+            <p>Tüm ödemeler Shopier üzerinden yapılır. Shopier hesabınıza yatırılan tutarı banka hesabınıza çekebilirsiniz.</p>
+          </details>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<script>
+  const token = localStorage.getItem('authToken');
+  const notLoggedIn = document.getElementById('notLoggedIn');
+  const loggedIn = document.getElementById('loggedIn');
+
+  if (token) {
+    notLoggedIn.style.display = 'none';
+    loggedIn.style.display = 'block';
+  }
+</script>
+
+<style>
+  .seller-page {
+    padding-top: 70px;
+  }
+
+  .hero {
+    text-align: center;
+    padding: 60px 0 40px;
+  }
+
+  .hero h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+
+  .hero p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+  }
+
+  /* Features */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+    margin: 40px 0;
+  }
+
+  .feature {
+    background: var(--bg-card);
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid var(--border-soft);
+    text-align: center;
+  }
+
+  .feature-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 16px;
+  }
+
+  .feature h3 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+  }
+
+  .feature p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* How it works */
+  .how-it-works {
+    margin: 60px 0;
+  }
+
+  .how-it-works h2 {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 40px;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+  }
+
+  .step {
+    text-align: center;
+    position: relative;
+  }
+
+  .step-number {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 auto 16px;
+  }
+
+  .step h4 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+
+  .step p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* CTA Box */
+  .cta-box {
+    background: linear-gradient(135deg, var(--accent), #10B981);
+    padding: 50px;
+    border-radius: 24px;
+    text-align: center;
+    margin: 40px 0;
+  }
+
+  .cta-box h3 {
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+  }
+
+  .cta-box p {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 24px;
+  }
+
+  .cta-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .cta-box .btn-primary {
+    background: white;
+    color: var(--accent);
+  }
+
+  .cta-box .btn-outline {
+    border-color: white;
+    color: white;
+  }
+
+  /* FAQ */
+  .faq {
+    margin: 60px 0;
+  }
+
+  .faq h2 {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 40px;
+  }
+
+  .faq-list {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  details {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  summary {
+    padding: 16px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary::after {
+    content: '+';
+    float: right;
+    font-size: 1.2rem;
+    transition: transform 0.2s;
+  }
+
+  details[open] summary::after {
+    transform: rotate(45deg);
+  }
+
+  details p {
+    padding: 0 20px 16px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+</style>

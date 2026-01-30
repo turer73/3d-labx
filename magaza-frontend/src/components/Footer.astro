@@ -1,0 +1,127 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="/" class="footer-logo">
+          <span class="logo-icon">🛒</span>
+          <span>3D-labX Mağaza</span>
+        </a>
+        <p>Türkiye'nin 3D baskı ürünleri pazaryeri. Topluluk üyeleri tarafından üretilen benzersiz ürünleri keşfedin.</p>
+      </div>
+
+      <div class="footer-links">
+        <h4>Kategoriler</h4>
+        <ul>
+          <li><a href="/?category=Lamba">Lambalar</a></li>
+          <li><a href="/?category=Dekoratif">Dekoratif</a></li>
+          <li><a href="/?category=Figür">Figürler</a></li>
+          <li><a href="/?category=Fonksiyonel">Fonksiyonel</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-links">
+        <h4>Satıcılar İçin</h4>
+        <ul>
+          <li><a href="/satici-ol">Satıcı Ol</a></li>
+          <li><a href="/urun-ekle">Ürün Ekle</a></li>
+          <li><a href="/urunlerim">Ürünlerim</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-links">
+        <h4>Bağlantılar</h4>
+        <ul>
+          <li><a href="https://3d-labx.com" target="_blank">Ana Portal</a></li>
+          <li><a href="https://3d-labx.com/topluluk" target="_blank">Topluluk</a></li>
+          <li><a href="https://3d-labx.com/iletisim" target="_blank">İletişim</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; {year} 3D-labX Mağaza. Tüm hakları saklıdır.</p>
+      <p class="footer-note">Satışlar Shopier üzerinden güvenle gerçekleştirilir.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--bg-card);
+    border-top: 1px solid var(--border-soft);
+    padding: 60px 0 30px;
+    margin-top: 80px;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  @media (min-width: 768px) {
+    .footer-grid {
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+    }
+  }
+
+  .footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  .footer-brand p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  .footer-links h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text-main);
+  }
+
+  .footer-links ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .footer-links a {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+  }
+
+  .footer-links a:hover {
+    color: var(--accent);
+  }
+
+  .footer-bottom {
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-soft);
+    text-align: center;
+  }
+
+  .footer-bottom p {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  .footer-note {
+    margin-top: 8px;
+    font-size: 0.8rem !important;
+  }
+</style>
