@@ -17,7 +17,7 @@ try {
   const [catRes, threadsRes, projectsRes] = await Promise.all([
     fetch(`${API_BASE}/api/forum/categories`),
     fetch(`${API_BASE}/api/forum/categories/sorular/threads?limit=5`),
-    fetch(`${API_BASE}/api/projects?limit=6&sort=popular`)
+    fetch(`${API_BASE}/api/forum/categories/projeler/threads?limit=6&sort=popular`)
   ]);
 
   if (catRes.ok) {
@@ -32,11 +32,18 @@ try {
 
   if (projectsRes.ok) {
     const projectsData = await projectsRes.json();
-    featuredProjects = projectsData.projects || [];
+    featuredProjects = projectsData.threads || [];
   }
 } catch (e) {
   error = e instanceof Error ? e.message : "Bilinmeyen hata";
 }
+
+// Proje sayısını kategoriden al
+const projectCategory = categories.find((c: any) => c.slug === 'projeler');
+const projectCount = projectCategory?.thread_count || 0;
+
+// Toplam konu sayısı
+const totalThreadCount = categories.reduce((sum: number, c: any) => sum + (c.thread_count || 0), 0);
 ---
 
 <BaseLayout 
@@ -70,17 +77,17 @@ try {
         <div class="hero-stats">
           <div class="stat-item">
             <span class="stat-icon">💬</span>
-            <span class="stat-value" id="threadCount">-</span>
+            <span class="stat-value">{totalThreadCount}</span>
             <span class="stat-label">Konu</span>
           </div>
           <div class="stat-item">
             <span class="stat-icon">🎨</span>
-            <span class="stat-value" id="projectCount">-</span>
+            <span class="stat-value">{projectCount}</span>
             <span class="stat-label">Proje</span>
           </div>
           <div class="stat-item">
             <span class="stat-icon">👥</span>
-            <span class="stat-value" id="userCount">-</span>
+            <span class="stat-value">50+</span>
             <span class="stat-label">Üye</span>
           </div>
         </div>
@@ -160,34 +167,26 @@ try {
             <a href="/topluluk/projeler" class="view-all">Tümünü Gör →</a>
           </div>
           <div class="projects-grid">
-            {featuredProjects.length > 0 ? featuredProjects.map((project) => {
-              const images = JSON.parse(project.images || '[]');
-              const firstImage = images[0];
-              return (
-                <a href={`/topluluk/projeler/${project.slug}`} class="project-card">
-                  <div class="project-image">
-                    {firstImage ? (
-                      <img src={firstImage} alt={project.title} loading="lazy" />
-                    ) : (
-                      <div class="no-image">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-                      </div>
-                    )}
-                    {project.is_featured === 1 && <span class="featured-badge">⭐ Öne Çıkan</span>}
+            {featuredProjects.length > 0 ? featuredProjects.map((project) => (
+              <a href={`/topluluk/forum/konu/${project.slug}`} class="project-card">
+                <div class="project-image">
+                  <div class="no-image gradient-bg">
+                    <span class="project-emoji">🏆</span>
                   </div>
-                  <div class="project-info">
-                    <h4>{project.title}</h4>
-                    <div class="project-meta">
-                      <span>@{project.username}</span>
-                      <span>❤️ {project.like_count}</span>
-                    </div>
+                  {project.is_pinned === 1 && <span class="featured-badge">📌 Sabitlenmiş</span>}
+                </div>
+                <div class="project-info">
+                  <h4>{project.title}</h4>
+                  <div class="project-meta">
+                    <span>@{project.username}</span>
+                    <span>👁️ {project.view_count || 0}</span>
                   </div>
-                </a>
-              );
-            }) : (
+                </div>
+              </a>
+            )) : (
               <div class="empty-state full-width">
                 <p>Henüz proje paylaşılmamış. İlk projeyi sen paylaş!</p>
-                <a href="/topluluk/projeler/yeni" class="btn btn-sm">Proje Paylaş</a>
+                <a href="/topluluk/forum/proje-paylas" class="btn btn-sm">Proje Paylaş</a>
               </div>
             )}
           </div>
@@ -205,7 +204,7 @@ try {
             <div class="action-icon">🎨</div>
             <h3>Proje Paylaş</h3>
             <p>Baskı projelerinizi toplulukla paylaşın</p>
-            <a href="/topluluk/projeler/yeni" class="btn btn-action">Proje Paylaş</a>
+            <a href="/topluluk/forum/proje-paylas" class="btn btn-action">Proje Paylaş</a>
           </div>
           <div class="action-card join-discussion">
             <div class="action-icon">💬</div>
@@ -567,6 +566,25 @@ try {
     color: var(--text-light);
   }
 
+  .no-image.gradient-bg {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    position: relative;
+  }
+
+  .no-image.gradient-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(236, 72, 153, 0.2) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.2) 0%, transparent 50%);
+  }
+
+  .project-emoji {
+    font-size: 2.5rem;
+    z-index: 1;
+  }
+
   .featured-badge {
     position: absolute;
     top: 10px;
@@ -770,39 +788,3 @@ try {
   }
 </style>
 
-<script>
-  const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
-
-  // İstatistikleri yükle
-  async function loadStats() {
-    try {
-      // Basit bir stats endpoint'i olmadığı için kategorilerden hesapla
-      const catRes = await fetch(`${API_URL}/api/forum/categories`);
-      if (catRes.ok) {
-        const data = await catRes.json();
-        const categories = data.categories || [];
-        
-        const totalThreads = categories.reduce((sum: number, c: any) => sum + (c.thread_count || 0), 0);
-        const totalPosts = categories.reduce((sum: number, c: any) => sum + (c.post_count || 0), 0);
-        
-        const threadEl = document.getElementById('threadCount');
-        if (threadEl) threadEl.textContent = totalThreads.toString();
-      }
-
-      const projectRes = await fetch(`${API_URL}/api/projects?limit=1`);
-      if (projectRes.ok) {
-        const data = await projectRes.json();
-        const projectEl = document.getElementById('projectCount');
-        if (projectEl) projectEl.textContent = (data.pagination?.total || 0).toString();
-      }
-
-      // User count için basit bir değer
-      const userEl = document.getElementById('userCount');
-      if (userEl) userEl.textContent = '50+';
-    } catch (err) {
-      console.error('Stats load error:', err);
-    }
-  }
-
-  loadStats();
-</script>
