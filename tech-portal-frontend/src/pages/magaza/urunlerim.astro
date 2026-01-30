@@ -1,0 +1,382 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+
+const title = "Ürünlerim - 3D Baskı Mağazası";
+const description = "Satışa sunduğunuz 3D baskı ürünlerinizi yönetin.";
+---
+
+<BaseLayout title={title} description={description} noIndex={true}>
+  <Header />
+
+  <main class="my-products-page">
+    <div class="container">
+      <div class="page-header">
+        <div class="header-left">
+          <a href="/magaza" class="back-link">← Mağazaya Dön</a>
+          <h1>Ürünlerim</h1>
+          <p>Satışa sunduğunuz ürünleri yönetin</p>
+        </div>
+        <a href="/magaza/urun-ekle" class="btn btn-primary">+ Yeni Ürün Ekle</a>
+      </div>
+
+      <!-- Giriş Yapılmamış Uyarısı -->
+      <div id="loginWarning" class="warning-box" style="display: none;">
+        <div class="warning-icon">🔒</div>
+        <h3>Giriş Yapmalısınız</h3>
+        <p>Ürünlerinizi görmek için giriş yapmanız gerekmektedir.</p>
+        <a href="/auth/giris" class="btn btn-primary">Giriş Yap</a>
+      </div>
+
+      <!-- Loading -->
+      <div id="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Ürünler yükleniyor...</p>
+      </div>
+
+      <!-- Boş Durum -->
+      <div id="emptyState" class="empty-state" style="display: none;">
+        <div class="empty-icon">📦</div>
+        <h3>Henüz ürün eklememişsiniz</h3>
+        <p>İlk ürününüzü ekleyerek satışa başlayın!</p>
+        <a href="/magaza/urun-ekle" class="btn btn-primary">İlk Ürünü Ekle</a>
+      </div>
+
+      <!-- Ürün Listesi -->
+      <div id="productsContainer" class="products-list" style="display: none;"></div>
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('authToken');
+    const loginWarning = document.getElementById('loginWarning');
+    const loading = document.getElementById('loading');
+    const emptyState = document.getElementById('emptyState');
+    const productsContainer = document.getElementById('productsContainer');
+
+    if (!token) {
+      loading.style.display = 'none';
+      loginWarning.style.display = 'block';
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/api/products/my`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      loading.style.display = 'none';
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('authUser');
+          loginWarning.style.display = 'block';
+          return;
+        }
+        throw new Error('Ürünler yüklenemedi');
+      }
+
+      const data = await res.json();
+      const products = data.products || [];
+
+      if (products.length === 0) {
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      productsContainer.innerHTML = products.map(product => `
+        <div class="product-item ${product.is_approved ? '' : 'pending'}">
+          <div class="product-image">
+            ${product.image_url
+              ? `<img src="${product.image_url}" alt="${product.title}" />`
+              : `<div class="no-image">📦</div>`
+            }
+          </div>
+          <div class="product-info">
+            <div class="product-header">
+              <h3>${product.title}</h3>
+              <span class="status-badge ${product.is_approved ? 'approved' : 'pending'}">
+                ${product.is_approved ? '✓ Onaylandı' : '⏳ Onay Bekliyor'}
+              </span>
+            </div>
+            <p class="product-desc">${product.description || 'Açıklama yok'}</p>
+            <div class="product-meta">
+              <span class="price">${product.price.toLocaleString('tr-TR')} TL</span>
+              <span class="category">${product.category}</span>
+              <span class="stock">Stok: ${product.stock}</span>
+              <span class="views">👁 ${product.view_count || 0}</span>
+            </div>
+          </div>
+          <div class="product-actions">
+            <a href="${product.shopier_url}" target="_blank" class="btn btn-sm btn-outline">Shopier'da Gör</a>
+            <button class="btn btn-sm btn-ghost" onclick="deleteProduct(${product.id})">🗑️ Sil</button>
+          </div>
+        </div>
+      `).join('');
+
+      productsContainer.style.display = 'block';
+
+    } catch (err) {
+      loading.style.display = 'none';
+      alert('Hata: ' + err.message);
+    }
+  });
+
+  window.deleteProduct = async function(productId) {
+    if (!confirm('Bu ürünü silmek istediğinizden emin misiniz?')) return;
+
+    try {
+      const res = await fetch(`${API_URL}/api/products/${productId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+      });
+
+      if (res.ok) {
+        alert('Ürün silindi');
+        location.reload();
+      } else {
+        const data = await res.json();
+        alert('Hata: ' + (data.message || data.error));
+      }
+    } catch (err) {
+      alert('Hata: ' + err.message);
+    }
+  };
+</script>
+
+<style>
+  .my-products-page {
+    padding: 120px 0 60px;
+    min-height: 100vh;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .back-link {
+    display: block;
+    color: var(--text-muted);
+    text-decoration: none;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+  }
+
+  .back-link:hover {
+    color: var(--accent);
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  .page-header p {
+    color: var(--text-muted);
+  }
+
+  /* States */
+  .warning-box, .loading-state, .empty-state {
+    max-width: 500px;
+    margin: 60px auto;
+    text-align: center;
+    padding: 40px;
+    background: var(--bg-card);
+    border-radius: 20px;
+    border: 1px solid var(--border-soft);
+  }
+
+  .warning-icon, .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-soft);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Products List */
+  .products-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .product-item {
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+    gap: 20px;
+    padding: 20px;
+    background: var(--bg-card);
+    border-radius: 16px;
+    border: 1px solid var(--border-soft);
+    align-items: center;
+  }
+
+  .product-item.pending {
+    border-color: #F59E0B;
+    background: rgba(245, 158, 11, 0.05);
+  }
+
+  .product-image {
+    width: 120px;
+    height: 90px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-soft);
+  }
+
+  .product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .no-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+  }
+
+  .product-info {
+    min-width: 0;
+  }
+
+  .product-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  .product-header h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .status-badge.approved {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22C55E;
+  }
+
+  .status-badge.pending {
+    background: rgba(245, 158, 11, 0.15);
+    color: #F59E0B;
+  }
+
+  .product-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .product-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+  }
+
+  .product-meta .price {
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .product-meta .category {
+    color: var(--text-muted);
+  }
+
+  .product-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    border: none;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+  }
+
+  .btn-sm {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--border-soft);
+    color: var(--text-main);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+  }
+
+  .btn-ghost:hover {
+    color: #EF4444;
+  }
+
+  @media (max-width: 768px) {
+    .product-item {
+      grid-template-columns: 1fr;
+    }
+
+    .product-image {
+      width: 100%;
+      height: 150px;
+    }
+
+    .product-actions {
+      flex-direction: row;
+    }
+  }
+</style>

@@ -3308,6 +3308,249 @@ ${sourceText}`;
       }
 
       // ================================
+      // 🛒 MAĞAZA / ÜRÜN API
+      // ================================
+
+      // Tüm ürünleri listele (onaylı ve aktif olanlar)
+      if (path === "/api/products" && method === "GET") {
+        const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
+        const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get("limit") || "12", 10)));
+        const offset = (page - 1) * limit;
+        const category = url.searchParams.get("category") || "";
+        const userId = url.searchParams.get("user_id") || "";
+
+        let whereClause = "WHERE p.is_active = 1 AND p.is_approved = 1";
+        const params = [];
+
+        if (category) {
+          whereClause += " AND p.category = ?";
+          params.push(category);
+        }
+        if (userId) {
+          whereClause += " AND p.user_id = ?";
+          params.push(parseInt(userId, 10));
+        }
+
+        const countResult = await env.DB.prepare(`SELECT COUNT(*) as total FROM products p ${whereClause}`).bind(...params).first();
+        const total = countResult?.total || 0;
+
+        params.push(limit, offset);
+        const products = await env.DB.prepare(`
+          SELECT p.*, u.username, u.display_name, u.avatar_url
+          FROM products p
+          LEFT JOIN users u ON p.user_id = u.id
+          ${whereClause}
+          ORDER BY p.created_at DESC
+          LIMIT ? OFFSET ?
+        `).bind(...params).all();
+
+        return jsonResponse({
+          products: products.results || [],
+          pagination: {
+            page, limit, total,
+            totalPages: Math.ceil(total / limit),
+            hasNext: page * limit < total,
+            hasPrev: page > 1
+          }
+        }, 200, 60);
+      }
+
+      // Tek ürün detay
+      if (path.match(/^\/api\/products\/(\d+)$/) && method === "GET") {
+        const productId = parseInt(path.split("/").pop(), 10);
+
+        const product = await env.DB.prepare(`
+          SELECT p.*, u.username, u.display_name, u.avatar_url
+          FROM products p
+          LEFT JOIN users u ON p.user_id = u.id
+          WHERE p.id = ? AND p.is_active = 1
+        `).bind(productId).first();
+
+        if (!product) return errorResponse("Ürün bulunamadı", 404, "NOT_FOUND");
+
+        // Görüntülenme sayısını artır
+        await env.DB.prepare(`UPDATE products SET view_count = view_count + 1 WHERE id = ?`).bind(productId).run();
+
+        return jsonResponse({ product });
+      }
+
+      // Ürün ekle (giriş yapmış kullanıcılar)
+      if (path === "/api/products" && method === "POST") {
+        const session = await getSessionUser(env, request);
+        if (!session) return errorResponse("Giriş yapmalısınız", 401, "UNAUTHORIZED");
+
+        const body = await request.json();
+        const { title, description, price, image_url, shopier_url, category, features, stock } = body;
+
+        if (!title || !price || !shopier_url) {
+          return errorResponse("Başlık, fiyat ve Shopier linki zorunludur", 400, "MISSING_FIELDS");
+        }
+
+        // Shopier URL kontrolü
+        if (!shopier_url.includes("shopier.com")) {
+          return errorResponse("Geçerli bir Shopier linki girin", 400, "INVALID_SHOPIER_URL");
+        }
+
+        const result = await env.DB.prepare(`
+          INSERT INTO products (user_id, title, description, price, image_url, shopier_url, category, features, stock)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).bind(
+          session.user_id,
+          sanitizeString(title, 200),
+          sanitizeString(description || "", 2000),
+          parseFloat(price),
+          sanitizeString(image_url || "", 500),
+          sanitizeString(shopier_url, 500),
+          sanitizeString(category || "Diğer", 50),
+          sanitizeString(features || "", 500),
+          parseInt(stock || 1, 10)
+        ).run();
+
+        return jsonResponse({
+          success: true,
+          message: "Ürün eklendi, onay bekliyor",
+          product_id: result.meta?.last_row_id
+        }, 201);
+      }
+
+      // Kullanıcının kendi ürünlerini listele
+      if (path === "/api/products/my" && method === "GET") {
+        const session = await getSessionUser(env, request);
+        if (!session) return errorResponse("Giriş yapmalısınız", 401, "UNAUTHORIZED");
+
+        const products = await env.DB.prepare(`
+          SELECT * FROM products WHERE user_id = ? ORDER BY created_at DESC
+        `).bind(session.user_id).all();
+
+        return jsonResponse({ products: products.results || [] });
+      }
+
+      // Ürün güncelle (sahibi)
+      if (path.match(/^\/api\/products\/(\d+)$/) && method === "PUT") {
+        const session = await getSessionUser(env, request);
+        if (!session) return errorResponse("Giriş yapmalısınız", 401, "UNAUTHORIZED");
+
+        const productId = parseInt(path.split("/").pop(), 10);
+        const product = await env.DB.prepare(`SELECT * FROM products WHERE id = ?`).bind(productId).first();
+
+        if (!product) return errorResponse("Ürün bulunamadı", 404, "NOT_FOUND");
+        if (product.user_id !== session.user_id) return errorResponse("Bu ürünü düzenleme yetkiniz yok", 403, "FORBIDDEN");
+
+        const body = await request.json();
+        const updates = [];
+        const params = [];
+
+        if (body.title) { updates.push("title = ?"); params.push(sanitizeString(body.title, 200)); }
+        if (body.description !== undefined) { updates.push("description = ?"); params.push(sanitizeString(body.description, 2000)); }
+        if (body.price) { updates.push("price = ?"); params.push(parseFloat(body.price)); }
+        if (body.image_url !== undefined) { updates.push("image_url = ?"); params.push(sanitizeString(body.image_url, 500)); }
+        if (body.shopier_url) { updates.push("shopier_url = ?"); params.push(sanitizeString(body.shopier_url, 500)); }
+        if (body.category) { updates.push("category = ?"); params.push(sanitizeString(body.category, 50)); }
+        if (body.features !== undefined) { updates.push("features = ?"); params.push(sanitizeString(body.features, 500)); }
+        if (body.stock !== undefined) { updates.push("stock = ?"); params.push(parseInt(body.stock, 10)); }
+        if (body.is_active !== undefined) { updates.push("is_active = ?"); params.push(body.is_active ? 1 : 0); }
+
+        if (updates.length === 0) return errorResponse("Güncellenecek alan yok", 400, "NO_UPDATES");
+
+        updates.push("updated_at = CURRENT_TIMESTAMP");
+        // Düzenleme yapılınca tekrar onay beklesin
+        updates.push("is_approved = 0");
+
+        params.push(productId);
+        await env.DB.prepare(`UPDATE products SET ${updates.join(", ")} WHERE id = ?`).bind(...params).run();
+
+        return jsonResponse({ success: true, message: "Ürün güncellendi, onay bekliyor" });
+      }
+
+      // Ürün sil (sahibi)
+      if (path.match(/^\/api\/products\/(\d+)$/) && method === "DELETE") {
+        const session = await getSessionUser(env, request);
+        if (!session) return errorResponse("Giriş yapmalısınız", 401, "UNAUTHORIZED");
+
+        const productId = parseInt(path.split("/").pop(), 10);
+        const product = await env.DB.prepare(`SELECT * FROM products WHERE id = ?`).bind(productId).first();
+
+        if (!product) return errorResponse("Ürün bulunamadı", 404, "NOT_FOUND");
+        if (product.user_id !== session.user_id) return errorResponse("Bu ürünü silme yetkiniz yok", 403, "FORBIDDEN");
+
+        await env.DB.prepare(`DELETE FROM products WHERE id = ?`).bind(productId).run();
+
+        return jsonResponse({ success: true, message: "Ürün silindi" });
+      }
+
+      // Admin: Tüm ürünleri listele (onaysız dahil)
+      if (path === "/admin/products" && method === "GET") {
+        const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
+        const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get("limit") || "20", 10)));
+        const offset = (page - 1) * limit;
+        const status = url.searchParams.get("status") || "";
+
+        let whereClause = "WHERE 1=1";
+        const params = [];
+
+        if (status === "pending") {
+          whereClause += " AND p.is_approved = 0";
+        } else if (status === "approved") {
+          whereClause += " AND p.is_approved = 1";
+        }
+
+        const countResult = await env.DB.prepare(`SELECT COUNT(*) as total FROM products p ${whereClause}`).bind(...params).first();
+        const total = countResult?.total || 0;
+
+        params.push(limit, offset);
+        const products = await env.DB.prepare(`
+          SELECT p.*, u.username, u.display_name
+          FROM products p
+          LEFT JOIN users u ON p.user_id = u.id
+          ${whereClause}
+          ORDER BY p.created_at DESC
+          LIMIT ? OFFSET ?
+        `).bind(...params).all();
+
+        return jsonResponse({
+          products: products.results || [],
+          pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
+        });
+      }
+
+      // Admin: Ürün onayla/reddet
+      if (path.match(/^\/admin\/products\/(\d+)\/(approve|reject)$/) && method === "POST") {
+        const parts = path.split("/");
+        const productId = parseInt(parts[3], 10);
+        const action = parts[4];
+
+        const product = await env.DB.prepare(`SELECT * FROM products WHERE id = ?`).bind(productId).first();
+        if (!product) return errorResponse("Ürün bulunamadı", 404, "NOT_FOUND");
+
+        if (action === "approve") {
+          await env.DB.prepare(`UPDATE products SET is_approved = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?`).bind(productId).run();
+          return jsonResponse({ success: true, message: "Ürün onaylandı" });
+        } else {
+          await env.DB.prepare(`UPDATE products SET is_approved = 0, is_active = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?`).bind(productId).run();
+          return jsonResponse({ success: true, message: "Ürün reddedildi" });
+        }
+      }
+
+      // Admin: Ürün sil
+      if (path.match(/^\/admin\/products\/(\d+)$/) && method === "DELETE") {
+        const productId = parseInt(path.split("/").pop(), 10);
+        await env.DB.prepare(`DELETE FROM products WHERE id = ?`).bind(productId).run();
+        return jsonResponse({ success: true, message: "Ürün silindi" });
+      }
+
+      // Kategorileri listele
+      if (path === "/api/products/categories" && method === "GET") {
+        const categories = await env.DB.prepare(`
+          SELECT category, COUNT(*) as count
+          FROM products
+          WHERE is_active = 1 AND is_approved = 1
+          GROUP BY category
+          ORDER BY count DESC
+        `).all();
+        return jsonResponse({ categories: categories.results || [] });
+      }
+
+      // ================================
       // 🏅 ROZET API
       // ================================
 
