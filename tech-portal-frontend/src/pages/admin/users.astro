@@ -750,7 +750,8 @@ import "../../styles/admin.css";
 
       if (!res.ok) throw new Error('Kullanıcı bulunamadı');
 
-      const user = await res.json();
+      const data = await res.json();
+      const user = data.user;
 
       document.getElementById('editUserId').value = user.id;
       document.getElementById('editUsername').value = user.username;

@@ -2355,7 +2355,7 @@ ${sourceText}`;
 
           const user = await env.DB.prepare(`
             SELECT id, username, email, display_name, avatar_url, role, is_active, email_verified,
-                   bio, website, location, twitter, github, created_at, last_login
+                   bio, website, location, created_at, last_login
             FROM users WHERE id = ?
           `).bind(userId).first();
 
@@ -2364,8 +2364,8 @@ ${sourceText}`;
           }
 
           // Kullanıcının aktiviteleri
-          const posts = await env.DB.prepare(`
-            SELECT COUNT(*) as count FROM posts WHERE author_id = ?
+          const threads = await env.DB.prepare(`
+            SELECT COUNT(*) as count FROM forum_threads WHERE user_id = ?
           `).bind(userId).first();
 
           const comments = await env.DB.prepare(`
@@ -2373,9 +2373,9 @@ ${sourceText}`;
           `).bind(userId).first();
 
           return jsonResponse({
-            ...user,
+            user,
             stats: {
-              posts: posts?.count || 0,
+              threads: threads?.count || 0,
               comments: comments?.count || 0
             }
           });
