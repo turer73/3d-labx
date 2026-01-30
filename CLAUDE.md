@@ -37,6 +37,7 @@ C:\3dlabx\
 - **R2 Public URL:** https://pub-9142f11355e84e1da1dd96a4c14e4afb.r2.dev
 - **Admin Secret:** Tur04520,
 - **D1 Database ID:** f9456434-6c54-43a2-8374-d7695a51626f
+- **GitHub Repo:** https://github.com/turer73/3d-labx
 
 ## Devam Etme Talimatı
 
