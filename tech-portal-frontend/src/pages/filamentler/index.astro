@@ -679,6 +679,15 @@ import Header from "../../components/Header.astro";
   let allFilamentsLoaded = false;
 
   document.addEventListener('DOMContentLoaded', () => {
+    // URL'den material parametresini al ve dropdown'u ayarla
+    const urlParams = new URLSearchParams(window.location.search);
+    const materialFromUrl = urlParams.get('material');
+    if (materialFromUrl) {
+      const materialSelect = document.getElementById('materialFilter');
+      // Dropdown yüklendikten sonra seçimi yapmak için loadFilaments içinde handle edilecek
+      materialSelect.dataset.initialMaterial = materialFromUrl;
+    }
+
     loadFilaments(true);
 
     document.getElementById('brandFilter').addEventListener('change', () => {
@@ -752,7 +761,9 @@ import Header from "../../components/Header.astro";
     }
 
     const brand = document.getElementById('brandFilter').value;
-    const material = document.getElementById('materialFilter').value;
+    const materialSelect = document.getElementById('materialFilter');
+    // URL'den gelen initial değeri veya mevcut seçimi kullan
+    const material = materialSelect.dataset.initialMaterial || materialSelect.value;
     const sort = document.getElementById('sortFilter').value;
 
     const params = new URLSearchParams({
@@ -836,12 +847,28 @@ import Header from "../../components/Header.astro";
     brandSelect.innerHTML = brandOptions.join('');
 
     const materialSelect = document.getElementById('materialFilter');
-    const currentMaterial = materialSelect.value;
+    // URL'den gelen initial material parametresini kontrol et
+    const initialMaterial = materialSelect.dataset.initialMaterial;
+    let currentMaterial = materialSelect.value;
+
+    // İlk yüklemede URL'den gelen değeri kullan
+    if (initialMaterial && !currentMaterial) {
+      currentMaterial = initialMaterial;
+      // Bir kere kullandıktan sonra temizle
+      delete materialSelect.dataset.initialMaterial;
+    }
+
     const materialOptions = ['<option value="">Tüm Malzemeler</option>'];
     materials.forEach(m => {
       materialOptions.push(`<option value="${m}" ${m === currentMaterial ? 'selected' : ''}>${m}</option>`);
     });
     materialSelect.innerHTML = materialOptions.join('');
+
+    // Eğer URL'den material geldi ve seçildiyse, tekrar filtrele
+    if (initialMaterial && materials.includes(initialMaterial)) {
+      materialSelect.value = initialMaterial;
+      // Sayfayı tekrar yüklememek için sadece seçimi ayarla
+    }
 
     // Brand tag'lerin active state'ini güncelle
     document.querySelectorAll('.brand-tag').forEach(tag => {

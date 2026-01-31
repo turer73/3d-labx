@@ -266,10 +266,10 @@ const description = "PLA, PETG, ABS, TPU ve daha fazlası. Hangi filament hangi 
                     <span class="price-range">{mat.priceRange}</span>
                   )}
                 </div>
-                <button class="detail-btn" data-material={mat.id}>
+                <a href={`/3d-baski/malzemeler/${mat.id}`} class="detail-btn">
                   Detay
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </button>
+                </a>
               </div>
             </article>
           );
