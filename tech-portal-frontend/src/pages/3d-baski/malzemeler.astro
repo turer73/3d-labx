@@ -203,8 +203,12 @@ const description = "PLA, PETG, ABS, TPU ve daha fazlası. Hangi filament hangi 
                   <h2>{mat.name}</h2>
                   <span class="mat-fullname">{mat.fullName}</span>
                 </div>
-                <div class="difficulty-badge" title={`Zorluk: ${mat.difficulty}/5`}>
-                  {'●'.repeat(mat.difficulty)}{'○'.repeat(5 - mat.difficulty)}
+                <div class="difficulty-badge" title={`Zorluk: ${mat.difficulty}/5`} style={`--hex-color: ${mat.color}`}>
+                  {[1,2,3,4,5].map(i => (
+                    <svg class={`hex-mini ${i <= mat.difficulty ? 'filled' : 'empty'}`} viewBox="0 0 24 24" width="12" height="12">
+                      <path d="M12 2l9 5v10l-9 5-9-5V7z"/>
+                    </svg>
+                  ))}
                 </div>
               </div>
 
@@ -300,9 +304,33 @@ const description = "PLA, PETG, ABS, TPU ve daha fazlası. Hangi filament hangi 
                       {mat.name}
                     </span>
                   </td>
-                  <td>{'●'.repeat(mat.difficulty)}{'○'.repeat(5 - mat.difficulty)}</td>
-                  <td>{'●'.repeat(mat.durability)}{'○'.repeat(5 - mat.durability)}</td>
-                  <td>{'●'.repeat(mat.flexibility)}{'○'.repeat(5 - mat.flexibility)}</td>
+                  <td>
+                    <div class="hex-rating" style={`--hex-color: ${mat.color}`}>
+                      {[1,2,3,4,5].map(i => (
+                        <svg class={`hex ${i <= mat.difficulty ? 'filled' : 'empty'}`} viewBox="0 0 24 24" width="18" height="18">
+                          <path d="M12 2l9 5v10l-9 5-9-5V7z"/>
+                        </svg>
+                      ))}
+                    </div>
+                  </td>
+                  <td>
+                    <div class="hex-rating" style={`--hex-color: ${mat.color}`}>
+                      {[1,2,3,4,5].map(i => (
+                        <svg class={`hex ${i <= mat.durability ? 'filled' : 'empty'}`} viewBox="0 0 24 24" width="18" height="18">
+                          <path d="M12 2l9 5v10l-9 5-9-5V7z"/>
+                        </svg>
+                      ))}
+                    </div>
+                  </td>
+                  <td>
+                    <div class="hex-rating" style={`--hex-color: ${mat.color}`}>
+                      {[1,2,3,4,5].map(i => (
+                        <svg class={`hex ${i <= mat.flexibility ? 'filled' : 'empty'}`} viewBox="0 0 24 24" width="18" height="18">
+                          <path d="M12 2l9 5v10l-9 5-9-5V7z"/>
+                        </svg>
+                      ))}
+                    </div>
+                  </td>
                   <td>{mat.heatResistance}°C</td>
                   <td>{mat.priceRange}</td>
                 </tr>
@@ -561,9 +589,22 @@ const description = "PLA, PETG, ABS, TPU ve daha fazlası. Hangi filament hangi 
 
   .difficulty-badge {
     margin-left: auto;
-    font-size: 0.7rem;
-    color: var(--mat-color);
-    letter-spacing: 2px;
+    display: flex;
+    gap: 2px;
+    align-items: center;
+  }
+
+  .hex-mini.filled path {
+    fill: var(--hex-color);
+    stroke: var(--hex-color);
+    stroke-width: 1;
+  }
+
+  .hex-mini.empty path {
+    fill: transparent;
+    stroke: var(--hex-color);
+    stroke-width: 1.5;
+    opacity: 0.3;
   }
 
   .card-specs {
@@ -769,6 +810,38 @@ const description = "PLA, PETG, ABS, TPU ve daha fazlası. Hangi filament hangi 
     width: 10px;
     height: 10px;
     border-radius: 50%;
+  }
+
+  /* Hexagon Rating */
+  .hex-rating {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .hex-rating .hex {
+    transition: all 0.2s ease;
+  }
+
+  .hex-rating .hex.filled path {
+    fill: var(--hex-color);
+    stroke: var(--hex-color);
+    stroke-width: 1;
+  }
+
+  .hex-rating .hex.empty path {
+    fill: transparent;
+    stroke: var(--hex-color);
+    stroke-width: 1.5;
+    opacity: 0.35;
+  }
+
+  .comparison-table tr:hover .hex.filled path {
+    filter: brightness(1.2);
+  }
+
+  .comparison-table tr:hover .hex.empty path {
+    opacity: 0.5;
   }
 
   /* Use Case Section */

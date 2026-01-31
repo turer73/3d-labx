@@ -272,15 +272,33 @@ const pageDescription = `${material.name} (${material.fullName}) filament için 
           <div class="hero-stats">
             <div class="stat">
               <span class="label">Zorluk</span>
-              <span class="value">{'●'.repeat(material.difficulty)}{'○'.repeat(5 - material.difficulty)}</span>
+              <div class="hex-rating">
+                {[1,2,3,4,5].map(i => (
+                  <svg class={`hex ${i <= material.difficulty ? 'filled' : 'empty'}`} viewBox="0 0 24 24" width="20" height="20">
+                    <path d="M12 2l9 5v10l-9 5-9-5V7z"/>
+                  </svg>
+                ))}
+              </div>
             </div>
             <div class="stat">
               <span class="label">Dayanıklılık</span>
-              <span class="value">{'●'.repeat(material.durability)}{'○'.repeat(5 - material.durability)}</span>
+              <div class="hex-rating">
+                {[1,2,3,4,5].map(i => (
+                  <svg class={`hex ${i <= material.durability ? 'filled' : 'empty'}`} viewBox="0 0 24 24" width="20" height="20">
+                    <path d="M12 2l9 5v10l-9 5-9-5V7z"/>
+                  </svg>
+                ))}
+              </div>
             </div>
             <div class="stat">
               <span class="label">Esneklik</span>
-              <span class="value">{'●'.repeat(material.flexibility)}{'○'.repeat(5 - material.flexibility)}</span>
+              <div class="hex-rating">
+                {[1,2,3,4,5].map(i => (
+                  <svg class={`hex ${i <= material.flexibility ? 'filled' : 'empty'}`} viewBox="0 0 24 24" width="20" height="20">
+                    <path d="M12 2l9 5v10l-9 5-9-5V7z"/>
+                  </svg>
+                ))}
+              </div>
             </div>
             <div class="stat">
               <span class="label">Isı Direnci</span>
@@ -572,6 +590,30 @@ const pageDescription = `${material.name} (${material.fullName}) filament için 
     font-weight: 600;
     color: var(--text-main);
     letter-spacing: 1px;
+  }
+
+  /* Hexagon Rating */
+  .hex-rating {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .hex-rating .hex {
+    transition: all 0.2s ease;
+  }
+
+  .hex-rating .hex.filled path {
+    fill: var(--mat-color);
+    stroke: var(--mat-color);
+    stroke-width: 1;
+  }
+
+  .hex-rating .hex.empty path {
+    fill: transparent;
+    stroke: var(--mat-color);
+    stroke-width: 1.5;
+    opacity: 0.35;
   }
 
   /* Settings */
