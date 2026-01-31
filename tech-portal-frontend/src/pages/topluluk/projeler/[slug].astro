@@ -1,0 +1,703 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Header from "../../../components/Header.astro";
+import { getApiBase } from "../../../lib/api";
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+const API_BASE = getApiBase(Astro.request);
+
+let project: any = null;
+let error = "";
+
+try {
+  const res = await fetch(`${API_BASE}/api/projects/${slug}`);
+  if (res.ok) {
+    const data = await res.json();
+    project = data.project;
+  } else {
+    error = "Proje bulunamadı";
+  }
+} catch (e) {
+  console.error("Proje yüklenemedi:", e);
+  error = "Bir hata oluştu";
+}
+
+// Görselleri parse et
+function parseImages(images: string): string[] {
+  try {
+    return JSON.parse(images || '[]');
+  } catch {
+    return [];
+  }
+}
+
+const imageList = project ? parseImages(project.images) : [];
+
+// Model kaynağı adı
+const modelSourceNames: Record<string, string> = {
+  'thingiverse': 'Thingiverse',
+  'printables': 'Printables',
+  'myminifactory': 'MyMiniFactory',
+  'cults3d': 'Cults3D',
+  'thangs': 'Thangs',
+  'original': 'Kendi Tasarımı',
+  'other': 'Diğer'
+};
+
+// Tarih formatla
+function formatDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('tr-TR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+}
+---
+
+<BaseLayout
+  title={project ? `${project.title} - Ben de Bastım - 3D-labX` : "Proje Bulunamadı - 3D-labX"}
+  description={project?.description?.substring(0, 160) || "3D baskı projesi"}
+  image={imageList[0]}
+>
+  <Header />
+
+  <main class="project-detail-page">
+    <div class="container">
+      {error ? (
+        <div class="error-state">
+          <div class="error-icon">😢</div>
+          <h2>{error}</h2>
+          <p>Aradığınız proje bulunamadı veya silinmiş olabilir.</p>
+          <a href="/topluluk/projeler" class="btn btn-primary">Projelere Dön</a>
+        </div>
+      ) : project && (
+        <>
+          <nav class="breadcrumb">
+            <a href="/topluluk">Topluluk</a>
+            <span>/</span>
+            <a href="/topluluk/projeler">Ben de Bastım</a>
+            <span>/</span>
+            <span>{project.title}</span>
+          </nav>
+
+          <div class="project-layout">
+            <!-- Sol: Galeri -->
+            <div class="gallery-section">
+              <div class="main-image" id="mainImage">
+                {imageList.length > 0 ? (
+                  <img src={imageList[0]} alt={project.title} id="currentImage" />
+                ) : (
+                  <div class="no-image">
+                    <span>🎨</span>
+                  </div>
+                )}
+                {imageList.length > 1 && (
+                  <button class="nav-btn prev" id="prevBtn">‹</button>
+                )}
+                {imageList.length > 1 && (
+                  <button class="nav-btn next" id="nextBtn">›</button>
+                )}
+                <span class="image-counter" id="imageCounter">1 / {imageList.length}</span>
+              </div>
+
+              {imageList.length > 1 && (
+                <div class="thumbnail-strip">
+                  {imageList.map((img, idx) => (
+                    <button class={`thumbnail ${idx === 0 ? 'active' : ''}`} data-index={idx}>
+                      <img src={img} alt={`Görsel ${idx + 1}`} loading="lazy" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <!-- Sağ: Detaylar -->
+            <div class="details-section">
+              <h1>{project.title}</h1>
+
+              <div class="author-row">
+                <a href={`/profil/${project.username}`} class="author">
+                  {project.avatar_url ? (
+                    <img src={project.avatar_url} alt={project.username} class="author-avatar" />
+                  ) : (
+                    <div class="avatar-placeholder">{project.username?.charAt(0).toUpperCase()}</div>
+                  )}
+                  <div class="author-info">
+                    <span class="author-name">{project.display_name || project.username}</span>
+                    <span class="author-username">@{project.username}</span>
+                  </div>
+                </a>
+                <span class="post-date">{formatDate(project.created_at)}</span>
+              </div>
+
+              <div class="stats-row">
+                <span class="stat">
+                  <span class="stat-icon">👁️</span>
+                  <span class="stat-value">{project.view_count || 0}</span>
+                  <span class="stat-label">görüntüleme</span>
+                </span>
+                <span class="stat">
+                  <span class="stat-icon">❤️</span>
+                  <span class="stat-value" id="likeCount">{project.like_count || 0}</span>
+                  <span class="stat-label">beğeni</span>
+                </span>
+              </div>
+
+              <div class="action-buttons">
+                <button class="btn btn-like" id="likeBtn" data-project-id={project.id}>
+                  <span class="like-icon">🤍</span>
+                  Beğen
+                </button>
+                <button class="btn btn-share" id="shareBtn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+                  Paylaş
+                </button>
+              </div>
+
+              {project.description && (
+                <div class="description-box">
+                  <h3>Açıklama</h3>
+                  <p>{project.description}</p>
+                </div>
+              )}
+
+              <!-- Model Bilgisi -->
+              {project.model_url && (
+                <div class="info-box model-box">
+                  <h3>📥 Model</h3>
+                  <a href={project.model_url} target="_blank" rel="noopener" class="model-link">
+                    <span class="model-source">{modelSourceNames[project.model_source] || 'Harici Link'}</span>
+                    <span class="model-url">{project.model_url}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+                  </a>
+                </div>
+              )}
+
+              <!-- Baskı Detayları -->
+              {(project.printer_model || project.filament_type || project.filament_brand || project.print_time_hours) && (
+                <div class="info-box specs-box">
+                  <h3>⚙️ Baskı Detayları</h3>
+                  <div class="specs-grid">
+                    {project.printer_model && (
+                      <div class="spec-item">
+                        <span class="spec-icon">🖨️</span>
+                        <span class="spec-label">Yazıcı</span>
+                        <span class="spec-value">{project.printer_model}</span>
+                      </div>
+                    )}
+                    {project.filament_type && (
+                      <div class="spec-item">
+                        <span class="spec-icon">🧵</span>
+                        <span class="spec-label">Filament</span>
+                        <span class="spec-value">{project.filament_type}</span>
+                      </div>
+                    )}
+                    {project.filament_brand && (
+                      <div class="spec-item">
+                        <span class="spec-icon">🏷️</span>
+                        <span class="spec-label">Marka</span>
+                        <span class="spec-value">{project.filament_brand}</span>
+                      </div>
+                    )}
+                    {project.print_time_hours && (
+                      <div class="spec-item">
+                        <span class="spec-icon">⏱️</span>
+                        <span class="spec-label">Süre</span>
+                        <span class="spec-value">{project.print_time_hours} saat</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {project.print_settings && (
+                <div class="info-box settings-box">
+                  <h3>📋 Baskı Ayarları</h3>
+                  <p class="settings-text">{project.print_settings}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .project-detail-page {
+    padding-top: 140px;
+    padding-bottom: 64px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb a { color: #10B981; text-decoration: none; }
+  .breadcrumb span:last-child {
+    color: var(--text-main);
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .error-state {
+    text-align: center;
+    padding: 80px 20px;
+  }
+
+  .error-icon { font-size: 4rem; margin-bottom: 20px; }
+  .error-state h2 { margin: 0 0 8px; }
+  .error-state p { color: var(--text-muted); margin-bottom: 24px; }
+
+  .project-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 40px;
+    align-items: start;
+  }
+
+  /* Galeri */
+  .gallery-section {
+    position: sticky;
+    top: 140px;
+  }
+
+  .main-image {
+    position: relative;
+    aspect-ratio: 4/3;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: var(--bg-main);
+  }
+
+  .main-image .no-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+    background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
+  }
+
+  .nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .main-image:hover .nav-btn { opacity: 1; }
+  .nav-btn.prev { left: 16px; }
+  .nav-btn.next { right: 16px; }
+  .nav-btn:hover { background: rgba(0, 0, 0, 0.9); }
+
+  .image-counter {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    padding: 6px 12px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 0.85rem;
+    border-radius: 8px;
+  }
+
+  .thumbnail-strip {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .thumbnail {
+    flex-shrink: 0;
+    width: 80px;
+    height: 60px;
+    border: 2px solid var(--border-soft);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 0;
+    background: none;
+  }
+
+  .thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .thumbnail:hover { border-color: #10B981; }
+  .thumbnail.active { border-color: #10B981; border-width: 3px; }
+
+  /* Detaylar */
+  .details-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .details-section h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    line-height: 1.4;
+  }
+
+  .author-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .author:hover .author-name { color: #10B981; }
+
+  .author-avatar, .avatar-placeholder {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    object-fit: cover;
+  }
+
+  .avatar-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .author-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .author-name {
+    font-weight: 600;
+    color: var(--text-main);
+    transition: color 0.2s;
+  }
+
+  .author-username {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .post-date {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 24px;
+    padding: 16px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+  }
+
+  .stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .stat-icon { font-size: 1.2rem; }
+  .stat-value { font-weight: 700; font-size: 1.1rem; color: var(--text-main); }
+  .stat-label { font-size: 0.85rem; color: var(--text-muted); }
+
+  .action-buttons {
+    display: flex;
+    gap: 12px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-soft);
+    background: var(--bg-card);
+    color: var(--text-main);
+  }
+
+  .btn:hover {
+    border-color: #10B981;
+    color: #10B981;
+  }
+
+  .btn-like.liked {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #EF4444;
+    color: #EF4444;
+  }
+
+  .btn-like.liked .like-icon::after { content: '❤️'; }
+  .like-icon { font-size: 1.1rem; }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: white;
+    border: none;
+  }
+
+  .description-box, .info-box {
+    padding: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+  }
+
+  .description-box h3, .info-box h3 {
+    margin: 0 0 12px;
+    font-size: 1rem;
+    color: var(--text-main);
+  }
+
+  .description-box p, .settings-text {
+    margin: 0;
+    color: var(--text-muted);
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+
+  .model-link {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 16px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s;
+  }
+
+  .model-link:hover {
+    border-color: #10B981;
+    background: rgba(16, 185, 129, 0.05);
+  }
+
+  .model-source {
+    font-weight: 600;
+    color: #10B981;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .model-url {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    word-break: break-all;
+  }
+
+  .model-link svg {
+    margin-left: auto;
+    color: var(--text-muted);
+  }
+
+  .specs-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .spec-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px;
+    background: var(--bg-main);
+    border-radius: 10px;
+  }
+
+  .spec-icon { font-size: 1.2rem; }
+  .spec-label { font-size: 0.75rem; color: var(--text-muted); }
+  .spec-value { font-weight: 600; color: var(--text-main); }
+
+  @media (max-width: 1024px) {
+    .project-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .gallery-section {
+      position: static;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .project-detail-page { padding-top: 120px; }
+    .author-row { flex-direction: column; align-items: flex-start; }
+    .stats-row { flex-direction: column; gap: 12px; }
+    .action-buttons { flex-direction: column; }
+    .btn { width: 100%; justify-content: center; }
+    .specs-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script define:vars={{ imageList, projectId: project?.id }}>
+  const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
+
+  // Galeri navigasyonu
+  let currentIndex = 0;
+  const images = imageList || [];
+
+  const currentImage = document.getElementById('currentImage');
+  const imageCounter = document.getElementById('imageCounter');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const thumbnails = document.querySelectorAll('.thumbnail');
+
+  function updateGallery() {
+    if (!currentImage || images.length === 0) return;
+
+    currentImage.src = images[currentIndex];
+    if (imageCounter) {
+      imageCounter.textContent = `${currentIndex + 1} / ${images.length}`;
+    }
+
+    thumbnails.forEach((thumb, idx) => {
+      thumb.classList.toggle('active', idx === currentIndex);
+    });
+  }
+
+  prevBtn?.addEventListener('click', () => {
+    currentIndex = (currentIndex - 1 + images.length) % images.length;
+    updateGallery();
+  });
+
+  nextBtn?.addEventListener('click', () => {
+    currentIndex = (currentIndex + 1) % images.length;
+    updateGallery();
+  });
+
+  thumbnails.forEach((thumb) => {
+    thumb.addEventListener('click', () => {
+      currentIndex = parseInt(thumb.dataset.index || '0');
+      updateGallery();
+    });
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') {
+      currentIndex = (currentIndex - 1 + images.length) % images.length;
+      updateGallery();
+    } else if (e.key === 'ArrowRight') {
+      currentIndex = (currentIndex + 1) % images.length;
+      updateGallery();
+    }
+  });
+
+  // Beğeni
+  const likeBtn = document.getElementById('likeBtn');
+  const likeCount = document.getElementById('likeCount');
+
+  likeBtn?.addEventListener('click', async () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      (window as any).showToast?.('Beğenmek için giriş yapın', 'warning');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/api/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          likeable_type: 'project',
+          likeable_id: projectId
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        likeBtn.classList.toggle('liked', data.liked);
+        const currentCount = parseInt(likeCount?.textContent || '0');
+        if (likeCount) {
+          likeCount.textContent = data.liked ? (currentCount + 1).toString() : (currentCount - 1).toString();
+        }
+        const icon = likeBtn.querySelector('.like-icon');
+        if (icon) {
+          icon.textContent = data.liked ? '❤️' : '🤍';
+        }
+      }
+    } catch (err) {
+      console.error('Like error:', err);
+    }
+  });
+
+  // Paylaş
+  const shareBtn = document.getElementById('shareBtn');
+  shareBtn?.addEventListener('click', () => {
+    if (navigator.share) {
+      navigator.share({
+        title: document.title,
+        url: window.location.href
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      (window as any).showToast?.('Link kopyalandı!', 'success');
+    }
+  });
+</script>
