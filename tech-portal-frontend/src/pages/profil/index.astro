@@ -33,7 +33,13 @@ import Header from "../../components/Header.astro";
             <span id="avatarInitials">U</span>
           </div>
           <div class="profile-info">
-            <h1 id="displayName">Kullanıcı</h1>
+            <div class="name-level-row">
+              <h1 id="displayName">Kullanıcı</h1>
+              <div class="level-badge" id="levelBadge">
+                <span class="level-emoji">🌱</span>
+                <span class="level-text">Çırak</span>
+              </div>
+            </div>
             <p class="username" id="username">@kullanici</p>
             <p class="bio" id="bio"></p>
             <div class="profile-meta">
@@ -55,6 +61,39 @@ import Header from "../../components/Header.astro";
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             Profili Düzenle
           </a>
+        </div>
+
+        <!-- Seviye Kartı -->
+        <div class="level-card" id="levelCard">
+          <div class="level-header">
+            <div class="level-icon-large" id="levelIconLarge">🌱</div>
+            <div class="level-info">
+              <span class="level-title" id="levelTitle">Çırak</span>
+              <span class="level-points"><span id="currentPoints">0</span> puan</span>
+            </div>
+          </div>
+          <div class="level-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div class="progress-text">
+              <span>Sonraki seviyeye <span id="nextLevelPoints">100</span> puan kaldı</span>
+            </div>
+          </div>
+          <div class="level-tiers">
+            <div class="tier" data-tier="cirak">🌱 Çırak</div>
+            <div class="tier" data-tier="kalfa">🔧 Kalfa</div>
+            <div class="tier" data-tier="usta">⚙️ Usta</div>
+            <div class="tier" data-tier="buyukusta">👑 Büyükusta</div>
+          </div>
+        </div>
+
+        <!-- Rozetler -->
+        <div class="badges-section" id="badgesSection">
+          <h3>🏆 Rozetlerim</h3>
+          <div class="badges-grid" id="badgesGrid">
+            <div class="empty-badges">Henüz rozet kazanılmadı</div>
+          </div>
         </div>
 
         <!-- İstatistikler -->
@@ -225,9 +264,46 @@ import Header from "../../components/Header.astro";
     flex: 1;
   }
 
+  .name-level-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
   .profile-info h1 {
     font-size: 1.75rem;
     margin-bottom: 4px;
+  }
+
+  .level-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .level-badge[data-level="cirak"] {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10B981;
+  }
+
+  .level-badge[data-level="kalfa"] {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3B82F6;
+  }
+
+  .level-badge[data-level="usta"] {
+    background: rgba(139, 92, 246, 0.15);
+    color: #8B5CF6;
+  }
+
+  .level-badge[data-level="buyukusta"] {
+    background: rgba(255, 215, 0, 0.15);
+    color: #D4AF37;
   }
 
   .username {
@@ -415,6 +491,166 @@ import Header from "../../components/Header.astro";
     font-size: 0.9rem;
   }
 
+  /* Level Card */
+  .level-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .level-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .level-icon-large {
+    font-size: 3rem;
+    line-height: 1;
+  }
+
+  .level-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .level-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .level-points {
+    color: var(--text-muted);
+  }
+
+  .level-progress {
+    margin-bottom: 20px;
+  }
+
+  .progress-bar {
+    height: 12px;
+    background: var(--bg-main);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #A855F7);
+    border-radius: 6px;
+    transition: width 0.5s ease;
+  }
+
+  .progress-text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .level-tiers {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .tier {
+    flex: 1;
+    text-align: center;
+    padding: 10px 8px;
+    background: var(--bg-main);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    opacity: 0.5;
+    transition: all 0.2s;
+  }
+
+  .tier.active {
+    opacity: 1;
+    font-weight: 600;
+  }
+
+  .tier[data-tier="cirak"].active {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10B981;
+  }
+
+  .tier[data-tier="kalfa"].active {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3B82F6;
+  }
+
+  .tier[data-tier="usta"].active {
+    background: rgba(139, 92, 246, 0.15);
+    color: #8B5CF6;
+  }
+
+  .tier[data-tier="buyukusta"].active {
+    background: rgba(255, 215, 0, 0.15);
+    color: #D4AF37;
+  }
+
+  /* Badges Section */
+  .badges-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .badges-section h3 {
+    margin-bottom: 16px;
+    font-size: 1.1rem;
+  }
+
+  .badges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 16px;
+  }
+
+  .badge-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 16px;
+    background: var(--bg-main);
+    border-radius: 12px;
+    transition: transform 0.2s;
+  }
+
+  .badge-item:hover {
+    transform: translateY(-2px);
+  }
+
+  .badge-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+
+  .badge-name {
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  .badge-date {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .empty-badges {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--text-muted);
+    padding: 20px;
+  }
+
   @media (max-width: 768px) {
     .profile-header {
       flex-direction: column;
@@ -423,6 +659,10 @@ import Header from "../../components/Header.astro";
 
     .profile-avatar {
       margin: 0 auto;
+    }
+
+    .name-level-row {
+      justify-content: center;
     }
 
     .profile-meta {
@@ -447,6 +687,19 @@ import Header from "../../components/Header.astro";
     .tab-btn {
       flex: none;
       width: calc(50% - 4px);
+    }
+
+    .level-tiers {
+      flex-wrap: wrap;
+    }
+
+    .tier {
+      flex: none;
+      width: calc(50% - 4px);
+    }
+
+    .badges-grid {
+      grid-template-columns: repeat(3, 1fr);
     }
   }
 </style>
@@ -538,8 +791,153 @@ import Header from "../../components/Header.astro";
       document.getElementById('badgesCount').textContent = user.stats.badges || 0;
     }
 
+    // Seviye ve rozetleri yükle
+    loadLevelData();
+    loadBadges();
+
     // Tab işlevselliği
     setupTabs();
+  }
+
+  async function loadLevelData() {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API_URL}/api/user/level`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!res.ok) throw new Error('Level verisi alınamadı');
+
+      const data = await res.json();
+      updateLevelDisplay(data);
+    } catch (error) {
+      console.error('Level error:', error);
+    }
+  }
+
+  function updateLevelDisplay(data) {
+    const levels = {
+      cirak: { emoji: '🌱', name: 'Çırak', min: 0, max: 100 },
+      kalfa: { emoji: '🔧', name: 'Kalfa', min: 101, max: 500 },
+      usta: { emoji: '⚙️', name: 'Usta', min: 501, max: 2000 },
+      buyukusta: { emoji: '👑', name: 'Büyükusta', min: 2001, max: Infinity }
+    };
+
+    const currentLevel = data.level || 'cirak';
+    const currentPoints = data.reputation_points || 0;
+    const levelInfo = levels[currentLevel];
+
+    // Üstteki badge
+    const levelBadge = document.getElementById('levelBadge');
+    levelBadge.dataset.level = currentLevel;
+    levelBadge.querySelector('.level-emoji').textContent = levelInfo.emoji;
+    levelBadge.querySelector('.level-text').textContent = levelInfo.name;
+
+    // Level kartı
+    document.getElementById('levelIconLarge').textContent = levelInfo.emoji;
+    document.getElementById('levelTitle').textContent = levelInfo.name;
+    document.getElementById('currentPoints').textContent = currentPoints;
+
+    // Progress bar
+    let progress = 0;
+    let nextPoints = 0;
+
+    if (currentLevel === 'cirak') {
+      progress = (currentPoints / 100) * 100;
+      nextPoints = 100 - currentPoints;
+    } else if (currentLevel === 'kalfa') {
+      progress = ((currentPoints - 100) / 400) * 100;
+      nextPoints = 500 - currentPoints;
+    } else if (currentLevel === 'usta') {
+      progress = ((currentPoints - 500) / 1500) * 100;
+      nextPoints = 2000 - currentPoints;
+    } else {
+      progress = 100;
+      nextPoints = 0;
+    }
+
+    document.getElementById('progressFill').style.width = Math.min(progress, 100) + '%';
+
+    const progressText = document.querySelector('.progress-text span');
+    if (currentLevel === 'buyukusta') {
+      progressText.textContent = 'Maksimum seviyeye ulaştınız! 🎉';
+    } else {
+      document.getElementById('nextLevelPoints').textContent = Math.max(0, nextPoints);
+    }
+
+    // Tier göstergeleri
+    document.querySelectorAll('.tier').forEach(tier => {
+      tier.classList.remove('active');
+      if (tier.dataset.tier === currentLevel) {
+        tier.classList.add('active');
+      }
+    });
+  }
+
+  async function loadBadges() {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API_URL}/api/user/badges`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!res.ok) throw new Error('Rozet verisi alınamadı');
+
+      const data = await res.json();
+      displayBadges(data.badges || []);
+    } catch (error) {
+      console.error('Badges error:', error);
+    }
+  }
+
+  function displayBadges(badges) {
+    const grid = document.getElementById('badgesGrid');
+
+    if (badges.length === 0) {
+      grid.innerHTML = '<div class="empty-badges">Henüz rozet kazanılmadı</div>';
+      return;
+    }
+
+    const badgeIcons = {
+      'first_post': '📝',
+      'first_comment': '💬',
+      'first_like': '❤️',
+      'helpful_answer': '🌟',
+      'popular_post': '🔥',
+      'early_adopter': '🚀',
+      'contributor': '🤝',
+      'expert': '🎓',
+      'mentor': '🧙‍♂️',
+      'maker': '⚡'
+    };
+
+    const badgeNames = {
+      'first_post': 'İlk Yazı',
+      'first_comment': 'İlk Yorum',
+      'first_like': 'İlk Beğeni',
+      'helpful_answer': 'Yardımcı Cevap',
+      'popular_post': 'Popüler Yazı',
+      'early_adopter': 'Erken Üye',
+      'contributor': 'Katkıcı',
+      'expert': 'Uzman',
+      'mentor': 'Mentor',
+      'maker': 'Maker'
+    };
+
+    grid.innerHTML = badges.map(badge => `
+      <div class="badge-item" title="${badge.description || ''}">
+        <span class="badge-icon">${badgeIcons[badge.badge_type] || '🏆'}</span>
+        <span class="badge-name">${badgeNames[badge.badge_type] || badge.badge_type}</span>
+        <span class="badge-date">${new Date(badge.earned_at).toLocaleDateString('tr-TR')}</span>
+      </div>
+    `).join('');
+
+    // Rozet sayısını güncelle
+    document.getElementById('badgesCount').textContent = badges.length;
   }
 
   function setupTabs() {
