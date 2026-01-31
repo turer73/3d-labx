@@ -1,0 +1,640 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+---
+
+<BaseLayout title="Türk Filament Veritabanı – 3D-labX">
+  <Header />
+
+  <main class="filament-page">
+    <div class="container">
+      <!-- Hero Section -->
+      <div class="hero">
+        <div class="hero-icon">🇹🇷</div>
+        <h1>Türk Filament Veritabanı</h1>
+        <p>Yerli markaların test sonuçları ve topluluk değerlendirmeleri</p>
+      </div>
+
+      <!-- Filtreler -->
+      <div class="filters-bar">
+        <div class="filter-group">
+          <label>Marka</label>
+          <select id="brandFilter">
+            <option value="">Tüm Markalar</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Malzeme</label>
+          <select id="materialFilter">
+            <option value="">Tüm Malzemeler</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Sırala</label>
+          <select id="sortFilter">
+            <option value="rating">En İyi Puan</option>
+            <option value="reviews">En Çok Test</option>
+            <option value="price_low">Fiyat (Düşük)</option>
+            <option value="price_high">Fiyat (Yüksek)</option>
+            <option value="newest">En Yeni</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-bar">
+        <div class="stat">
+          <span class="stat-value" id="totalFilaments">0</span>
+          <span class="stat-label">Filament</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="totalBrands">0</span>
+          <span class="stat-label">Marka</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="totalTests">0</span>
+          <span class="stat-label">Test</span>
+        </div>
+      </div>
+
+      <!-- Filament Grid -->
+      <div class="filaments-grid" id="filamentsGrid">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Filamentler yükleniyor...</p>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" id="pagination"></div>
+
+      <!-- Katkıda Bulun CTA -->
+      <div class="contribute-cta">
+        <div class="cta-icon">🧪</div>
+        <h3>Test Sonucu Paylaş</h3>
+        <p>Kullandığın Türk filamentlerin test sonuçlarını paylaşarak topluluğa katkıda bulun!</p>
+        <a href="/filamentler/test-paylas" class="btn btn-primary">Test Sonucu Ekle</a>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .filament-page {
+    padding: 100px 20px 60px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .hero {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .hero-icon {
+    font-size: 4rem;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #E30A17, #FFFFFF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+  }
+
+  /* Filters */
+  .filters-bar {
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+    background: var(--bg-card);
+    border-radius: 16px;
+    border: 1px solid var(--border-soft);
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .filter-group label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  .filter-group select {
+    padding: 10px 14px;
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    background: var(--bg-main);
+    color: var(--text-main);
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+
+  .filter-group select:focus {
+    outline: none;
+    border-color: #E30A17;
+  }
+
+  /* Stats */
+  .stats-bar {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-bottom: 32px;
+  }
+
+  .stat {
+    text-align: center;
+    padding: 16px 32px;
+    background: var(--bg-card);
+    border-radius: 12px;
+    border: 1px solid var(--border-soft);
+  }
+
+  .stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #E30A17;
+  }
+
+  .stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  /* Grid */
+  .filaments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+
+  .filament-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .filament-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(227, 10, 23, 0.15);
+    border-color: #E30A17;
+  }
+
+  .filament-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+
+  .filament-brand {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .filament-verified {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+  }
+
+  .filament-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .filament-material {
+    display: inline-block;
+    padding: 4px 10px;
+    background: rgba(227, 10, 23, 0.1);
+    color: #E30A17;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+
+  .filament-color {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .color-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1px solid var(--border-soft);
+  }
+
+  .filament-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .stars {
+    color: #fbbf24;
+    font-size: 1rem;
+  }
+
+  .rating-value {
+    font-weight: 600;
+  }
+
+  .rating-count {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  .filament-price {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-soft);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .price-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #E30A17;
+  }
+
+  .price-unit {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  /* Loading */
+  .loading-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-soft);
+    border-top-color: #E30A17;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Pagination */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 40px;
+  }
+
+  .pagination button {
+    padding: 10px 16px;
+    border: 1px solid var(--border-soft);
+    background: var(--bg-card);
+    color: var(--text-main);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .pagination button:hover:not(:disabled) {
+    border-color: #E30A17;
+    color: #E30A17;
+  }
+
+  .pagination button.active {
+    background: #E30A17;
+    border-color: #E30A17;
+    color: white;
+  }
+
+  .pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* CTA */
+  .contribute-cta {
+    text-align: center;
+    padding: 40px;
+    background: linear-gradient(135deg, rgba(227, 10, 23, 0.1), rgba(255, 255, 255, 0.05));
+    border-radius: 20px;
+    border: 1px solid rgba(227, 10, 23, 0.3);
+  }
+
+  .cta-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+  }
+
+  .contribute-cta h3 {
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+  }
+
+  .contribute-cta p {
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: #E30A17;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(227, 10, 23, 0.3);
+  }
+
+  /* Empty State */
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 768px) {
+    .hero h1 {
+      font-size: 1.75rem;
+    }
+
+    .filters-bar {
+      flex-direction: column;
+    }
+
+    .filter-group {
+      width: 100%;
+    }
+
+    .stats-bar {
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      flex: 1;
+      min-width: 100px;
+      padding: 12px 16px;
+    }
+
+    .filaments-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script is:inline>
+  const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
+  let currentPage = 1;
+  let totalPages = 1;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadFilaments();
+
+    document.getElementById('brandFilter').addEventListener('change', () => {
+      currentPage = 1;
+      loadFilaments();
+    });
+    document.getElementById('materialFilter').addEventListener('change', () => {
+      currentPage = 1;
+      loadFilaments();
+    });
+    document.getElementById('sortFilter').addEventListener('change', () => {
+      currentPage = 1;
+      loadFilaments();
+    });
+  });
+
+  async function loadFilaments() {
+    const grid = document.getElementById('filamentsGrid');
+    grid.innerHTML = `
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Filamentler yükleniyor...</p>
+      </div>
+    `;
+
+    const brand = document.getElementById('brandFilter').value;
+    const material = document.getElementById('materialFilter').value;
+    const sort = document.getElementById('sortFilter').value;
+
+    const params = new URLSearchParams({
+      page: currentPage,
+      limit: 12,
+      sort
+    });
+    if (brand) params.set('brand', brand);
+    if (material) params.set('material', material);
+
+    try {
+      const res = await fetch(`${API_URL}/api/filaments?${params}`);
+      const data = await res.json();
+
+      // Filtreleri güncelle
+      updateFilters(data.brands, data.materials);
+
+      // Stats güncelle
+      document.getElementById('totalFilaments').textContent = data.pagination.total;
+      document.getElementById('totalBrands').textContent = data.brands.length;
+
+      // Grid'i güncelle
+      if (data.filaments.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <p>Filament bulunamadı</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = data.filaments.map(f => renderFilamentCard(f)).join('');
+
+      // Pagination
+      totalPages = data.pagination.totalPages;
+      renderPagination();
+
+    } catch (error) {
+      console.error('Filament load error:', error);
+      grid.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">⚠️</div>
+          <p>Filamentler yüklenirken hata oluştu</p>
+        </div>
+      `;
+    }
+  }
+
+  function updateFilters(brands, materials) {
+    const brandSelect = document.getElementById('brandFilter');
+    const currentBrand = brandSelect.value;
+    const brandOptions = ['<option value="">Tüm Markalar</option>'];
+    brands.forEach(b => {
+      brandOptions.push(`<option value="${b}" ${b === currentBrand ? 'selected' : ''}>${b}</option>`);
+    });
+    brandSelect.innerHTML = brandOptions.join('');
+
+    const materialSelect = document.getElementById('materialFilter');
+    const currentMaterial = materialSelect.value;
+    const materialOptions = ['<option value="">Tüm Malzemeler</option>'];
+    materials.forEach(m => {
+      materialOptions.push(`<option value="${m}" ${m === currentMaterial ? 'selected' : ''}>${m}</option>`);
+    });
+    materialSelect.innerHTML = materialOptions.join('');
+  }
+
+  function renderFilamentCard(f) {
+    const stars = getStars(f.avg_rating || 0);
+    const colorStyle = getColorStyle(f.color);
+
+    return `
+      <a href="/filamentler/${f.id}" class="filament-card">
+        <div class="filament-header">
+          <span class="filament-brand">${f.brand}</span>
+          ${f.is_verified ? '<span class="filament-verified">✓ Doğrulanmış</span>' : ''}
+        </div>
+        <h3 class="filament-name">${f.model}</h3>
+        <span class="filament-material">${f.material_type}</span>
+        <div class="filament-color">
+          <span class="color-dot" style="${colorStyle}"></span>
+          <span>${f.color || 'Belirtilmemiş'}</span>
+        </div>
+        <div class="filament-rating">
+          <span class="stars">${stars}</span>
+          <span class="rating-value">${(f.avg_rating || 0).toFixed(1)}</span>
+          <span class="rating-count">(${f.total_reviews || 0} test)</span>
+        </div>
+        <div class="filament-price">
+          ${f.price_tl ? `<span class="price-value">₺${f.price_tl.toFixed(2)}</span>` : '<span class="price-value">-</span>'}
+          <span class="price-unit">${f.weight_grams}g</span>
+        </div>
+      </a>
+    `;
+  }
+
+  function getStars(rating) {
+    const full = Math.floor(rating);
+    const half = rating % 1 >= 0.5 ? 1 : 0;
+    const empty = 5 - full - half;
+    return '★'.repeat(full) + (half ? '☆' : '') + '☆'.repeat(empty);
+  }
+
+  function getColorStyle(colorName) {
+    const colorMap = {
+      'Beyaz': '#FFFFFF',
+      'Siyah': '#1a1a1a',
+      'Kirmizi': '#E30A17',
+      'Kırmızı': '#E30A17',
+      'Mavi': '#3B82F6',
+      'Yesil': '#10B981',
+      'Yeşil': '#10B981',
+      'Sari': '#FBBF24',
+      'Sarı': '#FBBF24',
+      'Turuncu': '#F97316',
+      'Mor': '#8B5CF6',
+      'Pembe': '#EC4899',
+      'Gri': '#6B7280',
+      'Kahverengi': '#92400E',
+      'Altin': '#D4AF37',
+      'Altın': '#D4AF37',
+      'Gumus': '#C0C0C0',
+      'Gümüş': '#C0C0C0',
+      'Seffaf': 'linear-gradient(135deg, rgba(255,255,255,0.8), rgba(200,200,200,0.3))',
+      'Şeffaf': 'linear-gradient(135deg, rgba(255,255,255,0.8), rgba(200,200,200,0.3))'
+    };
+    const color = colorMap[colorName] || '#6B7280';
+    return color.includes('gradient') ? `background: ${color}` : `background-color: ${color}`;
+  }
+
+  function renderPagination() {
+    const pagination = document.getElementById('pagination');
+    if (totalPages <= 1) {
+      pagination.innerHTML = '';
+      return;
+    }
+
+    let html = '';
+    html += `<button ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">← Önceki</button>`;
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+        html += `<button class="${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+      } else if (i === currentPage - 2 || i === currentPage + 2) {
+        html += `<span style="padding: 10px;">...</span>`;
+      }
+    }
+
+    html += `<button ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">Sonraki →</button>`;
+    pagination.innerHTML = html;
+  }
+
+  window.goToPage = function(page) {
+    currentPage = page;
+    loadFilaments();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+</script>

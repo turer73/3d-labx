@@ -34,6 +34,9 @@ const currentPath = Astro.url.pathname;
 
     <nav class="desktop-nav">
       <a href="/3d-baski" class={currentPath.startsWith("/3d-baski") ? "active" : ""}>3D Baskı</a>
+      <a href="/filamentler" class={`nav-filament ${currentPath.startsWith("/filamentler") ? "active" : ""}`}>
+        🇹🇷 Filamentler
+      </a>
       <a href="/rehberler" class={currentPath.startsWith("/rehberler") ? "active" : ""}>Rehberler</a>
       <a href="/sorun-cozumleri" class={currentPath.startsWith("/sorun-cozumleri") ? "active" : ""}>Sorun Çözümleri</a>
       <a href="/incelemeler" class={currentPath.startsWith("/incelemeler") ? "active" : ""}>İncelemeler</a>
@@ -151,6 +154,7 @@ const currentPath = Astro.url.pathname;
     <nav class="mobile-nav">
       <a href="/" class={currentPath === "/" ? "active" : ""}>Ana Sayfa</a>
       <a href="/3d-baski" class={currentPath.startsWith("/3d-baski") ? "active" : ""}>3D Baskı</a>
+      <a href="/filamentler" class={currentPath.startsWith("/filamentler") ? "active" : ""}>🇹🇷 Türk Filamentler</a>
       <a href="/rehberler" class={currentPath.startsWith("/rehberler") ? "active" : ""}>Rehberler</a>
       <a href="/sorun-cozumleri" class={currentPath.startsWith("/sorun-cozumleri") ? "active" : ""}>Sorun Çözümleri</a>
       <a href="/incelemeler" class={currentPath.startsWith("/incelemeler") ? "active" : ""}>İncelemeler</a>

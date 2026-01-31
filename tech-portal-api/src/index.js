@@ -3039,6 +3039,258 @@ ${sourceText}`;
       }
 
       // ================================
+      // 🇹🇷 TÜRK FİLAMENT VERİTABANI API
+      // ================================
+
+      // Filamentleri listele
+      if (path === "/api/filaments" && method === "GET") {
+        const { page, limit, offset } = validatePagination(
+          url.searchParams.get("page"),
+          url.searchParams.get("limit") || "12"
+        );
+        const brand = url.searchParams.get("brand");
+        const material = url.searchParams.get("material");
+        const sort = url.searchParams.get("sort") || "rating";
+
+        let whereClause = "1=1";
+        const params = [];
+
+        if (brand) {
+          whereClause += " AND brand = ?";
+          params.push(brand);
+        }
+        if (material) {
+          whereClause += " AND material_type = ?";
+          params.push(material);
+        }
+
+        const countResult = await env.DB.prepare(`
+          SELECT COUNT(*) as total FROM turkish_filaments WHERE ${whereClause}
+        `).bind(...params).first();
+        const total = countResult?.total || 0;
+
+        let orderBy = "avg_rating DESC, total_reviews DESC";
+        if (sort === "price_low") orderBy = "price_tl ASC";
+        if (sort === "price_high") orderBy = "price_tl DESC";
+        if (sort === "newest") orderBy = "created_at DESC";
+        if (sort === "reviews") orderBy = "total_reviews DESC";
+
+        const filaments = await env.DB.prepare(`
+          SELECT * FROM turkish_filaments
+          WHERE ${whereClause}
+          ORDER BY ${orderBy}
+          LIMIT ? OFFSET ?
+        `).bind(...params, limit, offset).all();
+
+        // Marka ve malzeme listesi
+        const brands = await env.DB.prepare(`
+          SELECT DISTINCT brand FROM turkish_filaments ORDER BY brand
+        `).all();
+        const materials = await env.DB.prepare(`
+          SELECT DISTINCT material_type FROM turkish_filaments ORDER BY material_type
+        `).all();
+
+        return jsonResponse({
+          filaments: filaments.results || [],
+          brands: brands.results?.map(b => b.brand) || [],
+          materials: materials.results?.map(m => m.material_type) || [],
+          pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
+        }, 200, 120);
+      }
+
+      // Tek filament detayı
+      if (path.match(/^\/api\/filaments\/(\d+)$/) && method === "GET") {
+        const filamentId = parseInt(path.split("/")[3]);
+
+        const filament = await env.DB.prepare(`
+          SELECT * FROM turkish_filaments WHERE id = ?
+        `).bind(filamentId).first();
+        if (!filament) return errorResponse("Filament bulunamadi", 404, "NOT_FOUND");
+
+        // Test sonuçları
+        const tests = await env.DB.prepare(`
+          SELECT t.*, u.username, u.display_name, u.avatar_url
+          FROM filament_tests t
+          JOIN users u ON t.user_id = u.id
+          WHERE t.filament_id = ?
+          ORDER BY t.helpful_count DESC, t.created_at DESC
+          LIMIT 20
+        `).bind(filamentId).all();
+
+        // Yorumlar
+        const reviews = await env.DB.prepare(`
+          SELECT r.*, u.username, u.display_name, u.avatar_url
+          FROM filament_reviews r
+          JOIN users u ON r.user_id = u.id
+          WHERE r.filament_id = ?
+          ORDER BY r.helpful_count DESC, r.created_at DESC
+          LIMIT 20
+        `).bind(filamentId).all();
+
+        // Ortalama test değerleri
+        const avgTests = await env.DB.prepare(`
+          SELECT
+            ROUND(AVG(nozzle_temp), 0) as avg_nozzle_temp,
+            ROUND(AVG(bed_temp), 0) as avg_bed_temp,
+            ROUND(AVG(print_speed), 0) as avg_print_speed,
+            ROUND(AVG(layer_adhesion_rating), 1) as avg_layer_adhesion,
+            ROUND(AVG(surface_quality_rating), 1) as avg_surface_quality,
+            ROUND(AVG(stringing_rating), 1) as avg_stringing,
+            ROUND(AVG(warping_rating), 1) as avg_warping,
+            ROUND(AVG(overall_rating), 1) as avg_overall,
+            COUNT(*) as test_count
+          FROM filament_tests WHERE filament_id = ?
+        `).bind(filamentId).first();
+
+        return jsonResponse({
+          filament,
+          tests: tests.results || [],
+          reviews: reviews.results || [],
+          averages: avgTests || {}
+        }, 200, 60);
+      }
+
+      // Test sonucu ekle (auth gerekli)
+      if (path === "/api/filaments/tests" && method === "POST") {
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return errorResponse("Giris gerekli", 401, "UNAUTHORIZED");
+        }
+        const token = authHeader.slice(7);
+        const user = await verifyToken(token, env);
+        if (!user) return errorResponse("Gecersiz oturum", 401, "INVALID_TOKEN");
+
+        const body = await request.json();
+        const { filament_id, printer_model, nozzle_temp, bed_temp, print_speed, retraction_mm, retraction_speed, cooling_percent, layer_adhesion_rating, surface_quality_rating, stringing_rating, warping_rating, overall_rating, notes, images } = body;
+
+        if (!filament_id || !overall_rating) {
+          return errorResponse("Filament ID ve genel puan zorunlu", 400, "VALIDATION_ERROR");
+        }
+
+        // Filament var mı kontrol
+        const filament = await env.DB.prepare(`SELECT id FROM turkish_filaments WHERE id = ?`).bind(filament_id).first();
+        if (!filament) return errorResponse("Filament bulunamadi", 404, "NOT_FOUND");
+
+        // Daha önce test eklemiş mi?
+        const existingTest = await env.DB.prepare(`
+          SELECT id FROM filament_tests WHERE filament_id = ? AND user_id = ?
+        `).bind(filament_id, user.id).first();
+        if (existingTest) return errorResponse("Bu filament icin zaten test eklediniz", 400, "ALREADY_EXISTS");
+
+        await env.DB.prepare(`
+          INSERT INTO filament_tests (filament_id, user_id, printer_model, nozzle_temp, bed_temp, print_speed, retraction_mm, retraction_speed, cooling_percent, layer_adhesion_rating, surface_quality_rating, stringing_rating, warping_rating, overall_rating, notes, images)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).bind(filament_id, user.id, printer_model || null, nozzle_temp || null, bed_temp || null, print_speed || null, retraction_mm || null, retraction_speed || null, cooling_percent || null, layer_adhesion_rating || null, surface_quality_rating || null, stringing_rating || null, warping_rating || null, overall_rating, notes || null, images ? JSON.stringify(images) : null).run();
+
+        // Filament rating güncelle
+        const newAvg = await env.DB.prepare(`
+          SELECT ROUND(AVG(overall_rating), 2) as avg, COUNT(*) as cnt FROM filament_tests WHERE filament_id = ?
+        `).bind(filament_id).first();
+
+        await env.DB.prepare(`
+          UPDATE turkish_filaments SET avg_rating = ?, total_reviews = ? WHERE id = ?
+        `).bind(newAvg?.avg || 0, newAvg?.cnt || 0, filament_id).run();
+
+        // Reputation puan ver
+        await env.DB.prepare(`
+          UPDATE users SET reputation_points = reputation_points + 15 WHERE id = ?
+        `).bind(user.id).run();
+
+        return jsonResponse({ success: true, message: "Test sonucu eklendi" }, 201);
+      }
+
+      // Yorum ekle (auth gerekli)
+      if (path === "/api/filaments/reviews" && method === "POST") {
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return errorResponse("Giris gerekli", 401, "UNAUTHORIZED");
+        }
+        const token = authHeader.slice(7);
+        const user = await verifyToken(token, env);
+        if (!user) return errorResponse("Gecersiz oturum", 401, "INVALID_TOKEN");
+
+        const body = await request.json();
+        const { filament_id, rating, title, content, pros, cons, would_recommend, purchase_source } = body;
+
+        if (!filament_id || !rating || !content) {
+          return errorResponse("Filament ID, puan ve yorum zorunlu", 400, "VALIDATION_ERROR");
+        }
+
+        // Filament var mı kontrol
+        const filament = await env.DB.prepare(`SELECT id FROM turkish_filaments WHERE id = ?`).bind(filament_id).first();
+        if (!filament) return errorResponse("Filament bulunamadi", 404, "NOT_FOUND");
+
+        await env.DB.prepare(`
+          INSERT INTO filament_reviews (filament_id, user_id, rating, title, content, pros, cons, would_recommend, purchase_source)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).bind(filament_id, user.id, rating, title || null, content, pros || null, cons || null, would_recommend ? 1 : 0, purchase_source || null).run();
+
+        // Reputation puan ver
+        await env.DB.prepare(`
+          UPDATE users SET reputation_points = reputation_points + 10 WHERE id = ?
+        `).bind(user.id).run();
+
+        return jsonResponse({ success: true, message: "Yorum eklendi" }, 201);
+      }
+
+      // Admin: Filament ekle
+      if (path === "/api/admin/filaments" && method === "POST") {
+        const adminSecret = request.headers.get("X-ADMIN-SECRET");
+        if (adminSecret !== env.ADMIN_SECRET) {
+          return errorResponse("Yetkisiz erisim", 403, "FORBIDDEN");
+        }
+
+        const body = await request.json();
+        const { brand, model, material_type, color, diameter, weight_grams, price_tl, vendor_url, image_url, description } = body;
+
+        if (!brand || !model || !material_type) {
+          return errorResponse("Marka, model ve malzeme tipi zorunlu", 400, "VALIDATION_ERROR");
+        }
+
+        const result = await env.DB.prepare(`
+          INSERT INTO turkish_filaments (brand, model, material_type, color, diameter, weight_grams, price_tl, vendor_url, image_url, description, is_verified)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+        `).bind(brand, model, material_type, color || null, diameter || 1.75, weight_grams || 1000, price_tl || null, vendor_url || null, image_url || null, description || null).run();
+
+        return jsonResponse({ success: true, id: result.meta?.last_row_id }, 201);
+      }
+
+      // Admin: Filament güncelle
+      if (path.match(/^\/api\/admin\/filaments\/(\d+)$/) && method === "PUT") {
+        const adminSecret = request.headers.get("X-ADMIN-SECRET");
+        if (adminSecret !== env.ADMIN_SECRET) {
+          return errorResponse("Yetkisiz erisim", 403, "FORBIDDEN");
+        }
+
+        const filamentId = parseInt(path.split("/")[4]);
+        const body = await request.json();
+
+        const updates = [];
+        const params = [];
+        const allowedFields = ['brand', 'model', 'material_type', 'color', 'diameter', 'weight_grams', 'price_tl', 'vendor_url', 'image_url', 'description', 'is_verified'];
+
+        for (const field of allowedFields) {
+          if (body[field] !== undefined) {
+            updates.push(`${field} = ?`);
+            params.push(body[field]);
+          }
+        }
+
+        if (updates.length === 0) {
+          return errorResponse("Guncellenecek alan yok", 400, "VALIDATION_ERROR");
+        }
+
+        updates.push("updated_at = CURRENT_TIMESTAMP");
+        params.push(filamentId);
+
+        await env.DB.prepare(`
+          UPDATE turkish_filaments SET ${updates.join(", ")} WHERE id = ?
+        `).bind(...params).run();
+
+        return jsonResponse({ success: true });
+      }
+
+      // ================================
       // 🎨 KULLANICI PROJELERİ (SHOWCASE) API
       // ================================
 
