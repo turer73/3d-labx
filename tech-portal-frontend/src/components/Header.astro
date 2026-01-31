@@ -33,12 +33,35 @@ const currentPath = Astro.url.pathname;
     </a>
 
     <nav class="desktop-nav">
-      <a href="/3d-baski" class={currentPath.startsWith("/3d-baski") ? "active" : ""}>3D Baskı</a>
-      <a href="/filamentler" class={`nav-filament ${currentPath.startsWith("/filamentler") ? "active" : ""}`}>
-        🇹🇷 Filamentler
-      </a>
-      <a href="/rehberler" class={currentPath.startsWith("/rehberler") ? "active" : ""}>Rehberler</a>
-      <a href="/sorun-cozumleri" class={currentPath.startsWith("/sorun-cozumleri") ? "active" : ""}>Sorun Çözümleri</a>
+      <div class="nav-dropdown-wrapper">
+        <a href="/3d-baski" class={`nav-3dprint ${currentPath.startsWith("/3d-baski") || currentPath.startsWith("/rehberler") || currentPath.startsWith("/sorun-cozumleri") || currentPath.startsWith("/filamentler") ? "active" : ""}`}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+          3D Baskı
+          <svg class="dropdown-chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </a>
+        <div class="nav-dropdown">
+          <a href="/3d-baski" class="nav-dropdown-item">
+            <span class="dropdown-icon">📰</span>
+            <span>Haberler</span>
+          </a>
+          <a href="/rehberler" class="nav-dropdown-item">
+            <span class="dropdown-icon">📚</span>
+            <span>Rehberler</span>
+          </a>
+          <a href="/sorun-cozumleri" class="nav-dropdown-item">
+            <span class="dropdown-icon">🔧</span>
+            <span>Sorun Çözümleri</span>
+          </a>
+          <a href="/3d-baski/malzemeler" class="nav-dropdown-item">
+            <span class="dropdown-icon">🧵</span>
+            <span>Filament Türleri</span>
+          </a>
+          <a href="/filamentler" class="nav-dropdown-item">
+            <span class="dropdown-icon">🇹🇷</span>
+            <span>Yerli Markalar</span>
+          </a>
+        </div>
+      </div>
       <a href="/incelemeler" class={currentPath.startsWith("/incelemeler") ? "active" : ""}>İncelemeler</a>
       <div class="nav-dropdown-wrapper">
         <a href="/topluluk" class={`nav-community ${currentPath.startsWith("/topluluk") ? "active" : ""}`}>
@@ -154,9 +177,10 @@ const currentPath = Astro.url.pathname;
     <nav class="mobile-nav">
       <a href="/" class={currentPath === "/" ? "active" : ""}>Ana Sayfa</a>
       <a href="/3d-baski" class={currentPath.startsWith("/3d-baski") ? "active" : ""}>3D Baskı</a>
-      <a href="/filamentler" class={currentPath.startsWith("/filamentler") ? "active" : ""}>🇹🇷 Türk Filamentler</a>
-      <a href="/rehberler" class={currentPath.startsWith("/rehberler") ? "active" : ""}>Rehberler</a>
-      <a href="/sorun-cozumleri" class={currentPath.startsWith("/sorun-cozumleri") ? "active" : ""}>Sorun Çözümleri</a>
+      <a href="/rehberler" class="mobile-sub-link">📚 Rehberler</a>
+      <a href="/sorun-cozumleri" class="mobile-sub-link">🔧 Sorun Çözümleri</a>
+      <a href="/3d-baski/malzemeler" class="mobile-sub-link">🧵 Filament Türleri</a>
+      <a href="/filamentler" class="mobile-sub-link">🇹🇷 Yerli Markalar</a>
       <a href="/incelemeler" class={currentPath.startsWith("/incelemeler") ? "active" : ""}>İncelemeler</a>
       <a href="/topluluk" class={currentPath.startsWith("/topluluk") ? "active" : ""}>Topluluk</a>
       <a href="/topluluk/projeler" class="mobile-sub-link">🎨 Ben de Bastım</a>
