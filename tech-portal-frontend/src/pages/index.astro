@@ -176,167 +176,92 @@ function getExcerpt(content: string, length: number = 120): string {
       </div>
     )}
 
-    <!-- BENTO GRID - 3D Baskı Odaklı -->
-    <section class="bento-grid">
-      <!-- Rehberler - Büyük Kart -->
-      <a href="/rehberler" class="bento-card bento-large cyan">
-        <div class="bento-glow"></div>
-        <div class="bento-content">
-          <div class="bento-header">
-            <div class="bento-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="m9 9.5 2 2 4-4"/></svg>
-            </div>
-            <span class="bento-tag">Adım Adım Rehberler</span>
+    <!-- 1. SORUN ÇÖZÜMLERİ - En çok aranan içerik -->
+    {sorunPosts.length > 0 && (
+      <section class="category-section priority-section">
+        <div class="category-header">
+          <div class="category-title-group">
+            <span class="category-icon green">🔧</span>
+            <h2>Sorun Çözümleri</h2>
+            <span class="priority-badge">En Çok Aranan</span>
           </div>
-          <h3>3D Yazıcı Kurulum & Ayar Rehberleri</h3>
-          <p>Klipper kurulumu, slicer ayarları, kalibrasyon rehberleri. Başlangıçtan ileri seviyeye tüm bilgiler.</p>
+          <a href="/sorun-cozumleri" class="category-link">Tümünü Gör →</a>
         </div>
-      </a>
-
-      <!-- Sorun Çözümleri -->
-      <a href="/sorun-cozumleri" class="bento-card green">
-        <div class="bento-content">
-          <div class="bento-header">
-            <div class="bento-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-            </div>
-            <span class="bento-tag">Sorun Giderme</span>
-          </div>
-          <h3>Stringing, Warping, Tıkanma...</h3>
-          <p>3D baskı sorunları ve çözümleri. Adım adım sorun giderme kılavuzları.</p>
+        <div class="category-grid">
+          {sorunPosts.slice(0, 4).map((post, i) => (
+            <a href={`/sorun-cozumleri/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} green`}>
+              {post.image_url && (
+                <div class="cat-image">
+                  <img src={post.image_url} alt={post.title_tr} loading="lazy" />
+                </div>
+              )}
+              <div class="cat-content">
+                <h3>{post.title_tr}</h3>
+                <p>{post.summary_tr}</p>
+              </div>
+            </a>
+          ))}
         </div>
-      </a>
+      </section>
+    )}
 
-      <!-- İncelemeler -->
-      <a href="/incelemeler" class="bento-card purple">
-        <div class="bento-content">
-          <div class="bento-header">
-            <div class="bento-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            </div>
-            <span class="bento-tag">Ürün İncelemeleri</span>
+    <!-- 2. REHBERLER - İkinci en çok aranan -->
+    {rehberPosts.length > 0 && (
+      <section class="category-section">
+        <div class="category-header">
+          <div class="category-title-group">
+            <span class="category-icon cyan">📘</span>
+            <h2>Rehberler</h2>
           </div>
-          <h3>Yazıcı & Filament İncelemeleri</h3>
-          <p>Detaylı test sonuçları, karşılaştırmalar ve satın alma tavsiyeleri.</p>
+          <a href="/rehberler" class="category-link">Tümünü Gör →</a>
         </div>
-      </a>
-
-      <!-- Filament Fiyatları - Rehberler'e Yönlendir -->
-      <a href="/rehberler" class="bento-card filament-promo">
-        <div class="bento-glow"></div>
-        <div class="bento-content">
-          <div class="bento-header">
-            <div class="bento-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            </div>
-            <span class="bento-tag">Güncel Fiyatlar</span>
-          </div>
-          <h3>Filament & Reçine Fiyatları</h3>
-          <p>Türkiye'nin en güncel 3D baskı malzeme fiyatları. Markaları karşılaştır, en uygun fiyatı bul.</p>
-          <div class="filament-promo-footer">
-            <span class="promo-cta">Fiyatları Gör →</span>
-          </div>
+        <div class="category-grid">
+          {rehberPosts.slice(0, 4).map((post, i) => (
+            <a href={`/rehberler/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} cyan`}>
+              {post.image_url && (
+                <div class="cat-image">
+                  <img src={post.image_url} alt={post.title_tr} loading="lazy" />
+                </div>
+              )}
+              <div class="cat-content">
+                <h3>{post.title_tr}</h3>
+                <p>{post.summary_tr}</p>
+              </div>
+            </a>
+          ))}
         </div>
-      </a>
+      </section>
+    )}
 
-    </section>
-
-    <!-- ANKETLER BÖLÜMÜ -->
-    <section class="polls-section">
-      <div class="category-header">
-        <div class="category-title-group">
-          <span class="category-icon poll-icon">📊</span>
-          <h2>Anketler</h2>
+    <!-- 3. 3D BASKI HABERLERİ - Güncel içerik -->
+    {printPosts.length > 1 && (
+      <section class="category-section">
+        <div class="category-header">
+          <div class="category-title-group">
+            <span class="category-icon orange">📰</span>
+            <h2>3D Baskı Haberleri</h2>
+          </div>
+          <a href="/3d-baski" class="category-link">Tümünü Gör →</a>
         </div>
-        <span class="poll-subtitle">Topluluğun tercihleri</span>
-      </div>
-
-      <div class="polls-grid">
-        <!-- Anket 1: API Anketi -->
-        <div class="poll-card poll-gradient-1" id="pollCard">
-          <div class="poll-card-header">
-            <div class="poll-badge">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-              Aktif Anket
-            </div>
-          </div>
-          <h3 id="pollQuestion">En çok kullandığınız 3D yazıcı markası?</h3>
-          <div class="poll-options" id="pollOptions">
-            <div class="poll-option clickable" data-option-id="1" data-poll-id="4">
-              <div class="poll-bar" style="width: 35%; background: linear-gradient(90deg, #EAB308 0%, #EAB308cc 100%);"></div>
-              <span class="poll-label">Creality</span>
-              <span class="poll-percent">%35</span>
-            </div>
-            <div class="poll-option clickable" data-option-id="2" data-poll-id="4">
-              <div class="poll-bar" style="width: 25%; background: linear-gradient(90deg, #3B82F6 0%, #3B82F6cc 100%);"></div>
-              <span class="poll-label">Prusa</span>
-              <span class="poll-percent">%25</span>
-            </div>
-            <div class="poll-option clickable" data-option-id="3" data-poll-id="4">
-              <div class="poll-bar" style="width: 22%; background: linear-gradient(90deg, #8B5CF6 0%, #8B5CF6cc 100%);"></div>
-              <span class="poll-label">Bambu Lab</span>
-              <span class="poll-percent">%22</span>
-            </div>
-            <div class="poll-option clickable" data-option-id="4" data-poll-id="4">
-              <div class="poll-bar" style="width: 12%; background: linear-gradient(90deg, #10B981 0%, #10B981cc 100%);"></div>
-              <span class="poll-label">Anycubic</span>
-              <span class="poll-percent">%12</span>
-            </div>
-            <div class="poll-option clickable" data-option-id="5" data-poll-id="4">
-              <div class="poll-bar" style="width: 8%; background: linear-gradient(90deg, #06B6D4 0%, #06B6D4cc 100%);"></div>
-              <span class="poll-label">Diğer</span>
-              <span class="poll-percent">%6</span>
-            </div>
-          </div>
-          <div class="poll-footer">
-            <span class="poll-votes" id="pollVotes">127 Oy</span>
-          </div>
+        <div class="category-grid">
+          {printPosts.slice(1, 5).map((post, i) => (
+            <a href={`/3d-baski/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} orange`}>
+              {post.image_url && (
+                <div class="cat-image">
+                  <img src={post.image_url} alt={post.title_tr} loading="lazy" />
+                </div>
+              )}
+              <div class="cat-content">
+                <h3>{post.title_tr}</h3>
+                <p>{post.summary_tr}</p>
+              </div>
+            </a>
+          ))}
         </div>
+      </section>
+    )}
 
-        <!-- Anket 2: Slicer Anketi -->
-        <div class="poll-card poll-gradient-2" id="slicerPollCard">
-          <div class="poll-card-header">
-            <div class="poll-badge cyan">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-              Slicer Anketi
-            </div>
-          </div>
-          <h3>Hangi Slicer Kullanıyorsunuz?</h3>
-          <div class="poll-options" id="slicerOptions">
-            <div class="poll-option clickable" data-slicer-id="1">
-              <div class="poll-bar" style="width: 33%; background: linear-gradient(90deg, #22C55E 0%, #22C55Edd 100%);"></div>
-              <span class="poll-label">Cura</span>
-              <span class="poll-percent">%33</span>
-            </div>
-            <div class="poll-option clickable" data-slicer-id="2">
-              <div class="poll-bar" style="width: 27%; background: linear-gradient(90deg, #F97316 0%, #F97316dd 100%);"></div>
-              <span class="poll-label">PrusaSlicer</span>
-              <span class="poll-percent">%27</span>
-            </div>
-            <div class="poll-option clickable" data-slicer-id="3">
-              <div class="poll-bar" style="width: 22%; background: linear-gradient(90deg, #8B5CF6 0%, #8B5CF6dd 100%);"></div>
-              <span class="poll-label">OrcaSlicer</span>
-              <span class="poll-percent">%22</span>
-            </div>
-            <div class="poll-option clickable" data-slicer-id="4">
-              <div class="poll-bar" style="width: 13%; background: linear-gradient(90deg, #06B6D4 0%, #06B6D4dd 100%);"></div>
-              <span class="poll-label">Bambu Studio</span>
-              <span class="poll-percent">%13</span>
-            </div>
-            <div class="poll-option clickable" data-slicer-id="5">
-              <div class="poll-bar" style="width: 8%; background: linear-gradient(90deg, #6B7280 0%, #6B7280dd 100%);"></div>
-              <span class="poll-label">Diğer</span>
-              <span class="poll-percent">%5</span>
-            </div>
-          </div>
-          <div class="poll-footer">
-            <span class="poll-votes" id="slicerVotes">700 Oy</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- TOPLULUK VİTRİN BÖLÜMÜ -->
+    <!-- 4. TOPLULUK VİTRİN BÖLÜMÜ -->
     {communityProjects.length > 0 && (
       <section class="community-showcase">
         <div class="category-header">
@@ -396,65 +321,7 @@ function getExcerpt(content: string, length: number = 120): string {
       </section>
     )}
 
-    <!-- KATEGORİLERE GÖRE İÇERİKLER -->
-
-    <!-- 3D Baskı Haberleri -->
-    {printPosts.length > 1 && (
-      <section class="category-section">
-        <div class="category-header">
-          <div class="category-title-group">
-            <span class="category-icon orange">📰</span>
-            <h2>3D Baskı Haberleri</h2>
-          </div>
-          <a href="/3d-baski" class="category-link">Tümünü Gör →</a>
-        </div>
-        <div class="category-grid">
-          {printPosts.slice(1, 5).map((post, i) => (
-            <a href={`/${post.category}/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} orange`}>
-              {post.image_url && (
-                <div class="cat-image">
-                  <img src={post.image_url} alt={post.title_tr} loading="lazy" />
-                </div>
-              )}
-              <div class="cat-content">
-                <h3>{post.title_tr}</h3>
-                <p>{post.summary_tr}</p>
-              </div>
-            </a>
-          ))}
-        </div>
-      </section>
-    )}
-
-    <!-- Rehberler -->
-    {rehberPosts.length > 0 && (
-      <section class="category-section">
-        <div class="category-header">
-          <div class="category-title-group">
-            <span class="category-icon cyan">📘</span>
-            <h2>Rehberler</h2>
-          </div>
-          <a href="/rehberler" class="category-link">Tümünü Gör →</a>
-        </div>
-        <div class="category-grid">
-          {rehberPosts.slice(0, 4).map((post, i) => (
-            <a href={`/${post.category}/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} cyan`}>
-              {post.image_url && (
-                <div class="cat-image">
-                  <img src={post.image_url} alt={post.title_tr} loading="lazy" />
-                </div>
-              )}
-              <div class="cat-content">
-                <h3>{post.title_tr}</h3>
-                <p>{post.summary_tr}</p>
-              </div>
-            </a>
-          ))}
-        </div>
-      </section>
-    )}
-
-    <!-- İncelemeler -->
+    <!-- 5. İNCELEMELER -->
     {incelemePosts.length > 0 && (
       <section class="category-section">
         <div class="category-header">
@@ -466,7 +333,7 @@ function getExcerpt(content: string, length: number = 120): string {
         </div>
         <div class="category-grid">
           {incelemePosts.slice(0, 4).map((post, i) => (
-            <a href={`/${post.category}/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} purple`}>
+            <a href={`/incelemeler/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} purple`}>
               {post.image_url && (
                 <div class="cat-image">
                   <img src={post.image_url} alt={post.title_tr} loading="lazy" />
@@ -482,40 +349,105 @@ function getExcerpt(content: string, length: number = 120): string {
       </section>
     )}
 
-    <!-- Sorun Çözümleri -->
-    {sorunPosts.length > 0 && (
-      <section class="category-section">
-        <div class="category-header">
-          <div class="category-title-group">
-            <span class="category-icon green">🔧</span>
-            <h2>Sorun Çözümleri</h2>
+    <!-- 6. ANKETLER - En sonda etkileşim için -->
+    <section class="polls-section">
+      <div class="category-header">
+        <div class="category-title-group">
+          <span class="category-icon poll-icon">📊</span>
+          <h2>Anketler</h2>
+        </div>
+        <span class="poll-subtitle">Topluluğun tercihleri</span>
+      </div>
+
+      <div class="polls-grid">
+        <div class="poll-card poll-gradient-1" id="pollCard">
+          <div class="poll-card-header">
+            <div class="poll-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+              Aktif Anket
+            </div>
           </div>
-          <a href="/sorun-cozumleri" class="category-link">Tümünü Gör →</a>
+          <h3 id="pollQuestion">En çok kullandığınız 3D yazıcı markası?</h3>
+          <div class="poll-options" id="pollOptions">
+            <div class="poll-option clickable" data-option-id="1" data-poll-id="4">
+              <div class="poll-bar" style="width: 35%; background: linear-gradient(90deg, #EAB308 0%, #EAB308cc 100%);"></div>
+              <span class="poll-label">Creality</span>
+              <span class="poll-percent">%35</span>
+            </div>
+            <div class="poll-option clickable" data-option-id="2" data-poll-id="4">
+              <div class="poll-bar" style="width: 25%; background: linear-gradient(90deg, #3B82F6 0%, #3B82F6cc 100%);"></div>
+              <span class="poll-label">Prusa</span>
+              <span class="poll-percent">%25</span>
+            </div>
+            <div class="poll-option clickable" data-option-id="3" data-poll-id="4">
+              <div class="poll-bar" style="width: 22%; background: linear-gradient(90deg, #8B5CF6 0%, #8B5CF6cc 100%);"></div>
+              <span class="poll-label">Bambu Lab</span>
+              <span class="poll-percent">%22</span>
+            </div>
+            <div class="poll-option clickable" data-option-id="4" data-poll-id="4">
+              <div class="poll-bar" style="width: 12%; background: linear-gradient(90deg, #10B981 0%, #10B981cc 100%);"></div>
+              <span class="poll-label">Anycubic</span>
+              <span class="poll-percent">%12</span>
+            </div>
+            <div class="poll-option clickable" data-option-id="5" data-poll-id="4">
+              <div class="poll-bar" style="width: 8%; background: linear-gradient(90deg, #06B6D4 0%, #06B6D4cc 100%);"></div>
+              <span class="poll-label">Diğer</span>
+              <span class="poll-percent">%6</span>
+            </div>
+          </div>
+          <div class="poll-footer">
+            <span class="poll-votes" id="pollVotes">127 Oy</span>
+          </div>
         </div>
-        <div class="category-grid">
-          {sorunPosts.slice(0, 4).map((post, i) => (
-            <a href={`/${post.category}/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} green`}>
-              {post.image_url && (
-                <div class="cat-image">
-                  <img src={post.image_url} alt={post.title_tr} loading="lazy" />
-                </div>
-              )}
-              <div class="cat-content">
-                <h3>{post.title_tr}</h3>
-                <p>{post.summary_tr}</p>
-              </div>
-            </a>
-          ))}
+
+        <div class="poll-card poll-gradient-2" id="slicerPollCard">
+          <div class="poll-card-header">
+            <div class="poll-badge cyan">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+              Slicer Anketi
+            </div>
+          </div>
+          <h3>Hangi Slicer Kullanıyorsunuz?</h3>
+          <div class="poll-options" id="slicerOptions">
+            <div class="poll-option clickable" data-slicer-id="1">
+              <div class="poll-bar" style="width: 33%; background: linear-gradient(90deg, #22C55E 0%, #22C55Edd 100%);"></div>
+              <span class="poll-label">Cura</span>
+              <span class="poll-percent">%33</span>
+            </div>
+            <div class="poll-option clickable" data-slicer-id="2">
+              <div class="poll-bar" style="width: 27%; background: linear-gradient(90deg, #F97316 0%, #F97316dd 100%);"></div>
+              <span class="poll-label">PrusaSlicer</span>
+              <span class="poll-percent">%27</span>
+            </div>
+            <div class="poll-option clickable" data-slicer-id="3">
+              <div class="poll-bar" style="width: 22%; background: linear-gradient(90deg, #8B5CF6 0%, #8B5CF6dd 100%);"></div>
+              <span class="poll-label">OrcaSlicer</span>
+              <span class="poll-percent">%22</span>
+            </div>
+            <div class="poll-option clickable" data-slicer-id="4">
+              <div class="poll-bar" style="width: 13%; background: linear-gradient(90deg, #06B6D4 0%, #06B6D4dd 100%);"></div>
+              <span class="poll-label">Bambu Studio</span>
+              <span class="poll-percent">%13</span>
+            </div>
+            <div class="poll-option clickable" data-slicer-id="5">
+              <div class="poll-bar" style="width: 8%; background: linear-gradient(90deg, #6B7280 0%, #6B7280dd 100%);"></div>
+              <span class="poll-label">Diğer</span>
+              <span class="poll-percent">%5</span>
+            </div>
+          </div>
+          <div class="poll-footer">
+            <span class="poll-votes" id="slicerVotes">700 Oy</span>
+          </div>
         </div>
-      </section>
-    )}
+      </div>
+    </section>
   </main>
 </BaseLayout>
 
 <style>
   /* HERO SECTION */
   .hero-section {
-    padding: 130px 20px 30px;
+    padding: 160px 20px 30px;
   }
 
   .container { max-width: 1200px; margin: 0 auto; }
@@ -1399,6 +1331,18 @@ function getExcerpt(content: string, length: number = 120): string {
   .category-icon.cyan { background: rgba(6, 182, 212, 0.15); }
   .category-icon.purple { background: rgba(168, 85, 247, 0.15); }
   .category-icon.green { background: rgba(34, 197, 94, 0.15); }
+
+  .priority-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.15));
+    color: #22C55E;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
 
   .category-header h2 {
     font-size: 1.4rem;

@@ -10,50 +10,65 @@ import Header from "../../components/Header.astro";
     <div class="container">
       <!-- Hero Section -->
       <div class="hero">
-        <div class="hero-icon">🇹🇷</div>
+        <div class="hero-badge">
+          <span class="badge-flag">🇹🇷</span>
+          <span>Yerli Üretim</span>
+        </div>
         <h1>Türk Filament Veritabanı</h1>
-        <p>Yerli markaların test sonuçları ve topluluk değerlendirmeleri</p>
-      </div>
-
-      <!-- Filtreler -->
-      <div class="filters-bar">
-        <div class="filter-group">
-          <label>Marka</label>
-          <select id="brandFilter">
-            <option value="">Tüm Markalar</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label>Malzeme</label>
-          <select id="materialFilter">
-            <option value="">Tüm Malzemeler</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label>Sırala</label>
-          <select id="sortFilter">
-            <option value="rating">En İyi Puan</option>
-            <option value="reviews">En Çok Test</option>
-            <option value="price_low">Fiyat (Düşük)</option>
-            <option value="price_high">Fiyat (Yüksek)</option>
-            <option value="newest">En Yeni</option>
-          </select>
+        <p>Türkiye'de üretilen 3D baskı filamentlerinin kapsamlı rehberi</p>
+        <div class="hero-brands">
+          <span class="brand-tag">Filamix</span>
+          <span class="brand-tag">Microzey</span>
+          <span class="brand-tag">Beta Filament</span>
+          <span class="brand-tag">Nanelab</span>
+          <span class="brand-tag">Valment</span>
+          <span class="brand-tag">Revo</span>
+          <span class="brand-tag">Porima</span>
         </div>
       </div>
 
       <!-- Stats -->
       <div class="stats-bar">
         <div class="stat">
+          <div class="stat-icon">📦</div>
           <span class="stat-value" id="totalFilaments">0</span>
-          <span class="stat-label">Filament</span>
+          <span class="stat-label">Filament Çeşidi</span>
         </div>
         <div class="stat">
+          <div class="stat-icon">🏭</div>
           <span class="stat-value" id="totalBrands">0</span>
-          <span class="stat-label">Marka</span>
+          <span class="stat-label">Türk Markası</span>
         </div>
         <div class="stat">
+          <div class="stat-icon">🧪</div>
           <span class="stat-value" id="totalTests">0</span>
-          <span class="stat-label">Test</span>
+          <span class="stat-label">Topluluk Testi</span>
+        </div>
+      </div>
+
+      <!-- Filtreler -->
+      <div class="filters-bar">
+        <div class="filter-group">
+          <label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> Marka</label>
+          <select id="brandFilter">
+            <option value="">Tüm Markalar</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg> Malzeme</label>
+          <select id="materialFilter">
+            <option value="">Tüm Malzemeler</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg> Sırala</label>
+          <select id="sortFilter">
+            <option value="price_low">Fiyat (Düşük)</option>
+            <option value="price_high">Fiyat (Yüksek)</option>
+            <option value="rating">En İyi Puan</option>
+            <option value="reviews">En Çok Test</option>
+            <option value="newest">En Yeni</option>
+          </select>
         </div>
       </div>
 
@@ -70,10 +85,17 @@ import Header from "../../components/Header.astro";
 
       <!-- Katkıda Bulun CTA -->
       <div class="contribute-cta">
-        <div class="cta-icon">🧪</div>
-        <h3>Test Sonucu Paylaş</h3>
-        <p>Kullandığın Türk filamentlerin test sonuçlarını paylaşarak topluluğa katkıda bulun!</p>
-        <a href="/filamentler/test-paylas" class="btn btn-primary">Test Sonucu Ekle</a>
+        <div class="cta-content">
+          <div class="cta-icon">🧪</div>
+          <div class="cta-text">
+            <h3>Filament Test Sonucu Paylaş</h3>
+            <p>Kullandığın Türk filamentlerin test sonuçlarını paylaşarak topluluğa katkıda bulun!</p>
+          </div>
+        </div>
+        <a href="/filamentler/test-paylas" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Test Sonucu Ekle
+        </a>
       </div>
     </div>
   </main>
@@ -81,8 +103,9 @@ import Header from "../../components/Header.astro";
 
 <style>
   .filament-page {
-    padding: 100px 20px 60px;
+    padding: 120px 20px 60px;
     min-height: 100vh;
+    background: linear-gradient(180deg, rgba(227, 10, 23, 0.03) 0%, transparent 50%);
   }
 
   .container {
@@ -90,20 +113,35 @@ import Header from "../../components/Header.astro";
     margin: 0 auto;
   }
 
+  /* Hero Section */
   .hero {
     text-align: center;
     margin-bottom: 40px;
   }
 
-  .hero-icon {
-    font-size: 4rem;
-    margin-bottom: 16px;
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, rgba(227, 10, 23, 0.15), rgba(227, 10, 23, 0.05));
+    border: 1px solid rgba(227, 10, 23, 0.3);
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #E30A17;
+    margin-bottom: 20px;
+  }
+
+  .badge-flag {
+    font-size: 1.2rem;
   }
 
   .hero h1 {
     font-size: 2.5rem;
+    font-weight: 800;
     margin-bottom: 12px;
-    background: linear-gradient(135deg, #E30A17, #FFFFFF);
+    background: linear-gradient(135deg, #E30A17 0%, #FF6B6B 50%, #E30A17 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -112,6 +150,71 @@ import Header from "../../components/Header.astro";
   .hero p {
     color: var(--text-muted);
     font-size: 1.1rem;
+    margin-bottom: 20px;
+  }
+
+  .hero-brands {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .brand-tag {
+    padding: 6px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-main);
+    transition: all 0.2s;
+  }
+
+  .brand-tag:hover {
+    border-color: #E30A17;
+    color: #E30A17;
+  }
+
+  /* Stats */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .stat {
+    text-align: center;
+    padding: 24px 16px;
+    background: var(--bg-card);
+    border-radius: 16px;
+    border: 1px solid var(--border-soft);
+    transition: all 0.2s;
+  }
+
+  .stat:hover {
+    border-color: rgba(227, 10, 23, 0.3);
+    transform: translateY(-2px);
+  }
+
+  .stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    display: block;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #E30A17;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
   }
 
   /* Filters */
@@ -122,71 +225,56 @@ import Header from "../../components/Header.astro";
     background: var(--bg-card);
     border-radius: 16px;
     border: 1px solid var(--border-soft);
-    margin-bottom: 24px;
+    margin-bottom: 32px;
     flex-wrap: wrap;
   }
 
   .filter-group {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
     flex: 1;
     min-width: 150px;
   }
 
   .filter-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-size: 0.85rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text-muted);
   }
 
+  .filter-group label svg {
+    opacity: 0.7;
+  }
+
   .filter-group select {
-    padding: 10px 14px;
+    padding: 12px 16px;
     border: 1px solid var(--border-soft);
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--bg-main);
     color: var(--text-main);
     font-size: 0.95rem;
     cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-group select:hover {
+    border-color: rgba(227, 10, 23, 0.3);
   }
 
   .filter-group select:focus {
     outline: none;
     border-color: #E30A17;
-  }
-
-  /* Stats */
-  .stats-bar {
-    display: flex;
-    gap: 24px;
-    justify-content: center;
-    margin-bottom: 32px;
-  }
-
-  .stat {
-    text-align: center;
-    padding: 16px 32px;
-    background: var(--bg-card);
-    border-radius: 12px;
-    border: 1px solid var(--border-soft);
-  }
-
-  .stat-value {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #E30A17;
-  }
-
-  .stat-label {
-    font-size: 0.85rem;
-    color: var(--text-muted);
+    box-shadow: 0 0 0 3px rgba(227, 10, 23, 0.1);
   }
 
   /* Grid */
   .filaments-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 24px;
     margin-bottom: 40px;
   }
@@ -194,9 +282,9 @@ import Header from "../../components/Header.astro";
   .filament-card {
     background: var(--bg-card);
     border: 1px solid var(--border-soft);
-    border-radius: 16px;
-    padding: 20px;
-    transition: all 0.2s;
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.3s;
     text-decoration: none;
     color: inherit;
     display: flex;
@@ -204,76 +292,162 @@ import Header from "../../components/Header.astro";
   }
 
   .filament-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(227, 10, 23, 0.15);
-    border-color: #E30A17;
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(227, 10, 23, 0.15);
+    border-color: rgba(227, 10, 23, 0.5);
+  }
+
+  .filament-color-banner {
+    height: 80px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .filament-color-banner::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(to top, var(--bg-card), transparent);
+  }
+
+  .color-spool {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 4px solid rgba(255,255,255,0.3);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2), inset 0 0 20px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1;
+  }
+
+  .color-spool::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 2px solid rgba(255,255,255,0.2);
+  }
+
+  .filament-content {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 
   .filament-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 12px;
-  }
-
-  .filament-brand {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-  }
-
-  .filament-verified {
-    background: rgba(16, 185, 129, 0.1);
-    color: #10B981;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-  }
-
-  .filament-name {
-    font-size: 1.2rem;
-    font-weight: 600;
     margin-bottom: 8px;
   }
 
-  .filament-material {
-    display: inline-block;
-    padding: 4px 10px;
-    background: rgba(227, 10, 23, 0.1);
+  .filament-brand {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     color: #E30A17;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    margin-bottom: 12px;
   }
 
-  .filament-color {
+  .filament-verified {
     display: flex;
     align-items: center;
+    gap: 4px;
+    background: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .filament-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+
+  .filament-tags {
+    display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     margin-bottom: 16px;
   }
 
-  .color-dot {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
+  .filament-material {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, rgba(227, 10, 23, 0.1), rgba(227, 10, 23, 0.05));
+    color: #E30A17;
+    border: 1px solid rgba(227, 10, 23, 0.2);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .filament-color-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--bg-main);
     border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    font-size: 0.8rem;
+  }
+
+  .color-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  .filament-specs {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .spec-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
 
   .filament-rating {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
   }
 
   .stars {
     color: #fbbf24;
     font-size: 1rem;
+    letter-spacing: -1px;
   }
 
   .rating-value {
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 0.95rem;
   }
 
   .rating-count {
@@ -283,7 +457,7 @@ import Header from "../../components/Header.astro";
 
   .filament-price {
     margin-top: auto;
-    padding-top: 12px;
+    padding-top: 16px;
     border-top: 1px solid var(--border-soft);
     display: flex;
     justify-content: space-between;
@@ -291,28 +465,31 @@ import Header from "../../components/Header.astro";
   }
 
   .price-value {
-    font-size: 1.25rem;
-    font-weight: 700;
+    font-size: 1.5rem;
+    font-weight: 800;
     color: #E30A17;
   }
 
   .price-unit {
     font-size: 0.85rem;
     color: var(--text-muted);
+    background: var(--bg-main);
+    padding: 4px 10px;
+    border-radius: 8px;
   }
 
   /* Loading */
   .loading-state {
     grid-column: 1 / -1;
     text-align: center;
-    padding: 60px 20px;
+    padding: 80px 20px;
     color: var(--text-muted);
   }
 
   .spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid var(--border-soft);
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--border-soft);
     border-top-color: #E30A17;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
@@ -332,22 +509,24 @@ import Header from "../../components/Header.astro";
   }
 
   .pagination button {
-    padding: 10px 16px;
+    padding: 12px 18px;
     border: 1px solid var(--border-soft);
     background: var(--bg-card);
     color: var(--text-main);
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
+    font-weight: 500;
     transition: all 0.2s;
   }
 
   .pagination button:hover:not(:disabled) {
     border-color: #E30A17;
     color: #E30A17;
+    transform: translateY(-2px);
   }
 
   .pagination button.active {
-    background: #E30A17;
+    background: linear-gradient(135deg, #E30A17, #FF4444);
     border-color: #E30A17;
     color: white;
   }
@@ -359,57 +538,68 @@ import Header from "../../components/Header.astro";
 
   /* CTA */
   .contribute-cta {
-    text-align: center;
-    padding: 40px;
-    background: linear-gradient(135deg, rgba(227, 10, 23, 0.1), rgba(255, 255, 255, 0.05));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 32px 40px;
+    background: linear-gradient(135deg, rgba(227, 10, 23, 0.1), rgba(227, 10, 23, 0.02));
     border-radius: 20px;
-    border: 1px solid rgba(227, 10, 23, 0.3);
+    border: 1px solid rgba(227, 10, 23, 0.2);
+  }
+
+  .cta-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
   }
 
   .cta-icon {
-    font-size: 3rem;
-    margin-bottom: 16px;
+    font-size: 2.5rem;
+    background: rgba(227, 10, 23, 0.1);
+    padding: 16px;
+    border-radius: 16px;
   }
 
-  .contribute-cta h3 {
-    font-size: 1.5rem;
-    margin-bottom: 12px;
+  .cta-text h3 {
+    font-size: 1.25rem;
+    margin-bottom: 4px;
   }
 
-  .contribute-cta p {
+  .cta-text p {
     color: var(--text-muted);
-    margin-bottom: 20px;
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
+    font-size: 0.95rem;
+    margin: 0;
   }
 
   .btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 24px;
-    border-radius: 10px;
+    padding: 14px 28px;
+    border-radius: 12px;
     font-weight: 600;
     text-decoration: none;
     transition: all 0.2s;
+    white-space: nowrap;
   }
 
   .btn-primary {
-    background: #E30A17;
+    background: linear-gradient(135deg, #E30A17, #FF4444);
     color: white;
+    box-shadow: 0 4px 12px rgba(227, 10, 23, 0.3);
   }
 
   .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(227, 10, 23, 0.3);
+    box-shadow: 0 6px 20px rgba(227, 10, 23, 0.4);
   }
 
   /* Empty State */
   .empty-state {
     grid-column: 1 / -1;
     text-align: center;
-    padding: 60px 20px;
+    padding: 80px 20px;
     color: var(--text-muted);
   }
 
@@ -419,30 +609,71 @@ import Header from "../../components/Header.astro";
   }
 
   @media (max-width: 768px) {
+    .filament-page {
+      padding: 100px 16px 40px;
+    }
+
     .hero h1 {
       font-size: 1.75rem;
     }
 
+    .hero-brands {
+      gap: 6px;
+    }
+
+    .brand-tag {
+      padding: 4px 10px;
+      font-size: 0.8rem;
+    }
+
+    .stats-bar {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .stat {
+      padding: 16px 8px;
+    }
+
+    .stat-icon {
+      font-size: 1.2rem;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+    }
+
     .filters-bar {
       flex-direction: column;
+      padding: 16px;
     }
 
     .filter-group {
       width: 100%;
     }
 
-    .stats-bar {
-      flex-wrap: wrap;
-    }
-
-    .stat {
-      flex: 1;
-      min-width: 100px;
-      padding: 12px 16px;
-    }
-
     .filaments-grid {
       grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .contribute-cta {
+      flex-direction: column;
+      text-align: center;
+      padding: 24px;
+    }
+
+    .cta-content {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+      justify-content: center;
     }
   }
 </style>
@@ -550,27 +781,39 @@ import Header from "../../components/Header.astro";
   function renderFilamentCard(f) {
     const stars = getStars(f.avg_rating || 0);
     const colorStyle = getColorStyle(f.color);
+    const bannerStyle = getBannerStyle(f.color);
 
     return `
       <a href="/filamentler/${f.id}" class="filament-card">
-        <div class="filament-header">
-          <span class="filament-brand">${f.brand}</span>
-          ${f.is_verified ? '<span class="filament-verified">✓ Doğrulanmış</span>' : ''}
+        <div class="filament-color-banner" style="${bannerStyle}">
+          <div class="color-spool" style="${colorStyle}"></div>
         </div>
-        <h3 class="filament-name">${f.model}</h3>
-        <span class="filament-material">${f.material_type}</span>
-        <div class="filament-color">
-          <span class="color-dot" style="${colorStyle}"></span>
-          <span>${f.color || 'Belirtilmemiş'}</span>
-        </div>
-        <div class="filament-rating">
-          <span class="stars">${stars}</span>
-          <span class="rating-value">${(f.avg_rating || 0).toFixed(1)}</span>
-          <span class="rating-count">(${f.total_reviews || 0} test)</span>
-        </div>
-        <div class="filament-price">
-          ${f.price_tl ? `<span class="price-value">₺${f.price_tl.toFixed(2)}</span>` : '<span class="price-value">-</span>'}
-          <span class="price-unit">${f.weight_grams}g</span>
+        <div class="filament-content">
+          <div class="filament-header">
+            <span class="filament-brand">${f.brand}</span>
+            ${f.is_verified ? '<span class="filament-verified"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Doğrulanmış</span>' : ''}
+          </div>
+          <h3 class="filament-name">${f.model}</h3>
+          <div class="filament-tags">
+            <span class="filament-material">${f.material_type}</span>
+            <span class="filament-color-tag">
+              <span class="color-dot" style="${colorStyle}"></span>
+              ${f.color || 'Belirtilmemiş'}
+            </span>
+          </div>
+          <div class="filament-specs">
+            <span class="spec-item">⌀ ${f.diameter}mm</span>
+            <span class="spec-item">${f.weight_grams}g</span>
+          </div>
+          <div class="filament-rating">
+            <span class="stars">${stars}</span>
+            <span class="rating-value">${(f.avg_rating || 0).toFixed(1)}</span>
+            <span class="rating-count">(${f.total_reviews || 0} test)</span>
+          </div>
+          <div class="filament-price">
+            ${f.price_tl ? `<span class="price-value">₺${f.price_tl.toFixed(0)}</span>` : '<span class="price-value">-</span>'}
+            <span class="price-unit">${f.weight_grams}g / ${f.diameter}mm</span>
+          </div>
         </div>
       </a>
     `;
@@ -603,11 +846,39 @@ import Header from "../../components/Header.astro";
       'Altın': '#D4AF37',
       'Gumus': '#C0C0C0',
       'Gümüş': '#C0C0C0',
-      'Seffaf': 'linear-gradient(135deg, rgba(255,255,255,0.8), rgba(200,200,200,0.3))',
-      'Şeffaf': 'linear-gradient(135deg, rgba(255,255,255,0.8), rgba(200,200,200,0.3))'
+      'Naturel': '#E5DDD0',
+      'Seffaf': 'linear-gradient(135deg, rgba(255,255,255,0.9), rgba(200,220,255,0.5))',
+      'Şeffaf': 'linear-gradient(135deg, rgba(255,255,255,0.9), rgba(200,220,255,0.5))'
     };
     const color = colorMap[colorName] || '#6B7280';
     return color.includes('gradient') ? `background: ${color}` : `background-color: ${color}`;
+  }
+
+  function getBannerStyle(colorName) {
+    const colorMap = {
+      'Beyaz': 'linear-gradient(135deg, #f8f8f8 0%, #e0e0e0 100%)',
+      'Siyah': 'linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%)',
+      'Kirmizi': 'linear-gradient(135deg, #E30A17 0%, #ff4444 100%)',
+      'Kırmızı': 'linear-gradient(135deg, #E30A17 0%, #ff4444 100%)',
+      'Mavi': 'linear-gradient(135deg, #3B82F6 0%, #60a5fa 100%)',
+      'Yesil': 'linear-gradient(135deg, #10B981 0%, #34d399 100%)',
+      'Yeşil': 'linear-gradient(135deg, #10B981 0%, #34d399 100%)',
+      'Sari': 'linear-gradient(135deg, #FBBF24 0%, #fcd34d 100%)',
+      'Sarı': 'linear-gradient(135deg, #FBBF24 0%, #fcd34d 100%)',
+      'Turuncu': 'linear-gradient(135deg, #F97316 0%, #fb923c 100%)',
+      'Mor': 'linear-gradient(135deg, #8B5CF6 0%, #a78bfa 100%)',
+      'Pembe': 'linear-gradient(135deg, #EC4899 0%, #f472b6 100%)',
+      'Gri': 'linear-gradient(135deg, #6B7280 0%, #9ca3af 100%)',
+      'Kahverengi': 'linear-gradient(135deg, #92400E 0%, #b45309 100%)',
+      'Altin': 'linear-gradient(135deg, #D4AF37 0%, #f5d77a 100%)',
+      'Altın': 'linear-gradient(135deg, #D4AF37 0%, #f5d77a 100%)',
+      'Gumus': 'linear-gradient(135deg, #C0C0C0 0%, #e5e5e5 100%)',
+      'Gümüş': 'linear-gradient(135deg, #C0C0C0 0%, #e5e5e5 100%)',
+      'Naturel': 'linear-gradient(135deg, #E5DDD0 0%, #f5efe8 100%)',
+      'Seffaf': 'linear-gradient(135deg, rgba(200,220,255,0.3) 0%, rgba(255,255,255,0.5) 100%)',
+      'Şeffaf': 'linear-gradient(135deg, rgba(200,220,255,0.3) 0%, rgba(255,255,255,0.5) 100%)'
+    };
+    return `background: ${colorMap[colorName] || 'linear-gradient(135deg, #6B7280 0%, #9ca3af 100%)'}`;
   }
 
   function renderPagination() {

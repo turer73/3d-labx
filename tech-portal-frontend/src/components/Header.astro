@@ -34,8 +34,7 @@ const currentPath = Astro.url.pathname;
 
     <nav class="desktop-nav">
       <div class="nav-dropdown-wrapper">
-        <a href="/3d-baski" class={`nav-3dprint ${currentPath.startsWith("/3d-baski") || currentPath.startsWith("/rehberler") || currentPath.startsWith("/sorun-cozumleri") || currentPath.startsWith("/filamentler") ? "active" : ""}`}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+        <a href="/3d-baski" class={`nav-btn nav-btn-orange ${currentPath.startsWith("/3d-baski") || currentPath.startsWith("/rehberler") || currentPath.startsWith("/sorun-cozumleri") || currentPath.startsWith("/filamentler") ? "active" : ""}`}>
           3D Baskı
           <svg class="dropdown-chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
         </a>
@@ -62,10 +61,9 @@ const currentPath = Astro.url.pathname;
           </a>
         </div>
       </div>
-      <a href="/incelemeler" class={currentPath.startsWith("/incelemeler") ? "active" : ""}>İncelemeler</a>
+      <a href="/incelemeler" class={`nav-btn nav-btn-cyan ${currentPath.startsWith("/incelemeler") ? "active" : ""}`}>İncelemeler</a>
       <div class="nav-dropdown-wrapper">
-        <a href="/topluluk" class={`nav-community ${currentPath.startsWith("/topluluk") ? "active" : ""}`}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <a href="/topluluk" class={`nav-btn nav-btn-purple ${currentPath.startsWith("/topluluk") ? "active" : ""}`}>
           Topluluk
           <svg class="dropdown-chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
         </a>
@@ -88,10 +86,7 @@ const currentPath = Astro.url.pathname;
           </a>
         </div>
       </div>
-      <a href="https://magaza.3d-labx.com" class="nav-store" target="_blank">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-        Mağaza
-      </a>
+      <a href="https://magaza.3d-labx.com" class="nav-btn nav-btn-green" target="_blank">Mağaza</a>
     </nav>
 
     <div class="header-actions">
@@ -674,38 +669,87 @@ const currentPath = Astro.url.pathname;
     background: rgba(37, 99, 235, 0.1);
   }
 
-  /* Topluluk Button Special Style */
-  .desktop-nav a.nav-community {
+  /* Nav Button Styles - Unified */
+  .desktop-nav a.nav-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(234, 179, 8, 0.1));
-    border: 1px solid rgba(249, 115, 22, 0.3);
-    color: #F97316;
+    gap: 4px;
+    border: 1px solid;
+    border-radius: 12px;
   }
 
-  .desktop-nav a.nav-community:hover {
+  .desktop-nav a.nav-btn .dropdown-chevron {
+    width: 12px;
+    height: 12px;
+    transition: transform 0.2s ease;
+  }
+
+  /* Orange - 3D Baskı */
+  .desktop-nav a.nav-btn-orange {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(234, 179, 8, 0.1));
+    border-color: rgba(249, 115, 22, 0.3);
+    color: #F97316;
+  }
+  .desktop-nav a.nav-btn-orange:hover {
     background: linear-gradient(135deg, rgba(249, 115, 22, 0.25), rgba(234, 179, 8, 0.2));
     border-color: rgba(249, 115, 22, 0.5);
     color: #F97316;
   }
-
-  .desktop-nav a.nav-community.active {
+  .desktop-nav a.nav-btn-orange.active {
     background: linear-gradient(135deg, #F97316, #EAB308);
     color: white;
     border-color: transparent;
   }
 
-  .desktop-nav a.nav-community svg {
-    width: 16px;
-    height: 16px;
+  /* Cyan - İncelemeler */
+  .desktop-nav a.nav-btn-cyan {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(34, 211, 238, 0.1));
+    border-color: rgba(6, 182, 212, 0.3);
+    color: #06B6D4;
+  }
+  .desktop-nav a.nav-btn-cyan:hover {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(34, 211, 238, 0.2));
+    border-color: rgba(6, 182, 212, 0.5);
+    color: #06B6D4;
+  }
+  .desktop-nav a.nav-btn-cyan.active {
+    background: linear-gradient(135deg, #06B6D4, #22D3EE);
+    color: white;
+    border-color: transparent;
   }
 
-  .desktop-nav a.nav-community .dropdown-chevron {
-    width: 12px;
-    height: 12px;
-    margin-left: 2px;
-    transition: transform 0.2s ease;
+  /* Purple - Topluluk */
+  .desktop-nav a.nav-btn-purple {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(192, 132, 252, 0.1));
+    border-color: rgba(168, 85, 247, 0.3);
+    color: #A855F7;
+  }
+  .desktop-nav a.nav-btn-purple:hover {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(192, 132, 252, 0.2));
+    border-color: rgba(168, 85, 247, 0.5);
+    color: #A855F7;
+  }
+  .desktop-nav a.nav-btn-purple.active {
+    background: linear-gradient(135deg, #A855F7, #C084FC);
+    color: white;
+    border-color: transparent;
+  }
+
+  /* Green - Mağaza */
+  .desktop-nav a.nav-btn-green {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(16, 185, 129, 0.1));
+    border-color: rgba(34, 197, 94, 0.3);
+    color: #22C55E;
+  }
+  .desktop-nav a.nav-btn-green:hover {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(16, 185, 129, 0.2));
+    border-color: rgba(34, 197, 94, 0.5);
+    color: #22C55E;
+  }
+  .desktop-nav a.nav-btn-green.active {
+    background: linear-gradient(135deg, #22C55E, #10B981);
+    color: white;
+    border-color: transparent;
   }
 
   /* Nav Dropdown */
@@ -763,32 +807,6 @@ const currentPath = Astro.url.pathname;
     font-size: 1.1rem;
   }
 
-  /* Mağaza Button Special Style */
-  .desktop-nav a.nav-store {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(16, 185, 129, 0.1));
-    border: 1px solid rgba(34, 197, 94, 0.3);
-    color: #22C55E;
-  }
-
-  .desktop-nav a.nav-store:hover {
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(16, 185, 129, 0.2));
-    border-color: rgba(34, 197, 94, 0.5);
-    color: #22C55E;
-  }
-
-  .desktop-nav a.nav-store.active {
-    background: linear-gradient(135deg, #22C55E, #10B981);
-    color: white;
-    border-color: transparent;
-  }
-
-  .desktop-nav a.nav-store svg {
-    width: 16px;
-    height: 16px;
-  }
 
   /* Header Actions */
   .header-actions {
