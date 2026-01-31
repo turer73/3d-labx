@@ -4625,9 +4625,124 @@ async function updateFilamentPrices(env) {
     await markBestDeals(env);
 
     console.log(`Filament prices updated: ${added} products added`);
+
+    // turkish_filaments tablosundaki fiyatları da güncelle
+    await syncTurkishFilamentPrices(env, allProducts);
+
   } catch (error) {
     console.error("Filament DB update error:", error.message);
   }
+}
+
+// turkish_filaments tablosunu filament_prices'dan güncelle
+async function syncTurkishFilamentPrices(env, scrapedProducts) {
+  console.log("Syncing turkish_filaments prices...");
+
+  // Tüm Türk filamentlerini al
+  const turkishFilaments = await env.DB.prepare(`
+    SELECT id, brand, model, material_type, color FROM turkish_filaments
+  `).all();
+
+  if (!turkishFilaments.results || turkishFilaments.results.length === 0) {
+    console.log("No turkish filaments found to sync");
+    return;
+  }
+
+  let updated = 0;
+
+  for (const filament of turkishFilaments.results) {
+    // Scrape edilen ürünler arasında eşleşme ara
+    const match = findBestPriceMatch(filament, scrapedProducts);
+
+    if (match) {
+      try {
+        await env.DB.prepare(`
+          UPDATE turkish_filaments
+          SET price_tl = ?, updated_at = CURRENT_TIMESTAMP
+          WHERE id = ?
+        `).bind(match.price_tl, filament.id).run();
+        updated++;
+        console.log(`Updated price for ${filament.brand} ${filament.model}: ${match.price_tl} TL`);
+      } catch (e) {
+        console.error(`Failed to update ${filament.brand}:`, e.message);
+      }
+    }
+  }
+
+  console.log(`Turkish filaments synced: ${updated}/${turkishFilaments.results.length} updated`);
+}
+
+// Filament için en uygun fiyat eşleşmesini bul
+function findBestPriceMatch(filament, products) {
+  const brandLower = filament.brand.toLowerCase();
+  const materialLower = filament.material_type.toLowerCase();
+  const colorLower = (filament.color || "").toLowerCase();
+
+  // Marka eşleşmeleri için alternatif isimler
+  const brandAliases = {
+    "elas 3d": ["elas", "elas3d", "elas 3d"],
+    "filamix": ["filamix"],
+    "microzey": ["microzey"],
+    "beta filament": ["beta", "beta filament"],
+    "nanelab": ["nanelab"],
+    "valment": ["valment"],
+    "revo filament": ["revo", "revo filament"],
+    "porima": ["porima"],
+    "filameon": ["filameon"]
+  };
+
+  // Bu marka için olası alias'ları al
+  let brandNames = [brandLower];
+  for (const [key, aliases] of Object.entries(brandAliases)) {
+    if (brandLower.includes(key) || aliases.some(a => brandLower.includes(a))) {
+      brandNames = [...brandNames, ...aliases];
+      break;
+    }
+  }
+
+  // Ürünler arasında en iyi eşleşmeyi bul
+  let bestMatch = null;
+  let bestScore = 0;
+
+  for (const product of products) {
+    const productBrand = product.brand.toLowerCase();
+    const productName = product.product_name.toLowerCase();
+    const productType = product.filament_type.toLowerCase();
+    const productColor = (product.color || "").toLowerCase();
+
+    // Marka kontrolü
+    const brandMatch = brandNames.some(bn =>
+      productBrand.includes(bn) || productName.includes(bn)
+    );
+    if (!brandMatch) continue;
+
+    // Malzeme türü kontrolü (PLA, PETG, ABS vb.)
+    const materialMatch = productType.includes(materialLower.replace("+", "")) ||
+                          materialLower.includes(productType.replace("+", ""));
+    if (!materialMatch) continue;
+
+    // Puan hesapla
+    let score = 10; // Marka ve malzeme eşleşti
+
+    // Renk eşleşmesi bonus
+    if (colorLower && productColor) {
+      if (productColor.includes(colorLower) || colorLower.includes(productColor)) {
+        score += 5;
+      }
+    }
+
+    // Model adı eşleşmesi bonus
+    if (filament.model && productName.includes(filament.model.toLowerCase())) {
+      score += 3;
+    }
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = product;
+    }
+  }
+
+  return bestMatch;
 }
 
 // FilamentMarketim için özel parser - geliştirilmiş versiyon
