@@ -17,10 +17,12 @@ import Header from "../../components/Header.astro";
         <h1>Türk Filament Veritabanı</h1>
         <p>Türkiye'de üretilen 3D baskı filamentlerinin kapsamlı rehberi</p>
         <div class="hero-brands">
+          <span class="brand-tag">Elas 3D</span>
           <span class="brand-tag">Filamix</span>
           <span class="brand-tag">Microzey</span>
           <span class="brand-tag">Beta Filament</span>
           <span class="brand-tag">Nanelab</span>
+          <span class="brand-tag">Filameon</span>
           <span class="brand-tag">Valment</span>
           <span class="brand-tag">Revo</span>
           <span class="brand-tag">Porima</span>
@@ -80,8 +82,11 @@ import Header from "../../components/Header.astro";
         </div>
       </div>
 
-      <!-- Pagination -->
-      <div class="pagination" id="pagination"></div>
+      <!-- Loading More Indicator -->
+      <div class="load-more-indicator" id="loadMoreIndicator" style="display: none;">
+        <div class="spinner"></div>
+        <p>Daha fazla yükleniyor...</p>
+      </div>
 
       <!-- Katkıda Bulun CTA -->
       <div class="contribute-cta">
@@ -101,7 +106,7 @@ import Header from "../../components/Header.astro";
   </main>
 </BaseLayout>
 
-<style>
+<style is:global>
   .filament-page {
     padding: 120px 20px 60px;
     min-height: 100vh;
@@ -500,40 +505,20 @@ import Header from "../../components/Header.astro";
     to { transform: rotate(360deg); }
   }
 
-  /* Pagination */
-  .pagination {
+  /* Load More Indicator */
+  .load-more-indicator {
     display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    gap: 8px;
-    margin-bottom: 40px;
+    padding: 40px 20px;
+    color: var(--text-muted);
   }
 
-  .pagination button {
-    padding: 12px 18px;
-    border: 1px solid var(--border-soft);
-    background: var(--bg-card);
-    color: var(--text-main);
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s;
-  }
-
-  .pagination button:hover:not(:disabled) {
-    border-color: #E30A17;
-    color: #E30A17;
-    transform: translateY(-2px);
-  }
-
-  .pagination button.active {
-    background: linear-gradient(135deg, #E30A17, #FF4444);
-    border-color: #E30A17;
-    color: white;
-  }
-
-  .pagination button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  .load-more-indicator .spinner {
+    width: 36px;
+    height: 36px;
+    border-width: 3px;
   }
 
   /* CTA */
@@ -682,32 +667,56 @@ import Header from "../../components/Header.astro";
   const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
   let currentPage = 1;
   let totalPages = 1;
+  let isLoading = false;
+  let allFilamentsLoaded = false;
 
   document.addEventListener('DOMContentLoaded', () => {
-    loadFilaments();
+    loadFilaments(true);
 
     document.getElementById('brandFilter').addEventListener('change', () => {
-      currentPage = 1;
-      loadFilaments();
+      resetAndLoad();
     });
     document.getElementById('materialFilter').addEventListener('change', () => {
-      currentPage = 1;
-      loadFilaments();
+      resetAndLoad();
     });
     document.getElementById('sortFilter').addEventListener('change', () => {
-      currentPage = 1;
-      loadFilaments();
+      resetAndLoad();
+    });
+
+    // Infinite Scroll
+    window.addEventListener('scroll', () => {
+      if (isLoading || allFilamentsLoaded) return;
+
+      const scrollPosition = window.innerHeight + window.scrollY;
+      const threshold = document.body.offsetHeight - 500;
+
+      if (scrollPosition >= threshold) {
+        loadMoreFilaments();
+      }
     });
   });
 
-  async function loadFilaments() {
+  function resetAndLoad() {
+    currentPage = 1;
+    allFilamentsLoaded = false;
+    loadFilaments(true);
+  }
+
+  async function loadFilaments(isInitial = false) {
+    if (isLoading) return;
+    isLoading = true;
+
     const grid = document.getElementById('filamentsGrid');
-    grid.innerHTML = `
-      <div class="loading-state">
-        <div class="spinner"></div>
-        <p>Filamentler yükleniyor...</p>
-      </div>
-    `;
+    const loadIndicator = document.getElementById('loadMoreIndicator');
+
+    if (isInitial) {
+      grid.innerHTML = `
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Filamentler yükleniyor...</p>
+        </div>
+      `;
+    }
 
     const brand = document.getElementById('brandFilter').value;
     const material = document.getElementById('materialFilter').value;
@@ -733,31 +742,55 @@ import Header from "../../components/Header.astro";
       document.getElementById('totalBrands').textContent = data.brands.length;
 
       // Grid'i güncelle
-      if (data.filaments.length === 0) {
+      if (data.filaments.length === 0 && isInitial) {
         grid.innerHTML = `
           <div class="empty-state">
             <div class="empty-icon">🔍</div>
             <p>Filament bulunamadı</p>
           </div>
         `;
+        isLoading = false;
         return;
       }
 
-      grid.innerHTML = data.filaments.map(f => renderFilamentCard(f)).join('');
+      const cardsHTML = data.filaments.map(f => renderFilamentCard(f)).join('');
 
-      // Pagination
+      if (isInitial) {
+        grid.innerHTML = cardsHTML;
+      } else {
+        grid.insertAdjacentHTML('beforeend', cardsHTML);
+        loadIndicator.style.display = 'none';
+      }
+
+      // Check if all loaded
       totalPages = data.pagination.totalPages;
-      renderPagination();
+      if (currentPage >= totalPages) {
+        allFilamentsLoaded = true;
+      }
 
     } catch (error) {
       console.error('Filament load error:', error);
-      grid.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">⚠️</div>
-          <p>Filamentler yüklenirken hata oluştu</p>
-        </div>
-      `;
+      if (isInitial) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">⚠️</div>
+            <p>Filamentler yüklenirken hata oluştu</p>
+          </div>
+        `;
+      }
     }
+
+    isLoading = false;
+  }
+
+  function loadMoreFilaments() {
+    if (allFilamentsLoaded || isLoading) return;
+
+    currentPage++;
+    const loadIndicator = document.getElementById('loadMoreIndicator');
+    loadIndicator.style.display = 'flex';
+
+    loadFilaments(false);
   }
 
   function updateFilters(brands, materials) {
@@ -881,31 +914,4 @@ import Header from "../../components/Header.astro";
     return `background: ${colorMap[colorName] || 'linear-gradient(135deg, #6B7280 0%, #9ca3af 100%)'}`;
   }
 
-  function renderPagination() {
-    const pagination = document.getElementById('pagination');
-    if (totalPages <= 1) {
-      pagination.innerHTML = '';
-      return;
-    }
-
-    let html = '';
-    html += `<button ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">← Önceki</button>`;
-
-    for (let i = 1; i <= totalPages; i++) {
-      if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-        html += `<button class="${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
-      } else if (i === currentPage - 2 || i === currentPage + 2) {
-        html += `<span style="padding: 10px;">...</span>`;
-      }
-    }
-
-    html += `<button ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">Sonraki →</button>`;
-    pagination.innerHTML = html;
-  }
-
-  window.goToPage = function(page) {
-    currentPage = page;
-    loadFilaments();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 </script>
