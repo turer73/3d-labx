@@ -17,15 +17,15 @@ import Header from "../../components/Header.astro";
         <h1>Türk Filament Veritabanı</h1>
         <p>Türkiye'de üretilen 3D baskı filamentlerinin kapsamlı rehberi</p>
         <div class="hero-brands">
-          <span class="brand-tag">Elas 3D</span>
-          <span class="brand-tag">Filamix</span>
-          <span class="brand-tag">Microzey</span>
-          <span class="brand-tag">Beta Filament</span>
-          <span class="brand-tag">Nanelab</span>
-          <span class="brand-tag">Filameon</span>
-          <span class="brand-tag">Valment</span>
-          <span class="brand-tag">Revo</span>
-          <span class="brand-tag">Porima</span>
+          <span class="brand-tag" data-brand="Elas 3D">Elas 3D</span>
+          <span class="brand-tag" data-brand="Filamix">Filamix</span>
+          <span class="brand-tag" data-brand="Microzey">Microzey</span>
+          <span class="brand-tag" data-brand="Beta Filament">Beta Filament</span>
+          <span class="brand-tag" data-brand="Nanelab">Nanelab</span>
+          <span class="brand-tag" data-brand="Filameon">Filameon</span>
+          <span class="brand-tag" data-brand="Valment">Valment</span>
+          <span class="brand-tag" data-brand="Revo Filament">Revo</span>
+          <span class="brand-tag" data-brand="Porima">Porima</span>
         </div>
       </div>
 
@@ -174,11 +174,19 @@ import Header from "../../components/Header.astro";
     font-weight: 500;
     color: var(--text-main);
     transition: all 0.2s;
+    cursor: pointer;
   }
 
   .brand-tag:hover {
     border-color: #E30A17;
     color: #E30A17;
+    transform: translateY(-2px);
+  }
+
+  .brand-tag.active {
+    background: #E30A17;
+    border-color: #E30A17;
+    color: white;
   }
 
   /* Stats */
@@ -694,6 +702,31 @@ import Header from "../../components/Header.astro";
         loadMoreFilaments();
       }
     });
+
+    // Brand Tag Click - Marka filtreleme
+    document.querySelectorAll('.brand-tag').forEach(tag => {
+      tag.addEventListener('click', () => {
+        const brandName = tag.dataset.brand;
+        const brandSelect = document.getElementById('brandFilter');
+
+        // Toggle: Aynı markaya tekrar tıklanırsa filtreyi kaldır
+        if (brandSelect.value === brandName) {
+          brandSelect.value = '';
+          tag.classList.remove('active');
+        } else {
+          // Önce tüm tag'lerden active'i kaldır
+          document.querySelectorAll('.brand-tag').forEach(t => t.classList.remove('active'));
+          // Seçilen tag'e active ekle
+          tag.classList.add('active');
+          brandSelect.value = brandName;
+        }
+
+        resetAndLoad();
+
+        // Filament grid'e smooth scroll
+        document.getElementById('filamentsGrid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
   });
 
   function resetAndLoad() {
@@ -809,6 +842,15 @@ import Header from "../../components/Header.astro";
       materialOptions.push(`<option value="${m}" ${m === currentMaterial ? 'selected' : ''}>${m}</option>`);
     });
     materialSelect.innerHTML = materialOptions.join('');
+
+    // Brand tag'lerin active state'ini güncelle
+    document.querySelectorAll('.brand-tag').forEach(tag => {
+      if (tag.dataset.brand === currentBrand) {
+        tag.classList.add('active');
+      } else {
+        tag.classList.remove('active');
+      }
+    });
   }
 
   function renderFilamentCard(f) {
