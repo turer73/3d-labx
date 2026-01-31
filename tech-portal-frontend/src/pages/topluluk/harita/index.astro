@@ -1,0 +1,821 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Header from "../../../components/Header.astro";
+import { getApiBase } from "../../../lib/api";
+
+export const prerender = false;
+
+const API_BASE = getApiBase(Astro.request);
+
+const url = new URL(Astro.request.url);
+const selectedCity = url.searchParams.get("city") || "";
+const filterPrinting = url.searchParams.get("printing") === "1";
+
+let cities: any[] = [];
+let makers: any[] = [];
+
+// İlleri çek
+try {
+  const res = await fetch(`${API_BASE}/api/map/cities`);
+  if (res.ok) {
+    const data = await res.json();
+    cities = data.cities || [];
+  }
+} catch (e) {
+  console.error("Cities yüklenemedi:", e);
+}
+
+// Maker'ları çek
+try {
+  let apiUrl = `${API_BASE}/api/map/makers?limit=50`;
+  if (selectedCity) apiUrl += `&city=${encodeURIComponent(selectedCity)}`;
+  if (filterPrinting) apiUrl += `&offers_printing=1`;
+
+  const res = await fetch(apiUrl);
+  if (res.ok) {
+    const data = await res.json();
+    makers = data.makers || [];
+  }
+} catch (e) {
+  console.error("Makers yüklenemedi:", e);
+}
+
+// Printers'ı parse et
+function parsePrinters(printers: string): string[] {
+  try {
+    return JSON.parse(printers || '[]');
+  } catch {
+    return [];
+  }
+}
+
+// Specialties'i parse et
+function parseSpecialties(specialties: string): string[] {
+  try {
+    return JSON.parse(specialties || '[]');
+  } catch {
+    return [];
+  }
+}
+
+// Level badge
+function getLevelBadge(points: number): { emoji: string; label: string; color: string } {
+  if (points >= 2000) return { emoji: '👑', label: 'Büyükusta', color: '#FFD700' };
+  if (points >= 501) return { emoji: '⚙️', label: 'Usta', color: '#8B5CF6' };
+  if (points >= 101) return { emoji: '🔧', label: 'Kalfa', color: '#3B82F6' };
+  return { emoji: '🌱', label: 'Çırak', color: '#10B981' };
+}
+
+// Toplam maker sayısı
+const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
+---
+
+<BaseLayout
+  title="Maker Haritası - Türkiye'deki 3D Baskıcılar - 3D-labX"
+  description="Türkiye'deki 3D baskı meraklılarını keşfet. Şehrindeki maker'larla tanış, yardım al veya ver."
+>
+  <Header />
+
+  <main class="map-page">
+    <div class="container">
+      <div class="page-header">
+        <div class="header-left">
+          <nav class="breadcrumb">
+            <a href="/topluluk">Topluluk</a>
+            <span>/</span>
+            <span>Maker Haritası</span>
+          </nav>
+          <h1>🗺️ Maker Haritası</h1>
+          <p>Türkiye'deki 3D baskı tutkunlarını keşfet</p>
+        </div>
+        <div class="header-right">
+          <a href="/topluluk/harita/profil" class="btn btn-primary" id="joinMapBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Haritaya Katıl
+          </a>
+        </div>
+      </div>
+
+      <!-- İstatistikler -->
+      <div class="stats-overview">
+        <div class="stat-card">
+          <span class="stat-number">{totalMakers}</span>
+          <span class="stat-label">Toplam Maker</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number">{cities.filter(c => c.maker_count > 0).length}</span>
+          <span class="stat-label">Aktif İl</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number">{makers.filter(m => m.offers_printing).length}</span>
+          <span class="stat-label">Baskı Hizmeti</span>
+        </div>
+      </div>
+
+      <!-- Info Banner -->
+      <div class="info-banner">
+        <div class="info-icon">🤝</div>
+        <div class="info-content">
+          <h3>Maker Haritası Nedir?</h3>
+          <p>
+            Şehrindeki 3D baskı meraklılarını bul, tanış, fikir al. İster yardıma ihtiyacın olsun,
+            ister tecrübeni paylaşmak iste - Maker Haritası seni doğru kişilerle buluşturur.
+          </p>
+          <small>⚠️ Platform sadece tanıştırma amaçlıdır. Ticari işlemler kullanıcıların sorumluluğundadır.</small>
+        </div>
+      </div>
+
+      <div class="content-grid">
+        <!-- Sol: İl Listesi -->
+        <aside class="cities-sidebar">
+          <h3>📍 İller</h3>
+          <div class="cities-list">
+            <a
+              href="/topluluk/harita"
+              class={`city-item ${!selectedCity ? 'active' : ''}`}
+            >
+              <span class="city-name">Tüm Türkiye</span>
+              <span class="city-count">{totalMakers}</span>
+            </a>
+            {cities.filter(c => c.maker_count > 0).map(city => (
+              <a
+                href={`/topluluk/harita?city=${city.name}`}
+                class={`city-item ${selectedCity === city.name ? 'active' : ''}`}
+              >
+                <span class="city-name">{city.name}</span>
+                <span class="city-count">{city.maker_count}</span>
+              </a>
+            ))}
+            {cities.filter(c => c.maker_count === 0).length > 0 && (
+              <div class="empty-cities-note">
+                <small>+ {cities.filter(c => c.maker_count === 0).length} il henüz boş</small>
+              </div>
+            )}
+          </div>
+        </aside>
+
+        <!-- Sağ: Maker Listesi -->
+        <div class="makers-section">
+          <div class="section-header">
+            <h2>
+              {selectedCity ? `${selectedCity}'deki Maker'lar` : "Tüm Maker'lar"}
+              <span class="count">({makers.length})</span>
+            </h2>
+            <div class="filters">
+              <label class="filter-checkbox">
+                <input
+                  type="checkbox"
+                  id="filterPrinting"
+                  checked={filterPrinting}
+                />
+                <span>🖨️ Baskı hizmeti verenler</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="makers-grid">
+            {makers.length > 0 ? makers.map((maker) => {
+              const printers = parsePrinters(maker.printers);
+              const specialties = parseSpecialties(maker.specialties);
+              const level = getLevelBadge(maker.reputation_points || 0);
+
+              return (
+                <div class="maker-card">
+                  <div class="maker-header">
+                    <div class="maker-avatar">
+                      {maker.avatar_url ? (
+                        <img src={maker.avatar_url} alt={maker.username} />
+                      ) : (
+                        <div class="avatar-placeholder">{maker.username?.charAt(0).toUpperCase()}</div>
+                      )}
+                      {maker.is_verified === 1 && <span class="verified-badge" title="Doğrulanmış">✓</span>}
+                    </div>
+                    <div class="maker-info">
+                      <a href={`/profil/${maker.username}`} class="maker-name">@{maker.username}</a>
+                      <div class="maker-location">
+                        📍 {maker.city}{maker.district ? `, ${maker.district}` : ''}
+                      </div>
+                    </div>
+                    <div class="maker-level" style={`color: ${level.color}`} title={`${level.label} - ${maker.reputation_points || 0} puan`}>
+                      <span class="level-emoji">{level.emoji}</span>
+                      <span class="level-label">{level.label}</span>
+                    </div>
+                  </div>
+
+                  {maker.bio && (
+                    <p class="maker-bio">{maker.bio.substring(0, 120)}{maker.bio.length > 120 ? '...' : ''}</p>
+                  )}
+
+                  {printers.length > 0 && (
+                    <div class="maker-printers">
+                      <span class="printers-label">🖨️</span>
+                      <span class="printers-list">{printers.slice(0, 3).join(', ')}{printers.length > 3 ? ` +${printers.length - 3}` : ''}</span>
+                    </div>
+                  )}
+
+                  {specialties.length > 0 && (
+                    <div class="maker-specialties">
+                      {specialties.slice(0, 3).map(spec => (
+                        <span class="specialty-tag">{spec}</span>
+                      ))}
+                    </div>
+                  )}
+
+                  <div class="maker-footer">
+                    <div class="maker-services">
+                      {maker.offers_printing === 1 && (
+                        <span class="service-badge printing">🖨️ Baskı Hizmeti</span>
+                      )}
+                      {maker.offers_help === 1 && (
+                        <span class="service-badge help">🤝 Yardıma Açık</span>
+                      )}
+                    </div>
+                    <button
+                      class="contact-btn"
+                      data-user-id={maker.user_id}
+                      data-username={maker.username}
+                      data-contact={maker.contact_preference}
+                    >
+                      💬 İletişim
+                    </button>
+                  </div>
+                </div>
+              );
+            }) : (
+              <div class="empty-state">
+                <div class="empty-icon">🗺️</div>
+                <h3>{selectedCity ? `${selectedCity}'de henüz maker yok` : 'Henüz haritada maker yok'}</h3>
+                <p>İlk haritaya eklenen sen ol!</p>
+                <a href="/topluluk/harita/profil" class="btn btn-primary">Haritaya Katıl</a>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <!-- Sorumluluk Reddi -->
+      <div class="disclaimer">
+        <h4>⚠️ Önemli Uyarı</h4>
+        <p>
+          3D-labX, kullanıcılar arasında sadece tanışma ortamı sağlar. Platform üzerinden gerçekleşen
+          iletişim, anlaşma veya ticari işlemlerden doğacak sorunlardan 3D-labX sorumlu değildir.
+          Lütfen tanışmadan önce <a href="/yasal/sorumluluk-reddi">Sorumluluk Reddi</a> metnini okuyun.
+        </p>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .map-page {
+    padding-top: 140px;
+    padding-bottom: 64px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb {
+    display: flex;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .breadcrumb a { color: #8B5CF6; text-decoration: none; }
+
+  .page-header h1 { margin: 0 0 8px; font-size: 1.8rem; }
+  .page-header p { margin: 0; color: var(--text-muted); }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+    color: white;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(139, 92, 246, 0.4);
+  }
+
+  /* İstatistikler */
+  .stats-overview {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    padding: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    text-align: center;
+  }
+
+  .stat-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #8B5CF6;
+  }
+
+  .stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  /* Info Banner */
+  .info-banner {
+    display: flex;
+    gap: 20px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(124, 58, 237, 0.05));
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 16px;
+    margin-bottom: 24px;
+  }
+
+  .info-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+  }
+
+  .info-content h3 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+    color: #8B5CF6;
+  }
+
+  .info-content p {
+    margin: 0 0 8px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .info-content small {
+    font-size: 0.8rem;
+    color: var(--text-light);
+  }
+
+  /* Content Grid */
+  .content-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+  }
+
+  /* Cities Sidebar */
+  .cities-sidebar {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 20px;
+    height: fit-content;
+    position: sticky;
+    top: 140px;
+  }
+
+  .cities-sidebar h3 {
+    margin: 0 0 16px;
+    font-size: 1rem;
+  }
+
+  .cities-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .city-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--text-main);
+    transition: all 0.2s ease;
+  }
+
+  .city-item:hover {
+    background: var(--bg-main);
+  }
+
+  .city-item.active {
+    background: #8B5CF6;
+    color: white;
+  }
+
+  .city-count {
+    padding: 2px 8px;
+    background: var(--bg-main);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .city-item.active .city-count {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+  }
+
+  .empty-cities-note {
+    padding: 12px;
+    text-align: center;
+    color: var(--text-light);
+  }
+
+  /* Makers Section */
+  .makers-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .section-header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+  }
+
+  .section-header .count {
+    font-weight: 400;
+    color: var(--text-muted);
+    font-size: 1rem;
+  }
+
+  .filter-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 8px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+  }
+
+  .filter-checkbox:hover {
+    border-color: #8B5CF6;
+  }
+
+  .filter-checkbox input {
+    accent-color: #8B5CF6;
+  }
+
+  .makers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+  }
+
+  .maker-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: all 0.2s ease;
+  }
+
+  .maker-card:hover {
+    border-color: #8B5CF6;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .maker-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .maker-avatar {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+  }
+
+  .maker-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 14px;
+    object-fit: cover;
+  }
+
+  .maker-avatar .avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+    color: white;
+    font-size: 1.3rem;
+    font-weight: 600;
+    border-radius: 14px;
+  }
+
+  .verified-badge {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 20px;
+    height: 20px;
+    background: #10B981;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+    border: 2px solid var(--bg-card);
+  }
+
+  .maker-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .maker-name {
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--text-main);
+    text-decoration: none;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .maker-name:hover {
+    color: #8B5CF6;
+  }
+
+  .maker-location {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .maker-level {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 12px;
+    background: var(--bg-main);
+    border-radius: 10px;
+  }
+
+  .level-emoji {
+    font-size: 1.2rem;
+  }
+
+  .level-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .maker-bio {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .maker-printers {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .printers-label {
+    flex-shrink: 0;
+  }
+
+  .maker-specialties {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .specialty-tag {
+    padding: 4px 10px;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 6px;
+    font-size: 0.75rem;
+    color: #8B5CF6;
+  }
+
+  .maker-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .maker-services {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .service-badge {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .service-badge.printing {
+    background: rgba(249, 115, 22, 0.1);
+    color: #F97316;
+  }
+
+  .service-badge.help {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+  }
+
+  .contact-btn {
+    padding: 8px 16px;
+    background: #8B5CF6;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .contact-btn:hover {
+    background: #7C3AED;
+    transform: translateY(-2px);
+  }
+
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--bg-card);
+    border: 2px dashed var(--border-soft);
+    border-radius: 20px;
+  }
+
+  .empty-icon { font-size: 4rem; margin-bottom: 16px; }
+  .empty-state h3 { margin: 0 0 8px; font-size: 1.2rem; }
+  .empty-state p { color: var(--text-muted); margin-bottom: 20px; }
+
+  /* Disclaimer */
+  .disclaimer {
+    margin-top: 48px;
+    padding: 20px 24px;
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 16px;
+  }
+
+  .disclaimer h4 {
+    margin: 0 0 8px;
+    color: #EF4444;
+    font-size: 0.95rem;
+  }
+
+  .disclaimer p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .disclaimer a {
+    color: #EF4444;
+    font-weight: 500;
+  }
+
+  @media (max-width: 900px) {
+    .content-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .cities-sidebar {
+      position: static;
+    }
+
+    .cities-list {
+      max-height: none;
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .stats-overview {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .map-page {
+      padding-top: 120px;
+    }
+
+    .page-header {
+      flex-direction: column;
+    }
+
+    .info-banner {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .makers-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .maker-footer {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .contact-btn {
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  const filterCheckbox = document.getElementById('filterPrinting') as HTMLInputElement;
+
+  filterCheckbox?.addEventListener('change', () => {
+    const url = new URL(window.location.href);
+    if (filterCheckbox.checked) {
+      url.searchParams.set('printing', '1');
+    } else {
+      url.searchParams.delete('printing');
+    }
+    window.location.href = url.toString();
+  });
+
+  // İletişim butonları
+  const contactBtns = document.querySelectorAll('.contact-btn');
+
+  contactBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        (window as any).showToast?.('İletişim için giriş yapmalısınız', 'warning');
+        return;
+      }
+
+      const username = btn.getAttribute('data-username');
+      const contact = btn.getAttribute('data-contact');
+
+      // Mesaj sayfasına yönlendir (veya modal aç)
+      (window as any).showToast?.(`@${username} ile iletişim özelliği yakında!`, 'info');
+    });
+  });
+</script>

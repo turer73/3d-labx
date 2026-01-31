@@ -1,0 +1,881 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Header from "../../../components/Header.astro";
+
+export const prerender = false;
+
+// Başarısızlık tipleri
+const failTypes = [
+  { value: 'spaghetti', label: '🍝 Spagetti', desc: 'Baskı havada asılı kaldı' },
+  { value: 'layer_shift', label: '📊 Katman Kayması', desc: 'Katmanlar hizadan çıktı' },
+  { value: 'warping', label: '🌊 Warping', desc: 'Köşeler/kenarlar kalktı' },
+  { value: 'stringing', label: '🕸️ Stringing', desc: 'İnce iplikler oluştu' },
+  { value: 'adhesion', label: '💨 Yapışma Sorunu', desc: 'Tablaya yapışmadı' },
+  { value: 'clog', label: '🔧 Tıkanma', desc: 'Nozzle tıkandı' },
+  { value: 'other', label: '❓ Diğer', desc: 'Başka bir sorun' }
+];
+
+// Filament tipleri
+const filamentTypes = [
+  { value: 'PLA', label: 'PLA' },
+  { value: 'PETG', label: 'PETG' },
+  { value: 'ABS', label: 'ABS' },
+  { value: 'ASA', label: 'ASA' },
+  { value: 'TPU', label: 'TPU (Esnek)' },
+  { value: 'Nylon', label: 'Nylon' },
+  { value: 'Resin', label: 'Reçine (SLA)' },
+  { value: 'Diger', label: 'Diğer' }
+];
+---
+
+<BaseLayout
+  title="Başarısızlık Paylaş - Başarısızlık Galerisi - 3D-labX"
+  description="3D baskı başarısızlığınızı paylaşın, topluluktan çözüm önerileri alın."
+>
+  <Header />
+
+  <main class="fail-share-page">
+    <div class="container">
+      <nav class="breadcrumb">
+        <a href="/topluluk">Topluluk</a>
+        <span>/</span>
+        <a href="/topluluk/basarisizliklar">Başarısızlık Galerisi</a>
+        <span>/</span>
+        <span>Paylaş</span>
+      </nav>
+
+      <div class="form-card">
+        <div class="form-header">
+          <div class="header-icon">🔥</div>
+          <h1>Başarısızlık Paylaş</h1>
+          <p>Hatalardan öğrenmek, en büyük ustalıktır!</p>
+        </div>
+
+        <form id="failForm" class="fail-form">
+          <!-- Başarısızlık Tipi -->
+          <div class="form-group">
+            <label>
+              <span class="label-icon">❓</span>
+              Ne oldu? *
+            </label>
+            <div class="fail-type-grid" id="failTypeGrid">
+              {failTypes.map(type => (
+                <label class="fail-type-option">
+                  <input type="radio" name="failType" value={type.value} required />
+                  <div class="option-content">
+                    <span class="option-label">{type.label}</span>
+                    <span class="option-desc">{type.desc}</span>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <!-- Başlık -->
+          <div class="form-group">
+            <label for="title">
+              <span class="label-icon">📝</span>
+              Başlık *
+            </label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              placeholder="Örnek: Ender 3'te PLA spagetti oldu"
+              minlength="5"
+              maxlength="200"
+              required
+            />
+            <span class="char-hint"><span id="titleCount">0</span>/200</span>
+          </div>
+
+          <!-- Görsel Yükleme -->
+          <div class="form-group">
+            <label>
+              <span class="label-icon">📸</span>
+              Fotoğraflar *
+            </label>
+            <div class="image-upload-area" id="imageUploadArea">
+              <div class="upload-placeholder" id="uploadPlaceholder">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                <p>Başarısızlığın fotoğraflarını sürükleyin veya <span>seçin</span></p>
+                <small>PNG, JPG, WEBP - Max 5MB - En fazla 5 görsel</small>
+              </div>
+              <input type="file" id="imageInput" accept="image/png,image/jpeg,image/webp" multiple hidden />
+              <div class="image-previews" id="imagePreviews"></div>
+            </div>
+          </div>
+
+          <!-- Açıklama -->
+          <div class="form-group">
+            <label for="description">
+              <span class="label-icon">📄</span>
+              Ne oldu, detaylar
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              placeholder="Baskı sırasında neler oldu? Ne zaman fark ettiniz? Hangi ayarları kullandınız?"
+              rows="4"
+              maxlength="3000"
+            ></textarea>
+            <span class="char-hint"><span id="descCount">0</span>/3000</span>
+          </div>
+
+          <!-- Baskı Detayları -->
+          <div class="form-section">
+            <h3>
+              <span class="section-icon">⚙️</span>
+              Baskı Detayları
+            </h3>
+
+            <div class="form-row">
+              <div class="form-group half">
+                <label for="printerModel">Yazıcı Modeli</label>
+                <input
+                  type="text"
+                  id="printerModel"
+                  name="printerModel"
+                  placeholder="Örnek: Ender 3 V2"
+                  list="printerList"
+                />
+                <datalist id="printerList">
+                  <option value="Bambu Lab P1S">
+                  <option value="Bambu Lab X1C">
+                  <option value="Bambu Lab A1">
+                  <option value="Bambu Lab A1 Mini">
+                  <option value="Creality Ender 3 V2">
+                  <option value="Creality Ender 3 S1">
+                  <option value="Creality K1">
+                  <option value="Creality K1 Max">
+                  <option value="Prusa MK4">
+                  <option value="Prusa Mini+">
+                  <option value="Anycubic Kobra 2">
+                  <option value="Elegoo Neptune 4">
+                  <option value="Voron 2.4">
+                </datalist>
+              </div>
+              <div class="form-group half">
+                <label for="filamentType">Filament Tipi</label>
+                <select id="filamentType" name="filamentType">
+                  <option value="">Seçiniz...</option>
+                  {filamentTypes.map(type => (
+                    <option value={type.value}>{type.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="filamentBrand">Filament Markası</label>
+              <input
+                type="text"
+                id="filamentBrand"
+                name="filamentBrand"
+                placeholder="Örnek: Sunlu, eSun, Porima"
+                list="brandList"
+              />
+              <datalist id="brandList">
+                <option value="Sunlu">
+                <option value="eSun">
+                <option value="Porima">
+                <option value="Bambu Lab">
+                <option value="Polymaker">
+                <option value="Prusament">
+                <option value="Eryone">
+                <option value="Elegoo">
+              </datalist>
+            </div>
+          </div>
+
+          <!-- Çözüm (varsa) -->
+          <div class="form-section solution-section">
+            <h3>
+              <span class="section-icon">💡</span>
+              Çözüm (Varsa)
+            </h3>
+            <p class="section-desc">Sorunu çözdüyseniz nasıl çözdüğünüzü paylaşın!</p>
+
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="isSolved" name="isSolved" />
+                <span>Bu sorunu çözdüm</span>
+              </label>
+            </div>
+
+            <div class="form-group" id="solutionGroup" style="display: none;">
+              <label for="solution">Nasıl çözdünüz?</label>
+              <textarea
+                id="solution"
+                name="solution"
+                placeholder="Sorunu çözmek için ne yaptınız? Hangi ayarları değiştirdiniz?"
+                rows="3"
+                maxlength="2000"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <a href="/topluluk/basarisizliklar" class="btn btn-secondary">İptal</a>
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              Paylaş
+            </button>
+          </div>
+        </form>
+
+        <div class="login-notice hidden" id="loginNotice">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <h3>Giriş Yapmanız Gerekiyor</h3>
+          <p>Başarısızlık paylaşmak için hesabınıza giriş yapın.</p>
+          <a href="/auth/giris" class="btn btn-primary">Giriş Yap</a>
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .fail-share-page {
+    padding-top: 140px;
+    padding-bottom: 64px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  .breadcrumb a {
+    color: #F97316;
+    text-decoration: none;
+  }
+
+  .form-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    padding: 32px;
+  }
+
+  .form-header {
+    text-align: center;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .header-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+  }
+
+  .form-header h1 {
+    font-size: 1.6rem;
+    margin: 0 0 8px;
+    background: linear-gradient(135deg, #F97316, #EF4444);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .form-header p {
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .fail-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* Fail Type Grid */
+  .fail-type-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .fail-type-option {
+    cursor: pointer;
+  }
+
+  .fail-type-option input {
+    display: none;
+  }
+
+  .fail-type-option .option-content {
+    padding: 16px;
+    background: var(--bg-main);
+    border: 2px solid var(--border-soft);
+    border-radius: 12px;
+    transition: all 0.2s ease;
+  }
+
+  .fail-type-option input:checked + .option-content {
+    border-color: #F97316;
+    background: rgba(249, 115, 22, 0.1);
+  }
+
+  .fail-type-option:hover .option-content {
+    border-color: rgba(249, 115, 22, 0.5);
+  }
+
+  .option-label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+    color: var(--text-main);
+  }
+
+  .option-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .form-section {
+    padding: 20px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+  }
+
+  .form-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    margin: 0 0 16px;
+    color: var(--text-main);
+  }
+
+  .section-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: -8px 0 16px;
+  }
+
+  .section-icon {
+    font-size: 1.2rem;
+  }
+
+  .solution-section {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.02));
+    border-color: rgba(16, 185, 129, 0.2);
+  }
+
+  .form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .form-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+  }
+
+  .form-group.half {
+    flex: 1;
+  }
+
+  .form-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-main);
+  }
+
+  .label-icon {
+    font-size: 1rem;
+  }
+
+  .checkbox-label {
+    flex-direction: row;
+    cursor: pointer;
+  }
+
+  .checkbox-label input {
+    width: 18px;
+    height: 18px;
+    accent-color: #10B981;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    padding: 14px 16px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    transition: border-color 0.2s ease;
+  }
+
+  .form-section .form-group input,
+  .form-section .form-group textarea,
+  .form-section .form-group select {
+    background: var(--bg-card);
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: #F97316;
+  }
+
+  .form-group textarea {
+    resize: vertical;
+    line-height: 1.6;
+    font-family: inherit;
+  }
+
+  .char-hint {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    font-size: 0.75rem;
+    color: var(--text-light);
+  }
+
+  /* Görsel Yükleme */
+  .image-upload-area {
+    border: 2px dashed var(--border-soft);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .image-upload-area:hover,
+  .image-upload-area.dragover {
+    border-color: #F97316;
+    background: rgba(249, 115, 22, 0.05);
+  }
+
+  .upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .upload-placeholder svg {
+    color: var(--text-light);
+  }
+
+  .upload-placeholder p {
+    margin: 0;
+  }
+
+  .upload-placeholder span {
+    color: #F97316;
+    font-weight: 600;
+  }
+
+  .upload-placeholder small {
+    font-size: 0.75rem;
+    color: var(--text-light);
+  }
+
+  .image-previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .image-previews:empty {
+    display: none;
+  }
+
+  .image-preview {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--border-soft);
+  }
+
+  .image-preview.uploading {
+    opacity: 0.6;
+  }
+
+  .image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .image-preview .remove-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 24px;
+    height: 24px;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    transition: transform 0.2s;
+  }
+
+  .image-preview .remove-btn:hover {
+    transform: scale(1.1);
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+  }
+
+  .btn-secondary {
+    background: var(--bg-main);
+    color: var(--text-main);
+    border: 1px solid var(--border-soft);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--text-muted);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(249, 115, 22, 0.4);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .login-notice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 60px 40px;
+    text-align: center;
+  }
+
+  .login-notice svg {
+    color: #F97316;
+  }
+
+  .login-notice h3 {
+    margin: 0;
+    font-size: 1.3rem;
+  }
+
+  .login-notice p {
+    margin: 0;
+    color: var(--text-muted);
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  @media (max-width: 640px) {
+    .fail-share-page {
+      padding-top: 120px;
+    }
+
+    .form-card {
+      padding: 20px;
+    }
+
+    .fail-type-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .form-row {
+      flex-direction: column;
+    }
+
+    .form-actions {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+
+<script>
+  const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
+
+  let uploadedImages: { file: File; url?: string; preview: string }[] = [];
+
+  function getAuthToken() {
+    return localStorage.getItem('authToken');
+  }
+
+  // Login kontrolü
+  const form = document.getElementById('failForm') as HTMLFormElement;
+  const loginNotice = document.getElementById('loginNotice');
+
+  if (!getAuthToken()) {
+    form?.classList.add('hidden');
+    loginNotice?.classList.remove('hidden');
+  }
+
+  // Karakter sayaçları
+  const titleInput = document.getElementById('title') as HTMLInputElement;
+  const titleCount = document.getElementById('titleCount');
+  const descInput = document.getElementById('description') as HTMLTextAreaElement;
+  const descCount = document.getElementById('descCount');
+
+  titleInput?.addEventListener('input', () => {
+    if (titleCount) titleCount.textContent = titleInput.value.length.toString();
+  });
+
+  descInput?.addEventListener('input', () => {
+    if (descCount) descCount.textContent = descInput.value.length.toString();
+  });
+
+  // Çözüm checkbox toggle
+  const isSolvedCheckbox = document.getElementById('isSolved') as HTMLInputElement;
+  const solutionGroup = document.getElementById('solutionGroup');
+
+  isSolvedCheckbox?.addEventListener('change', () => {
+    if (solutionGroup) {
+      solutionGroup.style.display = isSolvedCheckbox.checked ? 'flex' : 'none';
+    }
+  });
+
+  // Görsel yükleme
+  const imageUploadArea = document.getElementById('imageUploadArea');
+  const imageInput = document.getElementById('imageInput') as HTMLInputElement;
+  const imagePreviews = document.getElementById('imagePreviews');
+
+  imageUploadArea?.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('.image-preview')) return;
+    imageInput?.click();
+  });
+
+  imageUploadArea?.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    imageUploadArea.classList.add('dragover');
+  });
+
+  imageUploadArea?.addEventListener('dragleave', () => {
+    imageUploadArea.classList.remove('dragover');
+  });
+
+  imageUploadArea?.addEventListener('drop', (e) => {
+    e.preventDefault();
+    imageUploadArea.classList.remove('dragover');
+    const files = e.dataTransfer?.files;
+    if (files) handleFiles(files);
+  });
+
+  imageInput?.addEventListener('change', (e) => {
+    const files = (e.target as HTMLInputElement).files;
+    if (files) handleFiles(files);
+  });
+
+  async function handleFiles(files: FileList) {
+    const token = getAuthToken();
+    if (!token) {
+      (window as any).showToast?.('Lütfen giriş yapın', 'warning');
+      return;
+    }
+
+    for (const file of Array.from(files)) {
+      if (!file.type.startsWith('image/')) continue;
+      if (file.size > 5 * 1024 * 1024) {
+        (window as any).showToast?.(`${file.name} çok büyük (max 5MB)`, 'warning');
+        continue;
+      }
+      if (uploadedImages.length >= 5) {
+        (window as any).showToast?.('En fazla 5 görsel yükleyebilirsiniz', 'warning');
+        break;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const preview = document.createElement('div');
+        preview.className = 'image-preview uploading';
+        preview.innerHTML = `
+          <img src="${e.target?.result}" alt="Preview" />
+          <button type="button" class="remove-btn">×</button>
+        `;
+
+        const idx = uploadedImages.length;
+        const imgData = { file, preview: e.target?.result as string, url: undefined as string | undefined };
+        uploadedImages.push(imgData);
+
+        imagePreviews?.appendChild(preview);
+
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+
+          const uploadRes = await fetch(`${API_URL}/api/upload`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+          });
+
+          if (uploadRes.ok) {
+            const data = await uploadRes.json();
+            imgData.url = data.url;
+            preview.classList.remove('uploading');
+          } else {
+            throw new Error('Upload failed');
+          }
+        } catch (err) {
+          console.error('Upload error:', err);
+          preview.remove();
+          uploadedImages = uploadedImages.filter((_, i) => i !== idx);
+          (window as any).showToast?.('Görsel yüklenemedi', 'error');
+        }
+
+        preview.querySelector('.remove-btn')?.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          preview.remove();
+          uploadedImages = uploadedImages.filter(img => img !== imgData);
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // Form gönderme
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const token = getAuthToken();
+    if (!token) {
+      (window as any).showToast?.('Lütfen giriş yapın', 'warning');
+      return;
+    }
+
+    const failType = (document.querySelector('input[name="failType"]:checked') as HTMLInputElement)?.value;
+    const title = (document.getElementById('title') as HTMLInputElement)?.value?.trim();
+    const description = (document.getElementById('description') as HTMLTextAreaElement)?.value?.trim();
+    const printerModel = (document.getElementById('printerModel') as HTMLInputElement)?.value?.trim();
+    const filamentType = (document.getElementById('filamentType') as HTMLSelectElement)?.value;
+    const filamentBrand = (document.getElementById('filamentBrand') as HTMLInputElement)?.value?.trim();
+    const isSolved = (document.getElementById('isSolved') as HTMLInputElement)?.checked;
+    const solution = (document.getElementById('solution') as HTMLTextAreaElement)?.value?.trim();
+
+    if (!failType) {
+      (window as any).showToast?.('Lütfen bir hata tipi seçin', 'warning');
+      return;
+    }
+
+    if (!title || title.length < 5) {
+      (window as any).showToast?.('Başlık en az 5 karakter olmalıdır', 'warning');
+      return;
+    }
+
+    const images = uploadedImages.filter(img => img.url).map(img => img.url);
+    if (images.length === 0) {
+      (window as any).showToast?.('En az bir görsel yükleyin', 'warning');
+      return;
+    }
+
+    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = 'Paylaşılıyor...';
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/api/fails`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          fail_type: failType,
+          title,
+          description,
+          images,
+          printer_model: printerModel,
+          filament_type: filamentType,
+          filament_brand: filamentBrand,
+          is_solved: isSolved ? 1 : 0,
+          solution: isSolved ? solution : null
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.slug) {
+        (window as any).showToast?.('Başarısızlığınız paylaşıldı!', 'success');
+        window.location.href = `/topluluk/basarisizliklar/${data.slug}`;
+      } else {
+        (window as any).showToast?.(data.error || 'Bir hata oluştu', 'error');
+      }
+    } catch (err) {
+      console.error('Fail create error:', err);
+      (window as any).showToast?.('Bir hata oluştu, lütfen tekrar deneyin', 'error');
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Paylaş';
+      }
+    }
+  });
+</script>

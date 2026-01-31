@@ -3143,6 +3143,456 @@ ${sourceText}`;
       }
 
       // ================================
+      // 🔥 BAŞARISIZLIK GALERİSİ API
+      // ================================
+
+      // Başarısız baskıları listele
+      if (path === "/api/fails" && method === "GET") {
+        const { page, limit, offset } = validatePagination(
+          url.searchParams.get("page"),
+          url.searchParams.get("limit") || "12"
+        );
+        const sort = url.searchParams.get("sort") || "latest";
+        const failType = url.searchParams.get("type") || "";
+
+        let whereClause = "WHERE f.is_approved = 1 AND f.is_deleted = 0";
+        const bindings = [];
+
+        if (failType) {
+          whereClause += " AND f.fail_type = ?";
+          bindings.push(failType);
+        }
+
+        const countResult = await env.DB.prepare(`
+          SELECT COUNT(*) as total FROM print_fails f ${whereClause}
+        `).bind(...bindings).first();
+        const total = countResult?.total || 0;
+
+        let orderBy = "f.created_at DESC";
+        if (sort === "popular") orderBy = "f.helpful_count DESC, f.like_count DESC";
+        if (sort === "solved") orderBy = "f.is_solved DESC, f.created_at DESC";
+
+        const fails = await env.DB.prepare(`
+          SELECT f.*, u.username, u.display_name, u.avatar_url
+          FROM print_fails f
+          JOIN users u ON f.user_id = u.id
+          ${whereClause}
+          ORDER BY ${orderBy}
+          LIMIT ? OFFSET ?
+        `).bind(...bindings, limit, offset).all();
+
+        return jsonResponse({
+          fails: fails.results || [],
+          pagination: { page, limit, total, totalPages: Math.ceil(total / limit), hasNext: offset + limit < total, hasPrev: page > 1 }
+        }, 200, 60);
+      }
+
+      // Tek başarısızlık detayı
+      if (path.match(/^\/api\/fails\/([a-z0-9-]+)$/) && method === "GET") {
+        const failSlug = path.split("/")[3];
+
+        const fail = await env.DB.prepare(`
+          SELECT f.*, u.username, u.display_name, u.avatar_url
+          FROM print_fails f
+          JOIN users u ON f.user_id = u.id
+          WHERE f.slug = ? AND f.is_approved = 1 AND f.is_deleted = 0
+        `).bind(failSlug).first();
+        if (!fail) return errorResponse("Bulunamadı", 404, "NOT_FOUND");
+
+        // View count artır
+        await env.DB.prepare(`
+          UPDATE print_fails SET view_count = view_count + 1 WHERE id = ?
+        `).bind(fail.id).run();
+
+        // Yorumları al
+        const comments = await env.DB.prepare(`
+          SELECT c.*, u.username, u.display_name, u.avatar_url
+          FROM print_fail_comments c
+          JOIN users u ON c.user_id = u.id
+          WHERE c.fail_id = ? AND c.is_deleted = 0
+          ORDER BY c.is_solution DESC, c.like_count DESC, c.created_at ASC
+        `).bind(fail.id).all();
+
+        return jsonResponse({
+          fail: { ...fail, view_count: fail.view_count + 1 },
+          comments: comments.results || []
+        }, 200, 60);
+      }
+
+      // Başarısızlık paylaş
+      if (path === "/api/fails" && method === "POST") {
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return errorResponse("Giriş yapmalısınız", 401, "UNAUTHORIZED");
+        }
+        const token = authHeader.substring(7);
+        const session = await env.DB.prepare(`
+          SELECT s.*, u.id as user_id, u.username FROM sessions s
+          JOIN users u ON s.user_id = u.id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+        if (!session) return errorResponse("Geçersiz oturum", 401, "INVALID_SESSION");
+
+        const body = await request.json();
+        const title = sanitizeString(body.title, 200);
+        const description = sanitizeString(body.description, 5000);
+        const failType = body.fail_type || "other";
+        const images = Array.isArray(body.images) ? JSON.stringify(body.images.slice(0, 10)) : '[]';
+        const printerModel = sanitizeString(body.printer_model, 100);
+        const filamentType = sanitizeString(body.filament_type, 50);
+        const filamentBrand = sanitizeString(body.filament_brand, 100);
+        const solution = sanitizeString(body.solution, 3000);
+
+        if (!title || title.length < 5) return errorResponse("Başlık en az 5 karakter olmalıdır", 400, "INVALID_TITLE");
+
+        const validFailTypes = ['spaghetti', 'layer_shift', 'warping', 'stringing', 'adhesion', 'clog', 'other'];
+        const finalFailType = validFailTypes.includes(failType) ? failType : 'other';
+
+        // Slug oluştur
+        const baseSlug = title.toLowerCase()
+          .replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's')
+          .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c')
+          .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        const slug = `${baseSlug}-${Date.now().toString(36)}`;
+
+        const result = await env.DB.prepare(`
+          INSERT INTO print_fails (user_id, title, slug, description, fail_type, images, printer_model, filament_type, filament_brand, solution, is_solved)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).bind(session.user_id, title, slug, description, finalFailType, images, printerModel, filamentType, filamentBrand, solution, solution ? 1 : 0).run();
+
+        // Puan ekle (cesur paylaşım)
+        await env.DB.prepare(`
+          INSERT INTO reputation_log (user_id, action_type, points, reference_type, reference_id)
+          VALUES (?, 'fail_share', 8, 'fail', ?)
+        `).bind(session.user_id, result.meta?.last_row_id).run();
+
+        // User stats güncelle
+        await env.DB.prepare(`
+          UPDATE user_stats SET reputation_points = reputation_points + 8, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?
+        `).bind(session.user_id).run();
+
+        return jsonResponse({ success: true, fail_id: result.meta?.last_row_id, slug }, 201);
+      }
+
+      // "Bu bana da oldu" toggle
+      if (path === "/api/fails/metoo" && method === "POST") {
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return errorResponse("Giriş yapmalısınız", 401, "UNAUTHORIZED");
+        }
+        const token = authHeader.substring(7);
+        const session = await env.DB.prepare(`
+          SELECT s.*, u.id as user_id FROM sessions s
+          JOIN users u ON s.user_id = u.id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+        if (!session) return errorResponse("Geçersiz oturum", 401, "INVALID_SESSION");
+
+        const body = await request.json();
+        const failId = parseInt(body.fail_id);
+        if (!failId) return errorResponse("fail_id gerekli", 400, "MISSING_FAIL_ID");
+
+        const existing = await env.DB.prepare(`
+          SELECT id FROM print_fail_metoo WHERE fail_id = ? AND user_id = ?
+        `).bind(failId, session.user_id).first();
+
+        if (existing) {
+          await env.DB.prepare(`DELETE FROM print_fail_metoo WHERE id = ?`).bind(existing.id).run();
+          await env.DB.prepare(`UPDATE print_fails SET helpful_count = helpful_count - 1 WHERE id = ?`).bind(failId).run();
+          return jsonResponse({ success: true, metoo: false });
+        } else {
+          await env.DB.prepare(`INSERT INTO print_fail_metoo (fail_id, user_id) VALUES (?, ?)`).bind(failId, session.user_id).run();
+          await env.DB.prepare(`UPDATE print_fails SET helpful_count = helpful_count + 1 WHERE id = ?`).bind(failId).run();
+          return jsonResponse({ success: true, metoo: true });
+        }
+      }
+
+      // Başarısızlık yorumu ekle
+      if (path === "/api/fails/comments" && method === "POST") {
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return errorResponse("Giriş yapmalısınız", 401, "UNAUTHORIZED");
+        }
+        const token = authHeader.substring(7);
+        const session = await env.DB.prepare(`
+          SELECT s.*, u.id as user_id FROM sessions s
+          JOIN users u ON s.user_id = u.id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+        if (!session) return errorResponse("Geçersiz oturum", 401, "INVALID_SESSION");
+
+        const body = await request.json();
+        const failId = parseInt(body.fail_id);
+        const content = sanitizeString(body.content, 2000);
+        const isSolution = body.is_solution ? 1 : 0;
+
+        if (!failId) return errorResponse("fail_id gerekli", 400, "MISSING_FAIL_ID");
+        if (!content || content.length < 3) return errorResponse("Yorum en az 3 karakter olmalı", 400, "INVALID_CONTENT");
+
+        await env.DB.prepare(`
+          INSERT INTO print_fail_comments (fail_id, user_id, content, is_solution)
+          VALUES (?, ?, ?, ?)
+        `).bind(failId, session.user_id, content, isSolution).run();
+
+        await env.DB.prepare(`
+          UPDATE print_fails SET comment_count = comment_count + 1 WHERE id = ?
+        `).bind(failId).run();
+
+        // Çözüm önerisi ise puan ver
+        if (isSolution) {
+          await env.DB.prepare(`
+            INSERT INTO reputation_log (user_id, action_type, points, reference_type, reference_id)
+            VALUES (?, 'solution', 5, 'fail', ?)
+          `).bind(session.user_id, failId).run();
+          await env.DB.prepare(`
+            UPDATE user_stats SET reputation_points = reputation_points + 5 WHERE user_id = ?
+          `).bind(session.user_id).run();
+        }
+
+        return jsonResponse({ success: true });
+      }
+
+      // Başarısızlık tipleri listesi
+      if (path === "/api/fails/types" && method === "GET") {
+        const types = [
+          { value: 'spaghetti', label: 'Spagetti / Karışık Filament', icon: '🍝' },
+          { value: 'layer_shift', label: 'Katman Kayması', icon: '📐' },
+          { value: 'warping', label: 'Warping / Kalkma', icon: '🌊' },
+          { value: 'stringing', label: 'Stringing / İplik Çekme', icon: '🕸️' },
+          { value: 'adhesion', label: 'Yapışma Sorunu', icon: '🔗' },
+          { value: 'clog', label: 'Nozzle Tıkanması', icon: '🚫' },
+          { value: 'other', label: 'Diğer', icon: '❓' }
+        ];
+        return jsonResponse({ types }, 200, 3600);
+      }
+
+      // ================================
+      // 🗺️ MAKER HARİTASI API
+      // ================================
+
+      // Türkiye illeri listesi
+      if (path === "/api/map/cities" && method === "GET") {
+        const cities = await env.DB.prepare(`
+          SELECT c.*,
+            (SELECT COUNT(*) FROM maker_profiles mp WHERE mp.city = c.name AND mp.is_visible = 1) as maker_count
+          FROM turkey_cities c
+          ORDER BY maker_count DESC, c.name ASC
+        `).all();
+        return jsonResponse({ cities: cities.results || [] }, 200, 300);
+      }
+
+      // Maker'ları listele (harita için)
+      if (path === "/api/map/makers" && method === "GET") {
+        const city = url.searchParams.get("city") || "";
+        const offersPrinting = url.searchParams.get("printing") === "1";
+
+        let whereClause = "WHERE mp.is_visible = 1";
+        const bindings = [];
+
+        if (city) {
+          whereClause += " AND mp.city = ?";
+          bindings.push(city);
+        }
+
+        if (offersPrinting) {
+          whereClause += " AND mp.offers_printing = 1";
+        }
+
+        const makers = await env.DB.prepare(`
+          SELECT mp.id, mp.city, mp.district, mp.latitude, mp.longitude, mp.printers, mp.specialties,
+                 mp.offers_printing, mp.offers_help, mp.bio,
+                 u.username, u.display_name, u.avatar_url,
+                 us.reputation_points
+          FROM maker_profiles mp
+          JOIN users u ON mp.user_id = u.id
+          LEFT JOIN user_stats us ON mp.user_id = us.user_id
+          ${whereClause}
+          ORDER BY us.reputation_points DESC, mp.helped_count DESC
+          LIMIT 100
+        `).bind(...bindings).all();
+
+        return jsonResponse({ makers: makers.results || [] }, 200, 60);
+      }
+
+      // Kendi maker profilimi al
+      if (path === "/api/map/profile" && method === "GET") {
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return jsonResponse({ profile: null });
+        }
+        const token = authHeader.substring(7);
+        const session = await env.DB.prepare(`
+          SELECT s.*, u.id as user_id FROM sessions s
+          JOIN users u ON s.user_id = u.id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+        if (!session) return jsonResponse({ profile: null });
+
+        const profile = await env.DB.prepare(`
+          SELECT * FROM maker_profiles WHERE user_id = ?
+        `).bind(session.user_id).first();
+
+        return jsonResponse({ profile });
+      }
+
+      // Maker profili oluştur/güncelle
+      if (path === "/api/map/profile" && method === "POST") {
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return errorResponse("Giriş yapmalısınız", 401, "UNAUTHORIZED");
+        }
+        const token = authHeader.substring(7);
+        const session = await env.DB.prepare(`
+          SELECT s.*, u.id as user_id FROM sessions s
+          JOIN users u ON s.user_id = u.id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+        if (!session) return errorResponse("Geçersiz oturum", 401, "INVALID_SESSION");
+
+        const body = await request.json();
+        const city = sanitizeString(body.city, 100);
+        const district = sanitizeString(body.district, 100);
+        const printers = Array.isArray(body.printers) ? JSON.stringify(body.printers.slice(0, 5)) : '[]';
+        const specialties = Array.isArray(body.specialties) ? JSON.stringify(body.specialties.slice(0, 5)) : '[]';
+        const offersPrinting = body.offers_printing ? 1 : 0;
+        const offersHelp = body.offers_help !== false ? 1 : 0;
+        const bio = sanitizeString(body.bio, 500);
+        const isVisible = body.is_visible !== false ? 1 : 0;
+        const termsAccepted = body.terms_accepted ? 1 : 0;
+
+        if (!city) return errorResponse("Şehir gerekli", 400, "CITY_REQUIRED");
+        if (!termsAccepted) return errorResponse("Kullanım koşullarını kabul etmelisiniz", 400, "TERMS_REQUIRED");
+
+        // Şehir koordinatlarını al
+        const cityData = await env.DB.prepare(`
+          SELECT latitude, longitude FROM turkey_cities WHERE name = ?
+        `).bind(city).first();
+
+        const latitude = cityData?.latitude || null;
+        const longitude = cityData?.longitude || null;
+
+        const existing = await env.DB.prepare(`
+          SELECT id FROM maker_profiles WHERE user_id = ?
+        `).bind(session.user_id).first();
+
+        if (existing) {
+          await env.DB.prepare(`
+            UPDATE maker_profiles SET
+              city = ?, district = ?, latitude = ?, longitude = ?,
+              printers = ?, specialties = ?,
+              offers_printing = ?, offers_help = ?,
+              bio = ?, is_visible = ?,
+              terms_accepted = ?, terms_accepted_at = CURRENT_TIMESTAMP,
+              updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = ?
+          `).bind(city, district, latitude, longitude, printers, specialties, offersPrinting, offersHelp, bio, isVisible, termsAccepted, session.user_id).run();
+        } else {
+          await env.DB.prepare(`
+            INSERT INTO maker_profiles (user_id, city, district, latitude, longitude, printers, specialties, offers_printing, offers_help, bio, is_visible, terms_accepted, terms_accepted_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+          `).bind(session.user_id, city, district, latitude, longitude, printers, specialties, offersPrinting, offersHelp, bio, isVisible, termsAccepted).run();
+
+          // İlk kez haritaya eklenen için puan
+          await env.DB.prepare(`
+            INSERT INTO reputation_log (user_id, action_type, points, reference_type, reference_id)
+            VALUES (?, 'map_join', 10, 'profile', ?)
+          `).bind(session.user_id, session.user_id).run();
+          await env.DB.prepare(`
+            UPDATE user_stats SET reputation_points = reputation_points + 10 WHERE user_id = ?
+          `).bind(session.user_id).run();
+        }
+
+        return jsonResponse({ success: true });
+      }
+
+      // Maker profilini sil (haritadan çık)
+      if (path === "/api/map/profile" && method === "DELETE") {
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return errorResponse("Giriş yapmalısınız", 401, "UNAUTHORIZED");
+        }
+        const token = authHeader.substring(7);
+        const session = await env.DB.prepare(`
+          SELECT s.*, u.id as user_id FROM sessions s
+          JOIN users u ON s.user_id = u.id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+        if (!session) return errorResponse("Geçersiz oturum", 401, "INVALID_SESSION");
+
+        await env.DB.prepare(`
+          DELETE FROM maker_profiles WHERE user_id = ?
+        `).bind(session.user_id).run();
+
+        return jsonResponse({ success: true });
+      }
+
+      // ================================
+      // 🏆 USTA SEVİYE SİSTEMİ API
+      // ================================
+
+      // Kullanıcı seviyesini hesapla
+      if (path === "/api/user/level" && method === "GET") {
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return errorResponse("Giriş yapmalısınız", 401, "UNAUTHORIZED");
+        }
+        const token = authHeader.substring(7);
+        const session = await env.DB.prepare(`
+          SELECT s.*, u.id as user_id, u.username FROM sessions s
+          JOIN users u ON s.user_id = u.id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+        if (!session) return errorResponse("Geçersiz oturum", 401, "INVALID_SESSION");
+
+        const stats = await env.DB.prepare(`
+          SELECT * FROM user_stats WHERE user_id = ?
+        `).bind(session.user_id).first();
+
+        const points = stats?.reputation_points || 0;
+
+        // Seviye hesapla
+        let level = { name: 'Çırak', icon: '🌱', min: 0, max: 100 };
+        if (points > 2000) level = { name: 'Büyükusta', icon: '👑', min: 2001, max: null };
+        else if (points > 500) level = { name: 'Usta', icon: '⚙️', min: 501, max: 2000 };
+        else if (points > 100) level = { name: 'Kalfa', icon: '🔧', min: 101, max: 500 };
+
+        // Bir sonraki seviyeye ilerleme
+        const nextLevel = level.max ? ((points - level.min) / (level.max - level.min) * 100).toFixed(0) : 100;
+
+        return jsonResponse({
+          points,
+          level: level.name,
+          icon: level.icon,
+          progress: parseInt(nextLevel),
+          stats
+        });
+      }
+
+      // Puan geçmişi
+      if (path === "/api/user/reputation-log" && method === "GET") {
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return errorResponse("Giriş yapmalısınız", 401, "UNAUTHORIZED");
+        }
+        const token = authHeader.substring(7);
+        const session = await env.DB.prepare(`
+          SELECT s.*, u.id as user_id FROM sessions s
+          JOIN users u ON s.user_id = u.id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+        if (!session) return errorResponse("Geçersiz oturum", 401, "INVALID_SESSION");
+
+        const log = await env.DB.prepare(`
+          SELECT * FROM reputation_log
+          WHERE user_id = ?
+          ORDER BY created_at DESC
+          LIMIT 50
+        `).bind(session.user_id).all();
+
+        return jsonResponse({ log: log.results || [] });
+      }
+
+      // ================================
       // ❤️ BEĞENİ SİSTEMİ API
       // ================================
 
