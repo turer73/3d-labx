@@ -84,7 +84,8 @@
       "WebFetch(domain:www.printables.com)",
       "Bash(gh auth status:*)",
       "Bash(./scripts/auto-backup.sh:*)",
-      "Bash(nslookup:*)"
+      "Bash(nslookup:*)",
+      "Bash(./scripts/deploy-frontend.sh:*)"
     ],
     "deny": []
   }
