@@ -3845,6 +3845,8 @@ async function updateFilamentPrices(env) {
     { url: "https://www.filamentmarketim.com/petg-filament?siralama=en-dusuk-fiyat", name: "FilamentMarketim", type: "PETG" },
     { url: "https://www.filamentmarketim.com/abs-filament?siralama=en-dusuk-fiyat", name: "FilamentMarketim", type: "ABS" },
     { url: "https://www.filamentmarketim.com/asa-filament?siralama=en-dusuk-fiyat", name: "FilamentMarketim", type: "ASA" },
+    { url: "https://www.filamentmarketim.com/tpu-filament?siralama=en-dusuk-fiyat", name: "FilamentMarketim", type: "TPU" },
+    { url: "https://www.filamentmarketim.com/naylon-filament?siralama=en-dusuk-fiyat", name: "FilamentMarketim", type: "Nylon" },
   ];
 
   const allProducts = [];
@@ -4000,7 +4002,7 @@ function parseFilamentMarketimHtml(html, sourceUrl, forceType = null) {
       discount_percent: 0,
       rating: 0,
       store_name: "FilamentMarketim",
-      store_url: `https://www.filamentmarketim.com${url.startsWith('/') ? url : '/' + url}`,
+      store_url: url.startsWith('http') ? url : `https://www.filamentmarketim.com${url.startsWith('/') ? url : '/' + url}`,
       is_best_deal: 0
     });
 
@@ -4086,9 +4088,16 @@ function detectFilamentType(name) {
 }
 
 function detectBrand(name) {
-  const brands = ["Creality", "Filamix", "Robo90", "Nanelab", "Flashforge", "Polymaker", "Anycubic", "eSUN", "Esun", "Beta", "Sunlu"];
+  const brands = [
+    // Türk markaları
+    "Porima", "Elas", "Filamix", "Nanelab", "Robo90", "Beta", "Solvix", "Revo",
+    // Uluslararası markalar
+    "Creality", "Elegoo", "Sunlu", "eSUN", "Esun", "Flashforge", "Polymaker",
+    "Anycubic", "Bambu", "Prusa", "Overture", "Hatchbox", "Eryone"
+  ];
+  const lowerName = name.toLowerCase();
   for (const brand of brands) {
-    if (name.toLowerCase().includes(brand.toLowerCase())) return brand;
+    if (lowerName.includes(brand.toLowerCase())) return brand;
   }
   return "Diğer";
 }
