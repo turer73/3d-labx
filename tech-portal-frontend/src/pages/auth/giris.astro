@@ -119,12 +119,21 @@ const description = "3D-labX hesabınıza giriş yapın.";
         if (isTrustedDomain && redirect.startsWith('http')) {
           const redirectUrl = new URL(redirect);
           redirectUrl.searchParams.set('token', existingToken);
-          redirectUrl.searchParams.set('user', btoa(JSON.stringify(userData.user)));
+          // API artık doğrudan user bilgisi döndürüyor (user objesi içinde değil)
+          redirectUrl.searchParams.set('user', btoa(JSON.stringify(userData)));
           window.location.href = redirectUrl.toString();
         } else {
           window.location.href = redirect;
         }
+      } else {
+        // Token geçersizse localStorage'ı temizle
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('authUser');
       }
+    }).catch(() => {
+      // Hata durumunda localStorage'ı temizle
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('authUser');
     });
   }
 
