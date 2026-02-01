@@ -5,17 +5,16 @@ const currentPath = Astro.url.pathname;
 <!-- Announcement Bar -->
 <div class="announcement-bar" id="announcementBar">
   <div class="announcement-content">
-    <span class="announcement-icon">🚀</span>
     <span class="announcement-text">
-      <span class="announcement-item">3D-labX Beta Sürümü Aktif!</span>
+      <span class="announcement-item">🎉 Yeni içerikler eklendi!</span>
       <span class="announcement-separator">•</span>
-      <span class="announcement-item">En güncel haberler için üye olun</span>
+      <span class="announcement-item">📚 Rehberleri keşfedin</span>
       <span class="announcement-separator">•</span>
-      <span class="announcement-item">Yapay zeka destekli içerik</span>
+      <span class="announcement-item">🇹🇷 Türk filament markaları</span>
     </span>
   </div>
   <button class="announcement-close" id="announcementClose" aria-label="Duyuruyu kapat">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
   </button>
 </div>
 
@@ -474,22 +473,21 @@ const currentPath = Astro.url.pathname;
 </script>
 
 <style>
-  /* Announcement Bar */
+  /* Announcement Bar - Subtle Style */
   .announcement-bar {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 101;
-    background: linear-gradient(90deg, #F97316 0%, #EAB308 25%, #22C55E 50%, #06B6D4 75%, #A855F7 100%);
-    background-size: 200% 100%;
-    animation: gradient-flow 8s linear infinite;
-    color: white;
-    padding: 8px 16px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-soft);
+    color: var(--text-muted);
+    padding: 6px 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 500;
     overflow: hidden;
   }
@@ -498,7 +496,7 @@ const currentPath = Astro.url.pathname;
     display: flex;
     align-items: center;
     gap: 8px;
-    animation: text-scroll 25s linear infinite;
+    animation: text-scroll 30s linear infinite;
     white-space: nowrap;
   }
 
@@ -507,53 +505,52 @@ const currentPath = Astro.url.pathname;
     100% { transform: translateX(-100%); }
   }
 
-  @keyframes gradient-flow {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 200% 50%; }
-  }
-
   .announcement-bar:hover .announcement-content {
     animation-play-state: paused;
-  }
-
-  .announcement-icon {
-    font-size: 1rem;
   }
 
   .announcement-text {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
+  }
+
+  .announcement-item {
+    color: var(--text-main);
   }
 
   .announcement-separator {
-    opacity: 0.5;
+    opacity: 0.3;
+    color: var(--text-light);
   }
 
   .announcement-close {
     position: absolute;
-    right: 12px;
+    right: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     border: none;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
+    background: transparent;
+    border-radius: 4px;
     cursor: pointer;
-    color: white;
-    transition: background 0.2s ease;
+    color: var(--text-light);
+    transition: all 0.2s ease;
+    opacity: 0.6;
   }
 
   .announcement-close:hover {
-    background: rgba(255, 255, 255, 0.3);
+    opacity: 1;
+    color: var(--text-main);
+    background: var(--bg-soft);
   }
 
   /* Header with announcement offset */
   .site-header {
     position: fixed;
-    top: 36px;
+    top: 28px;
     left: 0;
     right: 0;
     z-index: 100;
@@ -563,7 +560,7 @@ const currentPath = Astro.url.pathname;
 
   /* When announcement is hidden */
   .announcement-bar:not([style*="display: none"]) ~ .site-header {
-    top: 36px;
+    top: 28px;
   }
 
   .announcement-bar[style*="display: none"] ~ .site-header {
