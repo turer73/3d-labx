@@ -619,6 +619,23 @@ export default {
       // 🔓 PUBLIC ENDPOINTS
       // ================================
 
+      // R2 Image Serve (public access)
+      if (path.startsWith("/r2/") && method === "GET") {
+        const key = path.replace("/r2/", "");
+        if (!key) return errorResponse("Image key required", 400, "INVALID_KEY");
+
+        const object = await env.R2_IMAGES.get(key);
+        if (!object) return errorResponse("Image not found", 404, "NOT_FOUND");
+
+        const headers = new Headers();
+        object.writeHttpMetadata(headers);
+        headers.set("etag", object.httpEtag);
+        headers.set("Cache-Control", "public, max-age=31536000");
+        headers.set("Access-Control-Allow-Origin", "*");
+
+        return new Response(object.body, { headers });
+      }
+
       // Health Check
       if (path === "/api/health") {
         const dbCheck = await env.DB.prepare("SELECT 1").first();
