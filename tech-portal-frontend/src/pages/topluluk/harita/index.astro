@@ -155,15 +155,6 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
         </div>
       </div>
 
-      <!-- Demo Veri Uyarısı -->
-      <div class="demo-notice">
-        <span class="demo-icon">🧪</span>
-        <span class="demo-text">
-          <strong>Beta Aşaması:</strong> Şu an gördüğünüz profiller örnek verilerdir.
-          Gerçek maker'larla doldurmak için <a href="/topluluk/harita/profil">haritaya katılın!</a>
-        </span>
-      </div>
-
       <div class="content-grid">
         <!-- Sol: İl Listesi -->
         <aside class="cities-sidebar">
@@ -210,6 +201,15 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
                 <span>🖨️ Baskı hizmeti verenler</span>
               </label>
             </div>
+          </div>
+
+          <!-- Demo Veri Uyarısı -->
+          <div class="demo-notice">
+            <span class="demo-icon">🧪</span>
+            <span class="demo-text">
+              <strong>Beta Aşaması:</strong> Şu an gördüğünüz profiller örnek verilerdir.
+              Gerçek maker'larla doldurmak için <a href="/topluluk/harita/profil">haritaya katılın!</a>
+            </span>
           </div>
 
           <div class="makers-grid">
