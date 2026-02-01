@@ -85,7 +85,8 @@
       "Bash(gh auth status:*)",
       "Bash(./scripts/auto-backup.sh:*)",
       "Bash(nslookup:*)",
-      "Bash(./scripts/deploy-frontend.sh:*)"
+      "Bash(./scripts/deploy-frontend.sh:*)",
+      "WebFetch(domain:www.filamentmarket.com.tr)"
     ],
     "deny": []
   }
