@@ -3,12 +3,14 @@ export const prerender = true;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
 
-const title = "Anycubic Sorun Giderme Rehberi | 3D-labX";
+const title = "Anycubic Sorun Giderme Rehberi | Kobra & Photon Serisi | 3D-labX";
 const description = "Anycubic Kobra, Vyper ve Mega serisi yazıcılarda en sık karşılaşılan sorunlar ve çözümleri. Yapışma, tıkanıklık, seviyeleme, ipliklenme ve daha fazlası.";
+const canonicalUrl = "https://3d-labx.com/sorun-cozumleri/anycubic-sorun-giderme";
 
 const problems = [
   {
     id: 1,
+    slug: "yapismama",
     title: "İlk Katman Tutunmuyor",
     color: "red",
     shortDesc: "Baskı tabladan kalkıyor, model yerinden oynuyor veya ilk katman çizgileri birbirinden ayrık.",
@@ -22,6 +24,7 @@ const problems = [
   },
   {
     id: 2,
+    slug: "tikaniklik",
     title: "Nozzle Tıkanıklığı",
     color: "yellow",
     shortDesc: "Filament akmıyor, motor 'tık tık' sesi yapıyor veya eksik baskı alınıyor.",
@@ -34,6 +37,7 @@ const problems = [
   },
   {
     id: 3,
+    slug: "seviyeleme-hatasi",
     title: "Otomatik Seviyeleme Hatası",
     color: "blue",
     shortDesc: "Prob tablaya dokunmuyor veya havada ölçüm yapmaya çalışıyor.",
@@ -46,6 +50,7 @@ const problems = [
   },
   {
     id: 4,
+    slug: "ipliklenme",
     title: "İpliklenme (Stringing)",
     color: "green",
     shortDesc: "Modelin kuleleri arasında örümcek ağı gibi ince plastik ipler oluşuyor.",
@@ -59,6 +64,7 @@ const problems = [
   },
   {
     id: 5,
+    slug: "katman-kaymasi",
     title: "Katman Kayması (Layer Shift)",
     color: "purple",
     shortDesc: "Baskının ortasında model merdiven basamağı gibi yana kayıyor.",
@@ -71,6 +77,7 @@ const problems = [
   },
   {
     id: 6,
+    slug: "eksik-ekstruzyon",
     title: "Eksik Ekstrüzyon",
     color: "orange",
     shortDesc: "Katmanların arasında boşluklar var, üst yüzey delikli görünüyor.",
@@ -84,6 +91,34 @@ const problems = [
   }
 ];
 
+// Anycubic için FAQ verileri
+const faqs = [
+  {
+    question: "Anycubic Kobra serisinde LeviQ otomatik seviyeleme nasıl çalışır?",
+    answer: "LeviQ sistemi 25 nokta ölçümü yaparak tabla mesh haritası oluşturur. Kullanımı: 1) Nozzle ve tabla temiz olmalı, 2) Menüden Leveling > Auto Leveling seçin, 3) Prob tüm noktaları tarayacak, 4) Ardından Z-offset ayarlayın - kağıt testi ile nozzle tablaya hafifçe sürtünmeli. Her filament değişiminde Z-offset'i kontrol edin."
+  },
+  {
+    question: "Anycubic Photon reçine yazıcıda exposure ayarları nasıl bulunur?",
+    answer: "Exposure ayarları reçine markasına göre değişir. Genel başlangıç değerleri: Bottom Exposure 30-60s, Normal Exposure 2-3s, Lift Speed 60mm/dk. Reçine şişesindeki önerilen değerlerle başlayın. RERF (Resin Exposure Range Finder) test baskısı yaparak optimum değerleri bulabilirsiniz. Chitubox'ta otomatik reçine profilleri de mevcuttur."
+  },
+  {
+    question: "Kobra 2 serisinde yüksek hız baskıda kalite nasıl korunur?",
+    answer: "Kobra 2 serisi 250-300mm/s hıza ulaşabilir ancak kaliteli baskı için: 1) Input Shaping kalibrasyonu yapın, 2) Pressure Advance ayarlayın, 3) İlk katman hızını 50mm/s'ye düşürün, 4) İnfill hızını yüksek tutun ama duvar hızını 100-150mm/s ile sınırlayın. Yüksek hızda küçük detaylar bozulabilir."
+  },
+  {
+    question: "Anycubic yazıcılarda PEI tabla bakımı nasıl yapılır?",
+    answer: "PEI tabla bakımı: 1) Her baskıdan önce %99 İzopropil Alkol ile silin, 2) Haftada bir ılık sabunlu su ile yıkayın, 3) Yapışma azaldıysa 800-1000 grit zımpara ile hafifçe çizin, 4) Yüzeyde kalıcı hasar varsa PEI levhayı değiştirin. Asla kesici aletlerle kazımayın - spatula kullanın."
+  },
+  {
+    question: "Anycubic Mega serisinde cam tabla yapışması nasıl artırılır?",
+    answer: "Cam tabla yapışması için: 1) Tablayı %99 IPA ile iyice temizleyin, 2) Tabla sıcaklığını 60-70°C yapın, 3) Yapıştırıcı çubuk (Glue Stick) veya saç spreyi kullanın, 4) Brim ekleyin, 5) İlk katman yüksekliğini %120 yapın. Soğuk tablada baskı asla kaldırmayın - cam kırılabilir."
+  },
+  {
+    question: "Anycubic Photon'da FEP film ne zaman değiştirilmeli?",
+    answer: "FEP film şu durumlarda değiştirilmeli: 1) Görünür çizik veya delik var, 2) Beyaz bulanıklık oluşmuş, 3) Reçine tablaya değil FEP'e yapışıyor, 4) Film gerginliği azalmış (parmakla vurduğunuzda tok ses gelmeli). Genellikle 15-30 baskı sonrası veya 2-3 ayda bir kontrol edin. Değişim sırasında doğru gerginliği sağlamak kritiktir."
+  }
+];
+
 const colorClasses: Record<string, { bg: string; dot: string }> = {
   red: { bg: "bg-red-500/10", dot: "bg-red-500" },
   yellow: { bg: "bg-yellow-500/10", dot: "bg-yellow-500" },
@@ -92,13 +127,113 @@ const colorClasses: Record<string, { bg: string; dot: string }> = {
   orange: { bg: "bg-orange-500/10", dot: "bg-orange-500" },
   purple: { bg: "bg-purple-500/10", dot: "bg-purple-500" }
 };
+
+// Schema.org HowTo yapısı
+const howToSchema = problems.map((problem, index) => ({
+  "@type": "HowTo",
+  "@id": `${canonicalUrl}#${problem.slug}`,
+  "name": `Anycubic ${problem.title} Nasıl Çözülür`,
+  "description": problem.shortDesc,
+  "step": problem.steps.map((step, stepIndex) => ({
+    "@type": "HowToStep",
+    "position": stepIndex + 1,
+    "name": step.bold.replace(":", ""),
+    "text": step.text
+  })),
+  "totalTime": "PT15M"
+}));
+
+// Schema.org FAQPage yapısı
+const faqSchema = {
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.answer
+    }
+  }))
+};
+
+// Breadcrumb Schema
+const breadcrumbSchema = {
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Ana Sayfa",
+      "item": "https://3d-labx.com"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Sorun Çözümleri",
+      "item": "https://3d-labx.com/sorun-cozumleri"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Anycubic Sorun Giderme",
+      "item": canonicalUrl
+    }
+  ]
+};
+
+// TechArticle Schema
+const articleSchema = {
+  "@type": "TechArticle",
+  "headline": "Anycubic Yazıcı Sorun Giderme Rehberi",
+  "description": description,
+  "author": {
+    "@type": "Organization",
+    "name": "3D-labX",
+    "url": "https://3d-labx.com"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "3D-labX",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://3d-labx.com/logo.png"
+    }
+  },
+  "datePublished": "2025-01-15",
+  "dateModified": new Date().toISOString().split('T')[0],
+  "mainEntityOfPage": canonicalUrl,
+  "keywords": "Anycubic, Kobra, Photon, Vyper, Mega, 3D yazıcı sorun giderme, LeviQ seviyeleme, reçine yazıcı, FDM yazıcı"
+};
+
+// Birleşik Schema
+const fullSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    articleSchema,
+    breadcrumbSchema,
+    faqSchema,
+    ...howToSchema
+  ]
+};
 ---
 
 <BaseLayout title={title} description={description}>
   <Header />
 
+  <!-- Schema.org JSON-LD -->
+  <script type="application/ld+json" set:html={JSON.stringify(fullSchema)} />
+
   <main class="troubleshoot-page">
     <div class="container">
+      <!-- Breadcrumb Navigation -->
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol>
+          <li><a href="/">Ana Sayfa</a></li>
+          <li><a href="/sorun-cozumleri">Sorun Çözümleri</a></li>
+          <li aria-current="page">Anycubic Sorun Giderme</li>
+        </ol>
+      </nav>
+
       <!-- Hero Section -->
       <section class="hero-section">
         <div class="hero-badge anycubic">
@@ -119,6 +254,19 @@ const colorClasses: Record<string, { bg: string; dot: string }> = {
         </a>
       </section>
 
+      <!-- Quick Navigation -->
+      <nav class="quick-nav" aria-label="Hızlı Erişim">
+        <h2 class="quick-nav-title">Hızlı Erişim</h2>
+        <div class="quick-nav-links">
+          {problems.map((problem) => (
+            <a href={`#${problem.slug}`} class="quick-nav-link">
+              <span class={`nav-dot ${colorClasses[problem.color].dot}`}></span>
+              {problem.title}
+            </a>
+          ))}
+        </div>
+      </nav>
+
       <!-- Info Banner -->
       <div class="info-banner">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -134,7 +282,7 @@ const colorClasses: Record<string, { bg: string; dot: string }> = {
         {problems.map((problem) => {
           const colors = colorClasses[problem.color];
           return (
-            <article class="problem-card">
+            <article class="problem-card" id={problem.slug}>
               <div class="card-header">
                 <div class={`icon-wrapper ${colors.bg}`}>
                   <div class={`status-dot ${colors.dot}`}></div>
@@ -144,13 +292,13 @@ const colorClasses: Record<string, { bg: string; dot: string }> = {
               <p class="card-desc">{problem.shortDesc}</p>
               <div class="solution-box">
                 <h4 class="solution-title">Çözüm Adımları:</h4>
-                <ul class="solution-list">
+                <ol class="solution-list">
                   {problem.steps.map((step) => (
                     <li>
                       <strong>{step.bold}</strong> {step.text}
                     </li>
                   ))}
-                </ul>
+                </ol>
               </div>
               {problem.tip && (
                 <div class="tip-box">
@@ -163,6 +311,78 @@ const colorClasses: Record<string, { bg: string; dot: string }> = {
             </article>
           );
         })}
+      </section>
+
+      <!-- FAQ Section -->
+      <section class="faq-section">
+        <h2 class="faq-title">Sık Sorulan Sorular</h2>
+        <div class="faq-list">
+          {faqs.map((faq, index) => (
+            <details class="faq-item">
+              <summary class="faq-question">
+                <span>{faq.question}</span>
+                <svg class="faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </summary>
+              <div class="faq-answer">
+                <p>{faq.answer}</p>
+              </div>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      <!-- Related Content -->
+      <section class="related-section">
+        <h2 class="related-title">İlgili İçerikler</h2>
+        <div class="related-grid">
+          <a href="/sorun-cozumleri/bambu-lab-sorun-giderme" class="related-card">
+            <div class="related-icon bambu">
+              <svg fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="related-content">
+              <h3>Bambu Lab Sorun Giderme</h3>
+              <p>P1S, X1C ve A1 modelleri için kapsamlı çözümler</p>
+            </div>
+          </a>
+          <a href="/sorun-cozumleri/creality-sorun-giderme" class="related-card">
+            <div class="related-icon creality">
+              <svg fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="related-content">
+              <h3>Creality Sorun Giderme</h3>
+              <p>Ender 3, CR-10 ve diğer modeller için rehber</p>
+            </div>
+          </a>
+          <a href="/sorun-cozumleri/elegoo-sorun-giderme" class="related-card">
+            <div class="related-icon elegoo">
+              <svg fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="related-content">
+              <h3>Elegoo Sorun Giderme</h3>
+              <p>Neptune serisi ve reçineli yazıcılar için rehber</p>
+            </div>
+          </a>
+          <a href="/3d-baski/malzemeler" class="related-card">
+            <div class="related-icon materials">
+              <svg fill="currentColor" viewBox="0 0 20 20">
+                <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/>
+                <path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="related-content">
+              <h3>Filament Rehberi</h3>
+              <p>PLA, PETG, ABS ve diğer malzemeler için ayarlar</p>
+            </div>
+          </a>
+        </div>
       </section>
 
       <!-- Back Link -->
@@ -189,6 +409,49 @@ const colorClasses: Record<string, { bg: string; dot: string }> = {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    margin-bottom: 24px;
+  }
+
+  .breadcrumb ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.875rem;
+  }
+
+  .breadcrumb li {
+    display: flex;
+    align-items: center;
+    color: var(--text-muted);
+  }
+
+  .breadcrumb li:not(:last-child)::after {
+    content: "/";
+    margin-left: 8px;
+    color: var(--border-medium);
+  }
+
+  .breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .breadcrumb a:hover {
+    color: #f59e0b;
+  }
+
+  .breadcrumb [aria-current="page"] {
+    color: var(--text-main);
+    font-weight: 500;
   }
 
   /* Hero Section */
@@ -245,6 +508,57 @@ const colorClasses: Record<string, { bg: string; dot: string }> = {
     gap: 10px;
   }
 
+  /* Quick Navigation */
+  .quick-nav {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+
+  .quick-nav-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+
+  .quick-nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .quick-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    color: var(--text-main);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .quick-nav-link:hover {
+    border-color: #f59e0b;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.05);
+  }
+
+  .nav-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
   /* Info Banner */
   .info-banner {
     display: flex;
@@ -279,6 +593,7 @@ const colorClasses: Record<string, { bg: string; dot: string }> = {
     border-radius: 16px;
     padding: 24px;
     transition: all 0.3s ease;
+    scroll-margin-top: 160px;
   }
 
   .problem-card:hover {
@@ -341,7 +656,7 @@ const colorClasses: Record<string, { bg: string; dot: string }> = {
   }
 
   .solution-list {
-    list-style: disc;
+    list-style: decimal;
     padding-left: 18px;
     margin: 0;
   }
@@ -374,6 +689,160 @@ const colorClasses: Record<string, { bg: string; dot: string }> = {
     color: #eab308;
     flex-shrink: 0;
     margin-top: 2px;
+  }
+
+  /* FAQ Section */
+  .faq-section {
+    margin-bottom: 48px;
+  }
+
+  .faq-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .faq-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .faq-question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-main);
+    list-style: none;
+  }
+
+  .faq-question::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-question span {
+    flex: 1;
+    padding-right: 16px;
+  }
+
+  .faq-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--text-muted);
+    transition: transform 0.3s;
+    flex-shrink: 0;
+  }
+
+  .faq-item[open] .faq-icon {
+    transform: rotate(180deg);
+  }
+
+  .faq-answer {
+    padding: 0 20px 16px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  .faq-answer p {
+    margin: 0;
+  }
+
+  /* Related Section */
+  .related-section {
+    margin-bottom: 48px;
+  }
+
+  .related-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .related-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .related-card:hover {
+    border-color: #f59e0b;
+    transform: translateY(-2px);
+  }
+
+  .related-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .related-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .related-icon.bambu {
+    background: rgba(0, 174, 66, 0.1);
+    color: #00AE42;
+  }
+
+  .related-icon.creality {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+  }
+
+  .related-icon.elegoo {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3B82F6;
+  }
+
+  .related-icon.materials {
+    background: rgba(168, 85, 247, 0.1);
+    color: #a855f7;
+  }
+
+  .related-content h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 4px;
+  }
+
+  .related-content p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 0;
   }
 
   /* Back Section */
@@ -428,6 +897,18 @@ const colorClasses: Record<string, { bg: string; dot: string }> = {
 
     .troubleshoot-page {
       padding-top: 120px;
+    }
+
+    .quick-nav-links {
+      flex-direction: column;
+    }
+
+    .quick-nav-link {
+      justify-content: flex-start;
+    }
+
+    .related-grid {
+      grid-template-columns: 1fr;
     }
   }
 </style>
