@@ -130,7 +130,7 @@ const brands = [
   {
     name: "Elegoo",
     slug: "elegoo-sorun-giderme",
-    logo: "/brand-logos/elegoo-logo.jpg",
+    logo: "/brand-logos/elegoo-logo.webp",
     color: "#3B82F6",
     description: "Neptune FDM ve Mars/Saturn Reçine rehberi",
     problems: ["LCD Arızası", "FEP Film", "Yapışma"]
@@ -563,29 +563,46 @@ const brands = [
 
   .card-header {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 20px 20px 0;
-  }
-
-  .brand-logo {
-    height: 50px;
-    display: flex;
+    flex-direction: column;
     align-items: center;
-  }
-
-  .brand-logo img {
-    max-height: 100%;
-    width: auto;
-    object-fit: contain;
+    padding: 32px 20px 16px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+    border-bottom: 1px solid var(--border-soft);
+    position: relative;
   }
 
   .card-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 600;
     color: white;
+  }
+
+  .brand-logo {
+    height: 80px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .brand-logo img {
+    max-height: 100%;
+    max-width: 180px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  .bento-card.featured .brand-logo {
+    height: 100px;
+  }
+
+  .bento-card.featured .brand-logo img {
+    max-width: 240px;
   }
 
   .card-body {
