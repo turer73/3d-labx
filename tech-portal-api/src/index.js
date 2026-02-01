@@ -3737,14 +3737,14 @@ ${sourceText}`;
           SELECT mp.id, mp.city, mp.district, mp.latitude, mp.longitude, mp.printers, mp.specialties,
                  mp.offers_printing, mp.offers_help, mp.bio, mp.contact_preference,
                  mp.contact_discord, mp.contact_telegram, mp.contact_instagram, mp.contact_email,
-                 mp.is_verified,
+                 mp.is_verified, mp.is_sample,
                  u.username, u.display_name, u.avatar_url,
                  us.reputation_points
           FROM maker_profiles mp
           JOIN users u ON mp.user_id = u.id
           LEFT JOIN user_stats us ON mp.user_id = us.user_id
           ${whereClause}
-          ORDER BY us.reputation_points DESC, mp.helped_count DESC
+          ORDER BY mp.is_sample ASC, us.reputation_points DESC, mp.helped_count DESC
           LIMIT 100
         `).bind(...bindings).all();
 

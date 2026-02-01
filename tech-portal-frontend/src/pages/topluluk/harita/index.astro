@@ -203,23 +203,33 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
             </div>
           </div>
 
-          <!-- Demo Veri Uyarısı -->
-          <div class="demo-notice">
-            <span class="demo-icon">🧪</span>
-            <span class="demo-text">
-              <strong>Beta Aşaması:</strong> Şu an gördüğünüz profiller örnek verilerdir.
-              Gerçek maker'larla doldurmak için <a href="/topluluk/harita/profil">haritaya katılın!</a>
-            </span>
-          </div>
-
           <div class="makers-grid">
             {makers.length > 0 ? makers.map((maker) => {
               const printers = parsePrinters(maker.printers);
               const specialties = parseSpecialties(maker.specialties);
               const level = getLevelBadge(maker.reputation_points || 0);
+              const isSample = maker.is_sample === 1;
 
               return (
-                <div class="maker-card">
+                <div
+                  class={`maker-card ${isSample ? 'sample-profile' : ''}`}
+                  data-username={maker.username}
+                  data-display-name={maker.display_name || maker.username}
+                  data-city={maker.city}
+                  data-district={maker.district || ''}
+                  data-bio={maker.bio || ''}
+                  data-printers={maker.printers || '[]'}
+                  data-specialties={maker.specialties || '[]'}
+                  data-discord={maker.contact_discord || ''}
+                  data-telegram={maker.contact_telegram || ''}
+                  data-instagram={maker.contact_instagram || ''}
+                  data-email={maker.contact_email || ''}
+                  data-offers-printing={maker.offers_printing}
+                  data-offers-help={maker.offers_help}
+                  data-reputation={maker.reputation_points || 0}
+                  data-is-sample={isSample ? '1' : '0'}
+                >
+                  {isSample && <span class="sample-badge">Örnek Profil</span>}
                   <div class="maker-header">
                     <div class="maker-avatar">
                       {maker.avatar_url ? (
@@ -230,7 +240,7 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
                       {maker.is_verified === 1 && <span class="verified-badge" title="Doğrulanmış">✓</span>}
                     </div>
                     <div class="maker-info">
-                      <a href={`/profil/${maker.username}`} class="maker-name">@{maker.username}</a>
+                      <span class="maker-name">@{maker.username}</span>
                       <div class="maker-location">
                         📍 {maker.city}{maker.district ? `, ${maker.district}` : ''}
                       </div>
@@ -451,40 +461,30 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
     padding: 0 20px;
   }
 
-  /* Demo Notice */
-  .demo-notice {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 20px;
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.05));
-    border: 1px solid rgba(251, 191, 36, 0.3);
-    border-radius: 12px;
-    margin-bottom: 24px;
+  /* Sample Profile Badge */
+  .maker-card {
+    position: relative;
+    cursor: pointer;
   }
 
-  .demo-icon {
-    font-size: 1.4rem;
-    flex-shrink: 0;
+  .maker-card.sample-profile {
+    border-style: dashed;
+    opacity: 0.85;
   }
 
-  .demo-text {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-  }
-
-  .demo-text strong {
-    color: #F59E0B;
-  }
-
-  .demo-text a {
-    color: #8B5CF6;
-    font-weight: 500;
-    text-decoration: none;
-  }
-
-  .demo-text a:hover {
-    text-decoration: underline;
+  .sample-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 4px 10px;
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 5;
   }
 
   .page-header {
@@ -1226,88 +1226,109 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
     });
   }
 
-  // İletişim butonları
-  const contactBtns = document.querySelectorAll('.contact-btn');
+  // Modal'ı aç fonksiyonu
+  function openModal(element: Element) {
+    const username = element.getAttribute('data-username') || '';
+    const displayName = element.getAttribute('data-display-name') || username;
+    const city = element.getAttribute('data-city') || '';
+    const district = element.getAttribute('data-district') || '';
+    const discord = element.getAttribute('data-discord') || '';
+    const telegram = element.getAttribute('data-telegram') || '';
+    const instagram = element.getAttribute('data-instagram') || '';
+    const email = element.getAttribute('data-email') || '';
+    const isSample = element.getAttribute('data-is-sample') === '1';
 
-  contactBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const username = btn.getAttribute('data-username') || '';
-      const displayName = btn.getAttribute('data-display-name') || username;
-      const city = btn.getAttribute('data-city') || '';
-      const district = btn.getAttribute('data-district') || '';
-      const discord = btn.getAttribute('data-discord') || '';
-      const telegram = btn.getAttribute('data-telegram') || '';
-      const instagram = btn.getAttribute('data-instagram') || '';
-      const email = btn.getAttribute('data-email') || '';
+    // Modal bilgilerini doldur
+    if (modalAvatar) modalAvatar.textContent = displayName.charAt(0).toUpperCase();
+    if (modalUsername) {
+      modalUsername.innerHTML = `@${username}${isSample ? ' <span style="font-size:0.7rem;color:#F59E0B;background:rgba(245,158,11,0.15);padding:2px 6px;border-radius:4px;margin-left:6px;">Örnek</span>' : ''}`;
+    }
+    if (modalLocation) modalLocation.textContent = district ? `${city}, ${district}` : city;
 
-      // Modal bilgilerini doldur
-      if (modalAvatar) modalAvatar.textContent = displayName.charAt(0).toUpperCase();
-      if (modalUsername) modalUsername.textContent = `@${username}`;
-      if (modalLocation) modalLocation.textContent = district ? `${city}, ${district}` : city;
+    // İletişim listesini oluştur
+    let contactHTML = '';
 
-      // İletişim listesini oluştur
-      let contactHTML = '';
-
-      if (discord) {
-        contactHTML += `
-          <div class="contact-item">
-            <span class="contact-icon">💬</span>
-            <div class="contact-info">
-              <span class="contact-label">Discord</span>
-              <span class="contact-value">${discord}</span>
-            </div>
-            <button class="contact-copy" onclick="copyToClipboard('${discord}', this)">Kopyala</button>
+    if (discord) {
+      contactHTML += `
+        <div class="contact-item">
+          <span class="contact-icon">💬</span>
+          <div class="contact-info">
+            <span class="contact-label">Discord</span>
+            <span class="contact-value">${discord}</span>
           </div>
-        `;
-      }
+          <button class="contact-copy" onclick="copyToClipboard('${discord}', this)">Kopyala</button>
+        </div>
+      `;
+    }
 
-      if (telegram) {
-        contactHTML += `
-          <a href="https://t.me/${telegram.replace('@', '')}" target="_blank" class="contact-item">
-            <span class="contact-icon">✈️</span>
-            <div class="contact-info">
-              <span class="contact-label">Telegram</span>
-              <span class="contact-value">${telegram}</span>
-            </div>
-            <span class="contact-copy">Aç</span>
-          </a>
-        `;
-      }
+    if (telegram) {
+      contactHTML += `
+        <a href="https://t.me/${telegram.replace('@', '')}" target="_blank" class="contact-item">
+          <span class="contact-icon">✈️</span>
+          <div class="contact-info">
+            <span class="contact-label">Telegram</span>
+            <span class="contact-value">${telegram}</span>
+          </div>
+          <span class="contact-copy">Aç</span>
+        </a>
+      `;
+    }
 
-      if (instagram) {
-        contactHTML += `
-          <a href="https://instagram.com/${instagram.replace('@', '')}" target="_blank" class="contact-item">
-            <span class="contact-icon">📸</span>
-            <div class="contact-info">
-              <span class="contact-label">Instagram</span>
-              <span class="contact-value">${instagram}</span>
-            </div>
-            <span class="contact-copy">Aç</span>
-          </a>
-        `;
-      }
+    if (instagram) {
+      contactHTML += `
+        <a href="https://instagram.com/${instagram.replace('@', '')}" target="_blank" class="contact-item">
+          <span class="contact-icon">📸</span>
+          <div class="contact-info">
+            <span class="contact-label">Instagram</span>
+            <span class="contact-value">${instagram}</span>
+          </div>
+          <span class="contact-copy">Aç</span>
+        </a>
+      `;
+    }
 
-      if (email) {
-        contactHTML += `
-          <a href="mailto:${email}" class="contact-item">
-            <span class="contact-icon">📧</span>
-            <div class="contact-info">
-              <span class="contact-label">E-posta</span>
-              <span class="contact-value">${email}</span>
-            </div>
-            <span class="contact-copy">Gönder</span>
-          </a>
-        `;
-      }
+    if (email) {
+      contactHTML += `
+        <a href="mailto:${email}" class="contact-item">
+          <span class="contact-icon">📧</span>
+          <div class="contact-info">
+            <span class="contact-label">E-posta</span>
+            <span class="contact-value">${email}</span>
+          </div>
+          <span class="contact-copy">Gönder</span>
+        </a>
+      `;
+    }
 
-      if (!contactHTML) {
-        contactHTML = '<div class="no-contact">Bu kullanıcı henüz iletişim bilgisi eklememiş.</div>';
-      }
+    if (!contactHTML) {
+      contactHTML = isSample
+        ? '<div class="no-contact">🧪 Bu örnek bir profildir. Gerçek kullanıcılar için iletişim bilgileri görünecektir.</div>'
+        : '<div class="no-contact">Bu kullanıcı henüz iletişim bilgisi eklememiş.</div>';
+    }
 
-      if (contactList) contactList.innerHTML = contactHTML;
+    if (contactList) contactList.innerHTML = contactHTML;
 
-      // Modal'ı aç
-      modal?.classList.add('active');
+    // Modal'ı aç
+    modal?.classList.add('active');
+  }
+
+  // Maker kartlarına tıklama
+  const makerCards = document.querySelectorAll('.maker-card');
+  makerCards.forEach(card => {
+    card.addEventListener('click', (e) => {
+      // İletişim butonuna tıklandıysa kart tıklamasını engelle
+      if ((e.target as Element).closest('.contact-btn')) return;
+      openModal(card);
+    });
+  });
+
+  // İletişim butonları (ayrıca çalışsın)
+  const contactBtns = document.querySelectorAll('.contact-btn');
+  contactBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const card = btn.closest('.maker-card');
+      if (card) openModal(card);
     });
   });
 
