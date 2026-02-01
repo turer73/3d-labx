@@ -83,6 +83,72 @@ const nextUrl = pagination?.hasNext ? `/sorun-cozumleri?page=${currentPage + 1}`
         )}
       </div>
 
+      <!-- Marka Bazlı Rehberler -->
+      <section class="featured-guides">
+        <h2 class="section-title">Marka Bazlı Rehberler</h2>
+        <div class="brand-posts-grid">
+          <article class="post-card brand-card bambu">
+            <a href="/sorun-cozumleri/bambu-lab-sorun-giderme" class="post-image brand-image">
+              <img src="/brand-logos/bambu-lab-logo.svg" alt="Bambu Lab Logo" loading="lazy" />
+              <span class="brand-overlay bambu-overlay"></span>
+            </a>
+            <div class="post-content">
+              <span class="badge badge-brand bambu-badge">Çözüm Rehberi</span>
+              <h2>
+                <a href="/sorun-cozumleri/bambu-lab-sorun-giderme">Bambu Lab Yazıcılarda Sık Karşılaşılan Sorunlar ve Çözümleri</a>
+              </h2>
+              <p>X1, P1, A1 serisi yazıcılar için kapsamlı sorun giderme rehberi. Tabla yapışma, nozzle tıkanıklığı, AMS sorunları ve daha fazlası.</p>
+              <time class="post-date">Güncel Rehber</time>
+            </div>
+          </article>
+
+          <article class="post-card brand-card creality">
+            <a href="/sorun-cozumleri/creality-sorun-giderme" class="post-image brand-image">
+              <img src="/brand-logos/creality-logo.svg" alt="Creality Logo" loading="lazy" />
+              <span class="brand-overlay creality-overlay"></span>
+            </a>
+            <div class="post-content">
+              <span class="badge badge-brand creality-badge">Çözüm Rehberi</span>
+              <h2>
+                <a href="/sorun-cozumleri/creality-sorun-giderme">Creality Yazıcılarda Sık Karşılaşılan Sorunlar ve Çözümleri</a>
+              </h2>
+              <p>Ender 3, CR-10 serisi yazıcılar için kapsamlı sorun giderme rehberi. İlk katman, ekstrüzyon ve seviyeleme sorunları.</p>
+              <time class="post-date">Güncel Rehber</time>
+            </div>
+          </article>
+
+          <article class="post-card brand-card elegoo">
+            <a href="/sorun-cozumleri/elegoo-sorun-giderme" class="post-image brand-image">
+              <img src="/brand-logos/elegoo-logo.svg" alt="Elegoo Logo" loading="lazy" />
+              <span class="brand-overlay elegoo-overlay"></span>
+            </a>
+            <div class="post-content">
+              <span class="badge badge-brand elegoo-badge">Çözüm Rehberi</span>
+              <h2>
+                <a href="/sorun-cozumleri/elegoo-sorun-giderme">Elegoo Yazıcılarda Sık Karşılaşılan Sorunlar ve Çözümleri</a>
+              </h2>
+              <p>Neptune (FDM) ve Mars/Saturn (Reçine) serisi için kapsamlı rehber. LCD, FEP ve baskı sorunları çözümleri.</p>
+              <time class="post-date">Güncel Rehber</time>
+            </div>
+          </article>
+
+          <article class="post-card brand-card anycubic">
+            <a href="/sorun-cozumleri/anycubic-sorun-giderme" class="post-image brand-image">
+              <img src="/brand-logos/anycubic-logo.svg" alt="Anycubic Logo" loading="lazy" />
+              <span class="brand-overlay anycubic-overlay"></span>
+            </a>
+            <div class="post-content">
+              <span class="badge badge-brand anycubic-badge">Çözüm Rehberi</span>
+              <h2>
+                <a href="/sorun-cozumleri/anycubic-sorun-giderme">Anycubic Yazıcılarda Sık Karşılaşılan Sorunlar ve Çözümleri</a>
+              </h2>
+              <p>Kobra, Vyper ve Mega serisi yazıcılar için kapsamlı rehber. Seviyeleme, ekstrüzyon ve katman sorunları.</p>
+              <time class="post-date">Güncel Rehber</time>
+            </div>
+          </article>
+        </div>
+      </section>
+
       {error && (
         <div class="message message-error">
           <p><strong>İçerikler yüklenirken bir hata oluştu.</strong></p>
@@ -310,8 +376,135 @@ const nextUrl = pagination?.hasNext ? `/sorun-cozumleri?page=${currentPage + 1}`
     margin-bottom: var(--spacing-lg);
   }
 
+  /* Featured Guides Section */
+  .featured-guides {
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title::before {
+    content: '';
+    width: 4px;
+    height: 24px;
+    background: linear-gradient(135deg, var(--accent), #8b5cf6);
+    border-radius: 2px;
+  }
+
+  .brand-posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+  }
+
+  .brand-card {
+    border-width: 2px;
+  }
+
+  .brand-card.bambu {
+    border-color: rgba(0, 174, 66, 0.4);
+  }
+
+  .brand-card.bambu:hover {
+    border-color: #00AE42;
+  }
+
+  .brand-card.creality {
+    border-color: rgba(34, 197, 94, 0.4);
+  }
+
+  .brand-card.creality:hover {
+    border-color: #22c55e;
+  }
+
+  .brand-card.elegoo {
+    border-color: rgba(59, 130, 246, 0.4);
+  }
+
+  .brand-card.elegoo:hover {
+    border-color: #3B82F6;
+  }
+
+  .brand-card.anycubic {
+    border-color: rgba(245, 158, 11, 0.4);
+  }
+
+  .brand-card.anycubic:hover {
+    border-color: #f59e0b;
+  }
+
+  .brand-image {
+    position: relative;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  }
+
+  .brand-image img {
+    object-fit: contain !important;
+    padding: 24px;
+    filter: brightness(1.1);
+  }
+
+  .brand-overlay {
+    position: absolute;
+    inset: 0;
+    opacity: 0.15;
+    pointer-events: none;
+  }
+
+  .bambu-overlay {
+    background: linear-gradient(135deg, #00AE42 0%, #008833 100%);
+  }
+
+  .creality-overlay {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  }
+
+  .elegoo-overlay {
+    background: linear-gradient(135deg, #3B82F6 0%, #2563eb 100%);
+  }
+
+  .anycubic-overlay {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  }
+
+  .badge-brand {
+    padding: 3px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .bambu-badge {
+    background: #00AE42;
+  }
+
+  .creality-badge {
+    background: #22c55e;
+  }
+
+  .elegoo-badge {
+    background: #3B82F6;
+  }
+
+  .anycubic-badge {
+    background: #f59e0b;
+  }
+
   @media (max-width: 640px) {
     .posts-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .brand-posts-grid {
       grid-template-columns: 1fr;
     }
 

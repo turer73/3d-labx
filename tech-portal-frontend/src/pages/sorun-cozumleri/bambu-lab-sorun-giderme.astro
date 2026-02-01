@@ -1,0 +1,435 @@
+---
+export const prerender = true;
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+
+const title = "Bambu Lab Sorun Giderme Rehberi | 3D-labX";
+const description = "Bambu Lab X1, P1 ve A1 serisi yazıcılarda en sık karşılaşılan sorunlar ve çözümleri. Tabla yapışma, nozzle tıkanıklığı, AMS hataları, yüzey kalitesi ve daha fazlası.";
+
+const problems = [
+  {
+    id: 1,
+    title: "Tabla Yapışma Sorunu",
+    color: "red",
+    shortDesc: "İlk katman tablaya tutunamıyor veya köşelerden kalkıyor (Warping).",
+    steps: [
+      { bold: "Temizlik:", text: "Tablayı sıcak su ve bulaşık deterjanı ile yıkayın. IPA bazen yağı sadece yüzeye yayar." },
+      { bold: "Plaka Seçimi:", text: "Bambu Studio'da doğru plakanın seçili olduğundan emin olun (Cool Plate / Textured PEI vb.)." },
+      { bold: "Sıcaklık:", text: "Textured PEI için ilk katman Nozzle sıcaklığını 5°C, tabla sıcaklığını 5-10°C artırın." },
+      { bold: "AUX Fan:", text: "PLA basarken köşeler kalkıyorsa, AUX fanını %70'ten %30'a düşürün veya ilk katmanlarda kapatın." }
+    ],
+    tip: "Soğuk plaka (Cool Plate) kullanıyorsanız Glue Stick (Yapıştırıcı) kullanmak zorunludur."
+  },
+  {
+    id: 2,
+    title: "Nozzle Tıkanıklığı",
+    color: "yellow",
+    shortDesc: "Filament akmıyor veya extruder tıkırdıyor.",
+    steps: [
+      { bold: "Cold Pull:", text: "Nozzle'ı 250°C'ye ısıtın, filamenti itin, ısıtıcıyı kapatın. 90°C'ye düşünce filamenti hızla çekin." },
+      { bold: "İğne Temizliği:", text: "Nozzle sıcakken kutudan çıkan ince iğne ile ucu temizleyin." },
+      { bold: "Kapak Kontrolü:", text: "PLA basarken (özellikle P1S/X1C'de) üst cam kapağı veya ön kapıyı aralayın." },
+      { bold: "Kesici Kol:", text: "Filament kesici kolunun (cutter lever) takılı kalmadığından emin olun." }
+    ],
+    tip: "Tıkanıklık geçmiyorsa, hotend vidalarını söküp extruder dişlilerinde filament parçası olup olmadığını kontrol edin."
+  },
+  {
+    id: 3,
+    title: "AMS Geri Çekme Hatası",
+    color: "blue",
+    shortDesc: "'Failed to pull back filament' uyarısı alıyorsunuz.",
+    steps: [
+      { bold: "Manuel Destek:", text: "PTFE borusunu toolhead kısmından hafifçe çıkarıp filamenti elinizle geri çekmeyi deneyin." },
+      { bold: "Makara Kontrolü:", text: "Makaranın kenarları yamulmuş mu veya karton makara mı? Karton makaralar sürtünme yapar." },
+      { bold: "Filament Ucu:", text: "Filament ucu şişmiş olabilir. Kesici bıçağın körelip körelmediğini kontrol edin." },
+      { bold: "PTFE Eğimi:", text: "Toolhead üzerindeki PTFE borusunun bükülme açısını yumuşatmak için 'PTFE Guide' parçaları kullanın." }
+    ],
+    tip: "AMS kullanırken çok yumuşak TPU veya aşındırıcı (CF/GF) filamentler önerilmez."
+  },
+  {
+    id: 4,
+    title: "Yüzey Kalitesi (Ghosting/VFA)",
+    color: "purple",
+    shortDesc: "Düz yüzeylerde dalgalanma veya dikey çizgiler.",
+    steps: [
+      { bold: "Kayış Gerginliği:", text: "Yazıcının arkasındaki gergi vidalarını gevşetin, kafayı hareket ettirin ve tekrar sıkın." },
+      { bold: "Kalibrasyon:", text: "Menüden 'Calibration' sekmesine gidin ve 'Vibration Compensation' testini çalıştırın." },
+      { bold: "Bakım:", text: "Karbon çubukları IPA ile temizleyin. Metal çubukları yağlayın." },
+      { bold: "Zemin:", text: "Yazıcının sallanan bir masada durmadığından emin olun." }
+    ],
+    tip: "Mat filamentler (Matte PLA), parlak olanlara göre yüzey hatalarını daha iyi gizler."
+  },
+  {
+    id: 5,
+    title: "İpliklenme (Stringing)",
+    color: "green",
+    shortDesc: "Model parçaları arasında ince iplikler oluşuyor.",
+    steps: [
+      { bold: "Kurutma:", text: "Filamentinizi (özellikle PETG ve TPU) mutlaka kurutun. Nemli filament sızar." },
+      { bold: "Sıcaklık:", text: "Nozzle sıcaklığını 5-10°C düşürmeyi deneyin." },
+      { bold: "Z-Hop:", text: "Filament ayarlarında 'Z-Hop when retract' seçeneğini kontrol edin." },
+      { bold: "Akış Oranı:", text: "'Flow Ratio' ayarı çok yüksek olabilir, varsayılan (0.98) değere getirin." }
+    ],
+    tip: "Jenerik (Bambu olmayan) filament kullanıyorsanız, 'Generic PLA/PETG' profilini seçin."
+  },
+  {
+    id: 6,
+    title: "Hata Kodları (HMS)",
+    color: "orange",
+    shortDesc: "Ekranda HMS ile başlayan bir hata kodu var.",
+    steps: [
+      { bold: "QR Kodu:", text: "Ekrandaki QR kodunu Handy uygulamasıyla taratın. Sizi doğrudan ilgili Wiki sayfasına götürür." },
+      { bold: "Sensör Kontrolü:", text: "Lidar sensörü veya kamera lensi kirli olabilir, silin." },
+      { bold: "Yeniden Başlatma:", text: "Bazen sensör okuma hatası olabilir, yazıcıyı arkadan kapatıp açın." }
+    ],
+    tip: "HMS kodları çok spesifiktir. Kodu Google'da 'Bambu Lab HMS xxxx' şeklinde aratırsanız kesin çözüme ulaşırsınız."
+  }
+];
+
+const colorClasses: Record<string, { bg: string; dot: string }> = {
+  red: { bg: "bg-red-500/10", dot: "bg-red-500" },
+  yellow: { bg: "bg-yellow-500/10", dot: "bg-yellow-500" },
+  blue: { bg: "bg-blue-500/10", dot: "bg-blue-500" },
+  green: { bg: "bg-green-500/10", dot: "bg-green-500" },
+  orange: { bg: "bg-orange-500/10", dot: "bg-orange-500" },
+  purple: { bg: "bg-purple-500/10", dot: "bg-purple-500" }
+};
+---
+
+<BaseLayout title={title} description={description}>
+  <Header />
+
+  <main class="troubleshoot-page">
+    <div class="container">
+      <!-- Hero Section -->
+      <section class="hero-section">
+        <div class="hero-badge bambu">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+          </svg>
+          Bambu Lab Wiki Özeti
+        </div>
+        <h1 class="hero-title">Bambu Lab Yazıcı Sorun Giderme Rehberi</h1>
+        <p class="hero-desc">
+          X1, P1 ve A1 serisi Bambu Lab yazıcılarda karşılaşabileceğiniz yaygın sorunlar için kapsamlı çözüm rehberi. Topluluk deneyimleri ve resmi Wiki kaynaklarından derlenmiştir.
+        </p>
+        <a href="https://wiki.bambulab.com/en/home" target="_blank" rel="noopener" class="wiki-link">
+          Resmi Wiki'ye Git
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+          </svg>
+        </a>
+      </section>
+
+      <!-- Info Banner -->
+      <div class="info-banner">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div>
+          <strong>Başlamadan Önce:</strong> Bambu Lab yazıcılarda birçok sorun otomatik kalibrasyon ile çözülebilir. Menüden 'Calibration' seçeneğini deneyin.
+        </div>
+      </div>
+
+      <!-- Problems Grid -->
+      <section class="problems-grid">
+        {problems.map((problem) => {
+          const colors = colorClasses[problem.color];
+          return (
+            <article class="problem-card">
+              <div class="card-header">
+                <div class={`icon-wrapper ${colors.bg}`}>
+                  <div class={`status-dot ${colors.dot}`}></div>
+                </div>
+                <h3 class="card-title">{problem.title}</h3>
+              </div>
+              <p class="card-desc">{problem.shortDesc}</p>
+              <div class="solution-box">
+                <h4 class="solution-title">Çözüm Adımları:</h4>
+                <ul class="solution-list">
+                  {problem.steps.map((step) => (
+                    <li>
+                      <strong>{step.bold}</strong> {step.text}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              {problem.tip && (
+                <div class="tip-box">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z"/>
+                  </svg>
+                  <span>{problem.tip}</span>
+                </div>
+              )}
+            </article>
+          );
+        })}
+      </section>
+
+      <!-- Back Link -->
+      <div class="back-section">
+        <a href="/sorun-cozumleri" class="back-link">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          Tüm Sorun Çözümlerine Dön
+        </a>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .troubleshoot-page {
+    padding-top: 140px;
+    padding-bottom: 60px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* Hero Section */
+  .hero-section {
+    text-align: center;
+    margin-bottom: 32px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--success);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  .hero-badge.bambu {
+    background: linear-gradient(135deg, #00AE42 0%, #008a34 100%);
+  }
+
+  .hero-title {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 800;
+    margin-bottom: 16px;
+    color: var(--text-main);
+  }
+
+  .hero-desc {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .wiki-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #00AE42;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .wiki-link:hover {
+    color: #008a34;
+    gap: 10px;
+  }
+
+  /* Info Banner */
+  .info-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0, 174, 66, 0.1);
+    border: 1px solid rgba(0, 174, 66, 0.3);
+    border-left: 4px solid #00AE42;
+    padding: 16px 20px;
+    border-radius: 0 12px 12px 0;
+    margin-bottom: 32px;
+    color: var(--text-main);
+    font-size: 0.95rem;
+  }
+
+  .info-banner svg {
+    color: #00AE42;
+    flex-shrink: 0;
+  }
+
+  /* Problems Grid */
+  .problems-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+
+  .problem-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s ease;
+  }
+
+  .problem-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-medium);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .card-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .card-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  .solution-box {
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .solution-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .solution-list {
+    list-style: disc;
+    padding-left: 18px;
+    margin: 0;
+  }
+
+  .solution-list li {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    line-height: 1.5;
+  }
+
+  .solution-list li strong {
+    color: var(--text-main);
+    font-weight: 600;
+  }
+
+  /* Tip Box */
+  .tip-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(234, 179, 8, 0.1);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .tip-box svg {
+    color: #eab308;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* Back Section */
+  .back-section {
+    text-align: center;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-weight: 500;
+    padding: 12px 24px;
+    border-radius: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .back-link:hover {
+    color: #00AE42;
+    border-color: #00AE42;
+    background: rgba(0, 174, 66, 0.05);
+  }
+
+  /* Utility classes */
+  .bg-red-500\/10 { background: rgba(239, 68, 68, 0.1); }
+  .bg-yellow-500\/10 { background: rgba(234, 179, 8, 0.1); }
+  .bg-blue-500\/10 { background: rgba(59, 130, 246, 0.1); }
+  .bg-green-500\/10 { background: rgba(34, 197, 94, 0.1); }
+  .bg-orange-500\/10 { background: rgba(249, 115, 22, 0.1); }
+  .bg-purple-500\/10 { background: rgba(168, 85, 247, 0.1); }
+
+  .bg-red-500 { background: #ef4444; }
+  .bg-yellow-500 { background: #eab308; }
+  .bg-blue-500 { background: #3b82f6; }
+  .bg-green-500 { background: #22c55e; }
+  .bg-orange-500 { background: #f97316; }
+  .bg-purple-500 { background: #a855f7; }
+
+  .w-4 { width: 1rem; }
+  .h-4 { height: 1rem; }
+  .w-5 { width: 1.25rem; }
+  .h-5 { height: 1.25rem; }
+
+  @media (max-width: 768px) {
+    .problems-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .troubleshoot-page {
+      padding-top: 120px;
+    }
+  }
+</style>

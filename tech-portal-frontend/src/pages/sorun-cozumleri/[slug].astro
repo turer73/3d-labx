@@ -8,6 +8,16 @@ export const prerender = false;
 const API_BASE = "https://tech-portal-api.turgut-d01.workers.dev";
 const { slug } = Astro.params;
 
+// Eski URL'lerden yönlendirme (SEO için)
+const redirects: Record<string, string> = {
+  "bambu-lab-yazicilarda-sik-karsilasilan-sorunlar-ve-cozumleri-x1-p1-a1-serisi": "/sorun-cozumleri/bambu-lab-sorun-giderme",
+  "creality-yaz-c-larda-s-k-kar-la-lan-sorunlar-ve-z-mleri-ender-3-cr-10-ml3q4vx1": "/sorun-cozumleri/creality-sorun-giderme"
+};
+
+if (redirects[slug as string]) {
+  return Astro.redirect(redirects[slug as string]);
+}
+
 let post: any = null;
 let relatedPosts: any[] = [];
 let fetchError = "";

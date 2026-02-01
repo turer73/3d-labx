@@ -8,6 +8,17 @@ export const prerender = false;
 const API_BASE = "https://tech-portal-api.turgut-d01.workers.dev";
 const { slug } = Astro.params;
 
+// Sorun giderme sayfalarını /sorun-cozumleri/ altına yönlendir
+const sorunGidermeRedirects: Record<string, string> = {
+  "bambu-lab-sorun-giderme": "/sorun-cozumleri/bambu-lab-sorun-giderme",
+  "creality-sorun-giderme": "/sorun-cozumleri/creality-sorun-giderme",
+  "elegoo-sorun-giderme": "/sorun-cozumleri/elegoo-sorun-giderme"
+};
+
+if (sorunGidermeRedirects[slug as string]) {
+  return Astro.redirect(sorunGidermeRedirects[slug as string]);
+}
+
 let post: any = null;
 let relatedPosts: any[] = [];
 let fetchError = "";

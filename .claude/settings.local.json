@@ -86,7 +86,8 @@
       "Bash(./scripts/auto-backup.sh:*)",
       "Bash(nslookup:*)",
       "Bash(./scripts/deploy-frontend.sh:*)",
-      "WebFetch(domain:www.filamentmarket.com.tr)"
+      "WebFetch(domain:www.filamentmarket.com.tr)",
+      "mcp__Claude_in_Chrome__computer"
     ],
     "deny": []
   }
