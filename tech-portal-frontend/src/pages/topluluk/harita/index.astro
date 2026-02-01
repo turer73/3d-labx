@@ -271,9 +271,14 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
                     </div>
                     <button
                       class="contact-btn"
-                      data-user-id={maker.user_id}
                       data-username={maker.username}
-                      data-contact={maker.contact_preference}
+                      data-display-name={maker.display_name || maker.username}
+                      data-city={maker.city}
+                      data-district={maker.district || ''}
+                      data-discord={maker.contact_discord || ''}
+                      data-telegram={maker.contact_telegram || ''}
+                      data-instagram={maker.contact_instagram || ''}
+                      data-email={maker.contact_email || ''}
                     >
                       💬 İletişim
                     </button>
@@ -303,6 +308,30 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
       </div>
     </div>
   </main>
+
+  <!-- İletişim Modal -->
+  <div id="contactModal" class="contact-modal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <button class="modal-close" id="closeModal">&times;</button>
+      <div class="modal-header">
+        <div class="modal-avatar" id="modalAvatar">T</div>
+        <div class="modal-user-info">
+          <h3 id="modalUsername">@username</h3>
+          <p id="modalLocation">İstanbul, Kadıköy</p>
+        </div>
+      </div>
+      <div class="modal-body">
+        <h4>📬 İletişim Bilgileri</h4>
+        <div class="contact-list" id="contactList">
+          <!-- JS ile doldurulacak -->
+        </div>
+        <div class="contact-note">
+          <small>⚠️ İletişim kurmadan önce <a href="/yasal/sorumluluk-reddi">sorumluluk reddi</a> metnini okuyun.</small>
+        </div>
+      </div>
+    </div>
+  </div>
 </BaseLayout>
 
 <style>
@@ -964,6 +993,191 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
       width: 100%;
     }
   }
+
+  /* Contact Modal */
+  .contact-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .contact-modal.active {
+    display: flex;
+  }
+
+  .modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-content {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    padding: 24px;
+    max-width: 400px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalIn 0.2s ease;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: var(--bg-main);
+    border-radius: 8px;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .modal-close:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #EF4444;
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .modal-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .modal-user-info h3 {
+    margin: 0 0 4px;
+    font-size: 1.1rem;
+    color: var(--text-main);
+  }
+
+  .modal-user-info p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .modal-body h4 {
+    margin: 0 0 16px;
+    font-size: 1rem;
+    color: var(--text-main);
+  }
+
+  .contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--bg-main);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text-main);
+    transition: all 0.2s ease;
+  }
+
+  .contact-item:hover {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: #8B5CF6;
+  }
+
+  .contact-icon {
+    font-size: 1.3rem;
+    width: 32px;
+    text-align: center;
+  }
+
+  .contact-info {
+    flex: 1;
+  }
+
+  .contact-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+
+  .contact-value {
+    font-weight: 500;
+    color: var(--text-main);
+  }
+
+  .contact-copy {
+    padding: 6px 12px;
+    background: #8B5CF6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .contact-copy:hover {
+    background: #7C3AED;
+  }
+
+  .contact-note {
+    margin-top: 16px;
+    padding: 12px;
+    background: rgba(251, 191, 36, 0.1);
+    border-radius: 10px;
+    text-align: center;
+  }
+
+  .contact-note small {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .contact-note a {
+    color: #F59E0B;
+  }
+
+  .no-contact {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+  }
 </style>
 
 <script>
@@ -979,22 +1193,124 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
     window.location.href = url.toString();
   });
 
+  // Modal elementleri
+  const modal = document.getElementById('contactModal');
+  const modalBackdrop = modal?.querySelector('.modal-backdrop');
+  const closeModalBtn = document.getElementById('closeModal');
+  const modalAvatar = document.getElementById('modalAvatar');
+  const modalUsername = document.getElementById('modalUsername');
+  const modalLocation = document.getElementById('modalLocation');
+  const contactList = document.getElementById('contactList');
+
+  // Modal'ı kapat
+  function closeModal() {
+    modal?.classList.remove('active');
+  }
+
+  modalBackdrop?.addEventListener('click', closeModal);
+  closeModalBtn?.addEventListener('click', closeModal);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  // Kopyalama fonksiyonu
+  function copyToClipboard(text: string, btn: HTMLButtonElement) {
+    navigator.clipboard.writeText(text).then(() => {
+      const original = btn.textContent;
+      btn.textContent = 'Kopyalandı!';
+      btn.style.background = '#10B981';
+      setTimeout(() => {
+        btn.textContent = original;
+        btn.style.background = '';
+      }, 1500);
+    });
+  }
+
   // İletişim butonları
   const contactBtns = document.querySelectorAll('.contact-btn');
 
   contactBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        (window as any).showToast?.('İletişim için giriş yapmalısınız', 'warning');
-        return;
+      const username = btn.getAttribute('data-username') || '';
+      const displayName = btn.getAttribute('data-display-name') || username;
+      const city = btn.getAttribute('data-city') || '';
+      const district = btn.getAttribute('data-district') || '';
+      const discord = btn.getAttribute('data-discord') || '';
+      const telegram = btn.getAttribute('data-telegram') || '';
+      const instagram = btn.getAttribute('data-instagram') || '';
+      const email = btn.getAttribute('data-email') || '';
+
+      // Modal bilgilerini doldur
+      if (modalAvatar) modalAvatar.textContent = displayName.charAt(0).toUpperCase();
+      if (modalUsername) modalUsername.textContent = `@${username}`;
+      if (modalLocation) modalLocation.textContent = district ? `${city}, ${district}` : city;
+
+      // İletişim listesini oluştur
+      let contactHTML = '';
+
+      if (discord) {
+        contactHTML += `
+          <div class="contact-item">
+            <span class="contact-icon">💬</span>
+            <div class="contact-info">
+              <span class="contact-label">Discord</span>
+              <span class="contact-value">${discord}</span>
+            </div>
+            <button class="contact-copy" onclick="copyToClipboard('${discord}', this)">Kopyala</button>
+          </div>
+        `;
       }
 
-      const username = btn.getAttribute('data-username');
-      const contact = btn.getAttribute('data-contact');
+      if (telegram) {
+        contactHTML += `
+          <a href="https://t.me/${telegram.replace('@', '')}" target="_blank" class="contact-item">
+            <span class="contact-icon">✈️</span>
+            <div class="contact-info">
+              <span class="contact-label">Telegram</span>
+              <span class="contact-value">${telegram}</span>
+            </div>
+            <span class="contact-copy">Aç</span>
+          </a>
+        `;
+      }
 
-      // Mesaj sayfasına yönlendir (veya modal aç)
-      (window as any).showToast?.(`@${username} ile iletişim özelliği yakında!`, 'info');
+      if (instagram) {
+        contactHTML += `
+          <a href="https://instagram.com/${instagram.replace('@', '')}" target="_blank" class="contact-item">
+            <span class="contact-icon">📸</span>
+            <div class="contact-info">
+              <span class="contact-label">Instagram</span>
+              <span class="contact-value">${instagram}</span>
+            </div>
+            <span class="contact-copy">Aç</span>
+          </a>
+        `;
+      }
+
+      if (email) {
+        contactHTML += `
+          <a href="mailto:${email}" class="contact-item">
+            <span class="contact-icon">📧</span>
+            <div class="contact-info">
+              <span class="contact-label">E-posta</span>
+              <span class="contact-value">${email}</span>
+            </div>
+            <span class="contact-copy">Gönder</span>
+          </a>
+        `;
+      }
+
+      if (!contactHTML) {
+        contactHTML = '<div class="no-contact">Bu kullanıcı henüz iletişim bilgisi eklememiş.</div>';
+      }
+
+      if (contactList) contactList.innerHTML = contactHTML;
+
+      // Modal'ı aç
+      modal?.classList.add('active');
     });
   });
+
+  // Global fonksiyon olarak tanımla
+  (window as any).copyToClipboard = copyToClipboard;
 </script>

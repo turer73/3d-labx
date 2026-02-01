@@ -3735,7 +3735,9 @@ ${sourceText}`;
 
         const makers = await env.DB.prepare(`
           SELECT mp.id, mp.city, mp.district, mp.latitude, mp.longitude, mp.printers, mp.specialties,
-                 mp.offers_printing, mp.offers_help, mp.bio,
+                 mp.offers_printing, mp.offers_help, mp.bio, mp.contact_preference,
+                 mp.contact_discord, mp.contact_telegram, mp.contact_instagram, mp.contact_email,
+                 mp.is_verified,
                  u.username, u.display_name, u.avatar_url,
                  us.reputation_points
           FROM maker_profiles mp
