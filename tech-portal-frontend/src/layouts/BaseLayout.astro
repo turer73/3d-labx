@@ -76,6 +76,9 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
+    <!-- RSS Feed -->
+    <link rel="alternate" type="application/rss+xml" title="3D-labX RSS" href="/rss.xml" />
+
     <!-- Open Graph -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -183,8 +186,20 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
                 <li><a href="/sorun-cozumleri">Stringing Çözümü</a></li>
                 <li><a href="/incelemeler">Filament Karşılaştırma</a></li>
                 <li><a href="/iletisim">İletişim</a></li>
+                <li><a href="/rss.xml" class="rss-link">📡 RSS Feed</a></li>
               </ul>
             </div>
+          </div>
+
+          <!-- Newsletter Section -->
+          <div class="footer-newsletter">
+            <h4>📬 Bülten</h4>
+            <p>Yeni içeriklerden haberdar olun</p>
+            <form class="newsletter-form" id="newsletterForm">
+              <input type="email" placeholder="E-posta adresiniz" required />
+              <button type="submit">Abone Ol</button>
+            </form>
+            <p class="newsletter-note">Spam göndermiyoruz, istediğinizde çıkabilirsiniz.</p>
           </div>
         </div>
 
@@ -223,6 +238,40 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
           setTimeout(() => toast.remove(), 300);
         }, duration);
       };
+    </script>
+
+    <!-- Newsletter Script -->
+    <script is:inline>
+      document.getElementById('newsletterForm')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const email = this.querySelector('input[type="email"]').value;
+        const btn = this.querySelector('button');
+        const originalText = btn.textContent;
+
+        btn.textContent = 'Kaydediliyor...';
+        btn.disabled = true;
+
+        try {
+          const res = await fetch('https://tech-portal-api.turgut-d01.workers.dev/api/newsletter/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          });
+
+          if (res.ok) {
+            window.showToast('Bültene başarıyla abone oldunuz! 🎉', 'success');
+            this.reset();
+          } else {
+            const data = await res.json();
+            window.showToast(data.error || 'Bir hata oluştu', 'error');
+          }
+        } catch (err) {
+          window.showToast('Bağlantı hatası, lütfen tekrar deneyin', 'error');
+        } finally {
+          btn.textContent = originalText;
+          btn.disabled = false;
+        }
+      });
     </script>
 
     <!-- Code Copy Button Script -->
@@ -546,6 +595,93 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
 
   .footer-column a:hover {
     color: var(--accent);
+  }
+
+  .footer-column .rss-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Newsletter */
+  .footer-newsletter {
+    grid-column: 1 / -1;
+    background: var(--bg-soft);
+    padding: 24px;
+    border-radius: 16px;
+    text-align: center;
+    margin-top: 16px;
+  }
+
+  .footer-newsletter h4 {
+    color: var(--text-main);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 8px;
+  }
+
+  .footer-newsletter > p {
+    color: var(--text-muted);
+    margin: 0 0 16px;
+    font-size: 0.9rem;
+  }
+
+  .newsletter-form {
+    display: flex;
+    gap: 10px;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .newsletter-form input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid var(--border-soft);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    background: var(--bg-card);
+    color: var(--text-main);
+    transition: border-color 0.2s ease;
+  }
+
+  .newsletter-form input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .newsletter-form button {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #F97316, #EAB308);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .newsletter-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+  }
+
+  .newsletter-note {
+    font-size: 0.75rem !important;
+    color: var(--text-light) !important;
+    margin-top: 10px !important;
+    margin-bottom: 0 !important;
+  }
+
+  @media (max-width: 480px) {
+    .newsletter-form {
+      flex-direction: column;
+    }
+
+    .newsletter-form button {
+      width: 100%;
+    }
   }
 
   .footer-bottom {

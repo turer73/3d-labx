@@ -1175,6 +1175,72 @@ export default {
       }
 
       // ================================
+      // 📬 NEWSLETTER
+      // ================================
+
+      if (path === "/api/newsletter/subscribe" && method === "POST") {
+        const body = await request.json();
+        const email = sanitizeString(body.email, 200);
+
+        if (!email) {
+          return errorResponse("E-posta adresi gerekli", 400, "MISSING_EMAIL");
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          return errorResponse("Geçersiz e-posta adresi", 400, "INVALID_EMAIL");
+        }
+
+        try {
+          // Check if already subscribed
+          const existing = await env.DB.prepare(
+            `SELECT id, is_active FROM newsletter_subscribers WHERE email = ?`
+          ).bind(email).first();
+
+          if (existing) {
+            if (existing.is_active) {
+              return errorResponse("Bu e-posta zaten abone", 400, "ALREADY_SUBSCRIBED");
+            } else {
+              // Re-activate subscription
+              await env.DB.prepare(
+                `UPDATE newsletter_subscribers SET is_active = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?`
+              ).bind(existing.id).run();
+              return jsonResponse({ success: true, message: "Aboneliğiniz yeniden aktifleştirildi." });
+            }
+          }
+
+          // Insert new subscriber
+          await env.DB.prepare(
+            `INSERT INTO newsletter_subscribers (email, ip_hash) VALUES (?, ?)`
+          ).bind(email, hashIP(clientIP)).run();
+
+          return jsonResponse({ success: true, message: "Bültene başarıyla abone oldunuz." }, 201);
+        } catch (error) {
+          console.error('Newsletter subscribe error:', error);
+          return errorResponse("Bir hata oluştu", 500, "SUBSCRIBE_ERROR");
+        }
+      }
+
+      if (path === "/api/newsletter/unsubscribe" && method === "POST") {
+        const body = await request.json();
+        const email = sanitizeString(body.email, 200);
+
+        if (!email) {
+          return errorResponse("E-posta adresi gerekli", 400, "MISSING_EMAIL");
+        }
+
+        try {
+          await env.DB.prepare(
+            `UPDATE newsletter_subscribers SET is_active = 0, updated_at = CURRENT_TIMESTAMP WHERE email = ?`
+          ).bind(email).run();
+
+          return jsonResponse({ success: true, message: "Abonelikten çıkıldı." });
+        } catch (error) {
+          console.error('Newsletter unsubscribe error:', error);
+          return errorResponse("Bir hata oluştu", 500, "UNSUBSCRIBE_ERROR");
+        }
+      }
+
+      // ================================
       // 📊 POLL ENDPOINTS
       // ================================
 
