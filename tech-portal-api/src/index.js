@@ -1007,15 +1007,37 @@ export default {
           return errorResponse("Oturum geçersiz", 401, "UNAUTHORIZED");
         }
 
+        // Kullanıcının tam bilgilerini ve istatistiklerini al
+        const userDetails = await env.DB.prepare(`
+          SELECT u.id, u.email, u.username, u.display_name, u.avatar_url, u.bio, u.role, u.created_at,
+                 us.reputation_points, us.thread_count, us.reply_count, us.like_received_count
+          FROM users u
+          LEFT JOIN user_stats us ON u.id = us.user_id
+          WHERE u.id = ?
+        `).bind(session.user_id).first();
+
+        // Maker profili var mı kontrol et
+        const makerProfile = await env.DB.prepare(`
+          SELECT * FROM maker_profiles WHERE user_id = ?
+        `).bind(session.user_id).first();
+
         return jsonResponse({
-          user: {
-            id: session.user_id,
-            email: session.email,
-            username: session.username,
-            displayName: session.display_name,
-            avatarUrl: session.avatar_url,
-            role: session.role
-          }
+          id: userDetails.id,
+          email: userDetails.email,
+          username: userDetails.username,
+          display_name: userDetails.display_name,
+          avatar_url: userDetails.avatar_url,
+          bio: userDetails.bio,
+          role: userDetails.role,
+          created_at: userDetails.created_at,
+          reputation_points: userDetails.reputation_points || 0,
+          stats: {
+            posts: userDetails.thread_count || 0,
+            comments: userDetails.reply_count || 0,
+            likes: userDetails.like_received_count || 0,
+            badges: 0
+          },
+          maker_profile: makerProfile || null
         });
       }
 

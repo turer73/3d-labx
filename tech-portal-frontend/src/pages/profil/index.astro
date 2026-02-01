@@ -96,6 +96,49 @@ import Header from "../../components/Header.astro";
           </div>
         </div>
 
+        <!-- Maker Haritası -->
+        <div class="maker-section" id="makerSection">
+          <div class="maker-header-row">
+            <h3>🗺️ Maker Haritası</h3>
+            <a href="/topluluk/harita" class="view-map-link">Haritayı Gör →</a>
+          </div>
+
+          <!-- Haritada değilse -->
+          <div id="makerNotJoined" class="maker-not-joined">
+            <div class="maker-invite">
+              <p>Henüz Maker Haritası'nda değilsin!</p>
+              <p class="maker-desc">Türkiye'deki diğer 3D baskı meraklılarıyla tanış, yardım al veya ver.</p>
+              <a href="/topluluk/harita/profil" class="btn btn-primary">
+                <span>🗺️</span> Haritaya Katıl
+              </a>
+            </div>
+          </div>
+
+          <!-- Haritada ise -->
+          <div id="makerJoined" class="maker-joined hidden">
+            <div class="maker-info-card">
+              <div class="maker-location-row">
+                <span class="maker-icon">📍</span>
+                <span id="makerLocation">-</span>
+              </div>
+              <div class="maker-printers-row">
+                <span class="maker-icon">🖨️</span>
+                <span id="makerPrinters">-</span>
+              </div>
+              <div class="maker-services-row">
+                <span id="makerServices"></span>
+              </div>
+              <div class="maker-contact-row" id="makerContactRow">
+                <span class="maker-icon">📬</span>
+                <span id="makerContact">-</span>
+              </div>
+            </div>
+            <a href="/topluluk/harita/profil" class="btn btn-secondary btn-sm">
+              <span>✏️</span> Maker Profilini Düzenle
+            </a>
+          </div>
+        </div>
+
         <!-- İstatistikler -->
         <div class="stats-grid">
           <div class="stat-card">
@@ -607,6 +650,104 @@ import Header from "../../components/Header.astro";
     font-size: 1.1rem;
   }
 
+  /* Maker Section */
+  .maker-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .maker-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .maker-header-row h3 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+
+  .view-map-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .view-map-link:hover {
+    text-decoration: underline;
+  }
+
+  .maker-not-joined {
+    text-align: center;
+    padding: 20px;
+  }
+
+  .maker-invite p {
+    margin: 0 0 8px;
+    color: var(--text-main);
+  }
+
+  .maker-desc {
+    color: var(--text-muted) !important;
+    font-size: 0.9rem;
+    margin-bottom: 16px !important;
+  }
+
+  .maker-joined {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .maker-info-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: var(--bg-main);
+    border-radius: 12px;
+  }
+
+  .maker-location-row,
+  .maker-printers-row,
+  .maker-services-row,
+  .maker-contact-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .maker-icon {
+    font-size: 1.1rem;
+    width: 24px;
+    text-align: center;
+  }
+
+  .maker-services-row .service-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    background: rgba(139, 92, 246, 0.1);
+    color: #8B5CF6;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    margin-right: 8px;
+  }
+
+  .maker-services-row .service-tag.printing {
+    background: rgba(249, 115, 22, 0.1);
+    color: #F97316;
+  }
+
+  .maker-services-row .service-tag.help {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+  }
+
   .badges-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -791,12 +932,124 @@ import Header from "../../components/Header.astro";
       document.getElementById('badgesCount').textContent = user.stats.badges || 0;
     }
 
-    // Seviye ve rozetleri yükle
-    loadLevelData();
+    // Maker Haritası bilgilerini göster
+    showMakerProfile(user.maker_profile);
+
+    // Seviye ve rozetleri yükle - reputation_points'i direkt kullan
+    if (user.reputation_points !== undefined) {
+      updateLevelDisplayDirect(user.reputation_points);
+    } else {
+      loadLevelData();
+    }
     loadBadges();
 
     // Tab işlevselliği
     setupTabs();
+  }
+
+  function showMakerProfile(makerProfile) {
+    const notJoined = document.getElementById('makerNotJoined');
+    const joined = document.getElementById('makerJoined');
+
+    if (!makerProfile) {
+      notJoined.classList.remove('hidden');
+      joined.classList.add('hidden');
+      return;
+    }
+
+    notJoined.classList.add('hidden');
+    joined.classList.remove('hidden');
+
+    // Konum
+    const location = makerProfile.district
+      ? `${makerProfile.city}, ${makerProfile.district}`
+      : makerProfile.city;
+    document.getElementById('makerLocation').textContent = location;
+
+    // Yazıcılar
+    try {
+      const printers = JSON.parse(makerProfile.printers || '[]');
+      document.getElementById('makerPrinters').textContent = printers.join(', ') || '-';
+    } catch {
+      document.getElementById('makerPrinters').textContent = '-';
+    }
+
+    // Hizmetler
+    let servicesHTML = '';
+    if (makerProfile.offers_printing) {
+      servicesHTML += '<span class="service-tag printing">🖨️ Baskı Hizmeti</span>';
+    }
+    if (makerProfile.offers_help) {
+      servicesHTML += '<span class="service-tag help">🤝 Yardıma Açık</span>';
+    }
+    document.getElementById('makerServices').innerHTML = servicesHTML || '<span style="color:var(--text-muted)">Hizmet belirtilmemiş</span>';
+
+    // İletişim
+    const contactRow = document.getElementById('makerContactRow');
+    let contactInfo = '';
+    if (makerProfile.contact_discord) contactInfo = `Discord: ${makerProfile.contact_discord}`;
+    else if (makerProfile.contact_telegram) contactInfo = `Telegram: ${makerProfile.contact_telegram}`;
+    else if (makerProfile.contact_instagram) contactInfo = `Instagram: ${makerProfile.contact_instagram}`;
+    else if (makerProfile.contact_email) contactInfo = `E-posta: ${makerProfile.contact_email}`;
+
+    if (contactInfo) {
+      document.getElementById('makerContact').textContent = contactInfo;
+      contactRow.classList.remove('hidden');
+    } else {
+      contactRow.classList.add('hidden');
+    }
+  }
+
+  function updateLevelDisplayDirect(points) {
+    const levels = {
+      cirak: { emoji: '🌱', name: 'Çırak', min: 0, max: 100 },
+      kalfa: { emoji: '🔧', name: 'Kalfa', min: 101, max: 500 },
+      usta: { emoji: '⚙️', name: 'Usta', min: 501, max: 2000 },
+      buyukusta: { emoji: '👑', name: 'Büyükusta', min: 2001, max: Infinity }
+    };
+
+    let currentLevel = 'cirak';
+    if (points >= 2001) currentLevel = 'buyukusta';
+    else if (points >= 501) currentLevel = 'usta';
+    else if (points >= 101) currentLevel = 'kalfa';
+
+    const levelInfo = levels[currentLevel];
+
+    // Üstteki badge
+    const levelBadge = document.getElementById('levelBadge');
+    levelBadge.dataset.level = currentLevel;
+    levelBadge.querySelector('.level-emoji').textContent = levelInfo.emoji;
+    levelBadge.querySelector('.level-text').textContent = levelInfo.name;
+
+    // Level kartı
+    document.getElementById('levelIconLarge').textContent = levelInfo.emoji;
+    document.getElementById('levelTitle').textContent = levelInfo.name;
+    document.getElementById('currentPoints').textContent = points;
+
+    // Progress bar
+    let progress = 0;
+    let nextPoints = 0;
+
+    if (currentLevel === 'cirak') {
+      progress = (points / 100) * 100;
+      nextPoints = 100 - points;
+    } else if (currentLevel === 'kalfa') {
+      progress = ((points - 101) / 400) * 100;
+      nextPoints = 501 - points;
+    } else if (currentLevel === 'usta') {
+      progress = ((points - 501) / 1500) * 100;
+      nextPoints = 2001 - points;
+    } else {
+      progress = 100;
+      nextPoints = 0;
+    }
+
+    document.getElementById('progressFill').style.width = Math.min(progress, 100) + '%';
+    document.getElementById('nextLevelPoints').textContent = Math.max(nextPoints, 0);
+
+    // Tier highlights
+    document.querySelectorAll('.tier').forEach(tier => tier.classList.remove('active'));
+    document.querySelector(`.tier[data-tier="${currentLevel}"]`)?.classList.add('active');
   }
 
   async function loadLevelData() {
