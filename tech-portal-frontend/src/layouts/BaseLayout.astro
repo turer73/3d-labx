@@ -56,6 +56,15 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+    <!-- Google Analytics -->
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-7M54F92VCE"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-7M54F92VCE');
+    </script>
+
     <!-- Theme Script (Prevents Flash) -->
     <script is:inline>
       (function() {
@@ -69,8 +78,12 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
-
-    {noIndex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="author" content="3D-labX" />
+    <meta name="publisher" content="3D-labX" />
+    <meta name="robots" content={noIndex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
+    <meta name="googlebot" content={noIndex ? "noindex, nofollow" : "index, follow"} />
+    <meta name="language" content="Turkish" />
+    <meta name="revisit-after" content="7 days" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -182,8 +195,9 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
             <div class="footer-column">
               <h4>Popüler Konular</h4>
               <ul>
-                <li><a href="/rehberler">Klipper Kurulumu</a></li>
-                <li><a href="/sorun-cozumleri/3d-baskida-i-pliklenme-stringing-sorununa-kesin-cozum-rehberi-mkx4vmgl">Stringing Çözümü</a></li>
+                <li><a href="/rehberler/cura-slicer-interaktif-rehber">Cura Slicer Rehberi</a></li>
+                <li><a href="/rehberler/orca-slicer-rehberi">Orca Slicer Rehberi</a></li>
+                <li><a href="/sorun-cozumleri">Sorun Çözümleri</a></li>
                 <li><a href="/filamentler">Filament Rehberi</a></li>
                 <li><a href="/iletisim">İletişim</a></li>
                 <li><a href="/rss.xml" class="rss-link">📡 RSS Feed</a></li>

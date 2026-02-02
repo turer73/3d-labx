@@ -339,9 +339,9 @@ const currentPath = Astro.url.pathname;
       });
 
       if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem('authUser', JSON.stringify(data.user));
-        showUserUI(data.user);
+        const user = await res.json();
+        localStorage.setItem('authUser', JSON.stringify(user));
+        showUserUI(user);
       } else {
         // Token invalid, clear it
         localStorage.removeItem('authToken');
