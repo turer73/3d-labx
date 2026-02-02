@@ -1328,6 +1328,207 @@ export default {
         }, 200, 60);
       }
 
+      // Slicer anketi (ID: 7)
+      if (path === "/api/poll/slicer" && method === "GET") {
+        const poll = await env.DB.prepare(`
+          SELECT id, question, ends_at, created_at
+          FROM polls
+          WHERE id = 7
+        `).first();
+
+        if (!poll) {
+          return jsonResponse({ poll: null });
+        }
+
+        const options = await env.DB.prepare(`
+          SELECT id, option_text, vote_count
+          FROM poll_options
+          WHERE poll_id = 7
+          ORDER BY display_order ASC
+        `).all();
+
+        const totalVotes = options.results.reduce((sum, opt) => sum + opt.vote_count, 0);
+
+        // Kullanıcının oy verip vermediğini kontrol et
+        const ipHash = await sha256(clientIP + "7");
+        const existingVote = await env.DB.prepare(`
+          SELECT option_id FROM poll_votes WHERE poll_id = 7 AND ip_hash = ?
+        `).bind(ipHash).first();
+
+        return jsonResponse({
+          poll: {
+            ...poll,
+            options: options.results.map(opt => ({
+              id: opt.id,
+              text: opt.option_text,
+              votes: opt.vote_count,
+              percent: totalVotes > 0 ? Math.round((opt.vote_count / totalVotes) * 100) : 0
+            })),
+            totalVotes,
+            hasVoted: !!existingVote,
+            votedOptionId: existingVote?.option_id || null
+          }
+        }, 200, 60);
+      }
+
+      // ========================================
+      // LOGGING ENDPOINTS
+      // ========================================
+
+      // Log kaydet (Frontend'den)
+      if (path === "/api/logs" && method === "POST") {
+        try {
+          const { type, level, message, details, pageUrl } = await request.json();
+
+          if (!type || !message) {
+            return errorResponse("type ve message gerekli", 400, "MISSING_DATA");
+          }
+
+          const ipHash = await sha256(clientIP);
+          const userAgent = request.headers.get('User-Agent') || '';
+
+          // Session'dan user ID al (varsa)
+          let userId = null;
+          const authHeader = request.headers.get('Authorization');
+          if (authHeader?.startsWith('Bearer ')) {
+            const token = authHeader.substring(7);
+            const session = await env.DB.prepare(`
+              SELECT user_id FROM sessions WHERE token = ? AND expires_at > datetime('now')
+            `).bind(token).first();
+            if (session) userId = session.user_id;
+          }
+
+          await env.DB.prepare(`
+            INSERT INTO site_logs (log_type, log_level, message, details, page_url, user_id, ip_hash, user_agent)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            sanitizeString(type, 50),
+            sanitizeString(level || 'info', 20),
+            sanitizeString(message, 500),
+            details ? sanitizeString(JSON.stringify(details), 2000) : null,
+            sanitizeString(pageUrl || '', 500),
+            userId,
+            ipHash,
+            sanitizeString(userAgent, 500)
+          ).run();
+
+          return jsonResponse({ success: true });
+        } catch (err) {
+          console.error('Log save error:', err);
+          return jsonResponse({ success: false });
+        }
+      }
+
+      // Admin: Logları getir
+      if (path === "/api/admin/logs" && method === "GET") {
+        const adminSecret = request.headers.get("X-ADMIN-SECRET");
+        if (!adminSecret || adminSecret !== env.ADMIN_SECRET) {
+          return errorResponse("Yetkisiz", 401, "UNAUTHORIZED");
+        }
+
+        const url = new URL(request.url);
+        const logType = url.searchParams.get('type');
+        const logLevel = url.searchParams.get('level');
+        const { page, limit, offset } = validatePagination(
+          url.searchParams.get('page'),
+          url.searchParams.get('limit') || 50
+        );
+
+        let query = `SELECT * FROM site_logs WHERE 1=1`;
+        const params = [];
+
+        if (logType) {
+          query += ` AND log_type = ?`;
+          params.push(logType);
+        }
+        if (logLevel) {
+          query += ` AND log_level = ?`;
+          params.push(logLevel);
+        }
+
+        query += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`;
+        params.push(limit, offset);
+
+        const logs = await env.DB.prepare(query).bind(...params).all();
+
+        // Toplam sayı
+        let countQuery = `SELECT COUNT(*) as total FROM site_logs WHERE 1=1`;
+        const countParams = [];
+        if (logType) {
+          countQuery += ` AND log_type = ?`;
+          countParams.push(logType);
+        }
+        if (logLevel) {
+          countQuery += ` AND log_level = ?`;
+          countParams.push(logLevel);
+        }
+        const countResult = await env.DB.prepare(countQuery).bind(...countParams).first();
+
+        return jsonResponse({
+          logs: logs.results,
+          pagination: {
+            page,
+            limit,
+            total: countResult?.total || 0,
+            totalPages: Math.ceil((countResult?.total || 0) / limit)
+          }
+        });
+      }
+
+      // Admin: Log istatistikleri
+      if (path === "/api/admin/logs/stats" && method === "GET") {
+        const adminSecret = request.headers.get("X-ADMIN-SECRET");
+        if (!adminSecret || adminSecret !== env.ADMIN_SECRET) {
+          return errorResponse("Yetkisiz", 401, "UNAUTHORIZED");
+        }
+
+        const stats = await env.DB.prepare(`
+          SELECT
+            log_type,
+            log_level,
+            COUNT(*) as count,
+            DATE(created_at) as date
+          FROM site_logs
+          WHERE created_at > datetime('now', '-7 days')
+          GROUP BY log_type, log_level, DATE(created_at)
+          ORDER BY date DESC, count DESC
+        `).all();
+
+        const totalToday = await env.DB.prepare(`
+          SELECT COUNT(*) as total FROM site_logs WHERE DATE(created_at) = DATE('now')
+        `).first();
+
+        const errorCount = await env.DB.prepare(`
+          SELECT COUNT(*) as total FROM site_logs WHERE log_level = 'error' AND created_at > datetime('now', '-24 hours')
+        `).first();
+
+        return jsonResponse({
+          stats: stats.results,
+          totalToday: totalToday?.total || 0,
+          errorsLast24h: errorCount?.total || 0
+        });
+      }
+
+      // Admin: Logları temizle (eski kayıtlar)
+      if (path === "/api/admin/logs/cleanup" && method === "DELETE") {
+        const adminSecret = request.headers.get("X-ADMIN-SECRET");
+        if (!adminSecret || adminSecret !== env.ADMIN_SECRET) {
+          return errorResponse("Yetkisiz", 401, "UNAUTHORIZED");
+        }
+
+        const url = new URL(request.url);
+        const days = parseInt(url.searchParams.get('days') || '30');
+
+        const result = await env.DB.prepare(`
+          DELETE FROM site_logs WHERE created_at < datetime('now', '-' || ? || ' days')
+        `).bind(days).run();
+
+        return jsonResponse({
+          success: true,
+          deleted: result.meta?.changes || 0
+        });
+      }
+
       // Oy kullan
       if (path === "/api/poll/vote" && method === "POST") {
         const { pollId, optionId } = await request.json();
