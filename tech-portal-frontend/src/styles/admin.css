@@ -471,7 +471,8 @@
   text-transform: uppercase;
 }
 
-.category-badge.3d-baski {
+.category-badge.\33 d-baski,
+.category-badge[data-category="3d-baski"] {
   background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
   color: #1E40AF;
 }

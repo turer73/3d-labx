@@ -1,0 +1,1603 @@
+---
+export const prerender = true;
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+
+const title = "Cura Slicer İnteraktif Rehber | 3D-labX";
+const description = "Cura Slicer ayarlarını interaktif simülasyonlarla öğrenin. Katman yüksekliği, infill, sıcaklık ve hata çözümleri için kapsamlı rehber.";
+const canonicalUrl = "https://3d-labx.com/rehberler/cura-slicer-interaktif-rehber";
+
+// Breadcrumb Schema
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Ana Sayfa", "item": "https://3d-labx.com" },
+    { "@type": "ListItem", "position": 2, "name": "Rehberler", "item": "https://3d-labx.com/rehberler" },
+    { "@type": "ListItem", "position": 3, "name": "Cura Slicer İnteraktif Rehber", "item": canonicalUrl }
+  ]
+};
+
+// Article Schema
+const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Cura Slicer İnteraktif Öğrenme Rehberi",
+  "description": description,
+  "url": canonicalUrl,
+  "datePublished": "2024-06-01",
+  "dateModified": new Date().toISOString().split('T')[0],
+  "author": { "@type": "Organization", "name": "3D-labX", "url": "https://3d-labx.com" },
+  "publisher": { "@type": "Organization", "name": "3D-labX", "url": "https://3d-labx.com" }
+};
+---
+
+<BaseLayout title={title} description={description}>
+  <Header />
+
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+
+  <main class="cura-page">
+    <div class="container">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb">
+        <a href="/">Ana Sayfa</a>
+        <span>/</span>
+        <a href="/rehberler">Rehberler</a>
+        <span>/</span>
+        <span>Cura Slicer</span>
+      </nav>
+
+      <!-- Header -->
+      <header class="page-header">
+        <div class="version-badge">İnteraktif Rehber v3.0</div>
+        <h1 class="page-title">Cura Slicer <span>Master Class</span></h1>
+        <p class="page-desc">
+          Volümetrik akış limitlerinden termal dinamiklere; 3D baskının bilimsel temellerini interaktif simülasyonlarla öğrenin.
+        </p>
+      </header>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('quality')" id="btn-quality">
+          1. Akış & Kalite
+        </button>
+        <button class="nav-tab" onclick="switchTab('strength')" id="btn-strength">
+          2. Yapısal Mekanik
+        </button>
+        <button class="nav-tab" onclick="switchTab('material')" id="btn-material">
+          3. Malzeme & Hata
+        </button>
+      </nav>
+
+      <!-- Main Content -->
+      <div class="main-card">
+
+        <!-- TAB 1: QUALITY & FLOW -->
+        <section id="tab-quality" class="tab-content">
+          <div class="section-grid">
+            <!-- Left Column: Controls -->
+            <div class="controls-column">
+              <h2 class="section-title">
+                <span class="icon">⚙️</span>
+                Akışkanlar Dinamiği
+              </h2>
+              <p class="section-desc">
+                Hotend erime kapasitesi ve nozzle basıncı dengesini anlayın. Volümetrik akış, baskınızın hız limitini belirler.
+              </p>
+
+              <!-- Nozzle Selection -->
+              <div class="control-panel">
+                <div class="control-label">
+                  <span class="label-text">Nozzle Çapı</span>
+                </div>
+                <div class="btn-group">
+                  <button class="btn-option" onclick="setNozzle(0.2)" data-nozzle="0.2">0.2mm</button>
+                  <button class="btn-option active" onclick="setNozzle(0.4)" data-nozzle="0.4">0.4mm</button>
+                  <button class="btn-option" onclick="setNozzle(0.6)" data-nozzle="0.6">0.6mm</button>
+                  <button class="btn-option" onclick="setNozzle(0.8)" data-nozzle="0.8">0.8mm</button>
+                </div>
+              </div>
+
+              <!-- Print Speed -->
+              <div class="control-panel">
+                <div class="control-label">
+                  <span class="label-text">Baskı Hızı</span>
+                  <span class="control-value" id="speedDisplay">60 mm/s</span>
+                </div>
+                <input type="range" id="speedInput" min="20" max="150" step="5" value="60">
+                <div class="range-labels">
+                  <span>20 mm/s</span>
+                  <span>150 mm/s</span>
+                </div>
+              </div>
+
+              <!-- Layer Height -->
+              <div class="control-panel">
+                <div class="control-label">
+                  <span class="label-text">Katman Yüksekliği</span>
+                  <span class="control-value" id="layerDisplay">0.20 mm</span>
+                </div>
+                <input type="range" id="layerInput" min="0.08" max="0.32" step="0.04" value="0.20">
+                <div class="range-labels">
+                  <span id="minLayerLabel">0.08mm (Detay)</span>
+                  <span id="maxLayerLabel">0.32mm (Hız)</span>
+                </div>
+              </div>
+
+              <!-- Calculated Metrics -->
+              <div class="control-panel">
+                <div class="control-label">
+                  <span class="label-text">Çizgi Genişliği</span>
+                  <span class="control-value" id="lineWidthDisplay">0.44 mm</span>
+                </div>
+              </div>
+
+              <div class="control-panel">
+                <div class="control-label">
+                  <span class="label-text">Volümetrik Akış</span>
+                  <span class="control-value" id="flowRateDisplay">5.28 mm³/s</span>
+                </div>
+                <div class="flow-bar-container">
+                  <div class="flow-bar-bg">
+                    <div class="flow-bar" id="flowBar" style="width: 35%"></div>
+                  </div>
+                  <p class="flow-status" id="flowStatus">Güvenli akış aralığı. Standart hotend için idealdir.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Visualizer -->
+            <div class="visualizer-column">
+              <div class="visualizer-panel">
+                <div class="visualizer-header">
+                  <span class="visualizer-title">Z-Offset Simülasyonu</span>
+                  <span class="visualizer-badge" id="resolutionBadge">Dengeli</span>
+                </div>
+                <div class="visualizer-body">
+                  <canvas id="layerCanvas"></canvas>
+                  <div class="z-offset-control">
+                    <div class="z-offset-labels">
+                      <span>Uzak (+)</span>
+                      <span>Yakın (-)</span>
+                    </div>
+                    <input type="range" id="zOffsetInput" min="-0.15" max="0.15" step="0.01" value="0">
+                    <div class="z-offset-value" id="zOffsetDisplay">Offset: 0.00mm</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tips -->
+          <div class="tips-grid">
+            <div class="tip-card">
+              <h4>İlk Katman</h4>
+              <p>Yapışma için ilk katmanı %10-20 daha yavaş yazdırın ve katman yüksekliğini artırın (örneğin 0.24mm).</p>
+            </div>
+            <div class="tip-card">
+              <h4>Altın Kural</h4>
+              <p>Maksimum katman yüksekliği = Nozzle çapı × 0.75. Örneğin 0.4mm nozzle için max 0.3mm.</p>
+            </div>
+            <div class="tip-card">
+              <h4>Akış Limiti</h4>
+              <p>Standart hotend'ler 10-12 mm³/s akışı destekler. Yüksek hızda sıcaklığı 5-10°C artırın.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 2: STRUCTURAL MECHANICS -->
+        <section id="tab-strength" class="tab-content hidden">
+          <div class="section-grid">
+            <!-- Left Column: Controls -->
+            <div class="controls-column">
+              <h2 class="section-title">
+                <span class="icon">🏗️</span>
+                Yapısal Mekanik
+              </h2>
+              <p class="section-desc">
+                Yük dağılımı ve malzeme verimliliği. Duvar sayısı, iç doluluktan daha fazla mukavemet sağlar.
+              </p>
+
+              <!-- Wall Count -->
+              <div class="control-panel">
+                <div class="control-label">
+                  <span class="label-text">Duvar Sayısı (Walls)</span>
+                  <span class="control-value" id="wallThicknessDisplay">1.2 mm</span>
+                </div>
+                <div class="btn-group">
+                  <button class="btn-option" onclick="setWalls(2)">2</button>
+                  <button class="btn-option active" onclick="setWalls(3)">3</button>
+                  <button class="btn-option" onclick="setWalls(4)">4</button>
+                  <button class="btn-option" onclick="setWalls(5)">5+</button>
+                </div>
+                <p class="control-note">* 3 duvar, %50 doluluktan daha fazla mukavemet sağlar</p>
+              </div>
+
+              <!-- Infill Density -->
+              <div class="control-panel">
+                <div class="control-label">
+                  <span class="label-text">İç Doluluk (%)</span>
+                  <span class="control-value" id="infillDisplay">20%</span>
+                </div>
+                <input type="range" id="infillInput" min="0" max="100" step="5" value="20">
+                <div class="range-labels">
+                  <span>0% (Boş)</span>
+                  <span>100% (Dolu)</span>
+                </div>
+              </div>
+
+              <!-- Pattern Selection -->
+              <div class="control-panel">
+                <div class="control-label">
+                  <span class="label-text">Desen Geometrisi</span>
+                </div>
+                <div class="select-wrapper">
+                  <select class="select-dropdown" id="patternSelect" onchange="updatePattern()">
+                    <option value="grid">Izgara (Grid) - Dikey yüklerde güçlü</option>
+                    <option value="triangles">Üçgenler (Triangles) - Dengeli mukavemet</option>
+                    <option value="gyroid">Gyroid - İzotropik, esnek</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Metrics -->
+              <div class="metrics-grid">
+                <div class="metric-card">
+                  <div class="metric-label">Tahmini Yük Kapasitesi</div>
+                  <div class="metric-value" id="strengthDisplay">~25 kg</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-label">Malzeme Maliyeti</div>
+                  <div class="metric-value success" id="costDisplay">Düşük</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Visualizer -->
+            <div class="visualizer-column">
+              <div class="visualizer-panel">
+                <div class="visualizer-header">
+                  <span class="visualizer-title">Kesit Analizi</span>
+                  <span class="visualizer-badge" id="patternBadge">GRID</span>
+                </div>
+                <div class="visualizer-body">
+                  <canvas id="strengthCanvas"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tips -->
+          <div class="tips-grid">
+            <div class="tip-card">
+              <h4>Fonksiyonel Parçalar</h4>
+              <p>Mekanik parçalar için 4+ duvar ve %30-50 infill kullanın. Desen olarak Gyroid veya Triangles seçin.</p>
+            </div>
+            <div class="tip-card">
+              <h4>Dekoratif Parçalar</h4>
+              <p>Sadece görüntüsü önemli parçalar için 2 duvar ve %10-15 infill yeterlidir. Filament tasarrufu sağlar.</p>
+            </div>
+            <div class="tip-card">
+              <h4>Gyroid Avantajı</h4>
+              <p>Gyroid deseni tüm yönlerde eşit mukavemet sağlar ve sıvı/hava geçirgendir. Vazolar için idealdir.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 3: MATERIAL & TROUBLESHOOTING -->
+        <section id="tab-material" class="tab-content hidden">
+          <div class="section-grid">
+            <!-- Left Column: Temperature -->
+            <div class="controls-column">
+              <h2 class="section-title">
+                <span class="icon">🔥</span>
+                Termal Yapışma Analizi
+              </h2>
+              <p class="section-desc">
+                Her filamentin ideal bir "tatlı nokta" (sweet spot) sıcaklığı vardır. Çok soğuk: zayıf yapışma, çok sıcak: stringing.
+              </p>
+
+              <div class="control-panel chart-panel">
+                <div class="chart-container">
+                  <canvas id="tempChart"></canvas>
+                </div>
+              </div>
+
+              <div class="fan-physics-box">
+                <div class="control-label">
+                  <span class="label-text">Fan Hızı</span>
+                  <span class="control-value" id="fanDisplay">100%</span>
+                </div>
+                <input type="range" id="fanInput" min="0" max="100" step="5" value="100">
+                <p class="fan-physics-text" id="fanText">
+                  PLA için %100: Köprüleme ve detaylar mükemmel. Katman yapışması yeterli.
+                </p>
+              </div>
+            </div>
+
+            <!-- Right Column: Troubleshooting -->
+            <div class="controls-column">
+              <h2 class="section-title">
+                <span class="icon">🛠️</span>
+                Hata Çözüm Merkezi
+              </h2>
+              <p class="section-desc">
+                Yaşadığınız sorunu seçin, çözüm önerilerini görün.
+              </p>
+
+              <div class="control-panel">
+                <div class="select-wrapper">
+                  <select class="select-dropdown" id="troubleSelect" onchange="solveTrouble()">
+                    <option value="" selected disabled>Bir sorun seçin...</option>
+                    <option value="stringing">🕷️ İpliklenme (Stringing)</option>
+                    <option value="blobs">🫧 Topaklar (Blobs/Zits)</option>
+                    <option value="gaps">🌑 Eksik Ekstrüzyon (Under-extrusion)</option>
+                    <option value="warp">📐 Köşe Kalkması (Warping)</option>
+                    <option value="elephant">🐘 Fil Ayağı (Elephant Foot)</option>
+                    <option value="layer">═ Katman Ayrılması (Layer Separation)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="solution-box hidden" id="solutionBox">
+                <h3 class="solution-title" id="solTitle"></h3>
+                <p class="solution-desc" id="solDesc"></p>
+                <div class="solution-settings" id="solSettings"></div>
+                <div class="solution-tip" id="solTip"></div>
+              </div>
+
+              <div class="solution-placeholder" id="solutionPlaceholder">
+                Yukarıdaki listeden bir sorun seçin, detaylı çözüm önerileri burada görünecek.
+              </div>
+            </div>
+          </div>
+
+          <!-- Tips -->
+          <div class="tips-grid">
+            <div class="tip-card">
+              <h4>PLA Ayarları</h4>
+              <p>Nozzle: 190-215°C, Tabla: 50-60°C, Fan: %100. En kolay yazdırılabilen filament.</p>
+            </div>
+            <div class="tip-card">
+              <h4>PETG Ayarları</h4>
+              <p>Nozzle: 230-250°C, Tabla: 70-80°C, Fan: %30-50. Stringing'e dikkat, retraction artırın.</p>
+            </div>
+            <div class="tip-card">
+              <h4>ABS/ASA Ayarları</h4>
+              <p>Nozzle: 240-260°C, Tabla: 90-110°C, Fan: %0-20. Kapalı ortam ve hava akımı gerektirir.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Footer -->
+      <footer class="page-footer">
+        <p>Cura Slicer İnteraktif Rehber | v3.0</p>
+        <a href="/rehberler" class="back-link">
+          ← Tüm Rehberlere Dön
+        </a>
+      </footer>
+    </div>
+  </main>
+</BaseLayout>
+
+<!-- Chart.js CDN -->
+<script is:inline src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script is:inline>
+  // ================================
+  // GLOBAL STATE
+  // ================================
+  let currentNozzle = 0.4;
+  let currentSpeed = 60;
+  let currentLayerHeight = 0.20;
+  let currentWalls = 3;
+  let currentInfill = 20;
+  let currentPattern = 'grid';
+  let zOffset = 0;
+  let tempChart = null;
+
+  // ================================
+  // TAB NAVIGATION
+  // ================================
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+    document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+
+    document.getElementById('tab-' + tabId).classList.remove('hidden');
+    document.getElementById('btn-' + tabId).classList.add('active');
+
+    setTimeout(() => {
+      if (tabId === 'quality') drawLayerSim();
+      if (tabId === 'strength') drawStrengthPattern();
+      if (tabId === 'material' && tempChart) tempChart.resize();
+    }, 50);
+  }
+
+  // ================================
+  // QUALITY TAB FUNCTIONS
+  // ================================
+  function setNozzle(size) {
+    currentNozzle = size;
+    document.querySelectorAll('[data-nozzle]').forEach(btn => {
+      btn.classList.toggle('active', parseFloat(btn.dataset.nozzle) === size);
+    });
+
+    const minLayer = (size * 0.2).toFixed(2);
+    const maxLayer = (size * 0.8).toFixed(2);
+    const layerInput = document.getElementById('layerInput');
+    layerInput.min = minLayer;
+    layerInput.max = maxLayer;
+
+    if (currentLayerHeight > parseFloat(maxLayer)) {
+      currentLayerHeight = parseFloat(maxLayer);
+      layerInput.value = currentLayerHeight;
+    }
+    if (currentLayerHeight < parseFloat(minLayer)) {
+      currentLayerHeight = parseFloat(minLayer);
+      layerInput.value = currentLayerHeight;
+    }
+
+    document.getElementById('minLayerLabel').textContent = minLayer + 'mm (Detay)';
+    document.getElementById('maxLayerLabel').textContent = maxLayer + 'mm (Hız)';
+
+    updateQualityMetrics();
+    updateWallThickness();
+  }
+
+  function updateQualityMetrics() {
+    const lineWidth = currentNozzle * 1.1;
+    document.getElementById('lineWidthDisplay').textContent = lineWidth.toFixed(2) + ' mm';
+
+    const flow = currentSpeed * lineWidth * currentLayerHeight;
+    document.getElementById('flowRateDisplay').textContent = flow.toFixed(2) + ' mm³/s';
+
+    const maxFlow = 15;
+    const percentage = Math.min((flow / maxFlow) * 100, 100);
+    const flowBar = document.getElementById('flowBar');
+    flowBar.style.width = percentage + '%';
+
+    const flowStatus = document.getElementById('flowStatus');
+    if (flow > 12) {
+      flowBar.className = 'flow-bar danger';
+      flowStatus.innerHTML = '<strong class="error">Kritik!</strong> Standart hotend bu akışı eritebilir. Sıcaklığı artırın veya hızı azaltın.';
+    } else if (flow > 9) {
+      flowBar.className = 'flow-bar warning';
+      flowStatus.innerHTML = '<strong class="warn">Yüksek akış.</strong> Sıcaklığı +5-10°C artırmayı deneyin.';
+    } else {
+      flowBar.className = 'flow-bar';
+      flowStatus.textContent = 'Güvenli akış aralığı. Standart hotend için idealdir.';
+    }
+
+    const ratio = currentLayerHeight / currentNozzle;
+    const badge = document.getElementById('resolutionBadge');
+    if (ratio <= 0.35) {
+      badge.textContent = 'Yüksek Çözünürlük';
+      badge.className = 'visualizer-badge success';
+    } else if (ratio <= 0.6) {
+      badge.textContent = 'Dengeli';
+      badge.className = 'visualizer-badge';
+    } else {
+      badge.textContent = 'Hızlı/Kaba';
+      badge.className = 'visualizer-badge warning';
+    }
+
+    drawLayerSim();
+  }
+
+  function drawLayerSim() {
+    const canvas = document.getElementById('layerCanvas');
+    if (!canvas) return;
+
+    const container = canvas.parentElement;
+    const rect = container.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = (rect.height - 100) * dpr;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = (rect.height - 100) + 'px';
+
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, rect.width, rect.height - 100);
+
+    const w = rect.width;
+    const h = rect.height - 100;
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+    ctx.fillStyle = isDark ? '#334155' : '#CBD5E1';
+    ctx.fillRect(0, h - 8, w, 8);
+
+    const scale = 50;
+    const layerH = Math.max(3, currentLayerHeight * scale);
+    const centerX = w / 2;
+    const baseY = h - 12;
+    const visualOffset = zOffset * scale * 4;
+    const radius = Math.min(w, h) * 0.35;
+    const layers = Math.floor(radius / layerH);
+
+    const normalColor = isDark ? 'rgba(96, 165, 250, 0.5)' : 'rgba(37, 99, 235, 0.3)';
+    const squishColor = isDark ? 'rgba(239, 68, 68, 0.5)' : 'rgba(239, 68, 68, 0.3)';
+    const gapColor = isDark ? 'rgba(234, 179, 8, 0.5)' : 'rgba(234, 179, 8, 0.3)';
+    const strokeColor = isDark ? '#60A5FA' : '#2563EB';
+
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 1;
+
+    for (let i = 0; i < layers; i++) {
+      let y = baseY - (i * layerH) - visualOffset;
+      let currentLayerH = layerH;
+      let widthMod = 0;
+
+      if (i === 0) {
+        if (zOffset < 0) {
+          currentLayerH = Math.max(2, layerH + visualOffset);
+          y = baseY - currentLayerH;
+          widthMod = Math.abs(visualOffset) * 2;
+          ctx.fillStyle = squishColor;
+        } else if (zOffset > 0) {
+          ctx.fillStyle = gapColor;
+        } else {
+          ctx.fillStyle = normalColor;
+        }
+      } else {
+        ctx.fillStyle = normalColor;
+      }
+
+      const hFromBase = i * layerH;
+      if (hFromBase >= radius) break;
+
+      const layerWidth = (Math.sqrt(radius * radius - hFromBase * hFromBase) * 2) + widthMod;
+      const x = centerX - layerWidth / 2;
+
+      ctx.beginPath();
+      ctx.rect(x, y - currentLayerH, layerWidth, currentLayerH);
+      ctx.fill();
+      ctx.stroke();
+    }
+  }
+
+  // ================================
+  // STRENGTH TAB FUNCTIONS
+  // ================================
+  function setWalls(count) {
+    currentWalls = count;
+    document.querySelectorAll('#tab-strength .btn-option').forEach(btn => {
+      const btnVal = parseInt(btn.textContent);
+      btn.classList.toggle('active', btnVal === count || (count === 5 && btn.textContent.includes('5+')));
+    });
+    updateWallThickness();
+    updateStrengthMetrics();
+  }
+
+  function updateWallThickness() {
+    const thickness = (currentWalls * currentNozzle).toFixed(1);
+    const display = document.getElementById('wallThicknessDisplay');
+    if (display) display.textContent = thickness + ' mm';
+  }
+
+  function updatePattern() {
+    currentPattern = document.getElementById('patternSelect').value;
+    document.getElementById('patternBadge').textContent = currentPattern.toUpperCase();
+    updateStrengthMetrics();
+  }
+
+  function updateStrengthMetrics() {
+    const nozzleFactor = currentNozzle / 0.4;
+    let strength = (currentWalls * 20 * nozzleFactor) + (currentInfill * 0.3);
+    if (currentPattern === 'gyroid') strength *= 1.15;
+    if (currentPattern === 'triangles') strength *= 1.1;
+
+    const loadKg = Math.round((strength * 0.5) + 10);
+    document.getElementById('strengthDisplay').textContent = '~' + loadKg + ' kg';
+
+    const cost = (currentWalls * 5 * nozzleFactor) + (currentInfill * 0.7);
+    const costDisplay = document.getElementById('costDisplay');
+    if (cost < 35) {
+      costDisplay.textContent = 'Düşük';
+      costDisplay.className = 'metric-value success';
+    } else if (cost < 70) {
+      costDisplay.textContent = 'Orta';
+      costDisplay.className = 'metric-value warning';
+    } else {
+      costDisplay.textContent = 'Yüksek';
+      costDisplay.className = 'metric-value error';
+    }
+
+    drawStrengthPattern();
+  }
+
+  function drawStrengthPattern() {
+    const canvas = document.getElementById('strengthCanvas');
+    if (!canvas) return;
+
+    const container = canvas.parentElement;
+    const rect = container.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, rect.width, rect.height);
+
+    const w = rect.width;
+    const h = rect.height;
+    const padding = 30;
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const wallThick = Math.max(4, currentWalls * currentNozzle * 5);
+
+    ctx.lineWidth = wallThick;
+    ctx.strokeStyle = isDark ? '#EF4444' : '#DC2626';
+    ctx.strokeRect(padding, padding, w - padding * 2, h - padding * 2);
+
+    ctx.save();
+    ctx.beginPath();
+    const inset = padding + wallThick / 2;
+    ctx.rect(inset, inset, w - inset * 2, h - inset * 2);
+    ctx.clip();
+
+    ctx.lineWidth = Math.max(1, currentNozzle * 2);
+    ctx.strokeStyle = isDark ? '#22C55E' : '#16A34A';
+
+    let spacing = 100 - (currentInfill * 0.9);
+    if (spacing < 8) spacing = 8;
+    if (currentInfill === 0) spacing = 10000;
+
+    if (currentPattern === 'grid') {
+      for (let x = 0; x <= w; x += spacing) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+      }
+      for (let y = 0; y <= h; y += spacing) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+    } else if (currentPattern === 'triangles') {
+      for (let x = -h; x <= w; x += spacing) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + h, h); ctx.stroke();
+      }
+      for (let x = 0; x <= w + h; x += spacing) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x - h, h); ctx.stroke();
+      }
+      for (let y = 0; y <= h; y += spacing * 0.86) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+    } else if (currentPattern === 'gyroid') {
+      ctx.beginPath();
+      for (let y = 0; y < h; y += 4) {
+        for (let x = 0; x < w; x += 4) {
+          const val = Math.sin(x / spacing * Math.PI) + Math.cos(y / spacing * Math.PI);
+          if (Math.abs(val) < 0.2) ctx.rect(x, y, 3, 3);
+        }
+      }
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // ================================
+  // MATERIAL TAB FUNCTIONS
+  // ================================
+  function initTempChart() {
+    const ctx = document.getElementById('tempChart');
+    if (!ctx || tempChart) return;
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 250);
+    gradient.addColorStop(0, 'rgba(249, 115, 22, 0.4)');
+    gradient.addColorStop(1, 'rgba(249, 115, 22, 0)');
+
+    tempChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['185', '195', '200', '205', '210', '215', '220'],
+        datasets: [{
+          label: 'Katman Yapışması',
+          data: [30, 70, 90, 95, 85, 65, 40],
+          borderColor: '#F97316',
+          backgroundColor: gradient,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#fff',
+          pointBorderColor: '#F97316',
+          pointRadius: 5,
+          pointHoverRadius: 7
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const val = context.raw;
+                if (val >= 90) return 'Mükemmel yapışma';
+                if (val >= 70) return 'İyi yapışma';
+                if (val >= 50) return 'Orta yapışma';
+                return 'Zayıf yapışma';
+              }
+            }
+          }
+        },
+        scales: {
+          y: { display: false, min: 0, max: 100 },
+          x: {
+            grid: { color: isDark ? '#334155' : '#E2E8F0' },
+            ticks: {
+              color: isDark ? '#94A3B8' : '#64748B',
+              callback: function(value, index) {
+                return this.getLabelForValue(value) + '°C';
+              }
+            },
+            title: {
+              display: true,
+              text: 'PLA Nozzle Sıcaklığı',
+              color: isDark ? '#94A3B8' : '#64748B'
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function updateFanPhysics() {
+    const value = document.getElementById('fanInput').value;
+    document.getElementById('fanDisplay').textContent = value + '%';
+
+    const text = document.getElementById('fanText');
+    if (value == 0) {
+      text.textContent = 'ABS/ASA için ideal. Katmanlar mükemmel yapışır, ancak köprüleme (bridging) zorlaşır.';
+    } else if (value < 30) {
+      text.textContent = 'PETG için önerilir. Katman yapışması korunur, stringing azalır.';
+    } else if (value < 70) {
+      text.textContent = 'Orta soğutma. Çoğu filament için dengeli bir seçim.';
+    } else {
+      text.textContent = 'PLA için ideal. Mükemmel detay, köprüleme ve overhang performansı.';
+    }
+  }
+
+  // ================================
+  // TROUBLESHOOTING
+  // ================================
+  const troubleData = {
+    stringing: {
+      title: 'İpliklenme (Stringing)',
+      desc: 'Nozzle hareket ederken erimiş filament sızıyor ve ince iplikler bırakıyor. Genellikle retraction ayarları veya sıcaklık sorunlarından kaynaklanır.',
+      settings: [
+        { name: 'Retraction Distance', value: '+1-2mm artırın' },
+        { name: 'Retraction Speed', value: '40-50 mm/s' },
+        { name: 'Nozzle Sıcaklığı', value: '-5 ile -10°C azaltın' },
+        { name: 'Travel Speed', value: '150+ mm/s' }
+      ],
+      tip: 'Pro tip: Filament nemli olabilir. Kurutma işlemine tabi tutun veya yeni filament deneyin.'
+    },
+    blobs: {
+      title: 'Topaklar / Zits (Blobs)',
+      desc: 'Yüzey üzerinde küçük kabarcıklar veya topaklar. Genellikle katman değişim noktalarında veya fazla ekstrüzyondan kaynaklanır.',
+      settings: [
+        { name: 'Coasting', value: 'Aktif edin (0.2-0.5mm)' },
+        { name: 'Wipe', value: 'Aktif edin' },
+        { name: 'Z-Seam', value: 'Sharpest Corner veya Hide' },
+        { name: 'Outer Wall Wipe', value: '0.2mm' }
+      ],
+      tip: 'Pro tip: Power Loss Recovery aktifse kapatmayı deneyin, fazla duraksama yapar.'
+    },
+    gaps: {
+      title: 'Eksik Ekstrüzyon (Under-extrusion)',
+      desc: 'Katmanlar arasında boşluklar, zayıf dolgu veya ince duvarlar. Yetersiz filament akışından kaynaklanır.',
+      settings: [
+        { name: 'Flow Rate', value: '%105-110 artırın' },
+        { name: 'Nozzle Sıcaklığı', value: '+5-10°C artırın' },
+        { name: 'Print Speed', value: 'Azaltın' },
+        { name: 'Nozzle', value: 'Temizleyin veya değiştirin' }
+      ],
+      tip: 'Pro tip: Extruder dişlilerini kontrol edin, aşınmış olabilir. E-steps kalibrasyonu yapın.'
+    },
+    warp: {
+      title: 'Köşe Kalkması (Warping)',
+      desc: 'Baskı tabladan kalkıyor, özellikle köşelerde. Eşit olmayan soğuma ve büzülmeden kaynaklanır.',
+      settings: [
+        { name: 'Bed Sıcaklığı', value: '+5-10°C artırın' },
+        { name: 'Brim', value: 'Aktif edin (5-10mm)' },
+        { name: 'Enclosure', value: 'Kapalı ortam kullanın' },
+        { name: 'Draft Shield', value: 'Aktif edin (ABS için)' }
+      ],
+      tip: 'Pro tip: Tabla temizliği kritik. IPA ile silin ve yapışma spreyi/tutkal kullanın.'
+    },
+    elephant: {
+      title: 'Fil Ayağı (Elephant Foot)',
+      desc: 'İlk katmanlar dışarıya doğru yayılmış, taban normalden geniş. Fazla ezilme veya yüksek tabla sıcaklığından kaynaklanır.',
+      settings: [
+        { name: 'Initial Layer Exp.', value: '-0.1 ile -0.2mm' },
+        { name: 'Bed Sıcaklığı', value: '-5°C azaltın' },
+        { name: 'Z-Offset', value: 'Hafifçe artırın' },
+        { name: 'Initial Layer Speed', value: 'Azaltın' }
+      ],
+      tip: 'Pro tip: Z-offset çok yakın ayarlanmış olabilir. Kağıt testi yapın ve hafifçe yükseltin.'
+    },
+    layer: {
+      title: 'Katman Ayrılması (Layer Separation)',
+      desc: 'Katmanlar birbirine yapışmıyor, parçalar zayıf ve kolay kırılıyor. Yetersiz katman yapışması.',
+      settings: [
+        { name: 'Nozzle Sıcaklığı', value: '+10-15°C artırın' },
+        { name: 'Print Speed', value: 'Azaltın' },
+        { name: 'Fan Hızı', value: 'Azaltın (%50-70)' },
+        { name: 'Layer Height', value: 'Azaltın' }
+      ],
+      tip: 'Pro tip: Soğuk ortamda basıyorsanız enclosure kullanın. Hava akımını engelleyin.'
+    }
+  };
+
+  function solveTrouble() {
+    const value = document.getElementById('troubleSelect').value;
+    const box = document.getElementById('solutionBox');
+    const placeholder = document.getElementById('solutionPlaceholder');
+
+    if (!value || !troubleData[value]) {
+      box.classList.add('hidden');
+      placeholder.style.display = 'block';
+      return;
+    }
+
+    const data = troubleData[value];
+    document.getElementById('solTitle').textContent = data.title;
+    document.getElementById('solDesc').textContent = data.desc;
+    document.getElementById('solTip').textContent = data.tip;
+
+    const settingsHtml = data.settings.map(s =>
+      `<div class="solution-setting">
+        <span class="setting-name">${s.name}</span>
+        <span class="setting-value">${s.value}</span>
+      </div>`
+    ).join('');
+    document.getElementById('solSettings').innerHTML = settingsHtml;
+
+    box.classList.remove('hidden');
+    placeholder.style.display = 'none';
+  }
+
+  // ================================
+  // EVENT LISTENERS
+  // ================================
+  document.addEventListener('DOMContentLoaded', function() {
+    // Speed slider
+    document.getElementById('speedInput').addEventListener('input', function() {
+      currentSpeed = parseInt(this.value);
+      document.getElementById('speedDisplay').textContent = currentSpeed + ' mm/s';
+      updateQualityMetrics();
+    });
+
+    // Layer height slider
+    document.getElementById('layerInput').addEventListener('input', function() {
+      currentLayerHeight = parseFloat(this.value);
+      document.getElementById('layerDisplay').textContent = currentLayerHeight.toFixed(2) + ' mm';
+      updateQualityMetrics();
+    });
+
+    // Z-offset slider
+    document.getElementById('zOffsetInput').addEventListener('input', function() {
+      zOffset = parseFloat(this.value);
+      const sign = zOffset > 0 ? '+' : '';
+      document.getElementById('zOffsetDisplay').textContent = 'Offset: ' + sign + zOffset.toFixed(2) + 'mm';
+      drawLayerSim();
+    });
+
+    // Infill slider
+    document.getElementById('infillInput').addEventListener('input', function() {
+      currentInfill = parseInt(this.value);
+      document.getElementById('infillDisplay').textContent = currentInfill + '%';
+      updateStrengthMetrics();
+    });
+
+    // Fan slider
+    document.getElementById('fanInput').addEventListener('input', updateFanPhysics);
+
+    // Window resize
+    window.addEventListener('resize', function() {
+      drawLayerSim();
+      drawStrengthPattern();
+    });
+
+    // Initial setup
+    setNozzle(0.4);
+    setWalls(3);
+    updateQualityMetrics();
+    updateStrengthMetrics();
+    updateFanPhysics();
+    initTempChart();
+
+    setTimeout(() => {
+      drawLayerSim();
+      drawStrengthPattern();
+    }, 100);
+  });
+</script>
+
+<style>
+  .cura-page {
+    padding-top: 120px;
+    padding-bottom: 60px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  .breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--accent);
+  }
+
+  .breadcrumb span {
+    color: var(--text-light);
+  }
+
+  /* Header */
+  .page-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .version-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 100px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(37, 99, 235, 0.2);
+  }
+
+  .page-title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+    color: var(--text-main);
+  }
+
+  .page-title span {
+    background: linear-gradient(135deg, #F97316, #EAB308);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-desc {
+    color: var(--text-muted);
+    font-size: 1rem;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* Navigation Tabs */
+  .nav-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .nav-tab {
+    padding: 14px 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+    min-width: 140px;
+    max-width: 220px;
+    text-align: center;
+  }
+
+  .nav-tab:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .nav-tab.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  }
+
+  /* Main Card */
+  .main-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    min-height: 600px;
+  }
+
+  .tab-content {
+    padding: 32px;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .tab-content.hidden {
+    display: none;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Section Grid */
+  .section-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+
+  @media (max-width: 900px) {
+    .section-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-main);
+  }
+
+  .section-title .icon {
+    font-size: 1.5rem;
+  }
+
+  .section-desc {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  /* Control Panels */
+  .control-panel {
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .control-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .label-text {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+  }
+
+  .control-value {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(37, 99, 235, 0.1);
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .control-note {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  /* Range Sliders */
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--border-soft);
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+    transition: transform 0.15s;
+  }
+
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+  }
+
+  .range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: var(--text-light);
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Button Groups */
+  .btn-group {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .btn-option {
+    padding: 12px 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-option:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn-option.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  /* Visualizer Panel */
+  .visualizer-panel {
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    overflow: hidden;
+    height: 100%;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .visualizer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-soft);
+    background: var(--bg-card);
+  }
+
+  .visualizer-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .visualizer-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--accent);
+  }
+
+  .visualizer-badge.success {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10B981;
+  }
+
+  .visualizer-badge.warning {
+    background: rgba(249, 115, 22, 0.15);
+    color: #F97316;
+  }
+
+  .visualizer-body {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .visualizer-body canvas {
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  /* Z-Offset Control */
+  .z-offset-control {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 16px 24px;
+    box-shadow: var(--shadow-md);
+    min-width: 280px;
+  }
+
+  .z-offset-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: var(--text-light);
+    margin-bottom: 8px;
+  }
+
+  .z-offset-value {
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-top: 8px;
+  }
+
+  /* Metrics Grid */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .metric-card {
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .metric-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-light);
+    margin-bottom: 4px;
+  }
+
+  .metric-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .metric-value.success { color: #10B981; }
+  .metric-value.warning { color: #F59E0B; }
+  .metric-value.error { color: #EF4444; }
+
+  /* Flow Bar */
+  .flow-bar-container {
+    margin-top: 12px;
+  }
+
+  .flow-bar-bg {
+    width: 100%;
+    height: 8px;
+    background: var(--border-soft);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .flow-bar {
+    height: 100%;
+    background: #10B981;
+    border-radius: 4px;
+    transition: width 0.3s ease, background 0.3s ease;
+  }
+
+  .flow-bar.warning { background: #F59E0B; }
+  .flow-bar.danger { background: #EF4444; }
+
+  .flow-status {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+
+  .flow-status .error { color: #EF4444; font-weight: 600; }
+  .flow-status .warn { color: #F59E0B; font-weight: 600; }
+
+  /* Tips Grid */
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  @media (max-width: 768px) {
+    .tips-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .tip-card {
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .tip-card h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--text-main);
+  }
+
+  .tip-card p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* Chart */
+  .chart-panel {
+    min-height: 280px;
+  }
+
+  .chart-container {
+    position: relative;
+    width: 100%;
+    height: 250px;
+  }
+
+  /* Select Dropdown */
+  .select-wrapper {
+    position: relative;
+  }
+
+  .select-dropdown {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .select-dropdown:focus {
+    border-color: var(--accent);
+  }
+
+  .select-wrapper::after {
+    content: '';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid var(--text-muted);
+    pointer-events: none;
+  }
+
+  /* Solution Box */
+  .solution-box {
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 16px;
+  }
+
+  .solution-box.hidden {
+    display: none;
+  }
+
+  .solution-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-main);
+  }
+
+  .solution-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  .solution-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .solution-setting {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+  }
+
+  .setting-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .setting-value {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .solution-tip {
+    padding: 12px 16px;
+    background: rgba(249, 115, 22, 0.1);
+    border: 1px solid rgba(249, 115, 22, 0.2);
+    border-radius: 10px;
+    font-size: 0.85rem;
+    color: #F97316;
+    line-height: 1.5;
+  }
+
+  .solution-placeholder {
+    text-align: center;
+    padding: 48px;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    margin-top: 16px;
+  }
+
+  /* Fan Physics Box */
+  .fan-physics-box {
+    background: rgba(37, 99, 235, 0.1);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .fan-physics-text {
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-style: italic;
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+
+  /* Footer */
+  .page-footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .page-footer p {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .back-link:hover {
+    color: var(--accent-hover);
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .cura-page {
+      padding-top: 100px;
+    }
+
+    .tab-content {
+      padding: 20px;
+    }
+
+    .nav-tab {
+      padding: 12px 16px;
+      font-size: 0.8rem;
+      min-width: 100px;
+    }
+
+    .btn-group {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .metrics-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .z-offset-control {
+      min-width: 240px;
+      padding: 12px 16px;
+    }
+  }
+</style>

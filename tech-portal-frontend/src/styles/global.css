@@ -14,6 +14,8 @@
   --bg-main: #FBFBFD;
   --bg-card: #FFFFFF;
   --bg-code: #F1F5F9;
+  --bg-soft: #F8FAFC;
+  --bg-secondary: #F1F5F9;
   --text-main: #0F172A;
   --text-muted: #64748B;
   --text-light: #94A3B8;
@@ -71,6 +73,8 @@
   --bg-main: #0F172A;
   --bg-card: #1E293B;
   --bg-code: #334155;
+  --bg-soft: #1E293B;
+  --bg-secondary: #273549;
   --text-main: #F1F5F9;
   --text-muted: #94A3B8;
   --text-light: #64748B;

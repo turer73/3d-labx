@@ -54,53 +54,84 @@ import "../../styles/admin.css";
       <header class="content-header">
         <div>
           <h1>İçerik Kutuları</h1>
-          <p class="text-muted">Anasayfa bento grid kutularını yönetin</p>
+          <p class="text-muted">Sayfa bazlı kutu yerleşimlerini sürükle-bırak ile yönetin</p>
         </div>
         <button id="addBoxBtn" class="btn btn-primary">
           ➕ Yeni Kutu Ekle
         </button>
       </header>
 
-      <!-- İstatistikler -->
-      <div class="stats-grid" id="boxStats">
-        <div class="stat-card">
-          <div class="stat-icon">📦</div>
-          <div class="stat-info">
-            <span class="stat-value" id="totalBoxes">-</span>
-            <span class="stat-label">Toplam Kutu</span>
-          </div>
+      <!-- Sayfa Seçici Tabs -->
+      <div class="page-tabs">
+        <button class="page-tab active" data-page="anasayfa">
+          <span class="tab-icon">🏠</span>
+          <span class="tab-label">Anasayfa</span>
+          <span class="tab-count" id="count-anasayfa">0</span>
+        </button>
+        <button class="page-tab" data-page="rehberler">
+          <span class="tab-icon">📘</span>
+          <span class="tab-label">Rehberler</span>
+          <span class="tab-count" id="count-rehberler">0</span>
+        </button>
+        <button class="page-tab" data-page="sorun-cozumleri">
+          <span class="tab-icon">🔧</span>
+          <span class="tab-label">Sorun Çözümleri</span>
+          <span class="tab-count" id="count-sorun-cozumleri">0</span>
+        </button>
+        <button class="page-tab" data-page="incelemeler">
+          <span class="tab-icon">⭐</span>
+          <span class="tab-label">İncelemeler</span>
+          <span class="tab-count" id="count-incelemeler">0</span>
+        </button>
+        <button class="page-tab" data-page="3d-baski">
+          <span class="tab-icon">📰</span>
+          <span class="tab-label">3D Baskı</span>
+          <span class="tab-count" id="count-3d-baski">0</span>
+        </button>
+      </div>
+
+      <!-- Önizleme Modu Toggle -->
+      <div class="preview-toolbar">
+        <div class="toolbar-left">
+          <span class="toolbar-label">Görünüm:</span>
+          <button class="view-btn active" data-view="grid" title="Grid Önizleme">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="view-btn" data-view="list" title="Liste Görünümü">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </button>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon">🔄</div>
-          <div class="stat-info">
-            <span class="stat-value" id="dynamicBoxes">-</span>
-            <span class="stat-label">Dinamik</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">✏️</div>
-          <div class="stat-info">
-            <span class="stat-value" id="customBoxes">-</span>
-            <span class="stat-label">Özel İçerik</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">👁️</div>
-          <div class="stat-info">
-            <span class="stat-value" id="hiddenBoxes">-</span>
-            <span class="stat-label">Gizli</span>
-          </div>
+        <div class="toolbar-right">
+          <span class="drag-hint">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9l-3 3 3 3"/><path d="M9 5l3-3 3 3"/><path d="M15 19l-3 3-3-3"/><path d="M19 9l3 3-3 3"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
+            Sürükle-bırak ile sıralayın
+          </span>
         </div>
       </div>
 
-      <!-- Kutular Listesi -->
-      <section class="recent-section">
-        <div class="section-header">
-          <h2>Kutular</h2>
+      <!-- Grid Önizleme Alanı -->
+      <section class="preview-section">
+        <div id="boxesGrid" class="boxes-grid">
+          <div class="loading-state">
+            <span class="spinner"></span>
+            <span>Kutular yükleniyor...</span>
+          </div>
         </div>
-        <div id="boxesList" class="cb-list">
-          <div class="loading-row"><span class="spinner"></span> Yükleniyor...</div>
+
+        <!-- Boş Durum -->
+        <div id="emptyState" class="empty-state hidden">
+          <div class="empty-icon">📦</div>
+          <h3>Bu sayfa için kutu yok</h3>
+          <p>Yeni bir içerik kutusu ekleyerek başlayın</p>
+          <button class="btn btn-primary" id="emptyAddBtn">
+            ➕ İlk Kutuyu Ekle
+          </button>
         </div>
+      </section>
+
+      <!-- Liste Görünümü -->
+      <section class="list-section hidden">
+        <div id="boxesList" class="boxes-list"></div>
       </section>
     </main>
   </div>
@@ -109,62 +140,120 @@ import "../../styles/admin.css";
   <div id="editModal" class="modal hidden">
     <div class="modal-backdrop" id="editBackdrop"></div>
     <div class="modal-content modal-lg">
-      <h3 id="modalTitle">Yeni İçerik Kutusu</h3>
+      <div class="modal-header">
+        <h3 id="modalTitle">Yeni İçerik Kutusu</h3>
+        <button type="button" class="modal-close" id="modalCloseBtn">&times;</button>
+      </div>
       <form id="boxForm">
         <input type="hidden" id="boxId" value="">
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="slotKey">Kutu Kimliği *</label>
-            <input type="text" id="slotKey" required placeholder="ornek-kutu">
+        <div class="form-section">
+          <h4 class="form-section-title">Temel Bilgiler</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="slotKey">Kutu Kimliği *</label>
+              <input type="text" id="slotKey" required placeholder="ornek-kutu">
+              <span class="form-hint">Benzersiz bir kimlik (küçük harf, tire)</span>
+            </div>
+            <div class="form-group">
+              <label for="targetPage">Hedef Sayfa *</label>
+              <select id="targetPage" required>
+                <option value="anasayfa">🏠 Anasayfa</option>
+                <option value="rehberler">📘 Rehberler</option>
+                <option value="sorun-cozumleri">🔧 Sorun Çözümleri</option>
+                <option value="incelemeler">⭐ İncelemeler</option>
+                <option value="3d-baski">📰 3D Baskı</option>
+              </select>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="contentType">İçerik Tipi *</label>
-            <select id="contentType" required>
-              <option value="">Seçin...</option>
-              <option value="category_post">Kategori Yazısı</option>
-              <option value="custom_html">Özel İçerik</option>
-              <option value="poll">Anket</option>
-              <option value="filament_prices">Filament Fiyatları</option>
-              <option value="ai_tools">AI Araçları</option>
-              <option value="community">Topluluk</option>
-            </select>
-          </div>
-        </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="boxSize">Boyut</label>
-            <select id="boxSize">
-              <option value="normal">Normal</option>
-              <option value="large">Büyük (2 sütun)</option>
-              <option value="wide">Geniş (2 sütun alt)</option>
-            </select>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="contentType">İçerik Tipi *</label>
+              <select id="contentType" required>
+                <option value="">Seçin...</option>
+                <option value="category_post">📄 Kategori Yazısı (Dinamik)</option>
+                <option value="custom_html">✏️ Özel İçerik</option>
+                <option value="poll">📊 Anket</option>
+                <option value="filament_prices">🎨 Filament Fiyatları</option>
+                <option value="ai_tools">🤖 AI Araçları</option>
+                <option value="community">👥 Topluluk</option>
+                <option value="featured_post">⭐ Öne Çıkan Yazı</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="boxSize">Boyut</label>
+              <select id="boxSize">
+                <option value="normal">Normal (1x1)</option>
+                <option value="large">Büyük (2x1)</option>
+                <option value="wide">Geniş (1x2)</option>
+                <option value="tall">Uzun (1x2 Dikey)</option>
+              </select>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="colorTheme">Renk Teması</label>
-            <select id="colorTheme">
-              <option value="orange">🟠 Turuncu</option>
-              <option value="cyan">🔵 Camgöbeği</option>
-              <option value="purple">🟣 Mor</option>
-              <option value="green">🟢 Yeşil</option>
-              <option value="yellow">🟡 Sarı</option>
-            </select>
-          </div>
-        </div>
 
-        <div class="form-group">
-          <label>
-            <input type="checkbox" id="isVisible" checked> Görünür
-          </label>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="colorTheme">Renk Teması</label>
+              <div class="color-picker">
+                <label class="color-option">
+                  <input type="radio" name="colorTheme" value="orange" checked>
+                  <span class="color-swatch orange"></span>
+                  <span>Turuncu</span>
+                </label>
+                <label class="color-option">
+                  <input type="radio" name="colorTheme" value="cyan">
+                  <span class="color-swatch cyan"></span>
+                  <span>Camgöbeği</span>
+                </label>
+                <label class="color-option">
+                  <input type="radio" name="colorTheme" value="purple">
+                  <span class="color-swatch purple"></span>
+                  <span>Mor</span>
+                </label>
+                <label class="color-option">
+                  <input type="radio" name="colorTheme" value="green">
+                  <span class="color-swatch green"></span>
+                  <span>Yeşil</span>
+                </label>
+                <label class="color-option">
+                  <input type="radio" name="colorTheme" value="yellow">
+                  <span class="color-swatch yellow"></span>
+                  <span>Sarı</span>
+                </label>
+                <label class="color-option">
+                  <input type="radio" name="colorTheme" value="pink">
+                  <span class="color-swatch pink"></span>
+                  <span>Pembe</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="isVisible" checked>
+              <span class="checkmark"></span>
+              <span>Görünür</span>
+            </label>
+          </div>
         </div>
 
         <!-- Dinamik config alanları -->
-        <div id="configFields"></div>
+        <div class="form-section" id="configSection">
+          <h4 class="form-section-title">İçerik Ayarları</h4>
+          <div id="configFields"></div>
+        </div>
 
         <div class="modal-actions">
           <button type="button" id="cancelEditBtn" class="btn btn-secondary">İptal</button>
-          <button type="submit" class="btn btn-primary">Kaydet</button>
+          <button type="submit" class="btn btn-primary">
+            <span class="btn-text">Kaydet</span>
+            <span class="btn-loading hidden">
+              <span class="spinner-sm"></span>
+              Kaydediliyor...
+            </span>
+          </button>
         </div>
       </form>
     </div>
@@ -173,10 +262,14 @@ import "../../styles/admin.css";
   <!-- Silme Onay Modal -->
   <div id="deleteModal" class="modal hidden">
     <div class="modal-backdrop" id="deleteBackdrop"></div>
-    <div class="modal-content">
-      <h3>⚠️ Kutuyu Sil</h3>
-      <p>Bu içerik kutusunu silmek istediğinizden emin misiniz?</p>
-      <p><strong id="deleteBoxName"></strong></p>
+    <div class="modal-content modal-sm">
+      <div class="modal-header">
+        <h3>⚠️ Kutuyu Sil</h3>
+      </div>
+      <div class="modal-body">
+        <p>Bu içerik kutusunu silmek istediğinizden emin misiniz?</p>
+        <p class="delete-box-name"><strong id="deleteBoxName"></strong></p>
+      </div>
       <div class="modal-actions">
         <button type="button" id="cancelDeleteBtn" class="btn btn-secondary">İptal</button>
         <button type="button" id="confirmDeleteBtn" class="btn btn-danger">Sil</button>
@@ -186,179 +279,744 @@ import "../../styles/admin.css";
 </BaseLayout>
 
 <style>
-  .cb-list {
+  /* Page Tabs */
+  .page-tabs {
     display: flex;
-    flex-direction: column;
+    gap: 8px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--admin-border);
+    margin-bottom: 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .page-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .page-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-size: 0.9rem;
+    color: var(--admin-text-muted);
+  }
+
+  .page-tab:hover {
+    border-color: var(--admin-primary);
+    background: var(--admin-surface-hover);
+  }
+
+  .page-tab.active {
+    background: linear-gradient(135deg, rgba(234, 88, 12, 0.15), rgba(234, 88, 12, 0.05));
+    border-color: var(--admin-primary);
+    color: var(--admin-primary);
+  }
+
+  .tab-icon {
+    font-size: 1.1rem;
+  }
+
+  .tab-label {
+    font-weight: 600;
+  }
+
+  .tab-count {
+    background: var(--admin-surface-hover);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .page-tab.active .tab-count {
+    background: var(--admin-primary);
+    color: white;
+  }
+
+  /* Preview Toolbar */
+  .preview-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+
+  .toolbar-left, .toolbar-right {
+    display: flex;
+    align-items: center;
     gap: 12px;
   }
 
-  .cb-card {
-    background: var(--admin-surface);
-    border: 1px solid var(--admin-border);
-    border-radius: 14px;
-    padding: 16px 20px;
+  .toolbar-label {
+    font-size: 0.85rem;
+    color: var(--admin-text-muted);
+  }
+
+  .view-btn {
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
-    gap: 16px;
-    transition: all 0.2s;
-  }
-
-  .cb-card:hover {
-    border-color: var(--admin-primary);
-    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-  }
-
-  .cb-order {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .cb-order button {
-    background: none;
+    justify-content: center;
+    background: transparent;
     border: 1px solid var(--admin-border);
-    border-radius: 6px;
-    padding: 2px 8px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 0.75rem;
     color: var(--admin-text-muted);
     transition: all 0.2s;
   }
 
-  .cb-order button:hover {
-    background: var(--admin-primary);
-    color: white;
+  .view-btn:hover {
     border-color: var(--admin-primary);
+    color: var(--admin-primary);
   }
 
-  .cb-color {
+  .view-btn.active {
+    background: var(--admin-primary);
+    border-color: var(--admin-primary);
+    color: white;
+  }
+
+  .drag-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: var(--admin-text-muted);
+    padding: 6px 12px;
+    background: rgba(234, 88, 12, 0.1);
+    border-radius: 8px;
+  }
+
+  .drag-hint svg {
+    color: var(--admin-primary);
+  }
+
+  /* Preview Section */
+  .preview-section {
+    min-height: 400px;
+  }
+
+  /* Boxes Grid - Bento Style */
+  .boxes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    min-height: 300px;
+  }
+
+  @media (max-width: 1024px) {
+    .boxes-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .boxes-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Grid Box Card */
+  .grid-box {
+    background: var(--admin-surface);
+    border: 2px solid var(--admin-border);
+    border-radius: 16px;
+    padding: 20px;
+    min-height: 180px;
+    cursor: grab;
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .grid-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .grid-box.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+    transform: scale(1.02);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    z-index: 100;
+  }
+
+  .grid-box.drag-over {
+    border-color: var(--admin-primary);
+    border-style: dashed;
+    background: rgba(234, 88, 12, 0.05);
+  }
+
+  /* Size Variants */
+  .grid-box.size-large {
+    grid-column: span 2;
+  }
+
+  .grid-box.size-wide {
+    grid-column: span 2;
+  }
+
+  .grid-box.size-tall {
+    grid-row: span 2;
+    min-height: 380px;
+  }
+
+  /* Color Themes */
+  .grid-box.theme-orange {
+    border-left: 4px solid #EA580C;
+  }
+  .grid-box.theme-cyan {
+    border-left: 4px solid #06B6D4;
+  }
+  .grid-box.theme-purple {
+    border-left: 4px solid #8B5CF6;
+  }
+  .grid-box.theme-green {
+    border-left: 4px solid #22C55E;
+  }
+  .grid-box.theme-yellow {
+    border-left: 4px solid #EAB308;
+  }
+  .grid-box.theme-pink {
+    border-left: 4px solid #EC4899;
+  }
+
+  .grid-box.hidden-box {
+    opacity: 0.5;
+    border-style: dashed;
+  }
+
+  /* Box Header */
+  .box-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+
+  .box-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(234, 88, 12, 0.1);
+    color: var(--admin-primary);
+  }
+
+  .box-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .grid-box:hover .box-actions {
+    opacity: 1;
+  }
+
+  .box-action-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--admin-surface-hover);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+
+  .box-action-btn:hover {
+    background: var(--admin-primary);
+    color: white;
+  }
+
+  .box-action-btn.delete:hover {
+    background: #EF4444;
+  }
+
+  /* Box Content */
+  .box-content {
+    flex: 1;
+  }
+
+  .box-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: var(--admin-text);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .box-description {
+    font-size: 0.85rem;
+    color: var(--admin-text-muted);
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Box Footer */
+  .box-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid var(--admin-border);
+  }
+
+  .box-meta {
+    display: flex;
+    gap: 8px;
+  }
+
+  .box-meta-item {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: var(--admin-surface-hover);
+    color: var(--admin-text-muted);
+  }
+
+  .box-order {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: var(--admin-text-muted);
+  }
+
+  .box-order-num {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--admin-primary);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.7rem;
+  }
+
+  /* Visibility Badge */
+  .visibility-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #22C55E;
+  }
+
+  .visibility-badge.hidden {
+    background: #6B7280;
+  }
+
+  /* Empty State */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+  }
+
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  .empty-state h3 {
+    margin: 0 0 8px;
+    color: var(--admin-text);
+  }
+
+  .empty-state p {
+    margin: 0 0 20px;
+    color: var(--admin-text-muted);
+  }
+
+  /* Loading State */
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 60px;
+    grid-column: 1 / -1;
+    color: var(--admin-text-muted);
+  }
+
+  /* List View */
+  .list-section {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .boxes-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .list-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--admin-border);
+    cursor: grab;
+    transition: all 0.2s;
+  }
+
+  .list-item:last-child {
+    border-bottom: none;
+  }
+
+  .list-item:hover {
+    background: var(--admin-surface-hover);
+  }
+
+  .list-item.dragging {
+    opacity: 0.5;
+    background: rgba(234, 88, 12, 0.1);
+  }
+
+  .list-drag-handle {
+    color: var(--admin-text-muted);
+    cursor: grab;
+  }
+
+  .list-color {
     width: 12px;
     height: 12px;
     border-radius: 50%;
     flex-shrink: 0;
   }
 
-  .cb-info {
+  .list-info {
     flex: 1;
     min-width: 0;
   }
 
-  .cb-info h4 {
+  .list-info h4 {
     margin: 0;
     font-size: 0.95rem;
     color: var(--admin-text);
   }
 
-  .cb-info p {
+  .list-info p {
     margin: 2px 0 0;
     font-size: 0.8rem;
     color: var(--admin-text-muted);
   }
 
-  .cb-badges {
+  .list-badges {
     display: flex;
     gap: 6px;
     flex-shrink: 0;
   }
 
-  .cb-badge {
-    font-size: 0.7rem;
-    padding: 3px 8px;
-    border-radius: 6px;
-    background: var(--admin-surface-hover);
-    color: var(--admin-text-muted);
-    white-space: nowrap;
-  }
-
-  .cb-badge.type {
-    background: rgba(234,88,12,0.1);
-    color: var(--admin-primary);
-  }
-
-  .cb-badge.size-large {
-    background: rgba(59,130,246,0.1);
-    color: #3B82F6;
-  }
-
-  .cb-badge.size-wide {
-    background: rgba(16,185,129,0.1);
-    color: #10B981;
-  }
-
-  .cb-actions {
+  .list-actions {
     display: flex;
     gap: 8px;
     flex-shrink: 0;
   }
 
+  /* Modal Improvements */
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--admin-border);
+  }
+
+  .modal-header h3 {
+    margin: 0;
+  }
+
+  .modal-close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--admin-surface-hover);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--admin-text-muted);
+    transition: all 0.2s;
+  }
+
+  .modal-close:hover {
+    background: #EF4444;
+    color: white;
+  }
+
+  .modal-body {
+    padding: 20px 0;
+  }
+
+  .delete-box-name {
+    padding: 12px;
+    background: var(--admin-surface-hover);
+    border-radius: 8px;
+    margin-top: 12px;
+  }
+
+  /* Form Section */
+  .form-section {
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--admin-border);
+  }
+
+  .form-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .form-section-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--admin-primary);
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .form-hint {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--admin-text-muted);
+    margin-top: 4px;
+  }
+
+  /* Color Picker */
+  .color-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .color-option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: var(--admin-surface-hover);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+
+  .color-option:hover {
+    border-color: var(--admin-border);
+  }
+
+  .color-option input {
+    display: none;
+  }
+
+  .color-option input:checked + .color-swatch {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 2px white, 0 0 0 4px currentColor;
+  }
+
+  .color-option:has(input:checked) {
+    border-color: var(--admin-primary);
+    background: rgba(234, 88, 12, 0.1);
+  }
+
+  .color-swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    transition: all 0.2s;
+  }
+
+  .color-swatch.orange { background: #EA580C; }
+  .color-swatch.cyan { background: #06B6D4; }
+  .color-swatch.purple { background: #8B5CF6; }
+  .color-swatch.green { background: #22C55E; }
+  .color-swatch.yellow { background: #EAB308; }
+  .color-swatch.pink { background: #EC4899; }
+
+  /* Checkbox Group */
+  .checkbox-group {
+    margin-top: 16px;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  .checkbox-label input {
+    display: none;
+  }
+
+  .checkmark {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--admin-border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .checkbox-label input:checked + .checkmark {
+    background: var(--admin-primary);
+    border-color: var(--admin-primary);
+  }
+
+  .checkbox-label input:checked + .checkmark::after {
+    content: '✓';
+    color: white;
+    font-size: 0.8rem;
+    font-weight: bold;
+  }
+
+  /* Button Loading */
+  .btn-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .spinner-sm {
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Form Row */
   .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
   }
 
+  @media (max-width: 640px) {
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
   .modal-lg {
-    max-width: 640px;
+    max-width: 700px;
+  }
+
+  .modal-sm {
+    max-width: 400px;
   }
 
   #configFields .form-group {
     margin-top: 12px;
   }
 
-  .config-section-title {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--admin-primary);
-    margin: 16px 0 8px;
-    padding-top: 12px;
-    border-top: 1px solid var(--admin-border);
+  #configFields .form-group:first-child {
+    margin-top: 0;
   }
 
-  /* Dark mode support */
-  @media (prefers-color-scheme: dark) {
-    .cb-card {
-      background: #1E293B;
-      border-color: #334155;
-    }
-
-    .cb-card:hover {
-      border-color: var(--admin-primary);
-    }
-
-    .cb-info h4 {
-      color: #F1F5F9;
-    }
-
-    .cb-info p {
-      color: #94A3B8;
-    }
-
-    .cb-order button {
-      background: #0F172A;
-      border-color: #334155;
-      color: #94A3B8;
-    }
-
-    .cb-order button:hover {
-      background: var(--admin-primary);
-      color: white;
-    }
-
-    .cb-badge {
-      background: #334155;
-      color: #94A3B8;
-    }
+  /* Hidden class */
+  .hidden {
+    display: none !important;
   }
 
+  /* Mobile Responsive */
   @media (max-width: 768px) {
-    .form-row {
-      grid-template-columns: 1fr;
+    .page-tabs {
+      gap: 6px;
     }
-    .cb-card {
-      flex-wrap: wrap;
+
+    .page-tab {
+      padding: 10px 14px;
+      font-size: 0.8rem;
     }
-    .cb-badges {
+
+    .tab-label {
+      display: none;
+    }
+
+    .preview-toolbar {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .toolbar-left, .toolbar-right {
       width: 100%;
+      justify-content: center;
+    }
+
+    .grid-box {
+      padding: 16px;
+      min-height: 150px;
+    }
+
+    .grid-box.size-large,
+    .grid-box.size-wide {
+      grid-column: span 1;
+    }
+
+    .grid-box.size-tall {
+      grid-row: span 1;
+      min-height: 150px;
     }
   }
 </style>
@@ -387,27 +1045,34 @@ import "../../styles/admin.css";
   mobileMenuToggle?.addEventListener('click', toggleMobileMenu);
   sidebarOverlay?.addEventListener('click', toggleMobileMenu);
 
+  // Types
   const contentTypeNames: Record<string, string> = {
-    'category_post': 'Kategori Yazısı',
-    'custom_html': 'Özel İçerik',
-    'poll': 'Anket',
-    'filament_prices': 'Filament Fiyatları',
-    'ai_tools': 'AI Araçları',
-    'community': 'Topluluk'
+    'category_post': '📄 Kategori Yazısı',
+    'custom_html': '✏️ Özel İçerik',
+    'poll': '📊 Anket',
+    'filament_prices': '🎨 Filament',
+    'ai_tools': '🤖 AI Araçları',
+    'community': '👥 Topluluk',
+    'featured_post': '⭐ Öne Çıkan'
   };
 
   const colorMap: Record<string, string> = {
     'orange': '#EA580C',
     'cyan': '#06B6D4',
     'purple': '#8B5CF6',
-    'green': '#10B981',
-    'yellow': '#EAB308'
+    'green': '#22C55E',
+    'yellow': '#EAB308',
+    'pink': '#EC4899'
   };
 
   let allBoxes: any[] = [];
+  let currentPage = 'anasayfa';
+  let currentView = 'grid';
   let editingId: number | null = null;
   let deleteId: number | null = null;
+  let draggedElement: HTMLElement | null = null;
 
+  // Load boxes
   async function loadBoxes() {
     try {
       const res = await fetch(`${API_BASE}/admin/content-boxes`, {
@@ -415,60 +1080,129 @@ import "../../styles/admin.css";
       });
       if (!res.ok) throw new Error('Unauthorized');
       allBoxes = await res.json();
-      updateStats();
+      updatePageCounts();
       renderBoxes();
     } catch (err) {
       console.error('Yüklenemedi:', err);
-      document.getElementById('boxesList')!.innerHTML = '<div class="error-row">Yüklenirken hata oluştu</div>';
+      showError('Kutular yüklenirken hata oluştu');
     }
   }
 
-  function updateStats() {
-    const visible = allBoxes.filter(b => b.is_visible);
-    const dynamic = allBoxes.filter(b => b.content_type === 'category_post');
-    const custom = allBoxes.filter(b => b.content_type === 'custom_html');
-    const hidden = allBoxes.filter(b => !b.is_visible);
+  function updatePageCounts() {
+    const pages = ['anasayfa', 'rehberler', 'sorun-cozumleri', 'incelemeler', '3d-baski'];
+    pages.forEach(page => {
+      const count = allBoxes.filter(b => (b.target_page || 'anasayfa') === page).length;
+      const el = document.getElementById(`count-${page}`);
+      if (el) el.textContent = count.toString();
+    });
+  }
 
-    document.getElementById('totalBoxes')!.textContent = visible.length.toString();
-    document.getElementById('dynamicBoxes')!.textContent = dynamic.length.toString();
-    document.getElementById('customBoxes')!.textContent = custom.length.toString();
-    document.getElementById('hiddenBoxes')!.textContent = hidden.length.toString();
+  function getPageBoxes() {
+    return allBoxes
+      .filter(b => (b.target_page || 'anasayfa') === currentPage)
+      .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
   }
 
   function renderBoxes() {
-    const container = document.getElementById('boxesList')!;
+    const boxes = getPageBoxes();
+    const gridContainer = document.getElementById('boxesGrid')!;
+    const listContainer = document.getElementById('boxesList')!;
+    const emptyState = document.getElementById('emptyState')!;
+    const previewSection = document.querySelector('.preview-section') as HTMLElement;
+    const listSection = document.querySelector('.list-section') as HTMLElement;
 
-    if (allBoxes.length === 0) {
-      container.innerHTML = '<div class="empty-row">Henüz içerik kutusu yok</div>';
+    if (boxes.length === 0) {
+      emptyState.classList.remove('hidden');
+      gridContainer.innerHTML = '';
+      listContainer.innerHTML = '';
       return;
     }
 
-    container.innerHTML = allBoxes.map((box: any, idx: number) => {
+    emptyState.classList.add('hidden');
+
+    if (currentView === 'grid') {
+      previewSection.classList.remove('hidden');
+      listSection.classList.add('hidden');
+      renderGridView(boxes, gridContainer);
+    } else {
+      previewSection.classList.add('hidden');
+      listSection.classList.remove('hidden');
+      renderListView(boxes, listContainer);
+    }
+  }
+
+  function renderGridView(boxes: any[], container: HTMLElement) {
+    container.innerHTML = boxes.map((box: any, idx: number) => {
+      const config = JSON.parse(box.config || '{}');
+      const title = config.title || config.category || box.slot_key;
+      const description = config.description || config.stat_text || '';
+      const typeName = contentTypeNames[box.content_type] || box.content_type;
+      const sizeClass = box.size !== 'normal' ? `size-${box.size}` : '';
+      const themeClass = `theme-${box.color_theme || 'orange'}`;
+      const hiddenClass = !box.is_visible ? 'hidden-box' : '';
+
+      return `
+        <div class="grid-box ${sizeClass} ${themeClass} ${hiddenClass}"
+             data-id="${box.id}"
+             data-order="${box.display_order || idx}"
+             draggable="true">
+          <div class="visibility-badge ${!box.is_visible ? 'hidden' : ''}"></div>
+          <div class="box-header">
+            <span class="box-type-badge">${typeName}</span>
+            <div class="box-actions">
+              <button class="box-action-btn edit-btn" data-id="${box.id}" title="Düzenle">✏️</button>
+              <button class="box-action-btn delete delete-btn" data-id="${box.id}" data-name="${title}" title="Sil">🗑️</button>
+            </div>
+          </div>
+          <div class="box-content">
+            <h3 class="box-title">${title}</h3>
+            ${description ? `<p class="box-description">${description}</p>` : ''}
+          </div>
+          <div class="box-footer">
+            <div class="box-meta">
+              <span class="box-meta-item">${box.size || 'normal'}</span>
+              ${!box.is_visible ? '<span class="box-meta-item">Gizli</span>' : ''}
+            </div>
+            <div class="box-order">
+              <span class="box-order-num">${idx + 1}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Add event listeners
+    addBoxEventListeners(container);
+    addDragListeners(container);
+  }
+
+  function renderListView(boxes: any[], container: HTMLElement) {
+    container.innerHTML = boxes.map((box: any, idx: number) => {
       const config = JSON.parse(box.config || '{}');
       const title = config.title || config.category || box.slot_key;
       const typeName = contentTypeNames[box.content_type] || box.content_type;
-      const sizeLabel = box.size === 'large' ? 'Büyük' : box.size === 'wide' ? 'Geniş' : 'Normal';
-      const sizeBadgeClass = box.size !== 'normal' ? `size-${box.size}` : '';
 
       return `
-        <div class="cb-card" data-id="${box.id}">
-          <div class="cb-order">
-            <button class="move-btn" data-id="${box.id}" data-dir="up" ${idx === 0 ? 'disabled' : ''}>▲</button>
-            <button class="move-btn" data-id="${box.id}" data-dir="down" ${idx === allBoxes.length - 1 ? 'disabled' : ''}>▼</button>
+        <div class="list-item" data-id="${box.id}" data-order="${box.display_order || idx}" draggable="true">
+          <div class="list-drag-handle">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/>
+              <circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/>
+            </svg>
           </div>
-          <div class="cb-color" style="background: ${colorMap[box.color_theme] || '#EA580C'}"></div>
-          <div class="cb-info">
+          <div class="list-color" style="background: ${colorMap[box.color_theme] || '#EA580C'}"></div>
+          <div class="list-info">
             <h4>${title}</h4>
-            <p>${box.slot_key} · Sıra: ${box.display_order}</p>
+            <p>${box.slot_key} · Sıra: ${idx + 1}</p>
           </div>
-          <div class="cb-badges">
-            <span class="cb-badge type">${typeName}</span>
-            <span class="cb-badge ${sizeBadgeClass}">${sizeLabel}</span>
+          <div class="list-badges">
+            <span class="box-meta-item">${typeName}</span>
+            <span class="box-meta-item">${box.size || 'normal'}</span>
             <button class="status-toggle ${box.is_visible ? 'published' : 'draft'}" data-id="${box.id}" data-visible="${box.is_visible}">
               ${box.is_visible ? 'Görünür' : 'Gizli'}
             </button>
           </div>
-          <div class="cb-actions">
+          <div class="list-actions">
             <button class="btn btn-ghost btn-sm edit-btn" data-id="${box.id}">✏️</button>
             <button class="btn btn-ghost btn-sm delete-btn" data-id="${box.id}" data-name="${title}">🗑️</button>
           </div>
@@ -476,46 +1210,104 @@ import "../../styles/admin.css";
       `;
     }).join('');
 
-    // Event listeners
-    document.querySelectorAll('.move-btn').forEach(btn => {
-      btn.addEventListener('click', handleMove);
-    });
-    document.querySelectorAll('.status-toggle').forEach(btn => {
-      btn.addEventListener('click', handleToggleVisibility);
-    });
-    document.querySelectorAll('.edit-btn').forEach(btn => {
+    addBoxEventListeners(container);
+    addDragListeners(container);
+  }
+
+  function addBoxEventListeners(container: HTMLElement) {
+    container.querySelectorAll('.edit-btn').forEach(btn => {
       btn.addEventListener('click', handleEdit);
     });
-    document.querySelectorAll('.delete-btn').forEach(btn => {
+    container.querySelectorAll('.delete-btn').forEach(btn => {
       btn.addEventListener('click', handleDelete);
+    });
+    container.querySelectorAll('.status-toggle').forEach(btn => {
+      btn.addEventListener('click', handleToggleVisibility);
     });
   }
 
-  async function handleMove(e: Event) {
-    const btn = e.target as HTMLButtonElement;
-    const id = parseInt(btn.dataset.id || '0');
-    const dir = btn.dataset.dir;
-    const idx = allBoxes.findIndex(b => b.id === id);
-    if (idx < 0) return;
+  // Drag and Drop
+  function addDragListeners(container: HTMLElement) {
+    const items = container.querySelectorAll('[draggable="true"]');
 
-    const swapIdx = dir === 'up' ? idx - 1 : idx + 1;
-    if (swapIdx < 0 || swapIdx >= allBoxes.length) return;
-
-    // Swap display_order
-    const orderA = allBoxes[idx].display_order;
-    const orderB = allBoxes[swapIdx].display_order;
-
-    const newOrder = allBoxes.map((b: any, i: number) => {
-      if (i === idx) return { id: b.id, display_order: orderB };
-      if (i === swapIdx) return { id: b.id, display_order: orderA };
-      return { id: b.id, display_order: b.display_order };
+    items.forEach(item => {
+      item.addEventListener('dragstart', handleDragStart);
+      item.addEventListener('dragend', handleDragEnd);
+      item.addEventListener('dragover', handleDragOver);
+      item.addEventListener('dragenter', handleDragEnter);
+      item.addEventListener('dragleave', handleDragLeave);
+      item.addEventListener('drop', handleDrop);
     });
+  }
+
+  function handleDragStart(e: DragEvent) {
+    draggedElement = e.target as HTMLElement;
+    draggedElement.classList.add('dragging');
+    e.dataTransfer!.effectAllowed = 'move';
+    e.dataTransfer!.setData('text/plain', draggedElement.dataset.id || '');
+  }
+
+  function handleDragEnd(e: DragEvent) {
+    const el = e.target as HTMLElement;
+    el.classList.remove('dragging');
+    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    draggedElement = null;
+  }
+
+  function handleDragOver(e: DragEvent) {
+    e.preventDefault();
+    e.dataTransfer!.dropEffect = 'move';
+  }
+
+  function handleDragEnter(e: DragEvent) {
+    const target = (e.target as HTMLElement).closest('[draggable="true"]');
+    if (target && target !== draggedElement) {
+      target.classList.add('drag-over');
+    }
+  }
+
+  function handleDragLeave(e: DragEvent) {
+    const target = (e.target as HTMLElement).closest('[draggable="true"]');
+    if (target) {
+      target.classList.remove('drag-over');
+    }
+  }
+
+  async function handleDrop(e: DragEvent) {
+    e.preventDefault();
+    const target = (e.target as HTMLElement).closest('[draggable="true"]') as HTMLElement;
+    if (!target || !draggedElement || target === draggedElement) return;
+
+    target.classList.remove('drag-over');
+
+    const draggedId = parseInt(draggedElement.dataset.id || '0');
+    const targetId = parseInt(target.dataset.id || '0');
+
+    // Reorder in allBoxes
+    const pageBoxes = getPageBoxes();
+    const draggedIdx = pageBoxes.findIndex(b => b.id === draggedId);
+    const targetIdx = pageBoxes.findIndex(b => b.id === targetId);
+
+    if (draggedIdx < 0 || targetIdx < 0) return;
+
+    // Build new order
+    const newOrder = pageBoxes.map((b, i) => {
+      if (i === draggedIdx) return { id: pageBoxes[targetIdx].id, display_order: i + 1 };
+      if (i === targetIdx) return { id: pageBoxes[draggedIdx].id, display_order: i + 1 };
+      return { id: b.id, display_order: i + 1 };
+    });
+
+    // Swap orders
+    const orders = pageBoxes.map((b, i) => ({ id: b.id, display_order: i + 1 }));
+    const temp = orders[draggedIdx].display_order;
+    orders[draggedIdx].display_order = orders[targetIdx].display_order;
+    orders[targetIdx].display_order = temp;
 
     try {
       await fetch(`${API_BASE}/admin/content-boxes/reorder`, {
         method: 'POST',
         headers: { 'X-ADMIN-SECRET': secret!, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order: newOrder })
+        body: JSON.stringify({ order: orders })
       });
       loadBoxes();
     } catch (err) {
@@ -523,6 +1315,27 @@ import "../../styles/admin.css";
     }
   }
 
+  // Page Tabs
+  document.querySelectorAll('.page-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentPage = (tab as HTMLElement).dataset.page || 'anasayfa';
+      renderBoxes();
+    });
+  });
+
+  // View Toggle
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentView = (btn as HTMLElement).dataset.view || 'grid';
+      renderBoxes();
+    });
+  });
+
+  // Toggle Visibility
   async function handleToggleVisibility(e: Event) {
     const btn = e.target as HTMLButtonElement;
     const id = parseInt(btn.dataset.id || '0');
@@ -540,6 +1353,7 @@ import "../../styles/admin.css";
     }
   }
 
+  // Edit
   function handleEdit(e: Event) {
     const btn = e.target as HTMLButtonElement;
     const id = parseInt(btn.dataset.id || '0');
@@ -550,15 +1364,20 @@ import "../../styles/admin.css";
     document.getElementById('modalTitle')!.textContent = 'İçerik Kutusunu Düzenle';
     (document.getElementById('boxId') as HTMLInputElement).value = id.toString();
     (document.getElementById('slotKey') as HTMLInputElement).value = box.slot_key;
+    (document.getElementById('targetPage') as HTMLSelectElement).value = box.target_page || 'anasayfa';
     (document.getElementById('contentType') as HTMLSelectElement).value = box.content_type;
-    (document.getElementById('boxSize') as HTMLSelectElement).value = box.size;
-    (document.getElementById('colorTheme') as HTMLSelectElement).value = box.color_theme;
+    (document.getElementById('boxSize') as HTMLSelectElement).value = box.size || 'normal';
     (document.getElementById('isVisible') as HTMLInputElement).checked = !!box.is_visible;
+
+    // Set color theme
+    const colorRadio = document.querySelector(`input[name="colorTheme"][value="${box.color_theme || 'orange'}"]`) as HTMLInputElement;
+    if (colorRadio) colorRadio.checked = true;
 
     updateConfigFields(box.content_type, JSON.parse(box.config || '{}'));
     document.getElementById('editModal')!.classList.remove('hidden');
   }
 
+  // Delete
   function handleDelete(e: Event) {
     const btn = e.target as HTMLButtonElement;
     deleteId = parseInt(btn.dataset.id || '0');
@@ -566,12 +1385,21 @@ import "../../styles/admin.css";
     document.getElementById('deleteModal')!.classList.remove('hidden');
   }
 
+  // Config Fields
   function updateConfigFields(type: string, config: any = {}) {
     const container = document.getElementById('configFields')!;
+    const section = document.getElementById('configSection')!;
+
+    if (!type) {
+      section.classList.add('hidden');
+      container.innerHTML = '';
+      return;
+    }
+
+    section.classList.remove('hidden');
 
     if (type === 'category_post') {
       container.innerHTML = `
-        <div class="config-section-title">Kategori Yazısı Ayarları</div>
         <div class="form-row">
           <div class="form-group">
             <label for="cfgCategory">Kategori *</label>
@@ -591,10 +1419,13 @@ import "../../styles/admin.css";
           <label for="cfgStatText">İstatistik Metni</label>
           <input type="text" id="cfgStatText" value="${config.stat_text || ''}" placeholder="+%12 Hız Artışı">
         </div>
+        <div class="form-group">
+          <label for="cfgPostCount">Gösterilecek Yazı Sayısı</label>
+          <input type="number" id="cfgPostCount" value="${config.post_count || 4}" min="1" max="12">
+        </div>
       `;
     } else if (type === 'custom_html') {
       container.innerHTML = `
-        <div class="config-section-title">Özel İçerik Ayarları</div>
         <div class="form-group">
           <label for="cfgTitle">Başlık *</label>
           <input type="text" id="cfgTitle" value="${config.title || ''}" placeholder="Klipper Kurulum Rehberi">
@@ -623,10 +1454,13 @@ import "../../styles/admin.css";
             <input type="text" id="cfgVersion" value="${config.version || ''}" placeholder="v2.1.0">
           </div>
         </div>
+        <div class="form-group">
+          <label for="cfgImageUrl">Görsel URL</label>
+          <input type="text" id="cfgImageUrl" value="${config.image_url || ''}" placeholder="https://...">
+        </div>
       `;
     } else if (type === 'ai_tools') {
       container.innerHTML = `
-        <div class="config-section-title">AI Araçları Ayarları</div>
         <div class="form-group">
           <label for="cfgTitle">Başlık</label>
           <input type="text" id="cfgTitle" value="${config.title || ''}" placeholder="Dijital Asistanlar">
@@ -658,7 +1492,6 @@ import "../../styles/admin.css";
       `;
     } else if (type === 'community') {
       container.innerHTML = `
-        <div class="config-section-title">Topluluk Ayarları</div>
         <div class="form-group">
           <label for="cfgTitle">Başlık</label>
           <input type="text" id="cfgTitle" value="${config.title || ''}" placeholder="ABS Çatlama Sorunu">
@@ -690,20 +1523,30 @@ import "../../styles/admin.css";
       `;
     } else if (type === 'poll') {
       container.innerHTML = `
-        <div class="config-section-title">Anket Ayarları</div>
         <div class="form-group">
           <label for="cfgTagLabel">Etiket</label>
           <input type="text" id="cfgTagLabel" value="${config.tag_label || 'Anket'}" placeholder="Anket">
         </div>
-        <p class="text-muted" style="font-size:0.8rem; margin-top:8px;">Aktif anket otomatik olarak gösterilir. Anket yönetimi için ayrı bir panel kullanın.</p>
+        <p class="form-hint" style="margin-top:12px;">Aktif anket otomatik olarak gösterilir. Anket yönetimi için ayrı bir panel kullanın.</p>
       `;
     } else if (type === 'filament_prices') {
       container.innerHTML = `
-        <div class="config-section-title">Filament Fiyatları</div>
-        <p class="text-muted" style="font-size:0.8rem;">Filament fiyatları otomatik olarak veritabanından çekilir. Ek ayar gerekmez.</p>
+        <p class="form-hint">Filament fiyatları otomatik olarak veritabanından çekilir. Ek ayar gerekmez.</p>
+      `;
+    } else if (type === 'featured_post') {
+      container.innerHTML = `
+        <div class="form-group">
+          <label for="cfgPostSlug">Yazı Slug (boş bırakılırsa son yazı)</label>
+          <input type="text" id="cfgPostSlug" value="${config.post_slug || ''}" placeholder="ornek-yazi-slug">
+        </div>
+        <div class="form-group">
+          <label for="cfgTagLabel">Etiket</label>
+          <input type="text" id="cfgTagLabel" value="${config.tag_label || 'Öne Çıkan'}" placeholder="Öne Çıkan">
+        </div>
       `;
     } else {
       container.innerHTML = '';
+      section.classList.add('hidden');
     }
   }
 
@@ -720,6 +1563,8 @@ import "../../styles/admin.css";
       config.category = (document.getElementById('cfgCategory') as HTMLSelectElement)?.value || '3d-baski';
       const statText = (document.getElementById('cfgStatText') as HTMLInputElement)?.value;
       if (statText) config.stat_text = statText;
+      const postCount = (document.getElementById('cfgPostCount') as HTMLInputElement)?.value;
+      if (postCount) config.post_count = parseInt(postCount);
     } else if (type === 'custom_html') {
       config.title = (document.getElementById('cfgTitle') as HTMLInputElement)?.value || '';
       config.description = (document.getElementById('cfgDescription') as HTMLTextAreaElement)?.value || '';
@@ -727,6 +1572,8 @@ import "../../styles/admin.css";
       if (codeBlock) config.code_block = codeBlock;
       const version = (document.getElementById('cfgVersion') as HTMLInputElement)?.value;
       if (version) config.version = version;
+      const imageUrl = (document.getElementById('cfgImageUrl') as HTMLInputElement)?.value;
+      if (imageUrl) config.image_url = imageUrl;
     } else if (type === 'ai_tools') {
       config.title = (document.getElementById('cfgTitle') as HTMLInputElement)?.value || '';
       config.description = (document.getElementById('cfgDescription') as HTMLInputElement)?.value || '';
@@ -738,6 +1585,9 @@ import "../../styles/admin.css";
       config.description = (document.getElementById('cfgDescription') as HTMLInputElement)?.value || '';
       config.comments = parseInt((document.getElementById('cfgComments') as HTMLInputElement)?.value || '0');
       config.likes = parseInt((document.getElementById('cfgLikes') as HTMLInputElement)?.value || '0');
+    } else if (type === 'featured_post') {
+      const postSlug = (document.getElementById('cfgPostSlug') as HTMLInputElement)?.value;
+      if (postSlug) config.post_slug = postSlug;
     }
 
     return config;
@@ -750,15 +1600,22 @@ import "../../styles/admin.css";
   });
 
   // Yeni kutu ekleme
-  document.getElementById('addBoxBtn')?.addEventListener('click', () => {
+  document.getElementById('addBoxBtn')?.addEventListener('click', openAddModal);
+  document.getElementById('emptyAddBtn')?.addEventListener('click', openAddModal);
+
+  function openAddModal() {
     editingId = null;
     document.getElementById('modalTitle')!.textContent = 'Yeni İçerik Kutusu';
     (document.getElementById('boxForm') as HTMLFormElement).reset();
     (document.getElementById('boxId') as HTMLInputElement).value = '';
+    (document.getElementById('targetPage') as HTMLSelectElement).value = currentPage;
     (document.getElementById('isVisible') as HTMLInputElement).checked = true;
+    const orangeRadio = document.querySelector('input[name="colorTheme"][value="orange"]') as HTMLInputElement;
+    if (orangeRadio) orangeRadio.checked = true;
     document.getElementById('configFields')!.innerHTML = '';
+    document.getElementById('configSection')!.classList.add('hidden');
     document.getElementById('editModal')!.classList.remove('hidden');
-  });
+  }
 
   // Form gönderme
   document.getElementById('boxForm')?.addEventListener('submit', async (e) => {
@@ -766,21 +1623,31 @@ import "../../styles/admin.css";
 
     const id = (document.getElementById('boxId') as HTMLInputElement).value;
     const contentType = (document.getElementById('contentType') as HTMLSelectElement).value;
+    const colorTheme = (document.querySelector('input[name="colorTheme"]:checked') as HTMLInputElement)?.value || 'orange';
 
     const payload: any = {
       slot_key: (document.getElementById('slotKey') as HTMLInputElement).value,
+      target_page: (document.getElementById('targetPage') as HTMLSelectElement).value,
       content_type: contentType,
       size: (document.getElementById('boxSize') as HTMLSelectElement).value,
-      color_theme: (document.getElementById('colorTheme') as HTMLSelectElement).value,
+      color_theme: colorTheme,
       is_visible: (document.getElementById('isVisible') as HTMLInputElement).checked,
       config: getConfigFromForm(contentType)
     };
 
     if (!id) {
-      // Yeni oluştur - en yüksek display_order + 1
-      const maxOrder = allBoxes.reduce((max: number, b: any) => Math.max(max, b.display_order || 0), 0);
+      const pageBoxes = allBoxes.filter(b => (b.target_page || 'anasayfa') === payload.target_page);
+      const maxOrder = pageBoxes.reduce((max: number, b: any) => Math.max(max, b.display_order || 0), 0);
       payload.display_order = maxOrder + 1;
     }
+
+    const submitBtn = document.querySelector('#boxForm button[type="submit"]') as HTMLButtonElement;
+    const btnText = submitBtn.querySelector('.btn-text') as HTMLElement;
+    const btnLoading = submitBtn.querySelector('.btn-loading') as HTMLElement;
+
+    btnText.classList.add('hidden');
+    btnLoading.classList.remove('hidden');
+    submitBtn.disabled = true;
 
     try {
       const url = id ? `${API_BASE}/admin/content-boxes/${id}` : `${API_BASE}/admin/content-boxes`;
@@ -803,6 +1670,10 @@ import "../../styles/admin.css";
     } catch (err) {
       console.error('Kaydetme hatası:', err);
       alert('Bir hata oluştu');
+    } finally {
+      btnText.classList.remove('hidden');
+      btnLoading.classList.add('hidden');
+      submitBtn.disabled = false;
     }
   });
 
@@ -825,21 +1696,28 @@ import "../../styles/admin.css";
   }
 
   // Modal kapatma
-  document.getElementById('cancelEditBtn')?.addEventListener('click', () => {
+  document.getElementById('cancelEditBtn')?.addEventListener('click', closeEditModal);
+  document.getElementById('editBackdrop')?.addEventListener('click', closeEditModal);
+  document.getElementById('modalCloseBtn')?.addEventListener('click', closeEditModal);
+
+  function closeEditModal() {
     document.getElementById('editModal')!.classList.add('hidden');
-  });
-  document.getElementById('editBackdrop')?.addEventListener('click', () => {
-    document.getElementById('editModal')!.classList.add('hidden');
-  });
-  document.getElementById('cancelDeleteBtn')?.addEventListener('click', () => {
+  }
+
+  document.getElementById('cancelDeleteBtn')?.addEventListener('click', closeDeleteModal);
+  document.getElementById('deleteBackdrop')?.addEventListener('click', closeDeleteModal);
+
+  function closeDeleteModal() {
     document.getElementById('deleteModal')!.classList.add('hidden');
     deleteId = null;
-  });
-  document.getElementById('deleteBackdrop')?.addEventListener('click', () => {
-    document.getElementById('deleteModal')!.classList.add('hidden');
-    deleteId = null;
-  });
+  }
+
   document.getElementById('confirmDeleteBtn')?.addEventListener('click', deleteBox);
+
+  function showError(message: string) {
+    const container = document.getElementById('boxesGrid')!;
+    container.innerHTML = `<div class="loading-state" style="color: #EF4444;">${message}</div>`;
+  }
 
   // Yükle
   loadBoxes();

@@ -565,8 +565,7 @@ const brands = [
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 32px 20px 16px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+    padding: 0;
     border-bottom: 1px solid var(--border-soft);
     position: relative;
   }
@@ -580,29 +579,35 @@ const brands = [
     font-size: 0.75rem;
     font-weight: 600;
     color: white;
+    z-index: 2;
   }
 
   .brand-logo {
-    height: 80px;
+    height: 140px;
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 24px;
+    background: #ffffff;
+    border-radius: 18px 18px 0 0;
   }
 
   .brand-logo img {
     max-height: 100%;
-    max-width: 180px;
+    max-width: 80%;
     width: auto;
+    height: auto;
     object-fit: contain;
   }
 
   .bento-card.featured .brand-logo {
-    height: 100px;
+    height: 160px;
+    padding: 28px;
   }
 
   .bento-card.featured .brand-logo img {
-    max-width: 240px;
+    max-width: 70%;
   }
 
   .card-body {

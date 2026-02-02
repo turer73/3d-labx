@@ -2282,7 +2282,7 @@ ${sourceText}`;
         // Admin: Yeni content box oluştur
         if (path === "/admin/content-boxes" && method === "POST") {
           const body = await request.json();
-          const { slot_key, display_order, size, content_type, config, color_theme, is_visible } = body;
+          const { slot_key, display_order, size, content_type, config, color_theme, is_visible, target_page } = body;
 
           if (!slot_key || !content_type) {
             return errorResponse("slot_key ve content_type gerekli", 400, "MISSING_FIELDS");
@@ -2291,8 +2291,8 @@ ${sourceText}`;
           const configStr = typeof config === 'object' ? JSON.stringify(config) : (config || '{}');
 
           const result = await env.DB.prepare(`
-            INSERT INTO content_boxes (slot_key, display_order, size, content_type, config, color_theme, is_visible)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO content_boxes (slot_key, display_order, size, content_type, config, color_theme, is_visible, target_page)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
           `).bind(
             sanitizeString(slot_key),
             display_order || 0,
@@ -2300,7 +2300,8 @@ ${sourceText}`;
             sanitizeString(content_type),
             configStr,
             color_theme || 'orange',
-            is_visible !== undefined ? (is_visible ? 1 : 0) : 1
+            is_visible !== undefined ? (is_visible ? 1 : 0) : 1,
+            target_page || 'anasayfa'
           ).run();
 
           await logAdminAction(env, request, "content_box_create", null);
@@ -2311,7 +2312,7 @@ ${sourceText}`;
         if (path.match(/^\/admin\/content-boxes\/\d+$/) && method === "PUT") {
           const id = parseInt(path.split("/").pop());
           const body = await request.json();
-          const { slot_key, display_order, size, content_type, config, color_theme, is_visible } = body;
+          const { slot_key, display_order, size, content_type, config, color_theme, is_visible, target_page } = body;
 
           const existing = await env.DB.prepare(`SELECT id FROM content_boxes WHERE id = ?`).bind(id).first();
           if (!existing) {
@@ -2330,6 +2331,7 @@ ${sourceText}`;
           if (config !== undefined) { updates.push("config = ?"); params.push(configStr); }
           if (color_theme !== undefined) { updates.push("color_theme = ?"); params.push(color_theme); }
           if (is_visible !== undefined) { updates.push("is_visible = ?"); params.push(is_visible ? 1 : 0); }
+          if (target_page !== undefined) { updates.push("target_page = ?"); params.push(target_page); }
 
           if (updates.length === 0) {
             return errorResponse("Güncellenecek alan yok", 400, "NO_UPDATES");
