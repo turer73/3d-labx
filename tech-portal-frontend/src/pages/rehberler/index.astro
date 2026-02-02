@@ -81,6 +81,14 @@ const interactiveGuides = [
     color: "#10b981",
     description: "Kalibrasyon, ayarlar sözlüğü ve sorun giderme",
     features: ["PA Kalibrasyonu", "Akış Testi", "Max Volumetric"]
+  },
+  {
+    name: "Bambu Slicer",
+    slug: "bambu-slicer-rehberi",
+    icon: "🎋",
+    color: "#22c55e",
+    description: "Bambu Lab yazıcılar için Türkçe ayar rehberi",
+    features: ["Malzeme Profilleri", "Hız Hesaplayıcı", "Destek Stratejileri"]
   }
 ];
 
@@ -154,9 +162,9 @@ posts.forEach(post => {
   // İnteraktif rehber slug'larını atla
   if (interactiveSlugs.includes(post.slug)) return;
 
-  // "Cura" veya "Orca" içeren başlıkları atla (zaten üstte interaktif olarak var)
+  // "Cura", "Orca" veya "Bambu" içeren başlıkları atla (zaten üstte interaktif olarak var)
   const titleLower = post.title_tr.toLowerCase();
-  if (titleLower.includes('cura') || titleLower.includes('orca')) return;
+  if (titleLower.includes('cura') || titleLower.includes('orca') || titleLower.includes('bambu')) return;
 
   const catId = categorizePost(post);
   categorizedPosts[catId].push(post);

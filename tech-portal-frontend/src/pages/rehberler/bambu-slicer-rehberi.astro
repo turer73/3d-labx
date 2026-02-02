@@ -1,0 +1,676 @@
+---
+export const prerender = true;
+
+const title = "Bambu Slicer Türkçe Ayarlar Rehberi | 3D-labX";
+const description = "Bambu Studio ve Bambu Lab yazıcılar için Türkçe ayar rehberi. Malzeme, dolgu, hız ve destek ayarları.";
+---
+
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
+    <meta name="description" content={description}>
+    <link rel="canonical" href="https://3d-labx.com/rehberler/bambu-slicer-rehberi">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; margin: 0; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            max-height: 400px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 768px) {
+            .chart-wrapper { height: 350px; }
+        }
+
+        .interactive-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .interactive-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+            border-color: #f59e0b;
+        }
+
+        .nav-link {
+            border-left: 3px solid transparent;
+        }
+        .nav-link:hover {
+            background-color: #1e293b;
+            color: #f8fafc;
+        }
+        .nav-link.active {
+            background-color: #1e293b;
+            color: #f59e0b;
+            border-left: 3px solid #f59e0b;
+        }
+
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active{
+            -webkit-box-shadow: 0 0 0 30px #1e293b inset !important;
+            -webkit-text-fill-color: white !important;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.875rem;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .back-link:hover {
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden selection:bg-orange-500 selection:text-white">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-[#020617] border-r border-slate-800 flex-col hidden md:flex z-10 shadow-xl">
+        <div class="p-4 border-b border-slate-800">
+            <a href="/rehberler" class="back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m15 18-6-6 6-6"/>
+                </svg>
+                Rehberlere Dön
+            </a>
+        </div>
+        <div class="p-6 border-b border-slate-800 flex items-center space-x-2">
+            <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center shadow-lg shadow-green-900/50">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+            </div>
+            <div class="text-xl font-black text-white tracking-tight">
+                BAMBU<span class="text-green-500"> SLICER</span>
+            </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <button onclick="navigate('overview')" id="nav-overview" class="nav-link active w-full text-left px-6 py-3 text-sm font-medium text-slate-400 transition-colors flex items-center">
+                <span class="mr-3 text-orange-500">📊</span> Genel Bakış
+            </button>
+            <button onclick="navigate('materials')" id="nav-materials" class="nav-link w-full text-left px-6 py-3 text-sm font-medium text-slate-400 transition-colors flex items-center">
+                <span class="mr-3 text-emerald-400">🧬</span> Malzemeler
+            </button>
+            <button onclick="navigate('infill')" id="nav-infill" class="nav-link w-full text-left px-6 py-3 text-sm font-medium text-slate-400 transition-colors flex items-center">
+                <span class="mr-3 text-purple-400">🕸️</span> Dolgu Analizi
+            </button>
+            <button onclick="navigate('speed')" id="nav-speed" class="nav-link w-full text-left px-6 py-3 text-sm font-medium text-slate-400 transition-colors flex items-center">
+                <span class="mr-3 text-blue-400">⚡</span> Hız & Akış
+            </button>
+            <button onclick="navigate('supports')" id="nav-supports" class="nav-link w-full text-left px-6 py-3 text-sm font-medium text-slate-400 transition-colors flex items-center">
+                <span class="mr-3 text-rose-400">🏗️</span> Destekler
+            </button>
+            <button onclick="navigate('dictionary')" id="nav-dictionary" class="nav-link w-full text-left px-6 py-3 text-sm font-medium text-slate-400 transition-colors flex items-center">
+                <span class="mr-3 text-yellow-400">📚</span> Ayar Sözlüğü
+            </button>
+        </nav>
+
+        <div class="p-4 bg-slate-900 border-t border-slate-800">
+            <div class="flex items-center justify-between text-xs text-slate-500">
+                <span>Bambu Studio 1.8+</span>
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Mobile Header -->
+    <div class="md:hidden fixed w-full bg-[#020617] border-b border-slate-800 z-20 flex items-center justify-between p-4 shadow-lg">
+        <div class="flex items-center space-x-2">
+            <a href="/rehberler" class="text-slate-400 mr-2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m15 18-6-6 6-6"/>
+                </svg>
+            </a>
+            <div class="w-6 h-6 bg-green-600 rounded flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+            </div>
+            <span class="font-bold text-white">BAMBU<span class="text-green-500"> SLICER</span></span>
+        </div>
+        <select onchange="navigate(this.value)" class="bg-slate-800 border border-slate-700 rounded-lg text-sm p-2 text-white focus:outline-none focus:border-orange-500">
+            <option value="overview">Genel Bakış</option>
+            <option value="materials">Malzemeler</option>
+            <option value="infill">Dolgu</option>
+            <option value="speed">Hız & Akış</option>
+            <option value="supports">Destekler</option>
+            <option value="dictionary">Sözlük</option>
+        </select>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto bg-[#0f172a] p-4 md:p-8 mt-16 md:mt-0 relative">
+        <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-green-900/20 to-transparent pointer-events-none"></div>
+
+        <div id="content-container" class="max-w-6xl mx-auto space-y-8 relative z-0">
+        </div>
+    </main>
+
+    <script is:inline>
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = '#334155';
+
+        const materialsData = {
+            PLA: {
+                temp: 220,
+                bed: 55,
+                fan: 100,
+                chamber: "Açık / Kapak Yok",
+                color: "#34d399",
+                desc: "En yaygın filament. Hızlı soğutma ister. Kapalı haznede tıkanma yapabilir (Heat Creep).",
+                tips: ["Aux Fan %70-100", "Kapı açık", "Tabla: Textured PEI"]
+            },
+            PETG: {
+                temp: 255,
+                bed: 70,
+                fan: 40,
+                chamber: "Kapalı olabilir",
+                color: "#fbbf24",
+                desc: "Mukavemetli ve esnek. Aşırı soğutma yapışmayı bozar. Yavaş yazdırma önerilir.",
+                tips: ["Aux Fan %0-30", "Nozzle temizliği önemli", "Tabla: Textured PEI"]
+            },
+            ABS: {
+                temp: 270,
+                bed: 100,
+                fan: 10,
+                chamber: "Tam Kapalı (Sıcak)",
+                color: "#f87171",
+                desc: "Sıcak ortam ister. Soğutma açılırsa katmanlar ayrılır (Warpage). Zehirli gaz yayabilir.",
+                tips: ["Aux Fan %0", "Ön ısıtma yapın", "Karbon filtre kullanın"]
+            },
+            TPU: {
+                temp: 230,
+                bed: 35,
+                fan: 80,
+                chamber: "Kapalı",
+                color: "#a78bfa",
+                desc: "Esnek malzeme. Sadece yavaş hızlarda basılabilir. Geri çekme (Retraction) sorunlu olabilir.",
+                tips: ["Volumetric Speed < 3mm³/s", "Doğrudan besleme", "Kurutma şart"]
+            }
+        };
+
+        const infillData = {
+            labels: ['Mukavemet', 'Baskı Hızı', 'Yüzey Kalitesi', 'Malzeme Tasarrufu', 'Nozzle Güvenliği'],
+            datasets: [
+                {
+                    label: 'Grid (Izgara)',
+                    data: [7, 8, 6, 7, 2],
+                    borderColor: 'rgba(248, 113, 113, 1)',
+                    backgroundColor: 'rgba(248, 113, 113, 0.2)',
+                    pointBackgroundColor: '#f87171',
+                },
+                {
+                    label: 'Gyroid (Jiroskopik)',
+                    data: [8, 6, 9, 6, 10],
+                    borderColor: 'rgba(52, 211, 153, 1)',
+                    backgroundColor: 'rgba(52, 211, 153, 0.2)',
+                    pointBackgroundColor: '#34d399',
+                },
+                {
+                    label: 'Rectilinear',
+                    data: [5, 10, 7, 9, 8],
+                    borderColor: 'rgba(96, 165, 250, 1)',
+                    backgroundColor: 'rgba(96, 165, 250, 0.2)',
+                    pointBackgroundColor: '#60a5fa',
+                }
+            ]
+        };
+
+        const dictionaryDB = [
+            { term: "Layer Height", tr: "Katman Yüksekliği", cat: "Quality", desc: "Dikey çözünürlük. Düşük değer (0.08mm) detay, yüksek değer (0.24mm) hız demektir." },
+            { term: "Wall Loops", tr: "Duvar Sayısı", cat: "Strength", desc: "Parçanın dış kabuk kalınlığı. Mukavemet için en önemli ayardır. 2 standart, 3-4 sağlam." },
+            { term: "Seam Position", tr: "Dikiş Pozisyonu", cat: "Quality", desc: "Katman başlangıç/bitiş noktası. 'Aligned' (Hizalı) çizgi yapar, 'Random' noktaları dağıtır." },
+            { term: "Brim", tr: "Etek / Kenar", cat: "Support", desc: "Yapışmayı artırmak için tabana atılan geniş katman. Köşe kalkmalarını (Warping) önler." },
+            { term: "Ironing", tr: "Ütüleme", cat: "Quality", desc: "En üst yüzeyin pürüzsüz olması için nozzle'ın sıcak geçiş yapmasıdır." },
+            { term: "Z Hop", tr: "Z Sıçraması", cat: "Printer", desc: "Nozzle hareket ederken parçaya çarpmasın diye kalkması. Bambu'da 'Spiral' önerilir." },
+            { term: "Flush Volume", tr: "Atık Miktarı", cat: "Multi-Color", desc: "Renk değişimi temizliği. Siyah -> Beyaz geçişinde artırılmalı." },
+            { term: "Pressure Advance", tr: "Basınç İlerlemesi", cat: "Quality", desc: "Köşe şişmesini engeller. Bambu'da 'Flow Dynamics Calibration' olarak geçer." },
+            { term: "Tree Support", tr: "Ağaç Destek", cat: "Support", desc: "Az malzeme kullanan organik destek. Bambu için önerilen standarttır." },
+            { term: "Top Z Distance", tr: "Üst Z Mesafesi", cat: "Support", desc: "Destek ile parça boşluğu. 0.2mm standarttır. Azaltılırsa yapışır." },
+            { term: "Aux Fan", tr: "Yan Fan", cat: "Cooling", desc: "Bambu Lab'a özel ek soğutma fanı. PLA için açık, ABS için kapalı olmalı." },
+            { term: "Flow Ratio", tr: "Akış Oranı", cat: "Quality", desc: "Filament ekstrüzyon miktarı. 0.98-1.02 arası normal. Kalibrasyon gerektirir." }
+        ];
+
+        let currentChart = null;
+        let activeMaterial = 'PLA';
+
+        function navigate(viewId) {
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            const activeLink = document.getElementById(`nav-${viewId}`);
+            if(activeLink) activeLink.classList.add('active');
+
+            const container = document.getElementById('content-container');
+            container.innerHTML = '';
+            window.scrollTo(0,0);
+
+            switch(viewId) {
+                case 'overview': renderOverview(container); break;
+                case 'materials': renderMaterials(container); break;
+                case 'infill': renderInfill(container); break;
+                case 'speed': renderSpeed(container); break;
+                case 'supports': renderSupports(container); break;
+                case 'dictionary': renderDictionary(container); break;
+                default: renderOverview(container);
+            }
+        }
+
+        function renderOverview(container) {
+            container.innerHTML = `
+                <div class="space-y-6 animate-fade-in">
+                    <div class="bg-[#1e293b] p-8 rounded-2xl shadow-lg border border-slate-700 relative overflow-hidden">
+                        <div class="absolute right-0 top-0 w-64 h-64 bg-green-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="px-3 py-1 bg-green-600/20 text-green-400 text-xs font-bold rounded-full border border-green-600/30">BAMBU LAB</span>
+                            </div>
+                            <h2 class="text-3xl font-bold text-white mb-4">Bambu Slicer Türkçe Rehberi</h2>
+                            <p class="text-slate-300 leading-relaxed text-lg max-w-2xl">
+                                Bambu Studio ayarlarını Türkçe olarak keşfedin. Malzeme profillerinden hız hesaplamalarına,
+                                dolgu desenlerinden destek stratejilerine kadar tüm bilgiler.
+                            </p>
+                            <div class="mt-6 flex flex-wrap gap-4">
+                                <button onclick="navigate('speed')" class="bg-orange-600 hover:bg-orange-500 text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-orange-900/20 transition-all transform hover:scale-105">
+                                    🚀 Hız Odaklı
+                                </button>
+                                <button onclick="navigate('materials')" class="bg-emerald-700 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-emerald-900/20 transition-all transform hover:scale-105">
+                                    💎 Kalite Odaklı
+                                </button>
+                                <button onclick="navigate('infill')" class="bg-purple-700 hover:bg-purple-600 text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-purple-900/20 transition-all transform hover:scale-105">
+                                    🛠️ Mukavemet
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-[#1e293b] p-6 rounded-xl shadow-md border border-slate-700 interactive-card cursor-pointer group" onclick="navigate('materials')">
+                            <div class="text-3xl mb-3 bg-emerald-900/30 w-12 h-12 flex items-center justify-center rounded-lg text-emerald-400 group-hover:text-emerald-300">🧬</div>
+                            <h3 class="text-xl font-bold text-white group-hover:text-orange-400 transition-colors">Malzemeler</h3>
+                            <p class="text-slate-400 mt-2 text-sm">PLA, PETG, ABS, TPU sıcaklık ve fan önerileri.</p>
+                        </div>
+                        <div class="bg-[#1e293b] p-6 rounded-xl shadow-md border border-slate-700 interactive-card cursor-pointer group" onclick="navigate('infill')">
+                            <div class="text-3xl mb-3 bg-purple-900/30 w-12 h-12 flex items-center justify-center rounded-lg text-purple-400 group-hover:text-purple-300">🕸️</div>
+                            <h3 class="text-xl font-bold text-white group-hover:text-orange-400 transition-colors">Dolgu Seçimi</h3>
+                            <p class="text-slate-400 mt-2 text-sm">Gyroid vs Grid? Sağlamlık analizi.</p>
+                        </div>
+                        <div class="bg-[#1e293b] p-6 rounded-xl shadow-md border border-slate-700 interactive-card cursor-pointer group" onclick="navigate('speed')">
+                            <div class="text-3xl mb-3 bg-blue-900/30 w-12 h-12 flex items-center justify-center rounded-lg text-blue-400 group-hover:text-blue-300">⚡</div>
+                            <h3 class="text-xl font-bold text-white group-hover:text-orange-400 transition-colors">Hız Limiti</h3>
+                            <p class="text-slate-400 mt-2 text-sm">Volumetric Flow hesaplayıcı.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-slate-800 to-slate-900 p-6 rounded-xl border border-slate-700 shadow-lg">
+                        <div class="flex items-start gap-4">
+                            <div class="text-2xl">💡</div>
+                            <div>
+                                <h3 class="text-lg font-bold text-white mb-1">Günün İpucu</h3>
+                                <p class="text-slate-400 text-sm leading-relaxed">
+                                    Bambu Lab yazıcılarında <strong>"Aux Fan"</strong> (Yan Fan) PLA için harikadır ama ABS/ASA basarken <span class="text-red-400 font-bold">MUTLAKA KAPATIN</span>. Aksi takdirde parçanız tabladan kalkar (Warping).
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMaterials(container) {
+            container.innerHTML = `
+                <div class="space-y-6">
+                    <div class="bg-[#1e293b] p-6 rounded-xl shadow-md border border-slate-700">
+                        <h2 class="text-2xl font-bold text-white mb-2">Malzeme Veritabanı</h2>
+                        <p class="text-slate-400 mb-6">Filament türüne göre doğru sıcaklık ve fan ayarları.</p>
+
+                        <div class="flex space-x-2 mb-6 overflow-x-auto pb-2">
+                            ${Object.keys(materialsData).map(mat => `
+                                <button onclick="updateMaterial('${mat}')"
+                                    class="mat-btn px-6 py-2 rounded-lg font-bold transition-all border border-slate-600
+                                    ${activeMaterial === mat ? 'bg-green-600 border-green-600 text-white shadow-lg shadow-green-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}">
+                                    ${mat}
+                                </button>
+                            `).join('')}
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div id="mat-info" class="bg-slate-800/50 p-6 rounded-xl border border-slate-700"></div>
+                            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 text-center">Profil Analizi</h4>
+                                <div class="chart-wrapper">
+                                    <canvas id="materialChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            updateMaterial(activeMaterial);
+        }
+
+        function updateMaterial(mat) {
+            activeMaterial = mat;
+            const data = materialsData[mat];
+
+            document.querySelectorAll('.mat-btn').forEach(btn => {
+                if(btn.textContent.trim() === mat) {
+                    btn.className = "mat-btn px-6 py-2 rounded-lg font-bold transition-all border border-green-600 bg-green-600 text-white shadow-lg shadow-green-900/50";
+                } else {
+                    btn.className = "mat-btn px-6 py-2 rounded-lg font-bold transition-all border border-slate-600 bg-slate-800 text-slate-400 hover:bg-slate-700";
+                }
+            });
+
+            document.getElementById('mat-info').innerHTML = `
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-3xl font-black" style="color: ${data.color}">${mat}</h3>
+                    <span class="bg-slate-900 px-3 py-1 rounded border border-slate-600 text-sm font-mono text-white">Nozzle: ${data.temp}°C</span>
+                </div>
+                <p class="text-slate-300 mb-6 leading-relaxed">${data.desc}</p>
+
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-slate-900 p-3 rounded-lg border border-slate-700">
+                        <div class="text-xs text-slate-500 uppercase">Tabla (Bed)</div>
+                        <div class="text-xl font-bold text-white">${data.bed}°C</div>
+                    </div>
+                    <div class="bg-slate-900 p-3 rounded-lg border border-slate-700">
+                        <div class="text-xs text-slate-500 uppercase">Fan Hızı</div>
+                        <div class="text-xl font-bold text-white">%${data.fan}</div>
+                    </div>
+                    <div class="col-span-2 bg-slate-900 p-3 rounded-lg border border-slate-700">
+                        <div class="text-xs text-slate-500 uppercase">Kabin Durumu</div>
+                        <div class="text-lg font-bold text-white">${data.chamber}</div>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <h4 class="font-bold text-white text-sm">Kritik İpuçları:</h4>
+                    <ul class="space-y-1">
+                        ${data.tips.map(tip => `<li class="flex items-center text-sm text-slate-400"><span class="mr-2 text-emerald-400">✓</span> ${tip}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+
+            if(currentChart) currentChart.destroy();
+            const ctx = document.getElementById('materialChart').getContext('2d');
+
+            currentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Nozzle', 'Tabla', 'Min Fan', 'Max Fan'],
+                    datasets: [{
+                        label: 'Değerler',
+                        data: [data.temp, data.bed, data.fan * 0.3, data.fan],
+                        backgroundColor: [data.color, '#fbbf24', '#94a3b8', '#60a5fa'],
+                        borderRadius: 4,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 300,
+                            grid: { color: '#334155' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderInfill(container) {
+            container.innerHTML = `
+                <div class="space-y-6">
+                    <div class="bg-[#1e293b] p-6 rounded-xl shadow-md border border-slate-700">
+                        <h2 class="text-2xl font-bold text-white mb-2">Dolgu Deseni Karşılaştırması</h2>
+                        <p class="text-slate-400 mb-6">
+                            Bambu Lab hızlarında <span class="text-green-400 font-bold">Gyroid</span> neden en iyi seçenek?
+                        </p>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+                            <div class="col-span-2 chart-wrapper">
+                                <canvas id="infillRadar"></canvas>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="p-4 rounded-lg bg-emerald-900/30 border border-emerald-800">
+                                    <h3 class="font-bold text-emerald-400 mb-1">Önerilen: Gyroid</h3>
+                                    <p class="text-sm text-slate-300">Asla kesişmez (Ses yapmaz). Her yöne eşit mukavemet.</p>
+                                </div>
+                                <div class="p-4 rounded-lg bg-red-900/30 border border-red-800">
+                                    <h3 class="font-bold text-red-400 mb-1">Riskli: Grid</h3>
+                                    <p class="text-sm text-slate-300">Çizgiler kesişir. Hızlı baskıda nozzle çarpar, sesi rahatsız eder.</p>
+                                </div>
+                                <div class="p-4 rounded-lg bg-blue-900/30 border border-blue-800">
+                                    <h3 class="font-bold text-blue-400 mb-1">Hızlı: Rectilinear</h3>
+                                    <p class="text-sm text-slate-300">En hızlısı ama mukavemeti en düşük olan.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            setTimeout(() => {
+                const ctx = document.getElementById('infillRadar').getContext('2d');
+                new Chart(ctx, {
+                    type: 'radar',
+                    data: infillData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                grid: { color: '#334155' },
+                                angleLines: { color: '#334155' },
+                                pointLabels: { color: '#e2e8f0', font: {size: 11} },
+                                ticks: { display: false, backdropColor: 'transparent' }
+                            }
+                        },
+                        plugins: {
+                            legend: { labels: { color: '#cbd5e1' } }
+                        }
+                    }
+                });
+            }, 100);
+        }
+
+        function renderSpeed(container) {
+            container.innerHTML = `
+                <div class="space-y-6">
+                    <div class="bg-[#1e293b] p-6 rounded-xl shadow-md border border-slate-700">
+                        <h2 class="text-2xl font-bold text-white">Maksimum Hız Hesaplayıcı</h2>
+                        <p class="text-slate-400 mt-1 mb-6">Fiziksel limitlerinizi görün (Volumetric Speed).</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-400 mb-2">Filament Max Flow (mm³/s)</label>
+                                    <input type="number" id="volSpeed" value="21" class="w-full p-3 bg-slate-900 border border-slate-600 rounded-lg text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none" oninput="calcSpeed()">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-400 mb-2">Nozzle Çapı</label>
+                                    <select id="nozzleSize" class="w-full p-3 bg-slate-900 border border-slate-600 rounded-lg text-white focus:border-green-500 outline-none" onchange="calcSpeed()">
+                                        <option value="0.2">0.2 mm</option>
+                                        <option value="0.4" selected>0.4 mm</option>
+                                        <option value="0.6">0.6 mm</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-400 mb-2">Katman Yüksekliği</label>
+                                    <input type="number" id="layerHeight" value="0.2" step="0.04" class="w-full p-3 bg-slate-900 border border-slate-600 rounded-lg text-white focus:border-green-500 outline-none" oninput="calcSpeed()">
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col justify-center items-center bg-[#0f172a] p-6 rounded-xl shadow-inner border border-slate-800">
+                                <div class="text-sm text-slate-500 font-bold uppercase tracking-wider mb-2">Erişilebilir Max Hız</div>
+                                <div id="resultSpeed" class="text-6xl font-black text-green-500 drop-shadow-lg">--</div>
+                                <div class="text-slate-500 text-sm mt-1">mm/saniye</div>
+
+                                <div class="w-full bg-slate-800 rounded-full h-4 mt-6 overflow-hidden relative border border-slate-700">
+                                    <div id="speedBar" class="bg-gradient-to-r from-green-600 to-emerald-400 h-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            setTimeout(calcSpeed, 100);
+        }
+
+        function calcSpeed() {
+            const vol = parseFloat(document.getElementById('volSpeed').value) || 0;
+            const nozzle = parseFloat(document.getElementById('nozzleSize').value);
+            const layer = parseFloat(document.getElementById('layerHeight').value);
+            const speed = vol / (layer * nozzle);
+
+            const resultEl = document.getElementById('resultSpeed');
+            const barEl = document.getElementById('speedBar');
+
+            if(isFinite(speed)) {
+                resultEl.innerText = Math.round(speed);
+                let pct = (speed / 500) * 100;
+                if(pct > 100) pct = 100;
+                barEl.style.width = `${pct}%`;
+
+                if(speed > 300) resultEl.className = "text-6xl font-black text-emerald-400 drop-shadow-lg";
+                else if (speed > 150) resultEl.className = "text-6xl font-black text-blue-400 drop-shadow-lg";
+                else resultEl.className = "text-6xl font-black text-green-500 drop-shadow-lg";
+            }
+        }
+
+        function renderSupports(container) {
+            container.innerHTML = `
+                <div class="space-y-6">
+                    <div class="bg-[#1e293b] p-6 rounded-xl shadow-md border border-slate-700">
+                        <h2 class="text-2xl font-bold text-white mb-6">Destek Stratejileri</h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="border border-slate-700 rounded-xl overflow-hidden hover:border-emerald-500 transition-colors bg-slate-800/50">
+                                <div class="bg-emerald-900/30 p-4 border-b border-emerald-900/50">
+                                    <h3 class="font-bold text-emerald-400 text-lg">Tree (Ağaç) Destek</h3>
+                                </div>
+                                <div class="p-6">
+                                    <ul class="space-y-3 text-slate-300 text-sm">
+                                        <li>✅ Az malzeme harcar.</li>
+                                        <li>✅ Kolay sökülür.</li>
+                                        <li>ℹ️ Style: <strong>Tree Hybrid</strong> seçin.</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="border border-slate-700 rounded-xl overflow-hidden bg-slate-800/50">
+                                <div class="bg-slate-700/50 p-4 border-b border-slate-700">
+                                    <h3 class="font-bold text-slate-200 text-lg">Normal Destek</h3>
+                                </div>
+                                <div class="p-6">
+                                    <ul class="space-y-3 text-slate-300 text-sm">
+                                        <li>✅ Geniş düz tavanlar için iyidir.</li>
+                                        <li>❌ Çok malzeme harcar.</li>
+                                        <li>❌ Sökmesi zordur.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 bg-amber-900/20 p-6 rounded-xl border border-amber-900/50">
+                            <h3 class="font-bold text-amber-400 mb-2">⚠️ Kritik: Top Z Distance</h3>
+                            <div class="flex items-center space-x-4 text-sm mt-4">
+                                <div class="flex-1 bg-slate-900 p-3 rounded border border-slate-700">
+                                    <strong class="text-white">0.20 mm</strong>
+                                    <p class="text-xs text-slate-500">Standart (Kolay Söküm)</p>
+                                </div>
+                                <div class="flex-1 bg-slate-900 p-3 rounded border border-slate-700">
+                                    <strong class="text-white">0.10 mm</strong>
+                                    <p class="text-xs text-slate-500">Zor Söküm / İyi Yüzey</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDictionary(container) {
+            container.innerHTML = `
+                <div class="space-y-6">
+                    <div class="bg-[#1e293b] p-6 rounded-xl shadow-md border border-slate-700 min-h-[600px]">
+                        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                            <h2 class="text-2xl font-bold text-white">Ayar Sözlüğü</h2>
+                            <input type="text" id="dictSearch" oninput="filterDictionary()" placeholder="Ara (örn: duvar, wall)..."
+                                class="w-full md:w-64 p-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:border-green-500 outline-none placeholder-slate-500">
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-700 text-slate-500 text-xs uppercase tracking-wider">
+                                        <th class="p-3">Terim</th>
+                                        <th class="p-3">Türkçe</th>
+                                        <th class="p-3">Kategori</th>
+                                        <th class="p-3">Açıklama</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dictBody" class="text-sm text-slate-300 divide-y divide-slate-800">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="noResults" class="hidden text-center py-10 text-slate-500">Sonuç bulunamadı.</div>
+                    </div>
+                </div>
+            `;
+            filterDictionary();
+        }
+
+        function filterDictionary() {
+            const query = document.getElementById('dictSearch') ? document.getElementById('dictSearch').value.toLowerCase() : '';
+            const tbody = document.getElementById('dictBody');
+            if(!tbody) return;
+
+            const filtered = dictionaryDB.filter(item =>
+                item.term.toLowerCase().includes(query) ||
+                item.tr.toLowerCase().includes(query)
+            );
+
+            tbody.innerHTML = filtered.map(item => `
+                <tr class="hover:bg-slate-800 transition-colors">
+                    <td class="p-3 font-bold text-white">${item.term}</td>
+                    <td class="p-3 text-green-400">${item.tr}</td>
+                    <td class="p-3"><span class="px-2 py-1 bg-slate-900 rounded text-xs text-slate-400 border border-slate-700">${item.cat}</span></td>
+                    <td class="p-3 text-slate-400">${item.desc}</td>
+                </tr>
+            `).join('');
+
+            const noRes = document.getElementById('noResults');
+            if(filtered.length === 0) noRes.classList.remove('hidden');
+            else noRes.classList.add('hidden');
+        }
+
+        window.onload = function() {
+            navigate('overview');
+        };
+    </script>
+</body>
+</html>
