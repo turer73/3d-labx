@@ -169,6 +169,46 @@ function getExcerpt(content: string, length: number = 120): string {
     </div>
   </section>
 
+  <!-- HIZLI ERİŞİM BANDI -->
+  <section class="quick-access-band">
+    <div class="container">
+      <div class="quick-access-grid">
+        <a href="/sorun-cozumleri" class="quick-card">
+          <div class="quick-icon">🔧</div>
+          <div class="quick-text">
+            <span class="quick-title">Sorun mu var?</span>
+            <span class="quick-desc">Hemen çözüm bul</span>
+          </div>
+          <svg class="quick-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+        <a href="/rehberler" class="quick-card">
+          <div class="quick-icon">📚</div>
+          <div class="quick-text">
+            <span class="quick-title">Yeni başlayan mısın?</span>
+            <span class="quick-desc">Rehberlere göz at</span>
+          </div>
+          <svg class="quick-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+        <a href="/filamentler" class="quick-card">
+          <div class="quick-icon">🧵</div>
+          <div class="quick-text">
+            <span class="quick-title">Filament arıyorsun?</span>
+            <span class="quick-desc">Fiyatları karşılaştır</span>
+          </div>
+          <svg class="quick-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+        <a href="/topluluk" class="quick-card highlight">
+          <div class="quick-icon">👥</div>
+          <div class="quick-text">
+            <span class="quick-title">Topluluğa katıl!</span>
+            <span class="quick-desc">Soru sor, paylaş</span>
+          </div>
+          <svg class="quick-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
   <main class="main-content container">
     {error && (
       <div class="message message-error">
@@ -205,7 +245,76 @@ function getExcerpt(content: string, length: number = 120): string {
       </section>
     )}
 
-    <!-- 2. REHBERLER - İkinci en çok aranan -->
+    <!-- 2. İNTERAKTİF REHBERLER - Öne Çıkan -->
+    <section class="interactive-guides-section">
+      <div class="section-intro">
+        <div class="section-intro-left">
+          <span class="section-badge">🎮 İnteraktif</span>
+          <h2>Slicer Rehberleri</h2>
+          <p>Hesaplayıcılar, simülasyonlar ve adım adım sorun giderme araçları ile dilimleyicinizi öğrenin.</p>
+        </div>
+        <a href="/rehberler" class="section-cta">
+          Tüm Rehberler
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+      </div>
+      <div class="interactive-guides-grid">
+        <a href="/rehberler/cura-slicer-interaktif-rehber" class="interactive-guide-card" style="--guide-color: #0077C8">
+          <div class="guide-glow"></div>
+          <img src="/slicer-logos/cura.svg" alt="Cura" class="guide-logo" />
+          <div class="guide-info">
+            <h3>Cura Slicer</h3>
+            <p>Akış hesaplamaları ve sorun çözümleri</p>
+            <div class="guide-features">
+              <span>Volumetrik Akış</span>
+              <span>Z-Offset</span>
+            </div>
+          </div>
+          <span class="guide-badge">Başla →</span>
+        </a>
+        <a href="/rehberler/orca-slicer-rehberi" class="interactive-guide-card" style="--guide-color: #10b981">
+          <div class="guide-glow"></div>
+          <img src="/slicer-logos/orca.svg" alt="Orca" class="guide-logo" />
+          <div class="guide-info">
+            <h3>Orca Slicer</h3>
+            <p>Kalibrasyon ve ayarlar sözlüğü</p>
+            <div class="guide-features">
+              <span>PA Kalibrasyonu</span>
+              <span>Akış Testi</span>
+            </div>
+          </div>
+          <span class="guide-badge">Başla →</span>
+        </a>
+        <a href="/rehberler/bambu-slicer-rehberi" class="interactive-guide-card" style="--guide-color: #00AE42">
+          <div class="guide-glow"></div>
+          <img src="/slicer-logos/bambu.svg" alt="Bambu" class="guide-logo" />
+          <div class="guide-info">
+            <h3>Bambu Lab</h3>
+            <p>X1C, P1P, P1S, A1 uzman rehberi</p>
+            <div class="guide-features">
+              <span>Sorun Giderme</span>
+              <span>Flow Rate</span>
+            </div>
+          </div>
+          <span class="guide-badge">Başla →</span>
+        </a>
+        <a href="/rehberler/prusaslicer-rehberi" class="interactive-guide-card" style="--guide-color: #ea580c">
+          <div class="guide-glow"></div>
+          <img src="/slicer-logos/prusa.svg" alt="Prusa" class="guide-logo" />
+          <div class="guide-info">
+            <h3>PrusaSlicer</h3>
+            <p>Katman ayarları ve destek yapıları</p>
+            <div class="guide-features">
+              <span>Organik Destek</span>
+              <span>Seam Paint</span>
+            </div>
+          </div>
+          <span class="guide-badge">Başla →</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 3. REHBERLER - Blog İçerikleri -->
     {rehberPosts.length > 0 && (
       <section class="category-section">
         <div class="category-header">
@@ -215,8 +324,8 @@ function getExcerpt(content: string, length: number = 120): string {
           </div>
           <a href="/rehberler" class="category-link">Tümünü Gör →</a>
         </div>
-        <div class="category-grid">
-          {rehberPosts.slice(0, 4).map((post, i) => (
+        <div class="category-grid six-cols">
+          {rehberPosts.slice(0, 6).map((post, i) => (
             <a href={`/rehberler/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} cyan`}>
               {post.image_url && (
                 <div class="cat-image">
@@ -233,7 +342,7 @@ function getExcerpt(content: string, length: number = 120): string {
       </section>
     )}
 
-    <!-- 3. 3D BASKI HABERLERİ - Güncel içerik -->
+    <!-- 4. 3D BASKI HABERLERİ - Güncel içerik -->
     {printPosts.length > 1 && (
       <section class="category-section">
         <div class="category-header">
@@ -243,8 +352,8 @@ function getExcerpt(content: string, length: number = 120): string {
           </div>
           <a href="/3d-baski" class="category-link">Tümünü Gör →</a>
         </div>
-        <div class="category-grid">
-          {printPosts.slice(1, 5).map((post, i) => (
+        <div class="category-grid six-cols">
+          {printPosts.slice(1, 7).map((post, i) => (
             <a href={`/3d-baski/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} orange`}>
               {post.image_url && (
                 <div class="cat-image">
@@ -321,7 +430,7 @@ function getExcerpt(content: string, length: number = 120): string {
       </section>
     )}
 
-    <!-- 5. İNCELEMELER -->
+    <!-- 6. İNCELEMELER -->
     {incelemePosts.length > 0 && (
       <section class="category-section">
         <div class="category-header">
@@ -331,8 +440,8 @@ function getExcerpt(content: string, length: number = 120): string {
           </div>
           <a href="/incelemeler" class="category-link">Tümünü Gör →</a>
         </div>
-        <div class="category-grid">
-          {incelemePosts.slice(0, 4).map((post, i) => (
+        <div class="category-grid six-cols">
+          {incelemePosts.slice(0, 6).map((post, i) => (
             <a href={`/incelemeler/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} purple`}>
               {post.image_url && (
                 <div class="cat-image">
@@ -1379,15 +1488,338 @@ function getExcerpt(content: string, length: number = 120): string {
     gap: 16px;
   }
 
+  .category-grid.six-cols {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .category-grid.six-cols .cat-card.cat-featured {
+    grid-column: span 1;
+  }
+
   @media (max-width: 1024px) {
     .category-grid { grid-template-columns: repeat(2, 1fr); }
+    .category-grid.six-cols { grid-template-columns: repeat(2, 1fr); }
   }
 
   @media (max-width: 640px) {
     .category-grid { grid-template-columns: 1fr; gap: 12px; }
+    .category-grid.six-cols { grid-template-columns: 1fr; }
     .category-header { flex-direction: column; align-items: flex-start; gap: 12px; }
     .category-header h2 { font-size: 1.2rem; }
     .category-icon { width: 36px; height: 36px; font-size: 1.2rem; }
+  }
+
+  /* Hızlı Erişim Bandı */
+  .quick-access-band {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+    border-bottom: 1px solid var(--border-soft);
+    padding: 24px 20px;
+  }
+
+  .quick-access-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .quick-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .quick-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    border-color: var(--accent);
+  }
+
+  .quick-card.highlight {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
+    border-color: rgba(139, 92, 246, 0.3);
+  }
+
+  .quick-card.highlight:hover {
+    border-color: #8B5CF6;
+  }
+
+  .quick-icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+  }
+
+  .quick-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .quick-title {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 2px;
+  }
+
+  .quick-desc {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .quick-arrow {
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+
+  .quick-card:hover .quick-arrow {
+    transform: translateX(4px);
+    color: var(--accent);
+  }
+
+  /* İnteraktif Rehberler */
+  .interactive-guides-section {
+    padding: 50px 20px;
+    background: linear-gradient(180deg, transparent 0%, rgba(16, 185, 129, 0.03) 100%);
+    border-radius: 24px;
+    margin-bottom: 20px;
+  }
+
+  .section-intro {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 28px;
+    gap: 24px;
+  }
+
+  .section-intro-left {
+    flex: 1;
+  }
+
+  .section-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .section-intro h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 8px;
+  }
+
+  .section-intro p {
+    font-size: 1rem;
+    color: var(--text-muted);
+    max-width: 500px;
+    line-height: 1.5;
+  }
+
+  .section-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: var(--bg-card);
+    border: 2px solid var(--border-soft);
+    border-radius: 12px;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .section-cta:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .section-cta svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s;
+  }
+
+  .section-cta:hover svg {
+    transform: translateX(4px);
+  }
+
+  .interactive-guides-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .interactive-guide-card {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 28px;
+    background: var(--bg-card);
+    border: 2px solid var(--border-soft);
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    min-height: 140px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .guide-glow {
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, var(--guide-color) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+
+  .interactive-guide-card:hover .guide-glow {
+    opacity: 0.08;
+  }
+
+  .interactive-guide-card:hover {
+    border-color: var(--guide-color);
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .guide-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    flex-shrink: 0;
+    background: var(--bg-soft);
+    border-radius: 16px;
+    padding: 12px;
+  }
+
+  .guide-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .guide-info h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 6px;
+  }
+
+  .guide-info p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .guide-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .guide-features span {
+    padding: 6px 12px;
+    background: var(--bg-soft);
+    border-radius: 8px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .guide-badge {
+    position: absolute;
+    top: 50%;
+    right: 24px;
+    transform: translateY(-50%);
+    padding: 10px 18px;
+    background: var(--guide-color);
+    color: white;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    opacity: 0.9;
+    transition: all 0.3s;
+  }
+
+  .interactive-guide-card:hover .guide-badge {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.05);
+  }
+
+  @media (max-width: 1024px) {
+    .quick-access-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .interactive-guides-grid {
+      grid-template-columns: 1fr;
+    }
+    .section-intro {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .quick-access-band {
+      padding: 16px;
+    }
+    .quick-access-grid {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .quick-card {
+      padding: 14px 16px;
+    }
+    .interactive-guides-section {
+      padding: 30px 16px;
+    }
+    .interactive-guides-grid {
+      grid-template-columns: 1fr;
+    }
+    .interactive-guide-card {
+      padding: 20px;
+      flex-direction: column;
+      text-align: center;
+      min-height: auto;
+    }
+    .guide-logo {
+      width: 64px;
+      height: 64px;
+    }
+    .guide-badge {
+      position: static;
+      transform: none;
+      margin-top: 12px;
+    }
+    .interactive-guide-card:hover .guide-badge {
+      transform: none;
+    }
+    .section-intro h2 {
+      font-size: 1.4rem;
+    }
   }
 
   /* Category Cards */
@@ -1433,6 +1865,7 @@ function getExcerpt(content: string, length: number = 120): string {
     width: 100%;
     height: 100%;
     z-index: 0;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   }
 
   .cat-image img {
@@ -1440,6 +1873,11 @@ function getExcerpt(content: string, length: number = 120): string {
     height: 100%;
     object-fit: cover;
     transition: transform 0.4s ease;
+  }
+
+  .cat-image img[src=""],
+  .cat-image img:not([src]) {
+    display: none;
   }
 
   .cat-card:hover .cat-image img {
@@ -1672,92 +2110,90 @@ function getExcerpt(content: string, length: number = 120): string {
   document.addEventListener('astro:after-swap', loadPoll);
 
   // ========================================
-  // SLICER POLL (localStorage)
+  // SLICER POLL (API - Canlı Anket)
   // ========================================
-  const SLICER_STORAGE_KEY = 'slicerPollData';
-  const SLICER_VOTED_KEY = 'slicerPollVoted';
+  const slicerColors = ['#22C55E', '#F97316', '#8B5CF6', '#06B6D4', '#6B7280'];
 
-  const slicerOptions = [
-    { id: 1, text: 'Cura', color: '#22C55E' },
-    { id: 2, text: 'PrusaSlicer', color: '#F97316' },
-    { id: 3, text: 'OrcaSlicer', color: '#8B5CF6' },
-    { id: 4, text: 'Bambu Studio', color: '#06B6D4' },
-    { id: 5, text: 'Diğer', color: '#6B7280' }
-  ];
-
-  function getSlicerData() {
-    try {
-      const data = localStorage.getItem(SLICER_STORAGE_KEY);
-      if (data) return JSON.parse(data);
-    } catch (e) {}
-    return { 1: 234, 2: 187, 3: 156, 4: 89, 5: 34 };
-  }
-
-  function saveSlicerData(data) {
-    localStorage.setItem(SLICER_STORAGE_KEY, JSON.stringify(data));
-  }
-
-  function hasVotedSlicer() {
-    return localStorage.getItem(SLICER_VOTED_KEY) !== null;
-  }
-
-  function setVotedSlicer(optionId) {
-    localStorage.setItem(SLICER_VOTED_KEY, optionId.toString());
-  }
-
-  function getVotedSlicerOption() {
-    return parseInt(localStorage.getItem(SLICER_VOTED_KEY) || '0');
-  }
-
-  function loadSlicerPoll() {
+  async function loadSlicerPoll() {
     const slicerOptionsEl = document.getElementById('slicerOptions');
     const slicerVotesEl = document.getElementById('slicerVotes');
 
     if (!slicerOptionsEl || !slicerVotesEl) return;
 
-    const data = getSlicerData();
-    const totalVotes = Object.values(data).reduce((a, b) => a + b, 0);
-    const voted = hasVotedSlicer();
-    const votedOptionId = getVotedSlicerOption();
+    try {
+      const res = await fetch(`${API_URL}/api/poll/slicer`);
+      const data = await res.json();
 
-    slicerOptionsEl.innerHTML = slicerOptions.map((opt) => {
-      const votes = data[opt.id] || 0;
-      const percent = totalVotes > 0 ? Math.round((votes / totalVotes) * 100) : 0;
-      const isVoted = votedOptionId === opt.id;
+      if (!data.poll) {
+        slicerOptionsEl.innerHTML = '<p style="color: var(--text-muted);">Anket yüklenemedi</p>';
+        return;
+      }
 
-      return `
-        <div class="poll-option ${voted ? 'voted' : 'clickable'} ${isVoted ? 'selected' : ''}"
-             data-slicer-id="${opt.id}"
-             style="position: relative; height: 38px; background: rgba(100,100,100,0.1); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;">
-          <div class="poll-bar" style="position: absolute; left: 0; top: 0; bottom: 0; height: 100%; width: ${Math.max(percent, 8)}%; background: linear-gradient(90deg, ${opt.color} 0%, ${opt.color}dd 100%); border-radius: 10px; z-index: 0;"></div>
-          <span class="poll-label" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; font-weight: 600; z-index: 1;">${opt.text}</span>
-          <span class="poll-percent" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 0.75rem; font-weight: 700; color: var(--text-muted); z-index: 1;">%${percent}</span>
-        </div>
-      `;
-    }).join('');
+      const poll = data.poll;
 
-    const totalFormatted = totalVotes >= 1000 ? `${(totalVotes / 1000).toFixed(1)}k` : totalVotes;
-    slicerVotesEl.textContent = `${totalFormatted} Oy`;
+      slicerOptionsEl.innerHTML = poll.options.map((opt, index) => {
+        const isVoted = poll.votedOptionId === opt.id;
+        const barColor = slicerColors[index % 5];
+        const barWidth = Math.max(opt.percent, 8);
 
-    if (!voted) {
-      document.querySelectorAll('#slicerOptions [data-slicer-id]').forEach(opt => {
-        opt.addEventListener('click', handleSlicerVote);
-      });
+        return `
+          <div class="poll-option ${poll.hasVoted ? 'voted' : 'clickable'} ${isVoted ? 'selected' : ''}"
+               data-option-id="${opt.id}" data-poll-id="7"
+               style="position: relative; height: 38px; background: rgba(100,100,100,0.1); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;">
+            <div class="poll-bar" style="position: absolute; left: 0; top: 0; bottom: 0; height: 100%; width: ${barWidth}%; background: linear-gradient(90deg, ${barColor} 0%, ${barColor}cc 100%); border-radius: 10px; z-index: 0;"></div>
+            <span class="poll-label" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; font-weight: 600; z-index: 1;">${opt.text}</span>
+            <span class="poll-percent" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 0.75rem; font-weight: 700; color: var(--text-muted); z-index: 1;">%${opt.percent}</span>
+          </div>
+        `;
+      }).join('');
+
+      const totalFormatted = poll.totalVotes >= 1000
+        ? `${(poll.totalVotes / 1000).toFixed(1)}k`
+        : poll.totalVotes;
+      slicerVotesEl.textContent = `${totalFormatted} Oy`;
+
+      if (!poll.hasVoted) {
+        document.querySelectorAll('#slicerOptions .poll-option.clickable').forEach(opt => {
+          opt.addEventListener('click', handleSlicerVote);
+        });
+      }
+    } catch (err) {
+      console.error('Slicer poll load error:', err);
     }
   }
 
-  function handleSlicerVote(e) {
+  async function handleSlicerVote(e) {
     const target = e.currentTarget;
-    const optionId = parseInt(target.dataset.slicerId || '0');
+    const optionId = target.dataset.optionId;
+    const pollId = target.dataset.pollId;
 
-    if (!optionId || hasVotedSlicer()) return;
+    if (!optionId || !pollId) return;
 
-    const data = getSlicerData();
-    data[optionId] = (data[optionId] || 0) + 1;
-    saveSlicerData(data);
-    setVotedSlicer(optionId);
+    document.querySelectorAll('#slicerOptions .poll-option').forEach(opt => {
+      opt.classList.remove('clickable');
+      opt.classList.add('voted');
+    });
 
-    loadSlicerPoll();
+    try {
+      const res = await fetch(`${API_URL}/api/poll/vote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pollId: parseInt(pollId), optionId: parseInt(optionId) })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        window.showToast('Oyunuz kaydedildi!', 'success');
+        loadSlicerPoll();
+      } else {
+        window.showToast(data.error || 'Oy verilemedi', 'warning');
+        loadSlicerPoll();
+      }
+    } catch (err) {
+      console.error('Vote error:', err);
+      window.showToast('Bağlantı hatası', 'error');
+    }
   }
 
   loadSlicerPoll();

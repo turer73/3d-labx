@@ -387,6 +387,136 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
         initCodeCopyButtons();
       }
     </script>
+
+    <!-- Site-Wide Logging System -->
+    <script is:inline>
+      (function() {
+        const LOG_API = 'https://tech-portal-api.turgut-d01.workers.dev/api/logs';
+        const LOG_QUEUE = [];
+        let isSending = false;
+
+        // Global logger
+        window.siteLog = function(type, message, details = null, level = 'info') {
+          const logEntry = {
+            type,
+            level,
+            message,
+            details,
+            pageUrl: window.location.href,
+            timestamp: new Date().toISOString()
+          };
+
+          LOG_QUEUE.push(logEntry);
+          processQueue();
+        };
+
+        // Process queue
+        async function processQueue() {
+          if (isSending || LOG_QUEUE.length === 0) return;
+          isSending = true;
+
+          while (LOG_QUEUE.length > 0) {
+            const entry = LOG_QUEUE.shift();
+            try {
+              const headers = { 'Content-Type': 'application/json' };
+              const token = localStorage.getItem('authToken');
+              if (token) headers['Authorization'] = `Bearer ${token}`;
+
+              await fetch(LOG_API, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(entry)
+              });
+            } catch (err) {
+              // Silently fail - don't break the site for logging
+            }
+          }
+          isSending = false;
+        }
+
+        // Auto-log page views
+        window.siteLog('pageview', 'Sayfa görüntülendi', {
+          referrer: document.referrer,
+          title: document.title
+        });
+
+        // Log page navigation (Astro)
+        document.addEventListener('astro:after-swap', () => {
+          window.siteLog('pageview', 'Sayfa görüntülendi', {
+            referrer: document.referrer,
+            title: document.title
+          });
+        });
+
+        // Log errors
+        window.addEventListener('error', (e) => {
+          window.siteLog('error', e.message || 'JavaScript hatası', {
+            filename: e.filename,
+            lineno: e.lineno,
+            colno: e.colno
+          }, 'error');
+        });
+
+        // Log unhandled promise rejections
+        window.addEventListener('unhandledrejection', (e) => {
+          window.siteLog('error', 'Promise rejection', {
+            reason: e.reason?.message || String(e.reason)
+          }, 'error');
+        });
+
+        // Log clicks on important elements
+        document.addEventListener('click', (e) => {
+          const target = e.target.closest('a, button, [data-track]');
+          if (!target) return;
+
+          // Track outbound links
+          if (target.tagName === 'A' && target.hostname !== window.location.hostname) {
+            window.siteLog('click', 'Dış link tıklandı', {
+              href: target.href,
+              text: target.textContent?.slice(0, 50)
+            });
+          }
+
+          // Track data-track elements
+          if (target.dataset.track) {
+            window.siteLog('click', target.dataset.track, {
+              element: target.tagName,
+              text: target.textContent?.slice(0, 50)
+            });
+          }
+        });
+
+        // Log search
+        const searchForm = document.querySelector('form[action="/search"]');
+        if (searchForm) {
+          searchForm.addEventListener('submit', (e) => {
+            const input = searchForm.querySelector('input[name="q"]');
+            if (input?.value) {
+              window.siteLog('search', 'Arama yapıldı', { query: input.value });
+            }
+          });
+        }
+
+        // Log form submissions
+        document.addEventListener('submit', (e) => {
+          const form = e.target;
+          if (form.id && !form.action?.includes('/search')) {
+            window.siteLog('form', 'Form gönderildi', { formId: form.id });
+          }
+        });
+
+        // Log auth events
+        window.addEventListener('storage', (e) => {
+          if (e.key === 'authToken') {
+            if (e.newValue && !e.oldValue) {
+              window.siteLog('auth', 'Kullanıcı giriş yaptı');
+            } else if (!e.newValue && e.oldValue) {
+              window.siteLog('auth', 'Kullanıcı çıkış yaptı');
+            }
+          }
+        });
+      })();
+    </script>
   </body>
 </html>
 
