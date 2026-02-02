@@ -5,6 +5,7 @@ const title = "Bambu Lab Slicer Profesyonel Rehber | 3D-labX";
 const description = "Bambu Studio ve Orca Slicer için Türkçe uzman rehberi. X1C, P1P, P1S, A1 için malzeme profilleri, kurutma, hız limitleri ve sorun giderme.";
 ---
 
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -13,692 +14,434 @@ const description = "Bambu Studio ve Orca Slicer için Türkçe uzman rehberi. X
     <meta name="description" content={description}>
     <link rel="canonical" href="https://3d-labx.com/rehberler/bambu-slicer-rehberi">
     <link rel="icon" href="/favicon.ico">
-
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; margin: 0; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #f1f5f9; min-height: 100vh; }
+        .app { display: flex; min-height: 100vh; }
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #00AE42; }
+        /* Sidebar */
+        .sidebar { width: 280px; background: #0b1120; border-right: 1px solid #1e293b; position: fixed; height: 100vh; display: flex; flex-direction: column; }
+        .sidebar-back { padding: 16px 20px; border-bottom: 1px solid #1e293b; }
+        .sidebar-back a { color: #94a3b8; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+        .sidebar-back a:hover { color: #00AE42; }
+        .brand { padding: 24px 20px; border-bottom: 1px solid #1e293b; display: flex; align-items: center; gap: 12px; }
+        .brand-icon { width: 40px; height: 40px; background: #00AE42; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 20px; color: #000; }
+        .brand-text { font-size: 18px; font-weight: 700; color: #fff; }
+        .brand-text span { font-weight: 300; color: #94a3b8; }
+        .brand-sub { font-size: 10px; color: #00AE42; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; margin-top: 2px; }
+        .nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+        .nav-btn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 24px; background: none; border: none; color: #64748b; font-size: 14px; font-weight: 500; cursor: pointer; text-align: left; font-family: inherit; position: relative; transition: all 0.2s; }
+        .nav-btn::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #00AE42; transform: scaleY(0); transition: transform 0.2s; }
+        .nav-btn:hover { color: #fff; background: rgba(255,255,255,0.02); }
+        .nav-btn.active { color: #00AE42; background: linear-gradient(90deg, rgba(0,174,66,0.1), transparent); }
+        .nav-btn.active::before { transform: scaleY(1); }
+        .nav-icon { font-size: 18px; }
+        .sidebar-footer { padding: 16px; background: #080c17; border-top: 1px solid #1e293b; }
+        .status { background: rgba(30,41,59,0.5); padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .status-label { font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 700; }
+        .status-val { font-size: 12px; color: #00AE42; font-family: monospace; }
+        .status-dot { width: 8px; height: 8px; background: #00AE42; border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-        .chart-wrapper {
-            position: relative;
-            width: 100%;
-            height: 320px;
-            max-height: 400px;
-            margin: 0 auto;
-        }
+        /* Main */
+        .main { flex: 1; margin-left: 280px; padding: 32px; position: relative; }
+        .main::before { content: ''; position: fixed; top: 0; left: 280px; right: 0; height: 400px; background: linear-gradient(to bottom, rgba(0,174,66,0.08), transparent); pointer-events: none; }
+        .content { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
 
-        @keyframes fade-in {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in { animation: fade-in 0.4s ease-out forwards; }
+        /* Cards */
+        .card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+        .card-title { font-size: 24px; font-weight: 700; color: #fff; }
+        .card-sub { font-size: 14px; color: #94a3b8; margin-top: 4px; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
+        /* Buttons */
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; font-family: inherit; transition: all 0.2s; }
+        .btn-primary { background: #00AE42; color: #fff; }
+        .btn-primary:hover { background: #00c44a; }
+        .btn-secondary { background: transparent; color: #94a3b8; border: 1px solid #334155; }
+        .btn-secondary:hover { border-color: #00AE42; color: #fff; }
 
-        .nav-item {
-            position: relative;
-            overflow: hidden;
-        }
-        .nav-item::before {
-            content: '';
-            position: absolute;
-            left: 0; top: 0; bottom: 0;
-            width: 3px;
-            background: #00AE42;
-            transform: scaleY(0);
-            transition: transform 0.2s ease;
-        }
-        .nav-item.active::before { transform: scaleY(1); }
-        .nav-item.active { background: linear-gradient(90deg, rgba(0, 174, 66, 0.1) 0%, transparent 100%); color: #00AE42; }
+        /* Tabs */
+        .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0; }
+        .tab { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid #334155; background: #1e293b; color: #94a3b8; font-family: inherit; transition: all 0.2s; }
+        .tab:hover { border-color: #475569; color: #fff; }
+        .tab.active { background: #00AE42; border-color: #00AE42; color: #000; }
 
-        .text-bambu { color: #00AE42; }
-        .bg-bambu { background-color: #00AE42; }
-        .border-bambu { border-color: #00AE42; }
+        /* Stats */
+        .stat { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 16px; }
+        .stat-label { font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 700; }
+        .stat-val { font-size: 22px; font-weight: 800; color: #fff; margin-top: 4px; }
+        .stat-note { font-size: 11px; color: #00AE42; margin-top: 4px; }
 
-        input[type=range] {
-            -webkit-appearance: none;
-            background: transparent;
-            width: 100%;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 16px;
-            width: 16px;
-            border-radius: 50%;
-            background: #00AE42;
-            cursor: pointer;
-            margin-top: -6px;
-            box-shadow: 0 0 10px rgba(0, 174, 66, 0.5);
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 4px;
-            cursor: pointer;
-            background: #334155;
-            border-radius: 2px;
-        }
+        /* Info/Warning */
+        .info { background: rgba(0,174,66,0.05); border: 1px solid rgba(0,174,66,0.2); border-radius: 12px; padding: 16px; margin-top: 16px; }
+        .info h4 { color: #00AE42; font-size: 14px; margin-bottom: 8px; }
+        .info p { color: #94a3b8; font-size: 13px; line-height: 1.6; }
+        .warning { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 12px; padding: 16px; display: flex; gap: 12px; margin-top: 16px; }
+        .warning-title { color: #f87171; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+        .warning-text { color: #94a3b8; font-size: 13px; }
 
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: #94a3b8;
-            text-decoration: none;
-            font-size: 0.875rem;
-            padding: 8px 16px;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-        .back-link:hover {
-            color: #00AE42;
-            background: rgba(0, 174, 66, 0.1);
+        /* Trouble */
+        .trouble { background: #1e293b; border: 1px solid #334155; border-radius: 12px; overflow: hidden; transition: all 0.2s; }
+        .trouble:hover { border-color: #00AE42; }
+        .trouble-head { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: rgba(15,23,42,0.5); border-bottom: 1px solid #334155; }
+        .trouble-title { font-size: 16px; font-weight: 700; color: #fff; }
+        .badge { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+        .badge.high { background: rgba(239,68,68,0.2); color: #f87171; }
+        .badge.med { background: rgba(251,191,36,0.2); color: #fbbf24; }
+        .badge.low { background: rgba(59,130,246,0.2); color: #60a5fa; }
+        .trouble-body { padding: 16px; }
+        .trouble-symptom { font-style: italic; color: #94a3b8; font-size: 13px; margin-bottom: 12px; }
+        .fix { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #e2e8f0; margin-bottom: 8px; }
+        .fix .chk { color: #00AE42; }
+
+        /* Chart */
+        .chart-box { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; height: 350px; }
+
+        /* Dict */
+        .dict-search { width: 100%; padding: 14px 18px; background: #0f172a; border: 1px solid #334155; border-radius: 12px; color: #fff; font-size: 14px; margin-bottom: 20px; font-family: inherit; }
+        .dict-search:focus { outline: none; border-color: #00AE42; }
+        .dict-search::placeholder { color: #64748b; }
+        .dict-item { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+        .dict-term { font-size: 16px; font-weight: 700; color: #00AE42; margin-bottom: 6px; }
+        .dict-desc { font-size: 13px; color: #94a3b8; line-height: 1.6; }
+
+        /* Slider */
+        .slider { margin-bottom: 20px; }
+        .slider-head { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .slider-label { font-size: 13px; color: #94a3b8; }
+        .slider-val { font-size: 13px; color: #fff; font-family: monospace; }
+        input[type="range"] { width: 100%; height: 4px; -webkit-appearance: none; background: #334155; border-radius: 2px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: #00AE42; border-radius: 50%; cursor: pointer; }
+        .speed-box { background: #0f172a; border: 1px solid #334155; border-radius: 16px; padding: 32px; text-align: center; }
+        .speed-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 2px; }
+        .speed-num { font-size: 72px; font-weight: 900; color: #00AE42; line-height: 1; margin: 8px 0; }
+        .speed-unit { font-size: 18px; color: #64748b; }
+        .speed-note { font-size: 12px; color: #64748b; margin-top: 16px; max-width: 280px; margin-left: auto; margin-right: auto; }
+
+        /* Infill */
+        .infill { padding: 16px; border-radius: 12px; border: 1px solid; margin-bottom: 12px; }
+        .infill.green { background: rgba(0,174,66,0.1); border-color: rgba(0,174,66,0.3); }
+        .infill.red { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); }
+        .infill.blue { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); }
+        .infill-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .infill-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .infill-dot.green { background: #00AE42; }
+        .infill-dot.red { background: #ef4444; }
+        .infill-dot.blue { background: #3b82f6; }
+        .infill-name { font-weight: 700; font-size: 14px; }
+        .infill-name.green { color: #00AE42; }
+        .infill-name.red { color: #f87171; }
+        .infill-name.blue { color: #60a5fa; }
+        .infill-desc { font-size: 12px; color: #94a3b8; line-height: 1.5; }
+
+        /* Mobile */
+        .mobile-head { display: none; position: fixed; top: 0; left: 0; right: 0; background: #0b1120; border-bottom: 1px solid #1e293b; padding: 12px 16px; z-index: 200; align-items: center; justify-content: space-between; }
+        .mobile-brand { display: flex; align-items: center; gap: 8px; }
+        .mobile-icon { width: 28px; height: 28px; background: #00AE42; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; color: #000; }
+        .mobile-title { font-weight: 700; color: #fff; }
+        .mobile-select { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 8px 12px; color: #fff; font-size: 13px; font-family: inherit; }
+
+        @media (max-width: 1024px) { .grid-2 { grid-template-columns: 1fr; } .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main { margin-left: 0; padding: 16px; padding-top: 80px; }
+            .main::before { left: 0; }
+            .mobile-head { display: flex; }
         }
     </style>
 </head>
-<body class="h-screen flex overflow-hidden selection:bg-emerald-500 selection:text-white">
-
-    <!-- Sidebar -->
-    <aside class="w-72 bg-[#0b1120] border-r border-slate-800 flex-col hidden md:flex z-20 shadow-2xl">
-        <div class="p-4 border-b border-slate-800">
-            <a href="/rehberler" class="back-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="m15 18-6-6 6-6"/>
-                </svg>
-                Rehberlere Dön
-            </a>
+<body>
+    <div class="mobile-head">
+        <div class="mobile-brand">
+            <a href="/rehberler" style="color: #64748b; margin-right: 8px; text-decoration: none;">←</a>
+            <div class="mobile-icon">B</div>
+            <span class="mobile-title">Bambu<span style="font-weight: 300; color: #94a3b8;">Lab</span></span>
         </div>
-        <div class="p-8 border-b border-slate-800/50">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-bambu rounded flex items-center justify-center shadow-[0_0_15px_rgba(0,174,66,0.3)]">
-                    <span class="text-black font-black text-2xl" style="font-family: sans-serif;">B</span>
-                </div>
-                <div class="flex flex-col">
-                    <div class="text-xl font-bold tracking-tight text-white leading-none">
-                        Bambu<span class="font-light text-slate-300">Lab</span>
-                    </div>
-                    <span class="text-[10px] text-bambu font-bold tracking-widest uppercase mt-1">Wiki & Rehber</span>
-                </div>
-            </div>
-        </div>
-
-        <nav class="flex-1 overflow-y-auto py-6 space-y-1">
-            <button onclick="navigate('overview')" id="nav-overview" class="nav-item active w-full text-left px-8 py-3.5 text-sm font-medium text-slate-400 hover:text-white transition-all flex items-center group">
-                <span class="mr-3 text-lg opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-transform">📊</span> Genel Bakış
-            </button>
-            <button onclick="navigate('materials')" id="nav-materials" class="nav-item w-full text-left px-8 py-3.5 text-sm font-medium text-slate-400 hover:text-white transition-all flex items-center group">
-                <span class="mr-3 text-lg opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-transform">🧬</span> Filament Veritabanı
-            </button>
-            <button onclick="navigate('troubleshoot')" id="nav-troubleshoot" class="nav-item w-full text-left px-8 py-3.5 text-sm font-medium text-slate-400 hover:text-white transition-all flex items-center group">
-                <span class="mr-3 text-lg opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-transform">🔧</span> Sorun Giderme
-            </button>
-            <button onclick="navigate('infill')" id="nav-infill" class="nav-item w-full text-left px-8 py-3.5 text-sm font-medium text-slate-400 hover:text-white transition-all flex items-center group">
-                <span class="mr-3 text-lg opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-transform">🕸️</span> Dolgu (Infill)
-            </button>
-            <button onclick="navigate('speed')" id="nav-speed" class="nav-item w-full text-left px-8 py-3.5 text-sm font-medium text-slate-400 hover:text-white transition-all flex items-center group">
-                <span class="mr-3 text-lg opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-transform">⚡</span> Hız & Volumetric
-            </button>
-            <button onclick="navigate('dictionary')" id="nav-dictionary" class="nav-item w-full text-left px-8 py-3.5 text-sm font-medium text-slate-400 hover:text-white transition-all flex items-center group">
-                <span class="mr-3 text-lg opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-transform">📚</span> Terimler Sözlüğü
-            </button>
-        </nav>
-
-        <div class="p-6 bg-[#080c17] border-t border-slate-800">
-            <div class="glass-panel p-3 rounded-lg flex items-center justify-between">
-                <div class="flex flex-col">
-                    <span class="text-[10px] text-slate-500 uppercase font-bold">Yazıcı Durumu</span>
-                    <span class="text-xs text-bambu font-mono">Bambu Studio 1.8+</span>
-                </div>
-                <div class="h-2 w-2 rounded-full bg-bambu animate-pulse shadow-[0_0_10px_#00AE42]"></div>
-            </div>
-        </div>
-    </aside>
-
-    <!-- Mobile Header -->
-    <div class="md:hidden fixed w-full bg-[#0b1120] border-b border-slate-800 z-30 flex items-center justify-between p-4 shadow-lg">
-        <div class="flex items-center gap-2">
-            <a href="/rehberler" class="text-slate-400 mr-2">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="m15 18-6-6 6-6"/>
-                </svg>
-            </a>
-            <div class="w-6 h-6 bg-bambu rounded flex items-center justify-center text-black font-bold text-xs">B</div>
-            <span class="font-bold text-white tracking-tight">Bambu<span class="font-light">Lab</span></span>
-        </div>
-        <select onchange="navigate(this.value)" class="bg-slate-800 border border-slate-700 rounded text-xs p-2 text-white focus:outline-none focus:border-bambu">
+        <select class="mobile-select" onchange="navigate(this.value)">
             <option value="overview">Genel Bakış</option>
             <option value="materials">Malzemeler</option>
             <option value="troubleshoot">Sorun Giderme</option>
             <option value="infill">Dolgu</option>
-            <option value="speed">Hız Limitleri</option>
+            <option value="speed">Hız</option>
             <option value="dictionary">Sözlük</option>
         </select>
     </div>
 
-    <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto bg-[#0f172a] p-4 md:p-8 mt-14 md:mt-0 relative scroll-smooth">
-        <div class="fixed top-0 left-0 w-full h-[500px] bg-gradient-to-b from-[#00AE4215] to-transparent pointer-events-none z-0"></div>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="sidebar-back"><a href="/rehberler">← Rehberlere Dön</a></div>
+            <div class="brand">
+                <div class="brand-icon">B</div>
+                <div>
+                    <div class="brand-text">Bambu<span>Lab</span></div>
+                    <div class="brand-sub">Wiki & Rehber</div>
+                </div>
+            </div>
+            <nav class="nav">
+                <button class="nav-btn active" id="nav-overview" onclick="navigate('overview')"><span class="nav-icon">📊</span> Genel Bakış</button>
+                <button class="nav-btn" id="nav-materials" onclick="navigate('materials')"><span class="nav-icon">🧬</span> Filament Veritabanı</button>
+                <button class="nav-btn" id="nav-troubleshoot" onclick="navigate('troubleshoot')"><span class="nav-icon">🔧</span> Sorun Giderme</button>
+                <button class="nav-btn" id="nav-infill" onclick="navigate('infill')"><span class="nav-icon">🕸️</span> Dolgu (Infill)</button>
+                <button class="nav-btn" id="nav-speed" onclick="navigate('speed')"><span class="nav-icon">⚡</span> Hız & Volumetric</button>
+                <button class="nav-btn" id="nav-dictionary" onclick="navigate('dictionary')"><span class="nav-icon">📚</span> Terimler Sözlüğü</button>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="status">
+                    <div><div class="status-label">Yazıcı Durumu</div><div class="status-val">Bambu Studio 1.8+</div></div>
+                    <div class="status-dot"></div>
+                </div>
+            </div>
+        </aside>
 
-        <div id="content-container" class="max-w-7xl mx-auto space-y-8 relative z-10">
-        </div>
-    </main>
+        <main class="main">
+            <div class="content" id="content"></div>
+        </main>
+    </div>
 
     <script is:inline>
-        Chart.defaults.color = '#64748b';
-        Chart.defaults.borderColor = '#1e293b';
-        Chart.defaults.font.family = "'Inter', sans-serif";
-
-        const materialsData = {
-            PLA: {
-                temp: 220, bed: 55, fan: 100, chamber: "Açık (Kapak Kaldır)",
-                desc: "Hızlı prototipleme için standart. Isı birikmesini (Heat Creep) önlemek için kapı/üst kapak açık olmalıdır.",
-                details: { maxVol: 21, price: "$", dry: "Gerekmez (45°C - 4h)", plate: "Textured PEI / Cool Plate" }
-            },
-            "PETG": {
-                temp: 255, bed: 70, fan: 40, chamber: "Kapalı",
-                desc: "Mukavemetli ve hafif esnek. Aşırı soğutma katman yapışmasını bozar. Destek yüzeyleri PLA kadar temiz çıkmaz.",
-                details: { maxVol: 14, price: "$$", dry: "Önerilir (65°C - 8h)", plate: "Textured PEI" }
-            },
-            "ABS/ASA": {
-                temp: 270, bed: 100, fan: 10, chamber: "Tam Kapalı (Sıcak)",
-                desc: "Dış mekan ve ısı dayanımı. ASA UV dirençlidir. Aux fanı kesinlikle KAPATIN, yoksa parça kalkar (Warping).",
-                details: { maxVol: 18, price: "$$", dry: "Şart (80°C - 4h)", plate: "High Temp / Eng. Plate" }
-            },
-            "PA-CF": {
-                temp: 290, bed: 100, fan: 0, chamber: "Kapalı",
-                desc: "Karbon Fiber katkılı Naylon. Çok sert, çok dayanıklı. Mutlaka kurutulmalıdır. Sertleştirilmiş çelik nozzle şarttır.",
-                details: { maxVol: 10, price: "$$$", dry: "Kritik (80°C - 12h)", plate: "Eng. Plate + Glue" }
-            },
-            "TPU 95A": {
-                temp: 230, bed: 35, fan: 100, chamber: "Kapalı",
-                desc: "Esnek malzeme. AMS ile KULLANILMAZ (Sıkışır). Makara tutucuya takın. Volumetric hızı düşürün.",
-                details: { maxVol: 3.5, price: "$$", dry: "Şart (55°C - 8h)", plate: "Textured / Smooth" }
-            }
+        const mats = {
+            'PLA': { temp: 220, bed: 55, fan: 100, chamber: 'Açık (Kapak Kaldır)', maxVol: 21, dry: 'Gerekmez (45°C - 4h)', plate: 'Textured PEI', desc: 'Hızlı prototipleme için standart.' },
+            'PETG': { temp: 255, bed: 70, fan: 40, chamber: 'Kapalı', maxVol: 14, dry: 'Önerilir (65°C - 8h)', plate: 'Textured PEI', desc: 'Mukavemetli ve hafif esnek.' },
+            'ABS/ASA': { temp: 270, bed: 100, fan: 10, chamber: 'Tam Kapalı', maxVol: 18, dry: 'Şart (80°C - 4h)', plate: 'High Temp Plate', desc: 'Dış mekan ve ısı dayanımı. Aux fan KAPALI.' },
+            'PA-CF': { temp: 290, bed: 100, fan: 0, chamber: 'Kapalı', maxVol: 10, dry: 'Kritik (80°C - 12h)', plate: 'Eng. Plate + Glue', desc: 'Karbon Fiber Naylon. Çelik nozzle şart.' },
+            'TPU': { temp: 230, bed: 35, fan: 100, chamber: 'Kapalı', maxVol: 3.5, dry: 'Şart (55°C - 8h)', plate: 'Textured PEI', desc: 'Esnek. AMS ile KULLANILMAZ.' }
         };
 
-        const troublesData = [
-            {
-                id: "adhesion", title: "Tablaya Yapışmama", severity: "high",
-                symptoms: "İlk katman kalkıyor, spagetti oluşuyor.",
-                fixes: ["Tablayı sabunlu suyla yıkayın (IPA yetmez)", "Z-Offset çok yüksek olabilir", "Tabla ısısını 5-10°C artırın", "Brim (Etek) genişliğini 5mm yapın"]
-            },
-            {
-                id: "ghosting", title: "Ghosting / Ringing", severity: "med",
-                symptoms: "Köşelerden sonra dalgalanma izleri.",
-                fixes: ["Kayış gerginliğini kontrol edin (Belt Tension)", "İvme (Acceleration) değerini düşürün", "Yazıcıyı sabit bir zemine koyun (Sallanmasın)"]
-            },
-            {
-                id: "clog", title: "Nozzle Tıkanması", severity: "high",
-                symptoms: "Filament akmıyor, extruder tık sesi çıkarıyor.",
-                fixes: ["Soğuk Çekme (Cold Pull) yapın", "PLA basarken üst kapağı açın (Heat Creep)", "Extruder dişlilerini temizleyin"]
-            },
-            {
-                id: "vfa", title: "VFA (Vertical Artifacts)", severity: "low",
-                symptoms: "Düz duvarlarda dikey ince çizgiler.",
-                fixes: ["Hızı artırın (Bazen motor rezonansı düşük hızda olur)", "Bambu Studio'da 'Wall Generator'ü Arachne yapın"]
-            }
+        const troubles = [
+            { title: 'Tablaya Yapışmama', sev: 'high', sym: 'İlk katman kalkıyor.', fixes: ['Tablayı sabunlu suyla yıkayın', 'Z-Offset kontrol edin', 'Tabla ısısını artırın', 'Brim 5mm yapın'] },
+            { title: 'Ghosting', sev: 'med', sym: 'Köşelerde dalgalanma.', fixes: ['Kayış gerginliği kontrol', 'İvme düşürün', 'Sabit zemin'] },
+            { title: 'Nozzle Tıkanması', sev: 'high', sym: 'Filament akmıyor.', fixes: ['Soğuk Çekme yapın', 'Üst kapağı açın (PLA)', 'Dişlileri temizleyin'] },
+            { title: 'VFA', sev: 'low', sym: 'Dikey çizgiler.', fixes: ['Hızı artırın', 'Arachne kullanın'] }
         ];
 
-        const dictData = [
-            { t: "Arachne", d: "Yeni nesil duvar oluşturucu. Değişken çizgi genişliği kullanarak boşlukları daha iyi doldurur ve detayları artırır." },
-            { t: "Pressure Advance", d: "Köşe dönüşlerinde nozzle basıncını dengeleyerek şişmeleri engeller. Bambu'da otomatik kalibre edilir (Flow Dynamics)." },
-            { t: "Seam (Dikiş)", d: "Her katmanın başlangıç noktası. Estetik için 'Back' (Arka) veya 'Aligned' seçin. Rastgele (Random) yüzeyde benekler yapar." },
-            { t: "Fuzzy Skin", d: "Yüzeye bilerek pürüzlü, tüylü bir doku verir. Katman izlerini gizlemek ve tutuş hissi için harikadır." },
-            { t: "Prime Tower", d: "Çok renkli baskılarda nozzle basıncını dengelemek için basılan kule. Atık miktarını azaltmak için boyutu küçültülebilir." },
-            { t: "Brim Width", d: "Parça tabanına eklenen yapışma yüzeyi. Köşeli parçalarda kalkmayı (Warping) önlemek için 5-10mm önerilir." },
-            { t: "Aux Fan", d: "Bambu Lab'a özel ek soğutma fanı. PLA için açık, ABS/ASA için mutlaka kapalı olmalıdır." },
-            { t: "Flow Dynamics", d: "Bambu'nun otomatik Pressure Advance kalibrasyonu. İlk kurulumda yapılır ve filament profiline kaydedilir." },
-            { t: "Heat Creep", d: "Sıcaklığın nozzle'dan yukarı yayılıp filamentin erken erimesi. PLA'da kapalı kabinde yaşanır. Kapağı açın." },
-            { t: "Lidar", d: "X1 serisinde bulunan lazer tarama. İlk katman yüksekliğini otomatik ayarlar ve spagettiyi algılayıp durdurur." }
+        const dict = [
+            { t: 'Arachne', d: 'Değişken çizgi genişliği kullanan duvar oluşturucu.' },
+            { t: 'Pressure Advance', d: 'Köşe basıncını dengeler. Bambu\'da otomatik.' },
+            { t: 'Seam', d: 'Katman başlangıç noktası. Back veya Aligned seçin.' },
+            { t: 'Fuzzy Skin', d: 'Pürüzlü doku verir.' },
+            { t: 'Prime Tower', d: 'Çok renkli baskılarda basınç kulesi.' },
+            { t: 'Brim', d: 'Yapışma yüzeyi. 5-10mm önerilir.' },
+            { t: 'Aux Fan', d: 'Ek fan. PLA=açık, ABS=kapalı.' },
+            { t: 'Heat Creep', d: 'Isının yukarı yayılması. Kapağı açın.' }
         ];
 
-        let activeMat = 'PLA';
+        let actMat = 'PLA';
+        let chart = null;
 
-        function navigate(page) {
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            const btn = document.getElementById(`nav-${page}`);
-            if(btn) btn.classList.add('active');
-
-            const cont = document.getElementById('content-container');
-            cont.innerHTML = '';
-
-            switch(page) {
-                case 'overview': renderOverview(cont); break;
-                case 'materials': renderMaterials(cont); break;
-                case 'troubleshoot': renderTroubleshoot(cont); break;
-                case 'infill': renderInfill(cont); break;
-                case 'speed': renderSpeed(cont); break;
-                case 'dictionary': renderDictionary(cont); break;
-                default: renderOverview(cont);
-            }
+        function navigate(p) {
+            document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
+            const n = document.getElementById('nav-' + p);
+            if (n) n.classList.add('active');
+            const c = document.getElementById('content');
+            if (p === 'overview') renderOverview(c);
+            else if (p === 'materials') renderMaterials(c);
+            else if (p === 'troubleshoot') renderTroubleshoot(c);
+            else if (p === 'infill') renderInfill(c);
+            else if (p === 'speed') renderSpeed(c);
+            else if (p === 'dictionary') renderDictionary(c);
+            else renderOverview(c);
         }
 
-        function renderOverview(cont) {
-            cont.innerHTML = `
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-fade-in">
-                    <div class="space-y-6">
-                        <div class="bg-[#1e293b] border border-slate-700 p-8 rounded-2xl shadow-xl relative overflow-hidden group">
-                            <div class="absolute right-0 top-0 w-40 h-40 bg-[#00AE42] opacity-5 blur-3xl rounded-full pointer-events-none group-hover:opacity-10 transition-opacity"></div>
-                            <h1 class="text-4xl font-bold text-white mb-2 tracking-tight">Hoş Geldiniz</h1>
-                            <h2 class="text-xl text-[#00AE42] mb-6 font-medium">Bambu Lab Slicer Uzman Rehberi</h2>
-                            <p class="text-slate-400 leading-relaxed mb-6">
-                                Bambu Studio ve Orca Slicer parametrelerine hakim olun.
-                                Bu panel, ezbere ayar yapmak yerine mantığını anlamanız ve
-                                <span class="text-white font-semibold">X1C, P1P, P1S, A1</span> serisi makinelerinizden en yüksek performansı almanız için tasarlandı.
-                            </p>
-                            <div class="flex gap-4 flex-wrap">
-                                <button onclick="navigate('materials')" class="bg-[#00AE42] hover:bg-emerald-500 text-white px-6 py-3 rounded-lg font-bold shadow-lg shadow-emerald-900/40 transition-transform active:scale-95 flex items-center">
-                                    <span class="mr-2">🧬</span> Malzeme Seç
-                                </button>
-                                <button onclick="navigate('troubleshoot')" class="bg-[#0f172a] border border-slate-600 hover:border-[#00AE42] text-slate-300 hover:text-white px-6 py-3 rounded-lg font-bold transition-all flex items-center">
-                                    <span class="mr-2">🔧</span> Sorun Çöz
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="glass-panel p-5 rounded-xl hover:border-[#00AE42] transition-colors cursor-pointer" onclick="navigate('speed')">
-                                <div class="text-slate-500 text-xs font-bold uppercase mb-1">Max Volumetric Flow</div>
-                                <div class="text-2xl font-mono text-white">21 <span class="text-sm text-slate-500">mm³/s</span></div>
-                                <div class="text-xs text-[#00AE42] mt-2">Bambu PLA Basic</div>
-                            </div>
-                            <div class="glass-panel p-5 rounded-xl hover:border-[#00AE42] transition-colors cursor-pointer" onclick="navigate('infill')">
-                                <div class="text-slate-500 text-xs font-bold uppercase mb-1">Önerilen Dolgu</div>
-                                <div class="text-2xl font-bold text-white">Gyroid</div>
-                                <div class="text-xs text-emerald-400 mt-2">Nozzle Çarpmaz</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-1 shadow-2xl border border-slate-700">
-                        <div class="h-full w-full bg-[#0f172a] rounded-xl relative overflow-hidden flex flex-col items-center justify-center p-8 text-center min-h-[300px]">
-                            <div class="w-24 h-24 rounded-full bg-[#1e293b] border-2 border-dashed border-[#00AE42] flex items-center justify-center mb-6" style="animation: spin 10s linear infinite;">
-                                <span class="text-3xl">⚙️</span>
-                            </div>
-                            <h3 class="text-xl font-bold text-white mb-2">Kalibrasyon Önemlidir</h3>
-                            <p class="text-sm text-slate-400 max-w-sm">
-                                "Flow Dynamics" ve "Flow Rate" kalibrasyonları, yüzey kalitesini %40 oranında artırabilir. Hız bölümünde detayları inceleyin.
-                            </p>
-                        </div>
+        function renderOverview(c) {
+            c.innerHTML = `
+                <div class="card">
+                    <h1 class="card-title" style="font-size:32px;">Hoş Geldiniz</h1>
+                    <p class="card-sub" style="color:#00AE42;font-size:18px;margin-top:8px;">Bambu Lab Slicer Uzman Rehberi</p>
+                    <p style="color:#94a3b8;margin:20px 0;line-height:1.7;max-width:600px;">
+                        Bambu Studio ve Orca Slicer parametrelerine hakim olun.
+                        <strong style="color:#fff;">X1C, P1P, P1S, A1</strong> serisi için tasarlandı.
+                    </p>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                        <button class="btn btn-primary" onclick="navigate('materials')">🧬 Malzeme Seç</button>
+                        <button class="btn btn-secondary" onclick="navigate('troubleshoot')">🔧 Sorun Çöz</button>
                     </div>
                 </div>
+                <div class="grid-2">
+                    <div class="stat" style="cursor:pointer;" onclick="navigate('speed')">
+                        <div class="stat-label">Max Volumetric Flow</div>
+                        <div class="stat-val">21 <span style="font-size:14px;color:#64748b;">mm³/s</span></div>
+                        <div class="stat-note">Bambu PLA Basic</div>
+                    </div>
+                    <div class="stat" style="cursor:pointer;" onclick="navigate('infill')">
+                        <div class="stat-label">Önerilen Dolgu</div>
+                        <div class="stat-val">Gyroid</div>
+                        <div class="stat-note">Nozzle Çarpmaz</div>
+                    </div>
+                </div>
+                <div class="info"><h4>💡 Kalibrasyon Önemlidir</h4><p>Flow Dynamics ve Flow Rate kalibrasyonları yüzey kalitesini %40 artırır.</p></div>
             `;
         }
 
-        function renderMaterials(cont) {
-            cont.innerHTML = `
-                <div class="space-y-6 animate-fade-in">
-                    <div class="glass-panel p-6 rounded-2xl">
-                        <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-                            <span class="w-2 h-8 bg-[#00AE42] rounded mr-3"></span>
-                            Filament Veritabanı ve Kurutma Parametreleri
-                        </h2>
-
-                        <div class="flex flex-wrap gap-2 mb-8">
-                            ${Object.keys(materialsData).map(m => `
-                                <button onclick="setMaterial('${m}')"
-                                class="mat-btn px-5 py-2.5 rounded-lg text-sm font-bold border transition-all ${activeMat === m ? 'bg-[#00AE42] border-[#00AE42] text-black' : 'bg-slate-800 border-slate-600 text-slate-400 hover:text-white hover:border-slate-400'}">
-                                    ${m}
-                                </button>
-                            `).join('')}
-                        </div>
-
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            <div class="lg:col-span-2 space-y-6">
-                                <div id="mat-detail" class="bg-[#1e293b] border border-slate-700 p-8 rounded-xl shadow-lg">
-                                </div>
-                            </div>
-
-                            <div class="space-y-4">
-                                <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
-                                    <h4 class="text-xs font-bold text-slate-400 uppercase mb-4">Sıcaklık Profili</h4>
-                                    <div class="chart-wrapper" style="height: 200px;">
-                                        <canvas id="tempChart"></canvas>
-                                    </div>
-                                </div>
-                                <div class="p-5 rounded-xl bg-slate-900 border border-slate-800">
-                                    <div class="flex items-center gap-3 mb-2">
-                                        <span class="text-xl">🌬️</span>
-                                        <h4 class="text-sm font-bold text-white">Kurutma (Drying)</h4>
-                                    </div>
-                                    <p id="dry-info" class="text-sm text-slate-400 font-mono"></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        function renderMaterials(c) {
+            c.innerHTML = `
+                <div class="card">
+                    <h2 class="card-title">Filament Veritabanı</h2>
+                    <p class="card-sub">Sıcaklık ve kurutma parametreleri</p>
+                    <div class="tabs">${Object.keys(mats).map(m => `<button class="tab ${actMat===m?'active':''}" onclick="selMat('${m}')">${m}</button>`).join('')}</div>
+                    <div id="mat-content"></div>
                 </div>
             `;
-            setMaterial(activeMat);
+            updMat();
         }
 
-        function setMaterial(m) {
-            activeMat = m;
-            const d = materialsData[m];
+        function selMat(m) {
+            actMat = m;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            updMat();
+        }
 
-            document.querySelectorAll('.mat-btn').forEach(b => {
-                if(b.innerText === m) b.className = "mat-btn px-5 py-2.5 rounded-lg text-sm font-bold border transition-all bg-[#00AE42] border-[#00AE42] text-black shadow-[0_0_15px_rgba(0,174,66,0.4)]";
-                else b.className = "mat-btn px-5 py-2.5 rounded-lg text-sm font-bold border transition-all bg-slate-800 border-slate-600 text-slate-400 hover:text-white hover:border-slate-400";
-            });
-
-            document.getElementById('mat-detail').innerHTML = `
-                <div class="flex justify-between items-start mb-4 flex-wrap gap-4">
-                    <h3 class="text-3xl font-black text-white tracking-tight">${m}</h3>
-                    <span class="px-3 py-1 bg-slate-700 text-[#00AE42] text-xs font-mono rounded border border-slate-600">Max Vol: ${d.details.maxVol} mm³/s</span>
-                </div>
-                <p class="text-slate-300 mb-8 leading-relaxed text-lg">${d.desc}</p>
-
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="p-3 bg-slate-900 rounded border border-slate-700">
-                        <div class="text-[10px] text-slate-500 uppercase font-bold">Nozzle</div>
-                        <div class="text-xl font-bold text-white">${d.temp}°C</div>
-                    </div>
-                    <div class="p-3 bg-slate-900 rounded border border-slate-700">
-                        <div class="text-[10px] text-slate-500 uppercase font-bold">Tabla</div>
-                        <div class="text-xl font-bold text-white">${d.bed}°C</div>
-                    </div>
-                    <div class="p-3 bg-slate-900 rounded border border-slate-700">
-                        <div class="text-[10px] text-slate-500 uppercase font-bold">Fan</div>
-                        <div class="text-xl font-bold text-white">%${d.fan}</div>
-                    </div>
-                    <div class="p-3 bg-slate-900 rounded border border-slate-700">
-                        <div class="text-[10px] text-slate-500 uppercase font-bold">Tabla Tipi</div>
-                        <div class="text-xs font-bold text-white mt-1 leading-tight">${d.details.plate}</div>
-                    </div>
-                </div>
-
-                <div class="mt-6 p-4 bg-red-900/20 border border-red-900/50 rounded flex gap-3 items-start">
-                    <span class="text-red-400 text-xl">⚠️</span>
+        function updMat() {
+            const m = mats[actMat];
+            document.getElementById('mat-content').innerHTML = `
+                <div class="grid-2" style="margin-top:20px;">
                     <div>
-                        <span class="text-red-400 font-bold text-sm block mb-1">Kabin Uyarısı</span>
-                        <span class="text-slate-400 text-sm">${d.chamber}</span>
+                        <h3 style="font-size:28px;font-weight:800;color:#fff;margin-bottom:8px;">${actMat}</h3>
+                        <span style="display:inline-block;padding:4px 10px;background:#0f172a;border:1px solid #334155;border-radius:6px;font-size:12px;color:#00AE42;font-family:monospace;">Max Vol: ${m.maxVol} mm³/s</span>
+                        <p style="color:#94a3b8;margin:16px 0;line-height:1.6;">${m.desc}</p>
+                        <div class="grid-4" style="margin-top:20px;">
+                            <div class="stat"><div class="stat-label">Nozzle</div><div class="stat-val">${m.temp}°C</div></div>
+                            <div class="stat"><div class="stat-label">Tabla</div><div class="stat-val">${m.bed}°C</div></div>
+                            <div class="stat"><div class="stat-label">Fan</div><div class="stat-val">%${m.fan}</div></div>
+                            <div class="stat"><div class="stat-label">Tabla Tipi</div><div style="font-size:12px;color:#fff;margin-top:4px;">${m.plate}</div></div>
+                        </div>
+                        <div class="warning"><span style="font-size:20px;">⚠️</span><div><div class="warning-title">Kabin</div><div class="warning-text">${m.chamber}</div></div></div>
+                    </div>
+                    <div>
+                        <div class="stat" style="margin-bottom:16px;"><div class="stat-label">Kurutma</div><div style="font-size:14px;color:#fff;margin-top:8px;font-family:monospace;">${m.dry}</div></div>
+                        <div class="chart-box" style="height:220px;"><canvas id="tempChart"></canvas></div>
                     </div>
                 </div>
             `;
-
-            document.getElementById('dry-info').innerText = d.details.dry;
-
-            const ctx = document.getElementById('tempChart');
-            if(window.matChart) window.matChart.destroy();
-            window.matChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Nozzle', 'Tabla'],
-                    datasets: [{
-                        data: [d.temp, d.bed],
-                        backgroundColor: ['#00AE42', '#f59e0b'],
-                        borderRadius: 4,
-                        barThickness: 30
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true, max: 320, grid: { color: '#334155' } },
-                        x: { grid: { display: false } }
-                    }
+            setTimeout(() => {
+                const ctx = document.getElementById('tempChart');
+                if (ctx) {
+                    if (chart) chart.destroy();
+                    chart = new Chart(ctx, {
+                        type: 'bar',
+                        data: { labels: ['Nozzle', 'Tabla'], datasets: [{ data: [m.temp, m.bed], backgroundColor: ['#00AE42', '#f59e0b'], borderRadius: 4 }] },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 320, grid: { color: '#334155' } }, x: { grid: { display: false } } } }
+                    });
                 }
-            });
+            }, 100);
         }
 
-        function renderTroubleshoot(cont) {
-            cont.innerHTML = `
-                <div class="space-y-6 animate-fade-in">
-                    <div class="glass-panel p-6 rounded-2xl">
-                        <h2 class="text-2xl font-bold text-white mb-2 flex items-center">
-                            <span class="w-2 h-8 bg-[#00AE42] rounded mr-3"></span>
-                            Sorun Giderme Merkezi
-                        </h2>
-                        <p class="text-slate-400 mb-8">Baskı kalitesi sorunlarını tanımlayın ve çözüm üretin.</p>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            ${troublesData.map(t => `
-                                <div class="bg-[#1e293b] border border-slate-700 rounded-xl overflow-hidden hover:border-[#00AE42] transition-all group">
-                                    <div class="p-4 bg-slate-800/50 border-b border-slate-700 flex justify-between items-center">
-                                        <h3 class="font-bold text-white text-lg">${t.title}</h3>
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${t.severity === 'high' ? 'bg-red-900 text-red-400' : t.severity === 'med' ? 'bg-yellow-900 text-yellow-400' : 'bg-blue-900 text-blue-400'}">${t.severity === 'high' ? 'Kritik' : t.severity === 'med' ? 'Orta' : 'Düşük'}</span>
-                                    </div>
-                                    <div class="p-5">
-                                        <p class="text-slate-400 text-sm mb-4 italic">"${t.symptoms}"</p>
-                                        <div class="space-y-2">
-                                            ${t.fixes.map(f => `
-                                                <div class="flex items-start gap-2 text-sm text-slate-300">
-                                                    <span class="text-[#00AE42] mt-0.5">✓</span>
-                                                    <span>${f}</span>
-                                                </div>
-                                            `).join('')}
-                                        </div>
-                                    </div>
+        function renderTroubleshoot(c) {
+            c.innerHTML = `
+                <div class="card">
+                    <h2 class="card-title">Sorun Giderme</h2>
+                    <p class="card-sub">Baskı sorunlarını çözün</p>
+                    <div class="grid-2" style="margin-top:24px;">
+                        ${troubles.map(t => `
+                            <div class="trouble">
+                                <div class="trouble-head"><span class="trouble-title">${t.title}</span><span class="badge ${t.sev}">${t.sev==='high'?'Kritik':t.sev==='med'?'Orta':'Düşük'}</span></div>
+                                <div class="trouble-body">
+                                    <p class="trouble-symptom">"${t.sym}"</p>
+                                    ${t.fixes.map(f => `<div class="fix"><span class="chk">✓</span> ${f}</div>`).join('')}
                                 </div>
-                            `).join('')}
-                        </div>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
             `;
         }
 
-        function renderInfill(cont) {
-            cont.innerHTML = `
-                <div class="space-y-6 animate-fade-in">
-                    <div class="glass-panel p-6 rounded-2xl">
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                            <div>
-                                <h2 class="text-2xl font-bold text-white">Dolgu (Infill) Matematiği</h2>
-                                <p class="text-slate-400 text-sm mt-1">Neden <span class="text-[#00AE42] font-bold">Gyroid</span> kullanmalısınız?</p>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            <div class="col-span-2 chart-wrapper bg-[#1e293b] rounded-xl border border-slate-700 p-4">
-                                <canvas id="radarChart"></canvas>
-                            </div>
-
-                            <div class="space-y-4">
-                                <div class="p-4 bg-emerald-900/10 border border-emerald-500/30 rounded-lg">
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                                        <h3 class="font-bold text-emerald-400">Gyroid</h3>
-                                    </div>
-                                    <p class="text-xs text-slate-400 leading-relaxed">
-                                        Sinüs dalgalarından oluşur. Nozzle asla kendi iziyle kesişmez. Bu, yüksek hızlı Bambu yazıcılarında nozzle'ın dolguya sürtmesini ve "tıkırtı" sesini engeller. En güvenli seçenektir.
-                                    </p>
-                                </div>
-
-                                <div class="p-4 bg-red-900/10 border border-red-500/30 rounded-lg">
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <span class="w-2 h-2 rounded-full bg-red-500"></span>
-                                        <h3 class="font-bold text-red-400">Grid / Cubic</h3>
-                                    </div>
-                                    <p class="text-xs text-slate-400 leading-relaxed">
-                                        Çizgiler aynı katmanda kesişir. Nozzle bu kesişim noktalarından geçerken çarpar. Hızlı baskıda nozzle'ı bükebilir veya parçayı tabladan koparabilir.
-                                    </p>
-                                </div>
-
-                                <div class="p-4 bg-blue-900/10 border border-blue-500/30 rounded-lg">
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                                        <h3 class="font-bold text-blue-400">Lightning</h3>
-                                    </div>
-                                    <p class="text-xs text-slate-400 leading-relaxed">
-                                        Sadece tavanı desteklemek için "ağaç dalları" gibi yukarı doğru yoğunlaşır. Dekoratif modeller için %90 malzeme tasarrufu sağlar. Mukavemet YOKTUR.
-                                    </p>
-                                </div>
-                            </div>
+        function renderInfill(c) {
+            c.innerHTML = `
+                <div class="card">
+                    <h2 class="card-title">Dolgu Matematiği</h2>
+                    <p class="card-sub">Neden <span style="color:#00AE42;font-weight:700;">Gyroid</span> kullanmalısınız?</p>
+                    <div class="grid-2" style="margin-top:24px;">
+                        <div class="chart-box"><canvas id="radarChart"></canvas></div>
+                        <div>
+                            <div class="infill green"><div class="infill-head"><div class="infill-dot green"></div><span class="infill-name green">Gyroid</span></div><p class="infill-desc">Sinüs dalgaları. Nozzle asla kesişmez. En güvenli.</p></div>
+                            <div class="infill red"><div class="infill-head"><div class="infill-dot red"></div><span class="infill-name red">Grid/Cubic</span></div><p class="infill-desc">Çizgiler kesişir. Nozzle çarpar. Riskli.</p></div>
+                            <div class="infill blue"><div class="infill-head"><div class="infill-dot blue"></div><span class="infill-name blue">Lightning</span></div><p class="infill-desc">%90 tasarruf. Mukavemet yok.</p></div>
                         </div>
                     </div>
                 </div>
             `;
-            setTimeout(initRadar, 50);
-        }
-
-        function initRadar() {
-            const ctx = document.getElementById('radarChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: ['Mukavemet', 'Hız', 'Sessizlik', 'Üst Yüzey', 'Malzeme Tasarrufu'],
-                    datasets: [
-                        { label: 'Gyroid', data: [8, 6, 10, 8, 6], borderColor: '#00AE42', backgroundColor: 'rgba(0,174,66,0.2)' },
-                        { label: 'Grid', data: [7, 9, 2, 7, 7], borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.2)' },
-                        { label: 'Lightning', data: [1, 10, 9, 6, 10], borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.2)' }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        r: {
-                            grid: { color: '#334155' },
-                            angleLines: { color: '#334155' },
-                            pointLabels: { color: '#94a3b8', font: { size: 12 } },
-                            ticks: { display: false }
-                        }
-                    },
-                    plugins: { legend: { labels: { color: '#fff' } } }
+            setTimeout(() => {
+                const ctx = document.getElementById('radarChart');
+                if (ctx) {
+                    new Chart(ctx, {
+                        type: 'radar',
+                        data: {
+                            labels: ['Mukavemet', 'Hız', 'Sessizlik', 'Yüzey', 'Tasarruf'],
+                            datasets: [
+                                { label: 'Gyroid', data: [8, 6, 10, 8, 6], borderColor: '#00AE42', backgroundColor: 'rgba(0,174,66,0.2)' },
+                                { label: 'Grid', data: [7, 9, 2, 7, 7], borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.2)' },
+                                { label: 'Lightning', data: [1, 10, 9, 6, 10], borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.2)' }
+                            ]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, scales: { r: { grid: { color: '#334155' }, angleLines: { color: '#334155' }, pointLabels: { color: '#94a3b8' }, ticks: { display: false } } }, plugins: { legend: { labels: { color: '#fff' } } } }
+                    });
                 }
-            });
+            }, 100);
         }
 
-        function renderSpeed(cont) {
-            cont.innerHTML = `
-                <div class="space-y-6 animate-fade-in">
-                    <div class="glass-panel p-6 rounded-2xl">
-                        <h2 class="text-2xl font-bold text-white mb-6">Volumetric Flow & Hız Limiti</h2>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div class="bg-[#1e293b] p-6 rounded-xl border border-slate-700">
-                                <label class="block text-xs font-bold text-[#00AE42] uppercase mb-4">Parametreler</label>
-
-                                <div class="space-y-5">
-                                    <div>
-                                        <div class="flex justify-between text-sm text-slate-300 mb-2">
-                                            <span>Max Volumetric Speed (mm³/s)</span>
-                                            <span id="val-vol" class="font-mono text-white">21</span>
-                                        </div>
-                                        <input type="range" id="in-vol" min="2" max="35" value="21" oninput="calcSpeed()">
-                                        <div class="flex justify-between text-[10px] text-slate-500 mt-1">
-                                            <span>TPU (2)</span>
-                                            <span>Gen. PLA (15)</span>
-                                            <span>Bambu PLA (21)</span>
-                                            <span>High Flow (30+)</span>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <div class="flex justify-between text-sm text-slate-300 mb-2">
-                                            <span>Layer Height (mm)</span>
-                                            <span id="val-layer" class="font-mono text-white">0.20</span>
-                                        </div>
-                                        <input type="range" id="in-layer" min="0.08" max="0.32" step="0.04" value="0.20" oninput="calcSpeed()">
-                                    </div>
-
-                                    <div>
-                                        <div class="flex justify-between text-sm text-slate-300 mb-2">
-                                            <span>Nozzle Size (mm)</span>
-                                            <span id="val-nozzle" class="font-mono text-white">0.4</span>
-                                        </div>
-                                        <select id="in-nozzle" class="w-full bg-slate-900 border border-slate-700 text-white rounded p-2 text-sm" onchange="calcSpeed()">
-                                            <option value="0.2">0.2 mm (Detay)</option>
-                                            <option value="0.4" selected>0.4 mm (Standart)</option>
-                                            <option value="0.6">0.6 mm (Hızlı)</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flex flex-col justify-center items-center bg-[#0f172a] p-8 rounded-xl border border-slate-800 relative overflow-hidden">
-                                <span class="text-xs text-slate-500 uppercase tracking-widest z-10">Maksimum Baskı Hızı</span>
-                                <div class="flex items-baseline mt-2 z-10">
-                                    <span id="res-speed" class="text-7xl font-black text-white tracking-tighter drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">--</span>
-                                    <span class="text-xl text-slate-500 ml-2">mm/s</span>
-                                </div>
-                                <p class="text-center text-xs text-slate-400 mt-6 z-10 max-w-xs">
-                                    *Bu değer fiziksel limittir. Slicer'da hızı 500mm/s yapsanız bile, makine filament eritemediği için bu hızı geçemez.
-                                </p>
+        function renderSpeed(c) {
+            c.innerHTML = `
+                <div class="card">
+                    <h2 class="card-title">Volumetric Flow & Hız</h2>
+                    <p class="card-sub">Fiziksel limitlerinizi görün</p>
+                    <div class="grid-2" style="margin-top:24px;">
+                        <div style="background:#1e293b;padding:24px;border-radius:12px;border:1px solid #334155;">
+                            <div class="slider"><div class="slider-head"><span class="slider-label">Max Vol (mm³/s)</span><span class="slider-val" id="vVol">21</span></div><input type="range" id="iVol" min="2" max="35" value="21" oninput="calc()"></div>
+                            <div class="slider"><div class="slider-head"><span class="slider-label">Layer Height (mm)</span><span class="slider-val" id="vLay">0.20</span></div><input type="range" id="iLay" min="0.08" max="0.32" step="0.04" value="0.20" oninput="calc()"></div>
+                            <div class="slider"><div class="slider-head"><span class="slider-label">Nozzle (mm)</span><span class="slider-val" id="vNoz">0.4</span></div>
+                                <select id="iNoz" style="width:100%;padding:10px;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#fff;" onchange="calc()">
+                                    <option value="0.2">0.2mm</option><option value="0.4" selected>0.4mm</option><option value="0.6">0.6mm</option>
+                                </select>
                             </div>
                         </div>
-
-                        <div class="mt-6 p-4 border border-[#00AE42]/30 bg-[#00AE42]/5 rounded-xl">
-                            <h4 class="text-[#00AE42] font-bold text-sm mb-2">Kalibrasyon Nasıl Yapılır?</h4>
-                            <p class="text-slate-400 text-sm">
-                                Orca Slicer veya Bambu Studio'da <span class="text-white bg-slate-700 px-1 rounded">Calibration</span> sekmesine gidin.
-                                "Max Flowrate" testini çalıştırın. Baskı bozulmaya başladığı andaki mm³/s değeri sizin gerçek limitinizdir. Bunu filament ayarlarına girin.
-                            </p>
+                        <div class="speed-box">
+                            <div class="speed-label">Max Hız</div>
+                            <div class="speed-num" id="rSpd">--</div>
+                            <div class="speed-unit">mm/s</div>
+                            <p class="speed-note">*Fiziksel limit. Slicer'da 500mm/s yapsanız bile bu hızı geçemez.</p>
                         </div>
                     </div>
+                    <div class="info" style="margin-top:20px;"><h4>Kalibrasyon</h4><p>Calibration > Max Flowrate testini çalıştırın.</p></div>
                 </div>
             `;
-            setTimeout(calcSpeed, 50);
+            setTimeout(calc, 100);
         }
 
-        function calcSpeed() {
-            const vol = parseFloat(document.getElementById('in-vol').value);
-            const layer = parseFloat(document.getElementById('in-layer').value);
-            const nozzle = parseFloat(document.getElementById('in-nozzle').value);
-
-            document.getElementById('val-vol').innerText = vol;
-            document.getElementById('val-layer').innerText = layer.toFixed(2);
-            document.getElementById('val-nozzle').innerText = nozzle;
-
-            const speed = vol / (layer * nozzle);
-
-            const el = document.getElementById('res-speed');
-            el.innerText = Math.round(speed);
-
-            if(speed > 300) el.style.color = "#00AE42";
-            else if(speed > 150) el.style.color = "#3b82f6";
-            else el.style.color = "#f59e0b";
+        function calc() {
+            const v = parseFloat(document.getElementById('iVol').value);
+            const l = parseFloat(document.getElementById('iLay').value);
+            const n = parseFloat(document.getElementById('iNoz').value);
+            document.getElementById('vVol').innerText = v;
+            document.getElementById('vLay').innerText = l.toFixed(2);
+            document.getElementById('vNoz').innerText = n;
+            const s = v / (l * n);
+            const el = document.getElementById('rSpd');
+            el.innerText = Math.round(s);
+            el.style.color = s > 300 ? '#00AE42' : s > 150 ? '#3b82f6' : '#f59e0b';
         }
 
-        function renderDictionary(cont) {
-            cont.innerHTML = `
-                <div class="space-y-6 animate-fade-in">
-                    <div class="glass-panel p-6 rounded-2xl min-h-[600px]">
-                        <h2 class="text-2xl font-bold text-white mb-6">Teknik Sözlük</h2>
-                        <input type="text" id="searchDict" placeholder="Terim ara (örn: seam, arachne)..." onkeyup="filterDict()"
-                        class="w-full bg-[#0f172a] border border-slate-700 p-4 rounded-xl text-white focus:outline-none focus:border-[#00AE42] mb-6">
-
-                        <div class="grid grid-cols-1 gap-4" id="dictGrid">
-                            ${dictData.map(d => `
-                                <div class="dict-card p-4 bg-[#1e293b] border border-slate-700 rounded-lg hover:border-slate-500 transition-colors">
-                                    <h3 class="text-[#00AE42] font-bold text-lg mb-1">${d.t}</h3>
-                                    <p class="text-slate-300 text-sm leading-relaxed">${d.d}</p>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
+        function renderDictionary(c) {
+            c.innerHTML = `
+                <div class="card">
+                    <h2 class="card-title">Teknik Sözlük</h2>
+                    <input type="text" class="dict-search" id="dsearch" placeholder="Terim ara..." oninput="fDict()">
+                    <div id="dlist">${dict.map(d => `<div class="dict-item"><div class="dict-term">${d.t}</div><div class="dict-desc">${d.d}</div></div>`).join('')}</div>
                 </div>
             `;
         }
 
-        function filterDict() {
-            const q = document.getElementById('searchDict').value.toLowerCase();
-            const cards = document.querySelectorAll('.dict-card');
-            cards.forEach(c => {
-                const txt = c.innerText.toLowerCase();
-                c.style.display = txt.includes(q) ? 'block' : 'none';
-            });
+        function fDict() {
+            const q = document.getElementById('dsearch').value.toLowerCase();
+            document.querySelectorAll('.dict-item').forEach(c => { c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none'; });
         }
 
-        window.onload = () => navigate('overview');
+        document.addEventListener('DOMContentLoaded', () => navigate('overview'));
     </script>
-
-    <style>
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-    </style>
 </body>
 </html>
