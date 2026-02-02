@@ -679,21 +679,26 @@ export default {
         return jsonResponse(result, 200, CONFIG.CACHE_TTL);
       }
 
-      // Kategori Listesi (sayfalama ile)
+      // Kategori Listesi (sayfalama ile) - Çok dilli destek
       if (path === "/api/posts" && method === "GET") {
         const category = url.searchParams.get("category");
         const postType = url.searchParams.get("post_type");
+        const lang = url.searchParams.get("lang") || "tr";
         const { page, limit, offset } = validatePagination(
           url.searchParams.get("page"),
           url.searchParams.get("limit")
         );
 
+        // Dile göre alan seçimi
+        const titleField = lang === "tr" ? "title_tr" : `title_${lang}`;
+        const summaryField = lang === "tr" ? "summary_tr" : `summary_${lang}`;
+
         let query = `
-          SELECT id, title_tr, summary_tr, slug, category, post_type, image_url, is_featured, created_at
+          SELECT id, ${titleField} as title, ${summaryField} as summary, slug, category, post_type, image_url, is_featured, created_at, language
           FROM posts
-          WHERE published = 1
+          WHERE published = 1 AND (language = ? OR language IS NULL OR language = 'tr')
         `;
-        const bindings = [];
+        const bindings = [lang];
 
         if (category && validateCategory(category)) {
           query += ` AND category = ?`;
@@ -725,24 +730,42 @@ export default {
             totalPages: Math.ceil(total / limit),
             hasNext: offset + limit < total,
             hasPrev: page > 1
-          }
+          },
+          language: lang
         }, 200, CONFIG.CACHE_TTL);
       }
 
-      // Tek Post
+      // Tek Post - Çok dilli destek
       if (path.startsWith("/api/post/") && method === "GET") {
         const slug = sanitizeString(path.replace("/api/post/", ""), 150);
+        const lang = url.searchParams.get("lang") || "tr";
         if (!slug) return errorResponse("Slug required", 400, "INVALID_SLUG");
 
+        // Dile göre alan seçimi
+        const titleField = lang === "tr" ? "title_tr" : `title_${lang}`;
+        const summaryField = lang === "tr" ? "summary_tr" : `summary_${lang}`;
+        const contentField = lang === "tr" ? "content_tr" : `content_${lang}`;
+
         const post = await env.DB.prepare(`
-          SELECT id, title_tr, summary_tr, content_tr, slug, category, post_type, image_url, source_url, created_at
+          SELECT id, ${titleField} as title, ${summaryField} as summary, ${contentField} as content,
+                 slug, category, post_type, image_url, source_url, created_at, language, original_id
           FROM posts
           WHERE slug = ? AND published = 1
         `).bind(slug).first();
 
         if (!post) return errorResponse("Post not found", 404, "NOT_FOUND");
 
-        return jsonResponse(post, 200, CONFIG.CACHE_TTL);
+        // Diğer dillerdeki versiyonları bul
+        const translations = await env.DB.prepare(`
+          SELECT language, slug FROM posts
+          WHERE (original_id = ? OR id = ? OR original_id = (SELECT original_id FROM posts WHERE id = ?))
+          AND published = 1 AND id != ?
+        `).bind(post.id, post.original_id || post.id, post.id, post.id).all();
+
+        return jsonResponse({
+          ...post,
+          translations: translations.results || []
+        }, 200, CONFIG.CACHE_TTL);
       }
 
       // Arama
@@ -1929,6 +1952,144 @@ ${sourceText}`;
             id: result.meta?.last_row_id,
             slug,
             title: parsed.title_tr
+          });
+        }
+
+        // Admin: Tüm içerikleri çevir (batch)
+        if (path === "/admin/translate-all" && method === "POST") {
+          const body = await request.json();
+          const targetLang = body.lang || "en";
+          const limit = Math.min(parseInt(body.limit) || 10, 50);
+
+          if (!["en", "de"].includes(targetLang)) {
+            return errorResponse("Geçersiz dil. en veya de olmalı", 400, "INVALID_LANG");
+          }
+
+          const targetTitleField = `title_${targetLang}`;
+          const targetSummaryField = `summary_${targetLang}`;
+          const targetContentField = `content_${targetLang}`;
+
+          // Çevrilmemiş içerikleri bul
+          const untranslated = await env.DB.prepare(`
+            SELECT id, title_tr, summary_tr, content_tr
+            FROM posts
+            WHERE published = 1 AND (${targetTitleField} IS NULL OR ${targetTitleField} = '')
+            LIMIT ?
+          `).bind(limit).all();
+
+          if (!untranslated.results || untranslated.results.length === 0) {
+            return jsonResponse({ success: true, translated: 0, message: "Çevrilecek içerik yok" });
+          }
+
+          const langNames = { en: "English", de: "German" };
+          let translatedCount = 0;
+          const errors = [];
+
+          for (const post of untranslated.results) {
+            try {
+              const prompt = `Translate the following Turkish text to ${langNames[targetLang]}. Return ONLY valid JSON, nothing else.
+
+{
+  "title": "Translated title (max 100 chars)",
+  "summary": "Translated summary (max 200 chars)",
+  "content": "Translated content (keep paragraphs, maintain HTML if any)"
+}
+
+Turkish text to translate:
+Title: ${post.title_tr}
+Summary: ${post.summary_tr}
+Content: ${post.content_tr?.substring(0, 3000) || ''}`;
+
+              const aiText = await generateWithAI(env, prompt);
+              if (!aiText) {
+                errors.push({ id: post.id, error: "AI failed" });
+                continue;
+              }
+
+              let parsed;
+              try {
+                const cleanJson = aiText.replace(/```json\n?|\n?```/g, "").trim();
+                parsed = JSON.parse(cleanJson);
+              } catch {
+                errors.push({ id: post.id, error: "Parse failed" });
+                continue;
+              }
+
+              await env.DB.prepare(`
+                UPDATE posts SET ${targetTitleField} = ?, ${targetSummaryField} = ?, ${targetContentField} = ?
+                WHERE id = ?
+              `).bind(parsed.title, parsed.summary, parsed.content, post.id).run();
+
+              translatedCount++;
+            } catch (err) {
+              errors.push({ id: post.id, error: err.message });
+            }
+          }
+
+          return jsonResponse({
+            success: true,
+            translated: translatedCount,
+            total: untranslated.results.length,
+            errors: errors.length > 0 ? errors : undefined
+          });
+        }
+
+        // Admin: Tek içerik çevir
+        if (path === "/admin/translate" && method === "POST") {
+          const body = await request.json();
+          const postId = parseInt(body.id);
+          const targetLang = body.lang || "en";
+
+          if (!postId) return errorResponse("id gerekli", 400, "MISSING_ID");
+          if (!["en", "de"].includes(targetLang)) {
+            return errorResponse("Geçersiz dil. en veya de olmalı", 400, "INVALID_LANG");
+          }
+
+          const post = await env.DB.prepare(`
+            SELECT id, title_tr, summary_tr, content_tr FROM posts WHERE id = ?
+          `).bind(postId).first();
+
+          if (!post) return errorResponse("Post bulunamadı", 404, "NOT_FOUND");
+
+          const langNames = { en: "English", de: "German" };
+          const prompt = `Translate the following Turkish text to ${langNames[targetLang]}. Return ONLY valid JSON, nothing else.
+
+{
+  "title": "Translated title (max 100 chars)",
+  "summary": "Translated summary (max 200 chars)",
+  "content": "Translated content (keep paragraphs, maintain HTML if any)"
+}
+
+Turkish text to translate:
+Title: ${post.title_tr}
+Summary: ${post.summary_tr}
+Content: ${post.content_tr?.substring(0, 3000) || ''}`;
+
+          const aiText = await generateWithAI(env, prompt);
+          if (!aiText) return errorResponse("AI çeviri başarısız", 500, "AI_ERROR");
+
+          let parsed;
+          try {
+            const cleanJson = aiText.replace(/```json\n?|\n?```/g, "").trim();
+            parsed = JSON.parse(cleanJson);
+          } catch {
+            return errorResponse("AI yanıtı parse edilemedi", 500, "PARSE_ERROR");
+          }
+
+          const targetTitleField = `title_${targetLang}`;
+          const targetSummaryField = `summary_${targetLang}`;
+          const targetContentField = `content_${targetLang}`;
+
+          await env.DB.prepare(`
+            UPDATE posts SET ${targetTitleField} = ?, ${targetSummaryField} = ?, ${targetContentField} = ?
+            WHERE id = ?
+          `).bind(parsed.title, parsed.summary, parsed.content, postId).run();
+
+          return jsonResponse({
+            success: true,
+            id: postId,
+            lang: targetLang,
+            title: parsed.title
           });
         }
 
