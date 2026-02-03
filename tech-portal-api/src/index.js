@@ -78,6 +78,8 @@ const POST_TYPES = ["haber", "inceleme", "rehber", "tartisma"];
 const ALLOWED_ORIGINS = [
   "https://3d-labx.com",
   "https://www.3d-labx.com",
+  "https://en.3d-labx.com",
+  "https://de.3d-labx.com",
   "https://tech-portal.pages.dev",
   "http://localhost:4321",
   "http://localhost:3000"
@@ -202,7 +204,7 @@ function validatePagination(page, limit) {
 }
 
 // Güvenli dil doğrulama (SQL injection koruması)
-const ALLOWED_LANGUAGES = ["tr", "en"];
+const ALLOWED_LANGUAGES = ["tr", "en", "de"];
 function validateLang(lang) {
   return ALLOWED_LANGUAGES.includes(lang) ? lang : "tr";
 }
@@ -224,11 +226,12 @@ async function safeParseJSON(request) {
 // Dil bazlı alan adları (whitelist)
 function getLangFields(lang) {
   const safeLang = validateLang(lang);
-  return {
-    titleField: safeLang === "tr" ? "title_tr" : "title_en",
-    summaryField: safeLang === "tr" ? "summary_tr" : "summary_en",
-    contentField: safeLang === "tr" ? "content_tr" : "content_en"
+  const fieldMap = {
+    tr: { titleField: "title_tr", summaryField: "summary_tr", contentField: "content_tr" },
+    en: { titleField: "title_en", summaryField: "summary_en", contentField: "content_en" },
+    de: { titleField: "title_de", summaryField: "summary_de", contentField: "content_de" }
   };
+  return fieldMap[safeLang] || fieldMap.tr;
 }
 
 // ================================
@@ -1835,6 +1838,7 @@ export default {
 
           const post = await env.DB.prepare(`
             SELECT id, title_tr, summary_tr, content_tr, title_en, summary_en, content_en,
+                   title_de, summary_de, content_de,
                    slug, category, post_type, image_url, source_url, is_featured, published, status, ai_generated, created_at
             FROM posts
             WHERE id = ?
@@ -1904,6 +1908,19 @@ export default {
           if (body.content_en !== undefined) {
             updates.push("content_en = ?");
             bindings.push(body.content_en ? sanitizeString(body.content_en, 50000) : null);
+          }
+          // Almanca alanlar
+          if (body.title_de !== undefined) {
+            updates.push("title_de = ?");
+            bindings.push(body.title_de ? sanitizeString(body.title_de, 300) : null);
+          }
+          if (body.summary_de !== undefined) {
+            updates.push("summary_de = ?");
+            bindings.push(body.summary_de ? sanitizeString(body.summary_de, 500) : null);
+          }
+          if (body.content_de !== undefined) {
+            updates.push("content_de = ?");
+            bindings.push(body.content_de ? sanitizeString(body.content_de, 50000) : null);
           }
           if (body.published !== undefined) {
             updates.push("published = ?");
