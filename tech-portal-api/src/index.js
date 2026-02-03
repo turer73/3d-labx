@@ -756,13 +756,18 @@ export default {
         return jsonResponse(stats, 200, CONFIG.CACHE_TTL);
       }
 
-      // Ana Sayfa (kategorilere göre gruplu)
+      // Ana Sayfa (kategorilere göre gruplu) - Çok dilli destek
       if (path === "/api/home" && method === "GET") {
+        const lang = validateLang(url.searchParams.get("lang") || "tr");
+        const { titleField, summaryField } = getLangFields(lang);
         const result = {};
 
         for (const category of CATEGORIES) {
           const posts = await env.DB.prepare(`
-            SELECT id, title_tr, summary_tr, slug, category, post_type, image_url, is_featured, created_at
+            SELECT id,
+              COALESCE(NULLIF(${titleField}, ''), title_tr) as title_tr,
+              COALESCE(NULLIF(${summaryField}, ''), summary_tr) as summary_tr,
+              slug, category, post_type, image_url, is_featured, created_at
             FROM posts
             WHERE published = 1 AND category = ?
             ORDER BY is_featured DESC, created_at DESC
