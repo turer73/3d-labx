@@ -1,17 +1,24 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
-import { getApiBase } from "../../lib/api";
+import { getApiBase, getLanguage, type Language } from "../../lib/api";
 
 type Post = {
   id: number;
-  title_tr: string;
-  summary_tr: string;
+  title: string;
+  title_tr?: string;
+  title_en?: string;
+  title_de?: string;
+  summary: string;
+  summary_tr?: string;
+  summary_en?: string;
+  summary_de?: string;
   slug: string;
   category: string;
   image_url?: string;
   is_featured: number;
   created_at?: string;
+  language?: string;
 };
 
 type Pagination = {
@@ -26,11 +33,148 @@ type Pagination = {
 type ApiResponse = {
   posts: Post[];
   pagination: Pagination;
+  language?: string;
 };
 
 export const prerender = false;
 
+// Dil algılama
+const lang = getLanguage(Astro.request);
 const API_BASE = getApiBase(Astro.request);
+
+// Dil bazlı çeviriler
+const translations: Record<Language, {
+  pageTitle: string;
+  pageTitlePaged: string;
+  pageDesc: string;
+  badge: string;
+  guidesLabel: string;
+  interactiveLabel: string;
+  categoryLabel: string;
+  breadcrumbHome: string;
+  breadcrumbCurrent: string;
+  heroTitle: string;
+  heroDesc: string;
+  interactiveSection: string;
+  specialContent: string;
+  explore: string;
+  priceTracking: string;
+  filamentPrices: string;
+  loading: string;
+  showAll: string;
+  guides: string;
+  otherGuides: string;
+  quickAccess: string;
+  troubleshooting: string;
+  filamentTypes: string;
+  localBrands: string;
+  askForum: string;
+  errorLoading: string;
+  featured: string;
+}> = {
+  tr: {
+    pageTitle: "3D Baskı Rehberleri - Dilimleyici, Kalibrasyon, Malzeme | 3D-labX",
+    pageTitlePaged: "Rehberler - Sayfa",
+    pageDesc: "3D baskı rehberleri: Cura, Orca Slicer, PrusaSlicer ayarları, Klipper kurulumu, filament seçimi ve kalibrasyon kılavuzları.",
+    badge: "Kapsamlı Kılavuzlar",
+    guidesLabel: "Rehber",
+    interactiveLabel: "İnteraktif",
+    categoryLabel: "Kategori",
+    breadcrumbHome: "Ana Sayfa",
+    breadcrumbCurrent: "Rehberler",
+    heroTitle: "3D Baskı Rehberleri",
+    heroDesc: "Dilimleyici ayarlarından kalibrasyon süreçlerine, malzeme seçiminden sorun gidermeye kadar tüm rehberler.",
+    interactiveSection: "İnteraktif Rehberler",
+    specialContent: "Özel İçerik",
+    explore: "Keşfet",
+    priceTracking: "Fiyat Takibi",
+    filamentPrices: "Filament & Reçine Fiyatları",
+    loading: "Yükleniyor...",
+    showAll: "Tümünü Göster",
+    guides: "rehber",
+    otherGuides: "Diğer Rehberler",
+    quickAccess: "Hızlı Erişim",
+    troubleshooting: "Sorun Çözümleri",
+    filamentTypes: "Filament Türleri",
+    localBrands: "Yerli Markalar",
+    askForum: "Foruma Sor",
+    errorLoading: "İçerikler yüklenirken bir hata oluştu.",
+    featured: "Öne Çıkan"
+  },
+  en: {
+    pageTitle: "3D Printing Guides - Slicer, Calibration, Materials | 3D-labX",
+    pageTitlePaged: "Guides - Page",
+    pageDesc: "3D printing guides: Cura, Orca Slicer, PrusaSlicer settings, Klipper setup, filament selection and calibration tutorials.",
+    badge: "Comprehensive Guides",
+    guidesLabel: "Guides",
+    interactiveLabel: "Interactive",
+    categoryLabel: "Category",
+    breadcrumbHome: "Home",
+    breadcrumbCurrent: "Guides",
+    heroTitle: "3D Printing Guides",
+    heroDesc: "From slicer settings to calibration processes, material selection to troubleshooting - all guides in one place.",
+    interactiveSection: "Interactive Guides",
+    specialContent: "Special Content",
+    explore: "Explore",
+    priceTracking: "Price Tracking",
+    filamentPrices: "Filament & Resin Prices",
+    loading: "Loading...",
+    showAll: "Show All",
+    guides: "guides",
+    otherGuides: "Other Guides",
+    quickAccess: "Quick Access",
+    troubleshooting: "Troubleshooting",
+    filamentTypes: "Filament Types",
+    localBrands: "Local Brands",
+    askForum: "Ask Forum",
+    errorLoading: "An error occurred while loading content.",
+    featured: "Featured"
+  },
+  de: {
+    pageTitle: "3D-Druck Anleitungen - Slicer, Kalibrierung, Materialien | 3D-labX",
+    pageTitlePaged: "Anleitungen - Seite",
+    pageDesc: "3D-Druck Anleitungen: Cura, Orca Slicer, PrusaSlicer Einstellungen, Klipper Installation, Filamentauswahl und Kalibrierungstutorials.",
+    badge: "Umfassende Anleitungen",
+    guidesLabel: "Anleitungen",
+    interactiveLabel: "Interaktiv",
+    categoryLabel: "Kategorie",
+    breadcrumbHome: "Startseite",
+    breadcrumbCurrent: "Anleitungen",
+    heroTitle: "3D-Druck Anleitungen",
+    heroDesc: "Von Slicer-Einstellungen bis Kalibrierung, Materialauswahl bis Fehlerbehebung - alle Anleitungen an einem Ort.",
+    interactiveSection: "Interaktive Anleitungen",
+    specialContent: "Spezielle Inhalte",
+    explore: "Entdecken",
+    priceTracking: "Preisverfolgung",
+    filamentPrices: "Filament & Resin Preise",
+    loading: "Laden...",
+    showAll: "Alle Anzeigen",
+    guides: "anleitungen",
+    otherGuides: "Andere Anleitungen",
+    quickAccess: "Schnellzugriff",
+    troubleshooting: "Fehlerbehebung",
+    filamentTypes: "Filamenttypen",
+    localBrands: "Lokale Marken",
+    askForum: "Forum Fragen",
+    errorLoading: "Beim Laden des Inhalts ist ein Fehler aufgetreten.",
+    featured: "Empfohlen"
+  }
+};
+
+const t = translations[lang];
+
+// Helper: Dile göre başlık ve özet al
+function getTitle(post: Post): string {
+  if (lang === 'en' && post.title_en) return post.title_en;
+  if (lang === 'de' && post.title_de) return post.title_de;
+  return post.title_tr || post.title;
+}
+
+function getSummary(post: Post): string {
+  if (lang === 'en' && post.summary_en) return post.summary_en;
+  if (lang === 'de' && post.summary_de) return post.summary_de;
+  return post.summary_tr || post.summary;
+}
 
 const url = new URL(Astro.request.url);
 const currentPage = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
@@ -41,28 +185,29 @@ let pagination: Pagination | null = null;
 let error: string | null = null;
 
 try {
-  const res = await fetch(
-    `${API_BASE}/api/posts?category=rehberler&page=${currentPage}&limit=${POSTS_PER_PAGE}`,
-    { headers: { "Accept": "application/json" } }
-  );
+  const apiUrl = lang === 'tr'
+    ? `${API_BASE}/api/posts?category=rehberler&page=${currentPage}&limit=${POSTS_PER_PAGE}`
+    : `${API_BASE}/api/posts?category=rehberler&page=${currentPage}&limit=${POSTS_PER_PAGE}&lang=${lang}`;
+
+  const res = await fetch(apiUrl, { headers: { "Accept": "application/json" } });
 
   if (!res.ok) {
-    throw new Error(`API hatası: ${res.status}`);
+    throw new Error(`API error: ${res.status}`);
   }
 
   const data: ApiResponse = await res.json();
   posts = data.posts;
   pagination = data.pagination;
 } catch (e) {
-  error = e instanceof Error ? e.message : "Bilinmeyen hata";
-  console.error("Rehberler sayfası hatası:", error);
+  error = e instanceof Error ? e.message : "Unknown error";
+  console.error("Guides page error:", error);
 }
 
 const title = currentPage > 1
-  ? `Rehberler - Sayfa ${currentPage} - 3D-labX`
-  : "3D Baskı Rehberleri - Dilimleyici, Kalibrasyon, Malzeme | 3D-labX";
+  ? `${t.pageTitlePaged} ${currentPage} - 3D-labX`
+  : t.pageTitle;
 
-const description = "3D baskı rehberleri: Cura, Orca Slicer, PrusaSlicer ayarları, Klipper kurulumu, filament seçimi ve kalibrasyon kılavuzları.";
+const description = t.pageDesc;
 
 // İnteraktif rehberler (statik sayfalar)
 const interactiveGuides = [
@@ -70,6 +215,7 @@ const interactiveGuides = [
     name: "Cura Slicer",
     slug: "cura-slicer-interaktif-rehber",
     icon: "🎯",
+    logo: "/slicer-logos/cura.svg",
     color: "#0077C8",
     description: "Akış hesaplamaları, yapısal mekanik ve sorun çözümleri",
     features: ["Volumetrik Akış", "Z-Offset Simülasyonu", "Infill Desenleri"]
@@ -78,6 +224,7 @@ const interactiveGuides = [
     name: "Orca Slicer",
     slug: "orca-slicer-rehberi",
     icon: "🐋",
+    logo: "/slicer-logos/orca.svg",
     color: "#10b981",
     description: "Kalibrasyon, ayarlar sözlüğü ve sorun giderme",
     features: ["PA Kalibrasyonu", "Akış Testi", "Max Volumetric"]
@@ -86,9 +233,19 @@ const interactiveGuides = [
     name: "Bambu Lab Slicer",
     slug: "bambu-slicer-rehberi",
     icon: "🎋",
+    logo: "/slicer-logos/bambu.svg",
     color: "#00AE42",
     description: "X1C, P1P, P1S, A1 için uzman rehberi ve sorun giderme",
     features: ["Filament Kurutma", "Volumetric Flow", "Sorun Giderme"]
+  },
+  {
+    name: "PrusaSlicer",
+    slug: "prusaslicer-rehberi",
+    icon: "🔶",
+    logo: "/slicer-logos/prusa.svg",
+    color: "#ea580c",
+    description: "Katman ayarları, destek yapıları ve filament profilleri",
+    features: ["Organik Destekler", "Seam Painting", "Multi-material"]
   }
 ];
 
@@ -136,8 +293,8 @@ const interactiveSlugs = interactiveGuides.map(g => g.slug);
 
 // Postları kategorilere ayır
 function categorizePost(post: Post): string {
-  const titleLower = post.title_tr.toLowerCase();
-  const summaryLower = post.summary_tr.toLowerCase();
+  const titleLower = getTitle(post).toLowerCase();
+  const summaryLower = getSummary(post).toLowerCase();
   const combined = titleLower + " " + summaryLower;
 
   for (const cat of categories) {
@@ -163,7 +320,7 @@ posts.forEach(post => {
   if (interactiveSlugs.includes(post.slug)) return;
 
   // "Cura", "Orca" veya "Bambu" içeren başlıkları atla (zaten üstte interaktif olarak var)
-  const titleLower = post.title_tr.toLowerCase();
+  const titleLower = getTitle(post).toLowerCase();
   if (titleLower.includes('cura') || titleLower.includes('orca') || titleLower.includes('bambu')) return;
 
   const catId = categorizePost(post);
@@ -196,29 +353,31 @@ const schemaData = {
       <!-- Hero Section -->
       <header class="page-hero">
         <nav class="breadcrumb">
-          <a href="/">Ana Sayfa</a>
+          <a href="/">{t.breadcrumbHome}</a>
           <span>/</span>
-          <span class="current">Rehberler</span>
+          <span class="current">{t.breadcrumbCurrent}</span>
         </nav>
         <div class="hero-content">
-          <div class="hero-badge">
-            <span class="badge-icon">📚</span>
-            <span>Kapsamlı Kılavuzlar</span>
+          <div class="hero-left">
+            <div class="hero-badge">
+              <span class="badge-icon">📚</span>
+              <span>{t.badge}</span>
+            </div>
+            <h1>{t.heroTitle}</h1>
+            <p class="hero-desc">{t.heroDesc}</p>
           </div>
-          <h1>3D Baskı Rehberleri</h1>
-          <p class="hero-desc">Dilimleyici ayarlarından kalibrasyon süreçlerine, malzeme seçiminden sorun gidermeye kadar tüm rehberler.</p>
           <div class="hero-stats">
             <div class="stat">
               <span class="stat-number">{pagination?.total || posts.length}</span>
-              <span class="stat-label">Rehber</span>
+              <span class="stat-label">{t.guidesLabel}</span>
             </div>
             <div class="stat">
               <span class="stat-number">{interactiveGuides.length}</span>
-              <span class="stat-label">İnteraktif</span>
+              <span class="stat-label">{t.interactiveLabel}</span>
             </div>
             <div class="stat">
               <span class="stat-number">{categories.length}</span>
-              <span class="stat-label">Kategori</span>
+              <span class="stat-label">{t.categoryLabel}</span>
             </div>
           </div>
         </div>
@@ -229,9 +388,9 @@ const schemaData = {
         <div class="section-header">
           <h2>
             <span class="section-icon">🎮</span>
-            İnteraktif Rehberler
+            {t.interactiveSection}
           </h2>
-          <span class="section-badge">Özel İçerik</span>
+          <span class="section-badge">{t.specialContent}</span>
         </div>
 
         <div class="interactive-grid">
@@ -239,7 +398,10 @@ const schemaData = {
             <a href={`/rehberler/${guide.slug}`} class="interactive-card" style={`--card-color: ${guide.color}`}>
               <div class="card-glow"></div>
               <div class="card-header">
-                <span class="card-icon">{guide.icon}</span>
+                <div class="card-icon-wrap">
+                  <img src={guide.logo} alt={guide.name + " logo"} class="card-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                  <span class="card-icon-fallback" style="display:none;">{guide.icon}</span>
+                </div>
                 <span class="card-badge">İnteraktif</span>
               </div>
               <div class="card-body">
@@ -253,7 +415,7 @@ const schemaData = {
               </div>
               <div class="card-footer">
                 <span class="explore-link">
-                  Keşfet
+                  {t.explore}
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="m9 18 6-6-6-6"/>
                   </svg>
@@ -269,22 +431,22 @@ const schemaData = {
         <div class="filament-bento-header">
           <div class="filament-badge">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            <span>Fiyat Takibi</span>
+            <span>{t.priceTracking}</span>
           </div>
-          <h2>Filament & Reçine Fiyatları</h2>
+          <h2>{t.filamentPrices}</h2>
           <span class="filament-update" id="filamentUpdate"></span>
         </div>
         <div class="filament-bento-grid" id="filamentGrid">
           <div class="filament-loading">
             <div class="spinner"></div>
-            <span>Yükleniyor...</span>
+            <span>{t.loading}</span>
           </div>
         </div>
       </section>
 
       {error && (
         <div class="message message-error">
-          <p><strong>İçerikler yüklenirken bir hata oluştu.</strong></p>
+          <p><strong>{t.errorLoading}</strong></p>
           <p class="text-sm">{error}</p>
         </div>
       )}
@@ -301,7 +463,7 @@ const schemaData = {
                 <span class="section-icon">{cat.icon}</span>
                 {cat.name}
               </h2>
-              <span class="post-count">{catPosts.length} rehber</span>
+              <span class="post-count">{catPosts.length} {t.guides}</span>
             </div>
 
             <div class="posts-grid">
@@ -309,18 +471,18 @@ const schemaData = {
                 <a href={`/rehberler/${post.slug}`} class={`post-card ${i === 0 ? 'featured' : ''}`} style={`--cat-color: ${cat.color}`}>
                   {post.image_url && (
                     <div class="post-image">
-                      <img src={post.image_url} alt={post.title_tr} loading="lazy" />
+                      <img src={post.image_url} alt={getTitle(post)} loading="lazy" />
                     </div>
                   )}
                   <div class="post-content">
                     {post.is_featured === 1 && (
-                      <span class="post-badge">Öne Çıkan</span>
+                      <span class="post-badge">{t.featured}</span>
                     )}
-                    <h3>{post.title_tr}</h3>
-                    <p>{post.summary_tr}</p>
+                    <h3>{getTitle(post)}</h3>
+                    <p>{getSummary(post)}</p>
                     {post.created_at && (
                       <time class="post-date">
-                        {new Date(post.created_at).toLocaleDateString("tr-TR", {
+                        {new Date(post.created_at).toLocaleDateString(lang === 'tr' ? 'tr-TR' : lang === 'de' ? 'de-DE' : 'en-US', {
                           year: "numeric",
                           month: "short",
                           day: "numeric"
@@ -335,7 +497,7 @@ const schemaData = {
             {catPosts.length > 6 && (
               <div class="show-more">
                 <button class="show-more-btn" data-category={cat.id}>
-                  <span>Tümünü Göster ({catPosts.length})</span>
+                  <span>{t.showAll} ({catPosts.length})</span>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="m6 9 6 6 6-6"/>
                   </svg>
@@ -352,9 +514,9 @@ const schemaData = {
           <div class="section-header">
             <h2>
               <span class="section-icon">📖</span>
-              Diğer Rehberler
+              {t.otherGuides}
             </h2>
-            <span class="post-count">{categorizedPosts.other.length} rehber</span>
+            <span class="post-count">{categorizedPosts.other.length} {t.guides}</span>
           </div>
 
           <div class="posts-grid">
@@ -362,15 +524,15 @@ const schemaData = {
               <a href={`/rehberler/${post.slug}`} class={`post-card ${i === 0 ? 'featured' : ''}`}>
                 {post.image_url && (
                   <div class="post-image">
-                    <img src={post.image_url} alt={post.title_tr} loading="lazy" />
+                    <img src={post.image_url} alt={getTitle(post)} loading="lazy" />
                   </div>
                 )}
                 <div class="post-content">
-                  <h3>{post.title_tr}</h3>
-                  <p>{post.summary_tr}</p>
+                  <h3>{getTitle(post)}</h3>
+                  <p>{getSummary(post)}</p>
                   {post.created_at && (
                     <time class="post-date">
-                      {new Date(post.created_at).toLocaleDateString("tr-TR", {
+                      {new Date(post.created_at).toLocaleDateString(lang === 'tr' ? 'tr-TR' : lang === 'de' ? 'de-DE' : 'en-US', {
                         year: "numeric",
                         month: "short",
                         day: "numeric"
@@ -388,24 +550,24 @@ const schemaData = {
       <section class="quick-links-section">
         <h2>
           <span class="section-icon">🔗</span>
-          Hızlı Erişim
+          {t.quickAccess}
         </h2>
         <div class="quick-links">
           <a href="/sorun-cozumleri" class="quick-link">
             <span class="link-icon">🔧</span>
-            <span>Sorun Çözümleri</span>
+            <span>{t.troubleshooting}</span>
           </a>
           <a href="/3d-baski/malzemeler" class="quick-link">
             <span class="link-icon">🧵</span>
-            <span>Filament Türleri</span>
+            <span>{t.filamentTypes}</span>
           </a>
           <a href="/filamentler" class="quick-link">
             <span class="link-icon">🇹🇷</span>
-            <span>Yerli Markalar</span>
+            <span>{t.localBrands}</span>
           </a>
           <a href="/topluluk/forum" class="quick-link">
             <span class="link-icon">💬</span>
-            <span>Foruma Sor</span>
+            <span>{t.askForum}</span>
           </a>
         </div>
       </section>
@@ -475,33 +637,52 @@ const schemaData = {
     margin-bottom: 12px;
   }
 
+  .hero-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .hero-left {
+    flex: 1;
+  }
+
   .hero-desc {
     font-size: 1.1rem;
     color: var(--text-muted);
     max-width: 600px;
     line-height: 1.6;
-    margin-bottom: 24px;
+    margin-bottom: 0;
   }
 
   .hero-stats {
     display: flex;
-    gap: 32px;
+    flex-direction: column;
+    gap: 16px;
+    background: var(--bg-soft);
+    padding: 24px 32px;
+    border-radius: 16px;
+    border: 1px solid var(--border-soft);
   }
 
   .stat {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: 12px;
   }
 
   .stat-number {
     font-size: 2rem;
     font-weight: 800;
     color: var(--accent);
+    min-width: 50px;
   }
 
   .stat-label {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     color: var(--text-muted);
+    font-weight: 500;
   }
 
   /* Section Headers */
@@ -604,6 +785,32 @@ const schemaData = {
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 16px;
+  }
+
+  .card-icon-wrap {
+    width: 100px;
+    height: 100px;
+    min-width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-soft);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .card-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 10px;
+  }
+
+  .card-icon-fallback {
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .card-icon {
@@ -1279,12 +1486,30 @@ const schemaData = {
       padding: 24px;
     }
 
-    .page-hero h1 {
-      font-size: 1.75rem;
+    .hero-content {
+      flex-direction: column;
+      align-items: flex-start;
     }
 
     .hero-stats {
-      gap: 20px;
+      width: 100%;
+      flex-direction: row;
+      justify-content: space-around;
+      padding: 16px;
+    }
+
+    .stat {
+      flex-direction: column;
+      text-align: center;
+      gap: 4px;
+    }
+
+    .stat-number {
+      min-width: auto;
+    }
+
+    .page-hero h1 {
+      font-size: 1.75rem;
     }
 
     .stat-number {

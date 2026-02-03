@@ -1,9 +1,15 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
-import { getApiBase } from "../lib/api";
+import { getApiBase, getLanguage, dateLocales, type Language } from "../lib/api";
+import { translations } from "../lib/translations";
 
 export const prerender = false;
+
+// Get language from subdomain
+const lang = getLanguage(Astro.request);
+const t = translations[lang];
+const dateLocale = dateLocales[lang];
 
 type Post = {
   id: number;
@@ -34,6 +40,8 @@ type CommunityProject = {
 };
 
 const API_BASE = getApiBase(Astro.request);
+const langParam = lang !== "tr" ? `?lang=${lang}` : "";
+const langParamAmp = lang !== "tr" ? `&lang=${lang}` : "";
 
 let data: Record<string, Post[]> = {};
 let communityProjects: CommunityProject[] = [];
@@ -41,12 +49,12 @@ let error: string | null = null;
 
 try {
   const [homeRes, communityRes] = await Promise.all([
-    fetch(`${API_BASE}/api/home`, { headers: { "Accept": "application/json" } }),
-    fetch(`${API_BASE}/api/community/featured?limit=4`, { headers: { "Accept": "application/json" } })
+    fetch(`${API_BASE}/api/home${langParam}`, { headers: { "Accept": "application/json" } }),
+    fetch(`${API_BASE}/api/community/featured?limit=4${langParamAmp}`, { headers: { "Accept": "application/json" } })
   ]);
 
   if (!homeRes.ok) {
-    throw new Error(`API hatası: ${homeRes.status}`);
+    throw new Error(`API error: ${homeRes.status}`);
   }
 
   data = await homeRes.json();
@@ -56,8 +64,8 @@ try {
     communityProjects = communityData.projects || [];
   }
 } catch (e) {
-  error = e instanceof Error ? e.message : "Bilinmeyen hata";
-  console.error("Ana sayfa hatası:", error);
+  error = e instanceof Error ? e.message : "Unknown error";
+  console.error("Homepage error:", error);
 }
 
 const printPosts = data["3d-baski"] || [];
@@ -85,13 +93,33 @@ const heroSlides = [
   sorunPosts[0],        // Sorun Çözümleri
 ].filter(Boolean);
 
+// Category labels based on language
+const categoryLabels: Record<Language, Record<string, string>> = {
+  tr: {
+    "3d-baski": "3D Baskı",
+    "rehberler": "Rehber",
+    "incelemeler": "İnceleme",
+    "sorun-cozumleri": "Sorun Çözümü",
+    "topluluk-projesi": "Topluluk Projesi"
+  },
+  en: {
+    "3d-baski": "3D Printing",
+    "rehberler": "Guide",
+    "incelemeler": "Review",
+    "sorun-cozumleri": "Troubleshooting",
+    "topluluk-projesi": "Community Project"
+  },
+  de: {
+    "3d-baski": "3D-Druck",
+    "rehberler": "Anleitung",
+    "incelemeler": "Bewertung",
+    "sorun-cozumleri": "Fehlerbehebung",
+    "topluluk-projesi": "Community Projekt"
+  }
+};
+
 function getCategoryLabel(cat: string) {
-  if (cat === "3d-baski") return "3D Baskı";
-  if (cat === "rehberler") return "Rehber";
-  if (cat === "incelemeler") return "İnceleme";
-  if (cat === "sorun-cozumleri") return "Sorun Çözümü";
-  if (cat === "topluluk-projesi") return "Topluluk Projesi";
-  return "3D Baskı";
+  return categoryLabels[lang][cat] || categoryLabels[lang]["3d-baski"];
 }
 
 function getCategoryColor(cat: string) {
@@ -109,8 +137,8 @@ function getExcerpt(content: string, length: number = 120): string {
 ---
 
 <BaseLayout
-  title="3D-LABX - Türkiye'nin 3D Baskı Rehberi | Yazıcı Ayarları, Sorun Çözümleri"
-  description="3D yazıcı ayarları, filament rehberleri, sorun çözümleri ve ürün incelemeleri. Türkiye'nin en kapsamlı 3D baskı kaynağı."
+  title={t.homepage.title}
+  description={t.homepage.description}
 >
   <Header />
 
@@ -137,10 +165,10 @@ function getExcerpt(content: string, length: number = 120): string {
                     <span class="hero-author">@{slide.username}</span>
                   )}
                 </div>
-                <h1>{slide.title_tr}</h1>
-                <p>{slide.summary_tr}</p>
+                <h1>{slide.title || slide.title_tr}</h1>
+                <p>{slide.summary || slide.summary_tr}</p>
                 <a href={slide.category === 'topluluk-projesi' ? `/topluluk/forum/konu/${slide.slug}` : `/${slide.category}/${slide.slug}`} class="hero-btn">
-                  {slide.category === 'topluluk-projesi' ? 'Projeyi Gör' : 'Devamını Oku'}
+                  {slide.category === 'topluluk-projesi' ? t.homepage.viewProject : t.homepage.readMore}
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
                 </a>
               </div>
@@ -169,39 +197,39 @@ function getExcerpt(content: string, length: number = 120): string {
     </div>
   </section>
 
-  <!-- HIZLI ERİŞİM BANDI -->
+  <!-- QUICK ACCESS BAND -->
   <section class="quick-access-band">
     <div class="container">
       <div class="quick-access-grid">
         <a href="/sorun-cozumleri" class="quick-card">
           <div class="quick-icon">🔧</div>
           <div class="quick-text">
-            <span class="quick-title">Sorun mu var?</span>
-            <span class="quick-desc">Hemen çözüm bul</span>
+            <span class="quick-title">{t.homepage.haveProblem}</span>
+            <span class="quick-desc">{t.homepage.findSolution}</span>
           </div>
           <svg class="quick-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
         </a>
         <a href="/rehberler" class="quick-card">
           <div class="quick-icon">📚</div>
           <div class="quick-text">
-            <span class="quick-title">Yeni başlayan mısın?</span>
-            <span class="quick-desc">Rehberlere göz at</span>
+            <span class="quick-title">{t.homepage.newbie}</span>
+            <span class="quick-desc">{t.homepage.checkGuides}</span>
           </div>
           <svg class="quick-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
         </a>
         <a href="/filamentler" class="quick-card">
           <div class="quick-icon">🧵</div>
           <div class="quick-text">
-            <span class="quick-title">Filament arıyorsun?</span>
-            <span class="quick-desc">Fiyatları karşılaştır</span>
+            <span class="quick-title">{t.homepage.lookingFilament}</span>
+            <span class="quick-desc">{t.homepage.comparePrices}</span>
           </div>
           <svg class="quick-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
         </a>
         <a href="/topluluk" class="quick-card highlight">
           <div class="quick-icon">👥</div>
           <div class="quick-text">
-            <span class="quick-title">Topluluğa katıl!</span>
-            <span class="quick-desc">Soru sor, paylaş</span>
+            <span class="quick-title">{t.homepage.joinCommunity}</span>
+            <span class="quick-desc">{t.homepage.askShare}</span>
           </div>
           <svg class="quick-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
         </a>
@@ -212,32 +240,32 @@ function getExcerpt(content: string, length: number = 120): string {
   <main class="main-content container">
     {error && (
       <div class="message message-error">
-        <p>İçerikler yüklenirken bir hata oluştu: {error}</p>
+        <p>{t.homepage.errorLoading}: {error}</p>
       </div>
     )}
 
-    <!-- 1. SORUN ÇÖZÜMLERİ - En çok aranan içerik -->
+    <!-- 1. TROUBLESHOOTING - Most searched content -->
     {sorunPosts.length > 0 && (
       <section class="category-section priority-section">
         <div class="category-header">
           <div class="category-title-group">
             <span class="category-icon green">🔧</span>
-            <h2>Sorun Çözümleri</h2>
-            <span class="priority-badge">En Çok Aranan</span>
+            <h2>{t.homepage.troubleshootingSection}</h2>
+            <span class="priority-badge">{t.homepage.mostSearched}</span>
           </div>
-          <a href="/sorun-cozumleri" class="category-link">Tümünü Gör →</a>
+          <a href="/sorun-cozumleri" class="category-link">{t.homepage.viewAll} →</a>
         </div>
         <div class="category-grid">
           {sorunPosts.slice(0, 4).map((post, i) => (
             <a href={`/sorun-cozumleri/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} green`}>
               {post.image_url && (
                 <div class="cat-image">
-                  <img src={post.image_url} alt={post.title_tr} loading="lazy" />
+                  <img src={post.image_url} alt={post.title || post.title_tr} loading="lazy" />
                 </div>
               )}
               <div class="cat-content">
-                <h3>{post.title_tr}</h3>
-                <p>{post.summary_tr}</p>
+                <h3>{post.title || post.title_tr}</h3>
+                <p>{post.summary || post.summary_tr}</p>
               </div>
             </a>
           ))}
@@ -245,16 +273,16 @@ function getExcerpt(content: string, length: number = 120): string {
       </section>
     )}
 
-    <!-- 2. İNTERAKTİF REHBERLER - Öne Çıkan -->
+    <!-- 2. INTERACTIVE GUIDES - Featured -->
     <section class="interactive-guides-section">
       <div class="section-intro">
         <div class="section-intro-left">
-          <span class="section-badge">🎮 İnteraktif</span>
-          <h2>Slicer Rehberleri</h2>
-          <p>Hesaplayıcılar, simülasyonlar ve adım adım sorun giderme araçları ile dilimleyicinizi öğrenin.</p>
+          <span class="section-badge">{t.homepage.interactiveBadge}</span>
+          <h2>{t.homepage.slicerGuides}</h2>
+          <p>{t.homepage.slicerGuidesDesc}</p>
         </div>
         <a href="/rehberler" class="section-cta">
-          Tüm Rehberler
+          {t.homepage.allGuides}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
         </a>
       </div>
@@ -264,77 +292,77 @@ function getExcerpt(content: string, length: number = 120): string {
           <img src="/slicer-logos/cura.svg" alt="Cura" class="guide-logo" />
           <div class="guide-info">
             <h3>Cura Slicer</h3>
-            <p>Akış hesaplamaları ve sorun çözümleri</p>
+            <p>{t.homepage.flowCalcs}</p>
             <div class="guide-features">
-              <span>Volumetrik Akış</span>
-              <span>Z-Offset</span>
+              <span>Volumetric Flow</span>
+              <span>{t.homepage.zOffset}</span>
             </div>
           </div>
-          <span class="guide-badge">Başla →</span>
+          <span class="guide-badge">{t.homepage.start} →</span>
         </a>
         <a href="/rehberler/orca-slicer-rehberi" class="interactive-guide-card" style="--guide-color: #10b981">
           <div class="guide-glow"></div>
           <img src="/slicer-logos/orca.svg" alt="Orca" class="guide-logo" />
           <div class="guide-info">
             <h3>Orca Slicer</h3>
-            <p>Kalibrasyon ve ayarlar sözlüğü</p>
+            <p>{t.homepage.calibration}</p>
             <div class="guide-features">
-              <span>PA Kalibrasyonu</span>
-              <span>Akış Testi</span>
+              <span>{t.homepage.paCalibration}</span>
+              <span>{t.homepage.flowTest}</span>
             </div>
           </div>
-          <span class="guide-badge">Başla →</span>
+          <span class="guide-badge">{t.homepage.start} →</span>
         </a>
         <a href="/rehberler/bambu-slicer-rehberi" class="interactive-guide-card" style="--guide-color: #00AE42">
           <div class="guide-glow"></div>
           <img src="/slicer-logos/bambu.svg" alt="Bambu" class="guide-logo" />
           <div class="guide-info">
             <h3>Bambu Lab</h3>
-            <p>X1C, P1P, P1S, A1 uzman rehberi</p>
+            <p>X1C, P1P, P1S, A1 {t.homepage.expertGuide}</p>
             <div class="guide-features">
-              <span>Sorun Giderme</span>
-              <span>Flow Rate</span>
+              <span>{t.homepage.troubleshoot}</span>
+              <span>{t.homepage.flowRate}</span>
             </div>
           </div>
-          <span class="guide-badge">Başla →</span>
+          <span class="guide-badge">{t.homepage.start} →</span>
         </a>
         <a href="/rehberler/prusaslicer-rehberi" class="interactive-guide-card" style="--guide-color: #ea580c">
           <div class="guide-glow"></div>
           <img src="/slicer-logos/prusa.svg" alt="Prusa" class="guide-logo" />
           <div class="guide-info">
             <h3>PrusaSlicer</h3>
-            <p>Katman ayarları ve destek yapıları</p>
+            <p>{t.homepage.layerSettings}</p>
             <div class="guide-features">
-              <span>Organik Destek</span>
-              <span>Seam Paint</span>
+              <span>{t.homepage.organicSupport}</span>
+              <span>{t.homepage.seamPaint}</span>
             </div>
           </div>
-          <span class="guide-badge">Başla →</span>
+          <span class="guide-badge">{t.homepage.start} →</span>
         </a>
       </div>
     </section>
 
-    <!-- 3. REHBERLER - Blog İçerikleri -->
+    <!-- 3. GUIDES - Blog Content -->
     {rehberPosts.length > 0 && (
       <section class="category-section">
         <div class="category-header">
           <div class="category-title-group">
             <span class="category-icon cyan">📘</span>
-            <h2>Rehberler</h2>
+            <h2>{t.homepage.guidesSection}</h2>
           </div>
-          <a href="/rehberler" class="category-link">Tümünü Gör →</a>
+          <a href="/rehberler" class="category-link">{t.homepage.viewAll} →</a>
         </div>
         <div class="category-grid six-cols">
           {rehberPosts.slice(0, 6).map((post, i) => (
             <a href={`/rehberler/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} cyan`}>
               {post.image_url && (
                 <div class="cat-image">
-                  <img src={post.image_url} alt={post.title_tr} loading="lazy" />
+                  <img src={post.image_url} alt={post.title || post.title_tr} loading="lazy" />
                 </div>
               )}
               <div class="cat-content">
-                <h3>{post.title_tr}</h3>
-                <p>{post.summary_tr}</p>
+                <h3>{post.title || post.title_tr}</h3>
+                <p>{post.summary || post.summary_tr}</p>
               </div>
             </a>
           ))}
@@ -342,27 +370,27 @@ function getExcerpt(content: string, length: number = 120): string {
       </section>
     )}
 
-    <!-- 4. 3D BASKI HABERLERİ - Güncel içerik -->
+    <!-- 4. 3D PRINTING NEWS - Current content -->
     {printPosts.length > 1 && (
       <section class="category-section">
         <div class="category-header">
           <div class="category-title-group">
             <span class="category-icon orange">📰</span>
-            <h2>3D Baskı Haberleri</h2>
+            <h2>{t.homepage.newsSection}</h2>
           </div>
-          <a href="/3d-baski" class="category-link">Tümünü Gör →</a>
+          <a href="/3d-baski" class="category-link">{t.homepage.viewAll} →</a>
         </div>
         <div class="category-grid six-cols">
           {printPosts.slice(1, 7).map((post, i) => (
             <a href={`/3d-baski/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} orange`}>
               {post.image_url && (
                 <div class="cat-image">
-                  <img src={post.image_url} alt={post.title_tr} loading="lazy" />
+                  <img src={post.image_url} alt={post.title || post.title_tr} loading="lazy" />
                 </div>
               )}
               <div class="cat-content">
-                <h3>{post.title_tr}</h3>
-                <p>{post.summary_tr}</p>
+                <h3>{post.title || post.title_tr}</h3>
+                <p>{post.summary || post.summary_tr}</p>
               </div>
             </a>
           ))}
@@ -370,15 +398,15 @@ function getExcerpt(content: string, length: number = 120): string {
       </section>
     )}
 
-    <!-- 4. TOPLULUK VİTRİN BÖLÜMÜ -->
+    <!-- 4. COMMUNITY SHOWCASE -->
     {communityProjects.length > 0 && (
       <section class="community-showcase">
         <div class="category-header">
           <div class="category-title-group">
             <span class="category-icon showcase-icon">🏆</span>
-            <h2>Topluluk Vitrini</h2>
+            <h2>{t.homepage.communityShowcase}</h2>
           </div>
-          <a href="/topluluk/projeler" class="category-link">Tüm Projeler →</a>
+          <a href="/topluluk/projeler" class="category-link">{t.homepage.allProjects} →</a>
         </div>
 
         <div class="showcase-grid">
@@ -395,11 +423,11 @@ function getExcerpt(content: string, length: number = 120): string {
                   </div>
                   <div class="showcase-user-info">
                     <span class="showcase-username">@{project.username}</span>
-                    <span class="showcase-date">{new Date(project.created_at).toLocaleDateString('tr-TR')}</span>
+                    <span class="showcase-date">{new Date(project.created_at).toLocaleDateString(dateLocale)}</span>
                   </div>
                 </div>
                 {project.featured_type === 'admin' && (
-                  <span class="showcase-badge">⭐ Editör Seçimi</span>
+                  <span class="showcase-badge">⭐ {t.homepage.editorsChoice}</span>
                 )}
               </div>
 
@@ -424,33 +452,33 @@ function getExcerpt(content: string, length: number = 120): string {
         <div class="showcase-cta">
           <a href="/topluluk/projeler/paylas" class="showcase-cta-btn">
             <span>🎨</span>
-            <span>Projeni Paylaş</span>
+            <span>{t.homepage.shareProject}</span>
           </a>
         </div>
       </section>
     )}
 
-    <!-- 6. İNCELEMELER -->
+    <!-- 6. REVIEWS -->
     {incelemePosts.length > 0 && (
       <section class="category-section">
         <div class="category-header">
           <div class="category-title-group">
             <span class="category-icon purple">⭐</span>
-            <h2>İncelemeler</h2>
+            <h2>{t.homepage.reviewsSection}</h2>
           </div>
-          <a href="/incelemeler" class="category-link">Tümünü Gör →</a>
+          <a href="/incelemeler" class="category-link">{t.homepage.viewAll} →</a>
         </div>
         <div class="category-grid six-cols">
           {incelemePosts.slice(0, 6).map((post, i) => (
             <a href={`/incelemeler/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} purple`}>
               {post.image_url && (
                 <div class="cat-image">
-                  <img src={post.image_url} alt={post.title_tr} loading="lazy" />
+                  <img src={post.image_url} alt={post.title || post.title_tr} loading="lazy" />
                 </div>
               )}
               <div class="cat-content">
-                <h3>{post.title_tr}</h3>
-                <p>{post.summary_tr}</p>
+                <h3>{post.title || post.title_tr}</h3>
+                <p>{post.summary || post.summary_tr}</p>
               </div>
             </a>
           ))}
@@ -458,14 +486,14 @@ function getExcerpt(content: string, length: number = 120): string {
       </section>
     )}
 
-    <!-- 6. ANKETLER - En sonda etkileşim için -->
+    <!-- 6. POLLS - Engagement at bottom -->
     <section class="polls-section">
       <div class="category-header">
         <div class="category-title-group">
           <span class="category-icon poll-icon">📊</span>
-          <h2>Anketler</h2>
+          <h2>{t.homepage.pollsSection}</h2>
         </div>
-        <span class="poll-subtitle">Topluluğun tercihleri</span>
+        <span class="poll-subtitle">{t.homepage.communityPreferences}</span>
       </div>
 
       <div class="polls-grid">
@@ -473,10 +501,10 @@ function getExcerpt(content: string, length: number = 120): string {
           <div class="poll-card-header">
             <div class="poll-badge">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-              Aktif Anket
+              {t.homepage.activePoll}
             </div>
           </div>
-          <h3 id="pollQuestion">En çok kullandığınız 3D yazıcı markası?</h3>
+          <h3 id="pollQuestion">{t.homepage.printerBrandQuestion}</h3>
           <div class="poll-options" id="pollOptions">
             <div class="poll-option clickable" data-option-id="1" data-poll-id="4">
               <div class="poll-bar" style="width: 35%; background: linear-gradient(90deg, #EAB308 0%, #EAB308cc 100%);"></div>
@@ -513,10 +541,10 @@ function getExcerpt(content: string, length: number = 120): string {
           <div class="poll-card-header">
             <div class="poll-badge cyan">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-              Slicer Anketi
+              {t.homepage.slicerPoll}
             </div>
           </div>
-          <h3>Hangi Slicer Kullanıyorsunuz?</h3>
+          <h3>{t.homepage.slicerQuestion}</h3>
           <div class="poll-options" id="slicerOptions">
             <div class="poll-option clickable" data-slicer-id="1">
               <div class="poll-bar" style="width: 33%; background: linear-gradient(90deg, #22C55E 0%, #22C55Edd 100%);"></div>
@@ -1940,8 +1968,18 @@ function getExcerpt(content: string, length: number = 120): string {
 
 </style>
 
-<script is:inline>
+<script is:inline define:vars={{ langStr: lang, pollTranslations: {
+  votes: t.homepage.votes,
+  voteRecorded: t.homepage.voteRecorded,
+  voteFailed: t.homepage.voteFailed,
+  connectionError: t.homepage.connectionError,
+  noPoll: t.homepage.noPoll,
+  pollLoadError: t.homepage.pollLoadError,
+  other: t.homepage.other
+} }}>
   const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
+  const currentLang = langStr;
+  const pt = pollTranslations;
 
   // ========================================
   // HERO SLIDER
@@ -2024,11 +2062,12 @@ function getExcerpt(content: string, length: number = 120): string {
     if (!pollQuestion || !pollOptions || !pollVotes) return;
 
     try {
-      const res = await fetch(`${API_URL}/api/poll/active`);
+      const langParam = currentLang !== 'tr' ? `?lang=${currentLang}` : '';
+      const res = await fetch(`${API_URL}/api/poll/active${langParam}`);
       const data = await res.json();
 
       if (!data.poll) {
-        pollQuestion.textContent = 'Aktif anket yok';
+        pollQuestion.textContent = pt.noPoll;
         pollOptions.innerHTML = '';
         pollVotes.textContent = '';
         return;
@@ -2058,7 +2097,7 @@ function getExcerpt(content: string, length: number = 120): string {
       const totalFormatted = poll.totalVotes >= 1000
         ? `${(poll.totalVotes / 1000).toFixed(1)}k`
         : poll.totalVotes;
-      pollVotes.textContent = `${totalFormatted} Oy`;
+      pollVotes.textContent = `${totalFormatted} ${pt.votes}`;
 
       if (!poll.hasVoted) {
         document.querySelectorAll('#pollOptions .poll-option.clickable').forEach(opt => {
@@ -2067,7 +2106,7 @@ function getExcerpt(content: string, length: number = 120): string {
       }
     } catch (err) {
       console.error('Poll load error:', err);
-      pollQuestion.textContent = 'Anket yüklenemedi';
+      pollQuestion.textContent = pt.pollLoadError;
     }
   }
 
@@ -2093,15 +2132,15 @@ function getExcerpt(content: string, length: number = 120): string {
       const data = await res.json();
 
       if (data.success) {
-        window.showToast('Oyunuz kaydedildi!', 'success');
+        window.showToast(pt.voteRecorded, 'success');
         loadPoll();
       } else {
-        window.showToast(data.error || 'Oy verilemedi', 'warning');
+        window.showToast(data.error || pt.voteFailed, 'warning');
         loadPoll();
       }
     } catch (err) {
       console.error('Vote error:', err);
-      window.showToast('Bağlantı hatası', 'error');
+      window.showToast(pt.connectionError, 'error');
       loadPoll();
     }
   }
@@ -2121,11 +2160,12 @@ function getExcerpt(content: string, length: number = 120): string {
     if (!slicerOptionsEl || !slicerVotesEl) return;
 
     try {
-      const res = await fetch(`${API_URL}/api/poll/slicer`);
+      const langParam = currentLang !== 'tr' ? `?lang=${currentLang}` : '';
+      const res = await fetch(`${API_URL}/api/poll/slicer${langParam}`);
       const data = await res.json();
 
       if (!data.poll) {
-        slicerOptionsEl.innerHTML = '<p style="color: var(--text-muted);">Anket yüklenemedi</p>';
+        slicerOptionsEl.innerHTML = `<p style="color: var(--text-muted);">${pt.pollLoadError}</p>`;
         return;
       }
 
@@ -2150,7 +2190,7 @@ function getExcerpt(content: string, length: number = 120): string {
       const totalFormatted = poll.totalVotes >= 1000
         ? `${(poll.totalVotes / 1000).toFixed(1)}k`
         : poll.totalVotes;
-      slicerVotesEl.textContent = `${totalFormatted} Oy`;
+      slicerVotesEl.textContent = `${totalFormatted} ${pt.votes}`;
 
       if (!poll.hasVoted) {
         document.querySelectorAll('#slicerOptions .poll-option.clickable').forEach(opt => {
@@ -2184,15 +2224,15 @@ function getExcerpt(content: string, length: number = 120): string {
       const data = await res.json();
 
       if (data.success) {
-        window.showToast('Oyunuz kaydedildi!', 'success');
+        window.showToast(pt.voteRecorded, 'success');
         loadSlicerPoll();
       } else {
-        window.showToast(data.error || 'Oy verilemedi', 'warning');
+        window.showToast(data.error || pt.voteFailed, 'warning');
         loadSlicerPoll();
       }
     } catch (err) {
       console.error('Vote error:', err);
-      window.showToast('Bağlantı hatası', 'error');
+      window.showToast(pt.connectionError, 'error');
     }
   }
 

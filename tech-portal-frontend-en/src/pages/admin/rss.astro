@@ -1,0 +1,501 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import "../../styles/admin.css";
+---
+
+<BaseLayout title="RSS Kaynakları – Admin Panel" noIndex={true}>
+  <button class="mobile-menu-toggle" id="mobileMenuToggle">
+    <span></span>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="admin-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <a href="/" class="logo">3D-labX</a>
+        <span class="badge badge-primary">Admin</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-item">
+          <span class="icon">📊</span>
+          Dashboard
+        </a>
+        <a href="/admin/posts" class="nav-item">
+          <span class="icon">📝</span>
+          Yazılar
+        </a>
+        <a href="/admin/users" class="nav-item">
+          <span class="icon">👥</span>
+          Üyeler
+        </a>
+        <a href="/admin/rss" class="nav-item active">
+          <span class="icon">📡</span>
+          RSS Kaynakları
+        </a>
+        <a href="/admin/content-boxes" class="nav-item">
+          <span class="icon">📦</span>
+          İçerik Kutuları
+        </a>
+        <a href="/admin/logs" class="nav-item">
+          <span class="icon">📋</span>
+          Site Logları
+        </a>
+        <a href="/admin/new" class="nav-item">
+          <span class="icon">➕</span>
+          Yeni Yazı
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="logoutBtn" class="btn btn-ghost btn-full">
+          🚪 Çıkış Yap
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="content-header">
+        <div>
+          <h1>RSS Kaynakları</h1>
+          <p class="text-muted">Haber akışı kaynaklarını yönetin</p>
+        </div>
+        <button id="addRssBtn" class="btn btn-primary">
+          ➕ Yeni Kaynak Ekle
+        </button>
+      </header>
+
+      <!-- İstatistikler -->
+      <div class="stats-grid" id="rssStats">
+        <div class="stat-card">
+          <div class="stat-icon">📡</div>
+          <div class="stat-info">
+            <span class="stat-value" id="totalSources">-</span>
+            <span class="stat-label">Toplam Kaynak</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🖨️</div>
+          <div class="stat-info">
+            <span class="stat-value" id="sources3d">-</span>
+            <span class="stat-label">3D Baskı</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📘</div>
+          <div class="stat-info">
+            <span class="stat-value" id="sourcesRehber">-</span>
+            <span class="stat-label">Rehberler</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔧</div>
+          <div class="stat-info">
+            <span class="stat-value" id="sourcesSorun">-</span>
+            <span class="stat-label">Sorun Çözümleri</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtreler -->
+      <div class="filters">
+        <select id="categoryFilter" class="filter-select">
+          <option value="">Tüm Kategoriler</option>
+          <option value="3d-baski">3D Baskı</option>
+          <option value="rehberler">Rehberler</option>
+          <option value="sorun-cozumleri">Sorun Çözümleri</option>
+          <option value="incelemeler">İncelemeler</option>
+        </select>
+        <input type="text" id="searchInput" class="search-input" placeholder="Kaynak ara...">
+      </div>
+
+      <!-- Varsayılan Uyarı -->
+      <div id="defaultWarning" class="message message-warning hidden">
+        ⚠️ RSS kaynakları henüz veritabanına aktarılmamış. Varsayılan kaynaklar gösteriliyor.
+        <button id="initRssBtn" class="btn btn-sm btn-primary" style="margin-left: 12px;">
+          Veritabanına Aktar
+        </button>
+      </div>
+
+      <!-- RSS Tablosu -->
+      <section class="recent-section">
+        <div class="posts-table-container">
+          <table class="posts-table" id="rssTable">
+            <thead>
+              <tr>
+                <th>Kaynak Adı</th>
+                <th>URL</th>
+                <th>Kategori</th>
+                <th>Durum</th>
+                <th>İşlem</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="5" class="loading-row">
+                  <span class="spinner"></span> Yükleniyor...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Yeni RSS Modal -->
+  <div id="addModal" class="modal hidden">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-content">
+      <h3>Yeni RSS Kaynağı Ekle</h3>
+      <form id="addRssForm">
+        <div class="form-group">
+          <label for="rssUrl">RSS URL *</label>
+          <input type="url" id="rssUrl" required placeholder="https://example.com/feed/">
+        </div>
+        <div class="form-group">
+          <label for="rssName">Kaynak Adı</label>
+          <input type="text" id="rssName" placeholder="Otomatik algılanır">
+        </div>
+        <div class="form-group">
+          <label for="rssCategory">Kategori *</label>
+          <select id="rssCategory" required>
+            <option value="">Seçin...</option>
+            <option value="3d-baski">3D Baskı</option>
+            <option value="rehberler">Rehberler</option>
+            <option value="sorun-cozumleri">Sorun Çözümleri</option>
+            <option value="incelemeler">İncelemeler</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="cancelAddBtn" class="btn btn-secondary">İptal</button>
+          <button type="submit" class="btn btn-primary">Ekle</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Silme Onay Modal -->
+  <div id="deleteModal" class="modal hidden">
+    <div class="modal-backdrop" id="deleteBackdrop"></div>
+    <div class="modal-content">
+      <h3>⚠️ Kaynağı Sil</h3>
+      <p>Bu RSS kaynağını silmek istediğinizden emin misiniz?</p>
+      <p><strong id="deleteSourceName"></strong></p>
+      <div class="modal-actions">
+        <button type="button" id="cancelDeleteBtn" class="btn btn-secondary">İptal</button>
+        <button type="button" id="confirmDeleteBtn" class="btn btn-danger">Sil</button>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .message-warning {
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    border: 2px solid #F59E0B;
+    color: #92400E;
+    padding: 16px 20px;
+    border-radius: 14px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .url-cell {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: #475569;
+  }
+
+  .url-cell a {
+    color: #475569;
+    text-decoration: none;
+  }
+
+  .url-cell a:hover {
+    color: var(--admin-primary);
+    text-decoration: underline;
+  }
+</style>
+
+<script>
+  const API_BASE = 'https://tech-portal-api.turgut-d01.workers.dev';
+
+  // Auth kontrolü
+  const secret = localStorage.getItem('adminSecret');
+  if (!secret) {
+    window.location.href = '/admin';
+  }
+
+  // Logout
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    localStorage.removeItem('adminSecret');
+    window.location.href = '/admin';
+  });
+
+  // Mobile menu toggle
+  const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+  const sidebar = document.getElementById('sidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+  function toggleMobileMenu() {
+    mobileMenuToggle?.classList.toggle('active');
+    sidebar?.classList.toggle('open');
+    sidebarOverlay?.classList.toggle('active');
+  }
+
+  mobileMenuToggle?.addEventListener('click', toggleMobileMenu);
+  sidebarOverlay?.addEventListener('click', toggleMobileMenu);
+
+  const categoryNames: Record<string, string> = {
+    '3d-baski': '3D Baskı',
+    'rehberler': 'Rehberler',
+    'sorun-cozumleri': 'Sorun Çözümleri',
+    'incelemeler': 'İncelemeler'
+  };
+
+  let allSources: any[] = [];
+  let isDefault = false;
+  let deleteId: number | null = null;
+
+  // RSS kaynaklarını yükle
+  async function loadSources() {
+    try {
+      const res = await fetch(`${API_BASE}/admin/rss`, {
+        headers: { 'X-ADMIN-SECRET': secret! }
+      });
+
+      if (!res.ok) throw new Error('Unauthorized');
+
+      const data = await res.json();
+      allSources = data.sources || [];
+      isDefault = data.isDefault || false;
+
+      // İstatistikleri güncelle
+      updateStats();
+
+      // Varsayılan uyarısı
+      const warning = document.getElementById('defaultWarning');
+      if (isDefault && warning) {
+        warning.classList.remove('hidden');
+      }
+
+      // Tabloyu render et
+      renderTable();
+    } catch (err) {
+      console.error('RSS yüklenemedi:', err);
+      const tbody = document.querySelector('#rssTable tbody')!;
+      tbody.innerHTML = '<tr><td colspan="5" class="error-row">Yüklenirken hata oluştu</td></tr>';
+    }
+  }
+
+  function updateStats() {
+    const active = allSources.filter(s => s.is_active);
+    document.getElementById('totalSources')!.textContent = active.length.toString();
+    document.getElementById('sources3d')!.textContent = active.filter(s => s.category === '3d-baski').length.toString();
+    document.getElementById('sourcesRehber')!.textContent = active.filter(s => s.category === 'rehberler').length.toString();
+    document.getElementById('sourcesSorun')!.textContent = active.filter(s => s.category === 'sorun-cozumleri').length.toString();
+  }
+
+  function renderTable() {
+    const tbody = document.querySelector('#rssTable tbody')!;
+    const categoryFilter = (document.getElementById('categoryFilter') as HTMLSelectElement).value;
+    const searchQuery = (document.getElementById('searchInput') as HTMLInputElement).value.toLowerCase();
+
+    let filtered = allSources;
+
+    if (categoryFilter) {
+      filtered = filtered.filter(s => s.category === categoryFilter);
+    }
+
+    if (searchQuery) {
+      filtered = filtered.filter(s =>
+        s.name?.toLowerCase().includes(searchQuery) ||
+        s.url.toLowerCase().includes(searchQuery)
+      );
+    }
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-row">Kaynak bulunamadı</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = filtered.map((source: any) => `
+      <tr data-id="${source.id || ''}">
+        <td class="title-cell">
+          <strong>${source.name || 'İsimsiz'}</strong>
+        </td>
+        <td class="url-cell">
+          <a href="${source.url}" target="_blank" title="${source.url}">${source.url}</a>
+        </td>
+        <td>
+          <span class="category-badge ${source.category}">${categoryNames[source.category] || source.category}</span>
+        </td>
+        <td>
+          ${source.is_default ?
+            '<span class="status-badge draft">Varsayılan</span>' :
+            `<button class="status-toggle ${source.is_active ? 'published' : 'draft'}" data-id="${source.id}" data-active="${source.is_active}">
+              ${source.is_active ? 'Aktif' : 'Pasif'}
+            </button>`
+          }
+        </td>
+        <td class="actions-cell">
+          ${source.is_default ?
+            '<span class="text-muted">-</span>' :
+            `<button class="btn btn-ghost btn-sm delete-btn" data-id="${source.id}" data-name="${source.name}">🗑️</button>`
+          }
+        </td>
+      </tr>
+    `).join('');
+
+    // Event listeners
+    document.querySelectorAll('.status-toggle').forEach(btn => {
+      btn.addEventListener('click', toggleStatus);
+    });
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', showDeleteModal);
+    });
+  }
+
+  async function toggleStatus(e: Event) {
+    const btn = e.target as HTMLButtonElement;
+    const id = btn.dataset.id;
+    const currentActive = btn.dataset.active === '1';
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/rss/${id}`, {
+        method: 'PUT',
+        headers: {
+          'X-ADMIN-SECRET': secret!,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ is_active: !currentActive })
+      });
+
+      if (res.ok) {
+        loadSources();
+      }
+    } catch (err) {
+      console.error('Toggle error:', err);
+    }
+  }
+
+  function showDeleteModal(e: Event) {
+    const btn = e.target as HTMLButtonElement;
+    deleteId = parseInt(btn.dataset.id || '0');
+    const name = btn.dataset.name;
+
+    document.getElementById('deleteSourceName')!.textContent = name || '';
+    document.getElementById('deleteModal')!.classList.remove('hidden');
+  }
+
+  async function deleteSource() {
+    if (!deleteId) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/rss/${deleteId}`, {
+        method: 'DELETE',
+        headers: { 'X-ADMIN-SECRET': secret! }
+      });
+
+      if (res.ok) {
+        document.getElementById('deleteModal')!.classList.add('hidden');
+        deleteId = null;
+        loadSources();
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
+    }
+  }
+
+  // Modal işlemleri
+  document.getElementById('addRssBtn')?.addEventListener('click', () => {
+    document.getElementById('addModal')!.classList.remove('hidden');
+  });
+
+  document.getElementById('cancelAddBtn')?.addEventListener('click', () => {
+    document.getElementById('addModal')!.classList.add('hidden');
+    (document.getElementById('addRssForm') as HTMLFormElement).reset();
+  });
+
+  document.getElementById('modalBackdrop')?.addEventListener('click', () => {
+    document.getElementById('addModal')!.classList.add('hidden');
+  });
+
+  document.getElementById('cancelDeleteBtn')?.addEventListener('click', () => {
+    document.getElementById('deleteModal')!.classList.add('hidden');
+    deleteId = null;
+  });
+
+  document.getElementById('deleteBackdrop')?.addEventListener('click', () => {
+    document.getElementById('deleteModal')!.classList.add('hidden');
+    deleteId = null;
+  });
+
+  document.getElementById('confirmDeleteBtn')?.addEventListener('click', deleteSource);
+
+  // Yeni RSS ekleme
+  document.getElementById('addRssForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const url = (document.getElementById('rssUrl') as HTMLInputElement).value;
+    const name = (document.getElementById('rssName') as HTMLInputElement).value;
+    const category = (document.getElementById('rssCategory') as HTMLSelectElement).value;
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/rss`, {
+        method: 'POST',
+        headers: {
+          'X-ADMIN-SECRET': secret!,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ url, name, category })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        document.getElementById('addModal')!.classList.add('hidden');
+        (document.getElementById('addRssForm') as HTMLFormElement).reset();
+        loadSources();
+      } else {
+        alert(data.error || 'Ekleme başarısız');
+      }
+    } catch (err) {
+      console.error('Add error:', err);
+      alert('Bir hata oluştu');
+    }
+  });
+
+  // Varsayılanları DB'ye aktar
+  document.getElementById('initRssBtn')?.addEventListener('click', async () => {
+    try {
+      const res = await fetch(`${API_BASE}/admin/rss/init`, {
+        method: 'POST',
+        headers: { 'X-ADMIN-SECRET': secret! }
+      });
+
+      if (res.ok) {
+        document.getElementById('defaultWarning')!.classList.add('hidden');
+        loadSources();
+      }
+    } catch (err) {
+      console.error('Init error:', err);
+    }
+  });
+
+  // Filtreler
+  document.getElementById('categoryFilter')?.addEventListener('change', renderTable);
+  document.getElementById('searchInput')?.addEventListener('input', renderTable);
+
+  // Yükle
+  loadSources();
+</script>

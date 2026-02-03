@@ -1,0 +1,965 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Header from "../../../components/Header.astro";
+import { getApiBase } from "../../../lib/api";
+
+export const prerender = false;
+
+const API_BASE = getApiBase(Astro.request);
+
+// İlleri çek
+let cities: any[] = [];
+try {
+  const res = await fetch(`${API_BASE}/api/map/cities`);
+  if (res.ok) {
+    const data = await res.json();
+    cities = data.cities || [];
+  }
+} catch (e) {
+  console.error("Cities yüklenemedi:", e);
+}
+
+// Uzmanlık alanları
+const specialtyOptions = [
+  { value: 'fonksiyonel', label: 'Fonksiyonel Parçalar' },
+  { value: 'minyatur', label: 'Minyatür & Figür' },
+  { value: 'cosplay', label: 'Cosplay & Props' },
+  { value: 'dekorasyon', label: 'Ev Dekorasyonu' },
+  { value: 'prototip', label: 'Prototipleme' },
+  { value: 'muhendislik', label: 'Mühendislik Parçaları' },
+  { value: 'oyuncak', label: 'Oyuncak & Hobi' },
+  { value: 'takim', label: 'Takım & Araç' },
+  { value: 'sanat', label: 'Sanat & Heykel' },
+  { value: 'diger', label: 'Diğer' }
+];
+---
+
+<BaseLayout
+  title="Haritaya Katıl - Maker Profili - 3D-labX"
+  description="Maker Haritası'na katıl, Türkiye'deki 3D baskı topluluğuyla tanış."
+>
+  <Header />
+
+  <main class="profile-page">
+    <div class="container">
+      <nav class="breadcrumb">
+        <a href="/topluluk">Topluluk</a>
+        <span>/</span>
+        <a href="/topluluk/harita">Maker Haritası</a>
+        <span>/</span>
+        <span>Profil</span>
+      </nav>
+
+      <div class="form-card">
+        <div class="form-header">
+          <div class="header-icon">🗺️</div>
+          <h1>Maker Haritası'na Katıl</h1>
+          <p>Şehrindeki 3D baskı tutkunlarıyla tanış!</p>
+        </div>
+
+        <!-- Mevcut profil varsa -->
+        <div class="existing-profile hidden" id="existingProfile">
+          <div class="profile-status">
+            <span class="status-icon">✅</span>
+            <div class="status-text">
+              <h3>Haritada aktifsiniz!</h3>
+              <p>Profiliniz haritada görünüyor.</p>
+            </div>
+          </div>
+        </div>
+
+        <form id="profileForm" class="profile-form">
+          <!-- Konum -->
+          <div class="form-section">
+            <h3>
+              <span class="section-icon">📍</span>
+              Konum
+            </h3>
+            <p class="section-desc">Tam adres değil, sadece il/ilçe bilgisi gösterilir.</p>
+
+            <div class="form-row">
+              <div class="form-group half">
+                <label for="city">İl *</label>
+                <select id="city" name="city" required>
+                  <option value="">Seçiniz...</option>
+                  {cities.map(city => (
+                    <option value={city.name}>{city.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div class="form-group half">
+                <label for="district">İlçe</label>
+                <input
+                  type="text"
+                  id="district"
+                  name="district"
+                  placeholder="Örnek: Kadıköy"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Yazıcılar -->
+          <div class="form-section">
+            <h3>
+              <span class="section-icon">🖨️</span>
+              Yazıcılarınız
+            </h3>
+
+            <div class="form-group">
+              <label>Yazıcı Modelleri</label>
+              <div class="tags-input" id="printersInput">
+                <div class="tags-list" id="printersList"></div>
+                <input
+                  type="text"
+                  id="printerInputField"
+                  placeholder="Yazıcı ekle (Enter)"
+                  list="printerSuggestions"
+                />
+                <datalist id="printerSuggestions">
+                  <option value="Bambu Lab P1S">
+                  <option value="Bambu Lab X1C">
+                  <option value="Bambu Lab A1">
+                  <option value="Bambu Lab A1 Mini">
+                  <option value="Creality Ender 3 V2">
+                  <option value="Creality Ender 3 S1">
+                  <option value="Creality K1">
+                  <option value="Creality K1 Max">
+                  <option value="Prusa MK4">
+                  <option value="Prusa Mini+">
+                  <option value="Anycubic Kobra 2">
+                  <option value="Elegoo Neptune 4">
+                  <option value="Voron 2.4">
+                </datalist>
+              </div>
+              <small>Enter'a basarak ekleyin</small>
+            </div>
+          </div>
+
+          <!-- Uzmanlık Alanları -->
+          <div class="form-section">
+            <h3>
+              <span class="section-icon">🎯</span>
+              Uzmanlık Alanları
+            </h3>
+
+            <div class="form-group">
+              <div class="checkbox-grid">
+                {specialtyOptions.map(spec => (
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="specialties" value={spec.value} />
+                    <span>{spec.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <!-- Hizmetler -->
+          <div class="form-section">
+            <h3>
+              <span class="section-icon">🤝</span>
+              Hizmetler
+            </h3>
+
+            <div class="form-group">
+              <div class="toggle-group">
+                <label class="toggle-item">
+                  <input type="checkbox" id="offersPrinting" name="offersPrinting" />
+                  <div class="toggle-content">
+                    <span class="toggle-icon">🖨️</span>
+                    <div class="toggle-text">
+                      <span class="toggle-label">Baskı Hizmeti</span>
+                      <span class="toggle-desc">Başkalarına baskı hizmeti verebilirim</span>
+                    </div>
+                  </div>
+                </label>
+                <label class="toggle-item">
+                  <input type="checkbox" id="offersHelp" name="offersHelp" checked />
+                  <div class="toggle-content">
+                    <span class="toggle-icon">💡</span>
+                    <div class="toggle-text">
+                      <span class="toggle-label">Yardıma Açık</span>
+                      <span class="toggle-desc">Sorulara cevap verebilir, yardımcı olabilirim</span>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- İletişim -->
+          <div class="form-section">
+            <h3>
+              <span class="section-icon">💬</span>
+              İletişim Tercihi
+            </h3>
+
+            <div class="form-group">
+              <div class="radio-group">
+                <label class="radio-item">
+                  <input type="radio" name="contactPreference" value="message" checked />
+                  <span>📨 Platform mesajı (Önerilen)</span>
+                </label>
+                <label class="radio-item">
+                  <input type="radio" name="contactPreference" value="email" />
+                  <span>📧 E-posta</span>
+                </label>
+                <label class="radio-item">
+                  <input type="radio" name="contactPreference" value="both" />
+                  <span>🔄 Her ikisi de</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group" id="showEmailGroup" style="display: none;">
+              <label class="checkbox-item warning">
+                <input type="checkbox" id="showEmail" name="showEmail" />
+                <span>E-posta adresimi profilimde göster (önerilmez)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Bio -->
+          <div class="form-section">
+            <h3>
+              <span class="section-icon">📝</span>
+              Hakkımda
+            </h3>
+
+            <div class="form-group">
+              <textarea
+                id="bio"
+                name="bio"
+                placeholder="Kendinizi tanıtın... Ne tür projeler yapıyorsunuz? Ne kadar süredir 3D baskı yapıyorsunuz?"
+                rows="4"
+                maxlength="500"
+              ></textarea>
+              <span class="char-hint"><span id="bioCount">0</span>/500</span>
+            </div>
+          </div>
+
+          <!-- Yasal Onay -->
+          <div class="legal-section">
+            <label class="checkbox-item">
+              <input type="checkbox" id="termsAccepted" name="termsAccepted" required />
+              <span>
+                <a href="/yasal/sorumluluk-reddi" target="_blank">Sorumluluk Reddi</a> ve
+                <a href="/yasal/kvkk" target="_blank">KVKK Aydınlatma Metni</a>'ni okudum, kabul ediyorum. *
+              </span>
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <a href="/topluluk/harita" class="btn btn-secondary">İptal</a>
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              Haritaya Ekle
+            </button>
+          </div>
+
+          <div class="delete-section hidden" id="deleteSection">
+            <button type="button" class="btn btn-danger" id="deleteBtn">
+              🗑️ Profilimi Haritadan Kaldır
+            </button>
+          </div>
+        </form>
+
+        <div class="login-notice hidden" id="loginNotice">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <h3>Giriş Yapmanız Gerekiyor</h3>
+          <p>Maker Haritası'na katılmak için hesabınıza giriş yapın.</p>
+          <a href="/auth/giris" class="btn btn-primary">Giriş Yap</a>
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .profile-page {
+    padding-top: 140px;
+    padding-bottom: 64px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  .breadcrumb a { color: #8B5CF6; text-decoration: none; }
+
+  .form-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    padding: 32px;
+  }
+
+  .form-header {
+    text-align: center;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .header-icon { font-size: 3rem; margin-bottom: 16px; }
+
+  .form-header h1 {
+    font-size: 1.6rem;
+    margin: 0 0 8px;
+    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .form-header p { color: var(--text-muted); margin: 0; }
+
+  /* Existing Profile */
+  .existing-profile {
+    margin-bottom: 24px;
+  }
+
+  .profile-status {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05));
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 16px;
+  }
+
+  .status-icon { font-size: 2rem; }
+  .status-text h3 { margin: 0 0 4px; font-size: 1rem; color: #10B981; }
+  .status-text p { margin: 0; font-size: 0.85rem; color: var(--text-muted); }
+
+  .profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .form-section {
+    padding: 20px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+  }
+
+  .form-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    margin: 0 0 8px;
+    color: var(--text-main);
+  }
+
+  .section-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0 0 16px;
+  }
+
+  .section-icon { font-size: 1.2rem; }
+
+  .form-row {
+    display: flex;
+    gap: 16px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+  }
+
+  .form-group.half { flex: 1; }
+
+  .form-group label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-main);
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    transition: border-color 0.2s ease;
+    font-family: inherit;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: #8B5CF6;
+  }
+
+  .form-group textarea {
+    resize: vertical;
+    line-height: 1.6;
+  }
+
+  .form-group small {
+    font-size: 0.75rem;
+    color: var(--text-light);
+  }
+
+  .char-hint {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    font-size: 0.75rem;
+    color: var(--text-light);
+  }
+
+  /* Tags Input */
+  .tags-input {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    min-height: 50px;
+  }
+
+  .tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tag-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #8B5CF6;
+    color: white;
+    border-radius: 8px;
+    font-size: 0.85rem;
+  }
+
+  .tag-remove {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0;
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .tags-input input {
+    flex: 1;
+    min-width: 150px;
+    border: none;
+    background: none;
+    padding: 6px;
+    font-size: 0.9rem;
+  }
+
+  .tags-input input:focus {
+    outline: none;
+  }
+
+  /* Checkbox Grid */
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+  }
+
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+  }
+
+  .checkbox-item:hover {
+    border-color: #8B5CF6;
+  }
+
+  .checkbox-item input {
+    accent-color: #8B5CF6;
+    width: 18px;
+    height: 18px;
+  }
+
+  .checkbox-item.warning {
+    background: rgba(239, 68, 68, 0.05);
+    border-color: rgba(239, 68, 68, 0.2);
+  }
+
+  /* Toggle Group */
+  .toggle-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .toggle-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .toggle-item:hover {
+    border-color: #8B5CF6;
+  }
+
+  .toggle-item input {
+    display: none;
+  }
+
+  .toggle-item input:checked + .toggle-content {
+    opacity: 1;
+  }
+
+  .toggle-item input:not(:checked) + .toggle-content {
+    opacity: 0.6;
+  }
+
+  .toggle-item input:checked ~ .toggle-content::before {
+    content: '✓';
+    position: absolute;
+    right: 16px;
+    color: #10B981;
+    font-weight: bold;
+  }
+
+  .toggle-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    position: relative;
+  }
+
+  .toggle-icon {
+    font-size: 1.5rem;
+  }
+
+  .toggle-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .toggle-label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-main);
+  }
+
+  .toggle-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* Radio Group */
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .radio-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+  }
+
+  .radio-item:hover {
+    border-color: #8B5CF6;
+  }
+
+  .radio-item input {
+    accent-color: #8B5CF6;
+  }
+
+  /* Legal Section */
+  .legal-section {
+    padding: 20px;
+    background: rgba(139, 92, 246, 0.05);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 16px;
+  }
+
+  .legal-section a {
+    color: #8B5CF6;
+    font-weight: 500;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+  }
+
+  .btn-secondary {
+    background: var(--bg-main);
+    color: var(--text-main);
+    border: 1px solid var(--border-soft);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--text-muted);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(139, 92, 246, 0.4);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #EF4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    width: 100%;
+  }
+
+  .btn-danger:hover {
+    background: rgba(239, 68, 68, 0.2);
+  }
+
+  .delete-section {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .login-notice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 60px 40px;
+    text-align: center;
+  }
+
+  .login-notice svg { color: #8B5CF6; }
+  .login-notice h3 { margin: 0; font-size: 1.3rem; }
+  .login-notice p { margin: 0; color: var(--text-muted); }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 640px) {
+    .profile-page { padding-top: 120px; }
+    .form-card { padding: 20px; }
+    .form-row { flex-direction: column; }
+    .checkbox-grid { grid-template-columns: 1fr; }
+    .form-actions { flex-direction: column; }
+    .btn { width: 100%; justify-content: center; }
+  }
+</style>
+
+<script>
+  const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
+
+  let printers: string[] = [];
+
+  function getAuthToken() {
+    return localStorage.getItem('authToken');
+  }
+
+  // Login kontrolü
+  const form = document.getElementById('profileForm') as HTMLFormElement;
+  const loginNotice = document.getElementById('loginNotice');
+  const existingProfile = document.getElementById('existingProfile');
+  const deleteSection = document.getElementById('deleteSection');
+  const submitBtn = document.getElementById('submitBtn');
+
+  async function loadExistingProfile() {
+    const token = getAuthToken();
+    if (!token) {
+      form?.classList.add('hidden');
+      loginNotice?.classList.remove('hidden');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/api/map/profile`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.profile) {
+          // Mevcut profili doldur
+          existingProfile?.classList.remove('hidden');
+          deleteSection?.classList.remove('hidden');
+          if (submitBtn) submitBtn.textContent = 'Profili Güncelle';
+
+          const p = data.profile;
+          (document.getElementById('city') as HTMLSelectElement).value = p.city || '';
+          (document.getElementById('district') as HTMLInputElement).value = p.district || '';
+          (document.getElementById('bio') as HTMLTextAreaElement).value = p.bio || '';
+          (document.getElementById('offersPrinting') as HTMLInputElement).checked = p.offers_printing === 1;
+          (document.getElementById('offersHelp') as HTMLInputElement).checked = p.offers_help === 1;
+          (document.getElementById('showEmail') as HTMLInputElement).checked = p.show_email === 1;
+          (document.getElementById('termsAccepted') as HTMLInputElement).checked = true;
+
+          // Contact preference
+          const contactRadios = document.querySelectorAll('input[name="contactPreference"]');
+          contactRadios.forEach((radio: any) => {
+            if (radio.value === p.contact_preference) radio.checked = true;
+          });
+
+          // Printers
+          try {
+            printers = JSON.parse(p.printers || '[]');
+            renderPrinters();
+          } catch {}
+
+          // Specialties
+          try {
+            const specs = JSON.parse(p.specialties || '[]');
+            const checkboxes = document.querySelectorAll('input[name="specialties"]');
+            checkboxes.forEach((cb: any) => {
+              if (specs.includes(cb.value)) cb.checked = true;
+            });
+          } catch {}
+
+          updateBioCount();
+        }
+      }
+    } catch (err) {
+      console.error('Profile load error:', err);
+    }
+  }
+
+  loadExistingProfile();
+
+  // Bio karakter sayacı
+  const bioInput = document.getElementById('bio') as HTMLTextAreaElement;
+  const bioCount = document.getElementById('bioCount');
+
+  function updateBioCount() {
+    if (bioCount && bioInput) {
+      bioCount.textContent = bioInput.value.length.toString();
+    }
+  }
+
+  bioInput?.addEventListener('input', updateBioCount);
+
+  // Contact preference -> show email toggle
+  const contactRadios = document.querySelectorAll('input[name="contactPreference"]');
+  const showEmailGroup = document.getElementById('showEmailGroup');
+
+  contactRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const value = (e.target as HTMLInputElement).value;
+      if (showEmailGroup) {
+        showEmailGroup.style.display = (value === 'email' || value === 'both') ? 'block' : 'none';
+      }
+    });
+  });
+
+  // Printers tag input
+  const printerInputField = document.getElementById('printerInputField') as HTMLInputElement;
+  const printersList = document.getElementById('printersList');
+
+  function renderPrinters() {
+    if (!printersList) return;
+    printersList.innerHTML = printers.map((p, idx) => `
+      <div class="tag-item">
+        <span>${p}</span>
+        <button type="button" class="tag-remove" data-idx="${idx}">×</button>
+      </div>
+    `).join('');
+
+    printersList.querySelectorAll('.tag-remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-idx') || '0');
+        printers.splice(idx, 1);
+        renderPrinters();
+      });
+    });
+  }
+
+  printerInputField?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const value = printerInputField.value.trim();
+      if (value && !printers.includes(value) && printers.length < 10) {
+        printers.push(value);
+        renderPrinters();
+        printerInputField.value = '';
+      }
+    }
+  });
+
+  // Form submit
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const token = getAuthToken();
+    if (!token) {
+      (window as any).showToast?.('Lütfen giriş yapın', 'warning');
+      return;
+    }
+
+    const city = (document.getElementById('city') as HTMLSelectElement)?.value;
+    const district = (document.getElementById('district') as HTMLInputElement)?.value?.trim();
+    const bio = (document.getElementById('bio') as HTMLTextAreaElement)?.value?.trim();
+    const offersPrinting = (document.getElementById('offersPrinting') as HTMLInputElement)?.checked;
+    const offersHelp = (document.getElementById('offersHelp') as HTMLInputElement)?.checked;
+    const contactPreference = (document.querySelector('input[name="contactPreference"]:checked') as HTMLInputElement)?.value;
+    const showEmail = (document.getElementById('showEmail') as HTMLInputElement)?.checked;
+    const termsAccepted = (document.getElementById('termsAccepted') as HTMLInputElement)?.checked;
+
+    // Specialties
+    const specialtyCheckboxes = document.querySelectorAll('input[name="specialties"]:checked');
+    const specialties = Array.from(specialtyCheckboxes).map((cb: any) => cb.value);
+
+    if (!city) {
+      (window as any).showToast?.('Lütfen il seçin', 'warning');
+      return;
+    }
+
+    if (!termsAccepted) {
+      (window as any).showToast?.('Lütfen yasal metinleri onaylayın', 'warning');
+      return;
+    }
+
+    const btn = submitBtn as HTMLButtonElement;
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Kaydediliyor...';
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/api/map/profile`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          city,
+          district,
+          printers,
+          specialties,
+          offers_printing: offersPrinting ? 1 : 0,
+          offers_help: offersHelp ? 1 : 0,
+          contact_preference: contactPreference,
+          show_email: showEmail ? 1 : 0,
+          bio,
+          terms_accepted: 1
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        (window as any).showToast?.('Profiliniz kaydedildi!', 'success');
+        window.location.href = '/topluluk/harita';
+      } else {
+        (window as any).showToast?.(data.error || 'Bir hata oluştu', 'error');
+      }
+    } catch (err) {
+      console.error('Profile save error:', err);
+      (window as any).showToast?.('Bir hata oluştu', 'error');
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Haritaya Ekle';
+      }
+    }
+  });
+
+  // Delete profile
+  const deleteBtn = document.getElementById('deleteBtn');
+  deleteBtn?.addEventListener('click', async () => {
+    if (!confirm('Profilinizi haritadan kaldırmak istediğinize emin misiniz?')) return;
+
+    const token = getAuthToken();
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API_URL}/api/map/profile`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        (window as any).showToast?.('Profiliniz haritadan kaldırıldı', 'success');
+        window.location.href = '/topluluk/harita';
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
+      (window as any).showToast?.('Bir hata oluştu', 'error');
+    }
+  });
+</script>

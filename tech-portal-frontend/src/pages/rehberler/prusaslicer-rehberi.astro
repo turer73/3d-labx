@@ -1,0 +1,1597 @@
+---
+export const prerender = true;
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+
+const title = "PrusaSlicer Türkçe Rehber - Ayarlar ve Sorun Giderme | 3D-labX";
+const description = "PrusaSlicer için kapsamlı Türkçe rehber. Katman yüksekliği, dolgu ayarları, destek malzemesi ve filament özellikleri. İnteraktif sorun giderme.";
+const canonicalUrl = "https://3d-labx.com/rehberler/prusaslicer-rehberi";
+
+// Breadcrumb Schema
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Ana Sayfa", "item": "https://3d-labx.com" },
+    { "@type": "ListItem", "position": 2, "name": "Rehberler", "item": "https://3d-labx.com/rehberler" },
+    { "@type": "ListItem", "position": 3, "name": "PrusaSlicer Rehberi", "item": canonicalUrl }
+  ]
+};
+
+// Article Schema
+const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "PrusaSlicer Türkçe Rehber",
+  "description": description,
+  "url": canonicalUrl,
+  "datePublished": "2024-06-01",
+  "dateModified": new Date().toISOString().split('T')[0],
+  "author": { "@type": "Organization", "name": "3D-labX", "url": "https://3d-labx.com" },
+  "publisher": { "@type": "Organization", "name": "3D-labX", "url": "https://3d-labx.com" }
+};
+---
+
+<BaseLayout title={title} description={description}>
+  <Header />
+
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+
+  <main class="prusa-page">
+    <div class="container">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb">
+        <a href="/">Ana Sayfa</a>
+        <span>/</span>
+        <a href="/rehberler">Rehberler</a>
+        <span>/</span>
+        <span>PrusaSlicer</span>
+      </nav>
+
+      <!-- Header -->
+      <header class="page-header">
+        <div class="version-badge">
+          <span>İnteraktif Rehber</span>
+          <span class="dot">•</span>
+          <span>v2.0</span>
+        </div>
+        <h1 class="page-title">PrusaSlicer <span class="accent">Türkçe Kılavuz</span></h1>
+        <p class="page-desc">
+          3D modellerinizi G-code'a çeviren bu güçlü açık kaynaklı dilimleyicinin tüm ayarlarını,
+          filament özelliklerini ve sorun giderme yöntemlerini keşfedin.
+        </p>
+      </header>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('dashboard')" id="btn-dashboard">
+          📊 Genel Bakış
+        </button>
+        <button class="nav-tab" onclick="switchTab('settings')" id="btn-settings">
+          ⚙️ Baskı Ayarları
+        </button>
+        <button class="nav-tab" onclick="switchTab('materials')" id="btn-materials">
+          🧱 Filament Rehberi
+        </button>
+        <button class="nav-tab" onclick="switchTab('troubleshoot')" id="btn-troubleshoot">
+          🔧 Sorun Giderme
+        </button>
+      </nav>
+
+      <!-- Main Content -->
+      <div class="main-card">
+
+        <!-- TAB 1: DASHBOARD -->
+        <section id="tab-dashboard" class="tab-content active">
+          <div class="welcome-section">
+            <h2>PrusaSlicer'a Hoş Geldiniz</h2>
+            <p>
+              PrusaSlicer, STL ve OBJ formatındaki 3D modellerinizi yazıcınızın anlayacağı G-code dosyasına dönüştüren
+              güçlü ve tamamen ücretsiz bir dilimleyicidir. Bu rehber, karmaşık ayarları görselleştirerek baskı
+              kalitenizi artırmanıza yardımcı olacaktır.
+            </p>
+          </div>
+
+          <div class="dashboard-grid">
+            <!-- Radar Chart -->
+            <div class="chart-card">
+              <h3>Malzeme Karşılaştırması</h3>
+              <p class="chart-desc">Popüler filament tiplerinin temel özelliklerini karşılaştırın.</p>
+              <div class="chart-container">
+                <canvas id="materialRadarChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Quick Tips -->
+            <div class="quick-tips">
+              <div class="tip-card tip-layers">
+                <span class="tip-icon">📐</span>
+                <div>
+                  <h4>Katmanlar</h4>
+                  <p>Baskı çözünürlüğünü ve süresini belirleyen ana faktör.</p>
+                </div>
+              </div>
+              <div class="tip-card tip-infill">
+                <span class="tip-icon">🔳</span>
+                <div>
+                  <h4>Dolgu (Infill)</h4>
+                  <p>Modelin iç sağlamlığı ve malzeme kullanım oranı.</p>
+                </div>
+              </div>
+              <div class="tip-card tip-temp">
+                <span class="tip-icon">🌡️</span>
+                <div>
+                  <h4>Isı Yönetimi</h4>
+                  <p>Her malzemenin doğru erime ve tabla sıcaklığı farklıdır.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Key Features -->
+          <div class="features-section">
+            <h3>Öne Çıkan Özellikler</h3>
+            <div class="features-grid">
+              <div class="feature-card">
+                <span class="feature-icon">🎨</span>
+                <h4>Organik Destekler</h4>
+                <p>Ağaç yapısında destekler ile daha az malzeme kullanımı ve kolay söküm.</p>
+              </div>
+              <div class="feature-card">
+                <span class="feature-icon">🖌️</span>
+                <h4>Paint-on Supports</h4>
+                <p>Destekleri tam olarak istediğiniz yere fırça ile boyayın.</p>
+              </div>
+              <div class="feature-card">
+                <span class="feature-icon">🎯</span>
+                <h4>Seam Painting</h4>
+                <p>Dikiş noktalarını görünmez alanlara yerleştirin.</p>
+              </div>
+              <div class="feature-card">
+                <span class="feature-icon">⚡</span>
+                <h4>Multi-material</h4>
+                <p>MMU/AMS ile çok renkli baskı desteği.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 2: SETTINGS -->
+        <section id="tab-settings" class="tab-content">
+          <div class="settings-layout">
+            <!-- Categories Sidebar -->
+            <div class="settings-sidebar">
+              <h3 class="sidebar-title">Kategoriler</h3>
+              <div class="category-list">
+                <button class="category-btn active" onclick="showCategory('layers')" data-cat="layers">
+                  Katmanlar ve Çevreler
+                </button>
+                <button class="category-btn" onclick="showCategory('infill')" data-cat="infill">
+                  Dolgu (Infill)
+                </button>
+                <button class="category-btn" onclick="showCategory('support')" data-cat="support">
+                  Destek Malzemesi
+                </button>
+              </div>
+
+              <!-- Impact Chart -->
+              <div class="impact-chart-section">
+                <h4>Hız vs Kalite</h4>
+                <p>Ayarların baskıya etkisi</p>
+                <div class="chart-container-small">
+                  <canvas id="impactChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Settings Detail -->
+            <div class="settings-detail">
+              <div id="settingsContent">
+                <!-- JS ile doldurulacak -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 3: MATERIALS -->
+        <section id="tab-materials" class="tab-content">
+          <div class="materials-intro">
+            <h2>Filament Rehberi</h2>
+            <p>Farklı projeler için doğru malzemeyi seçmek başarının anahtarıdır.</p>
+          </div>
+
+          <div class="filament-cards">
+            <!-- PLA -->
+            <div class="filament-card pla">
+              <div class="filament-header">
+                <h3>PLA</h3>
+                <span class="difficulty easy">Kolay</span>
+              </div>
+              <p class="filament-desc">Biyobozunur, kokusuz ve basılması en kolay malzeme. Görsel modeller için ideal.</p>
+              <div class="temp-specs">
+                <div class="spec">
+                  <span class="spec-label">Nozul</span>
+                  <span class="spec-value">205-225°C</span>
+                </div>
+                <div class="spec">
+                  <span class="spec-label">Tabla</span>
+                  <span class="spec-value">50-60°C</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- PETG -->
+            <div class="filament-card petg">
+              <div class="filament-header">
+                <h3>PETG</h3>
+                <span class="difficulty medium">Orta</span>
+              </div>
+              <p class="filament-desc">PLA kadar kolay, ABS kadar dayanıklı. Mekanik parçalar için standart seçim.</p>
+              <div class="temp-specs">
+                <div class="spec">
+                  <span class="spec-label">Nozul</span>
+                  <span class="spec-value">230-250°C</span>
+                </div>
+                <div class="spec">
+                  <span class="spec-label">Tabla</span>
+                  <span class="spec-value">80-90°C</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ABS/ASA -->
+            <div class="filament-card abs">
+              <div class="filament-header">
+                <h3>ASA / ABS</h3>
+                <span class="difficulty hard">Zor</span>
+              </div>
+              <p class="filament-desc">Yüksek ısı dayanımı ve UV direnci (ASA). Kapalı kasa yazıcı gerektirir.</p>
+              <div class="temp-specs">
+                <div class="spec">
+                  <span class="spec-label">Nozul</span>
+                  <span class="spec-value">240-260°C</span>
+                </div>
+                <div class="spec">
+                  <span class="spec-label">Tabla</span>
+                  <span class="spec-value">100-110°C</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- TPU -->
+            <div class="filament-card tpu">
+              <div class="filament-header">
+                <h3>TPU (Esnek)</h3>
+                <span class="difficulty special">Özel</span>
+              </div>
+              <p class="filament-desc">Lastik benzeri esnek malzeme. Yavaş baskı hızı gerektirir.</p>
+              <div class="temp-specs">
+                <div class="spec">
+                  <span class="spec-label">Nozul</span>
+                  <span class="spec-value">220-240°C</span>
+                </div>
+                <div class="spec">
+                  <span class="spec-label">Tabla</span>
+                  <span class="spec-value">50-60°C</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Temperature Comparison Chart -->
+          <div class="temp-chart-section">
+            <h3>Sıcaklık Aralıkları Karşılaştırması</h3>
+            <p>Daha yüksek nozul sıcaklığı genellikle daha güçlü katman yapışması sağlar.</p>
+            <div class="chart-container-wide">
+              <canvas id="tempChart"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 4: TROUBLESHOOT -->
+        <section id="tab-troubleshoot" class="tab-content">
+          <div class="troubleshoot-intro">
+            <h2>İnteraktif Sorun Giderme</h2>
+            <p>Yaşadığınız sorunu tespit etmek için aşağıdaki adımları takip edin.</p>
+          </div>
+
+          <div class="troubleshoot-card" id="troubleshootCard">
+            <!-- JS ile doldurulacak -->
+          </div>
+
+          <button class="reset-btn" onclick="resetTroubleshoot()">
+            🔄 Başa Dön
+          </button>
+        </section>
+
+      </div>
+
+      <!-- Back Link -->
+      <a href="/rehberler" class="back-link">← Tüm Rehberler</a>
+    </div>
+  </main>
+</BaseLayout>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script is:inline>
+  // Tab Switching
+  function switchTab(tabId) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+      tab.classList.remove('active');
+    });
+    // Remove active from all buttons
+    document.querySelectorAll('.nav-tab').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    // Show selected tab
+    document.getElementById('tab-' + tabId).classList.add('active');
+    document.getElementById('btn-' + tabId).classList.add('active');
+
+    // Init charts when needed
+    if (tabId === 'dashboard') initRadarChart();
+    if (tabId === 'settings') {
+      renderSettingsContent();
+      initImpactChart();
+    }
+    if (tabId === 'materials') initTempChart();
+    if (tabId === 'troubleshoot') renderTroubleshootNode();
+  }
+
+  // Settings Data
+  const settingsData = {
+    layers: {
+      title: "Katmanlar ve Çevreler",
+      description: "Modelin yapısal bütünlüğünü ve yüzey kalitesini belirleyen en temel ayarlardır.",
+      items: [
+        {
+          name: "Katman Yüksekliği (Layer Height)",
+          val: "0.10mm - 0.30mm",
+          desc: "Her bir baskı katmanının kalınlığıdır. Düşük değerler daha pürüzsüz yüzey sağlar ancak baskı süresini uzatır.",
+          impact: "Kalite: Yüksek, Süre: Çok Yüksek",
+          tips: ["Detaylı modeller için 0.10mm veya 0.15mm kullanın.", "Hızlı prototipler için 0.20mm veya 0.30mm idealdir."]
+        },
+        {
+          name: "Dikey Kabuklar (Perimeters)",
+          val: "Standart: 2-3",
+          desc: "Modelin dış duvarlarının sayısıdır. Dayanıklılık için en önemli faktörlerden biridir.",
+          impact: "Mukavemet: Çok Yüksek",
+          tips: ["Mekanik parçalar için en az 3-4 duvar önerilir.", "Görsel parçalar için 2 yeterlidir."]
+        },
+        {
+          name: "Vazo Modu (Spiral Vase Mode)",
+          val: "Açık/Kapalı",
+          desc: "Modeli tek, kesintisiz bir dış duvar olarak basar. Z ekseni sürekli yükselir.",
+          impact: "Hız: Çok Yüksek",
+          tips: ["Sadece içi boş, estetik modeller için uygundur.", "Üst katman 0 olmalıdır."]
+        }
+      ]
+    },
+    infill: {
+      title: "Dolgu (Infill)",
+      description: "Parçanın iç yapısını belirler. Malzeme tasarrufu ve baskı süresi için optimize edilmelidir.",
+      items: [
+        {
+          name: "Dolgu Yoğunluğu (Fill Density)",
+          val: "%5 - %100",
+          desc: "Modelin içinin ne kadar dolu olacağını belirler. %100 tamamen dolu demektir.",
+          impact: "Malzeme Kullanımı: Yüksek",
+          tips: ["Standart modeller için %15-%20 yeterlidir.", "Mukavemet gereken yerlerde %40 üzeri."]
+        },
+        {
+          name: "Dolgu Deseni (Fill Pattern)",
+          val: "Gyroid, Rectilinear, Grid",
+          desc: "İç yapının geometrisidir. Gyroid her yöne eşit mukavemet sağlar.",
+          impact: "Baskı Hızı ve Mukavemet",
+          tips: ["En iyi genel amaçlı: Gyroid.", "En hızlı: Rectilinear.", "Esnek filamentler için: Gyroid."]
+        }
+      ]
+    },
+    support: {
+      title: "Destek Malzemesi (Supports)",
+      description: "Havada kalan kısımların basılabilmesi için gerekli geçici yapılardır.",
+      items: [
+        {
+          name: "Destek Tipi",
+          val: "Grid, Snug, Organic",
+          desc: "'Organic' destekler ağaç yapısındadır, çıkarması kolaydır ve yüzeyde az iz bırakır.",
+          impact: "Yüzey Kalitesi",
+          tips: ["Karmaşık figürler için 'Organic' kullanın.", "Düz yüzeyler için 'Snug' iyidir."]
+        },
+        {
+          name: "Z Temas Mesafesi",
+          val: "0.1mm - 0.25mm",
+          desc: "Destek ile model arasındaki dikey boşluktur. Azaltmak yapışmayı artırır.",
+          impact: "Sökülebilirlik",
+          tips: ["Zor sökülüyorsa 0.05mm artırın.", "Katman yüksekliği ile orantılı olmalı."]
+        }
+      ]
+    }
+  };
+
+  let currentCategory = 'layers';
+
+  function showCategory(cat) {
+    currentCategory = cat;
+    document.querySelectorAll('.category-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    document.querySelector(`[data-cat="${cat}"]`).classList.add('active');
+    renderSettingsContent();
+  }
+
+  function renderSettingsContent() {
+    const data = settingsData[currentCategory];
+    const container = document.getElementById('settingsContent');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="settings-header">
+        <h3>${data.title}</h3>
+        <p>${data.description}</p>
+      </div>
+      <div class="settings-items">
+        ${data.items.map(item => `
+          <div class="setting-item">
+            <div class="setting-top">
+              <h4>${item.name}</h4>
+              <span class="setting-val">${item.val}</span>
+            </div>
+            <p class="setting-desc">${item.desc}</p>
+            <div class="setting-bottom">
+              <div class="setting-impact">
+                <span>⚡</span> ${item.impact}
+              </div>
+              <ul class="setting-tips">
+                ${item.tips.map(t => `<li>${t}</li>`).join('')}
+              </ul>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // Troubleshooting Tree
+  const troubleshootTree = {
+    start: {
+      question: "Hangi aşamada sorun yaşıyorsunuz?",
+      options: [
+        { text: "Baskı Başlangıcı / İlk Katman", next: "first_layer" },
+        { text: "Baskı Ortasında / Genel Kalite", next: "mid_print" },
+        { text: "Baskı Bitimi / Boyutlar", next: "finished" }
+      ]
+    },
+    first_layer: {
+      question: "İlk katman tablaya yapışıyor mu?",
+      options: [
+        { text: "Hayır, hiç yapışmıyor veya kalkıyor", next: "adhesion" },
+        { text: "Evet, ama yüzey pürüzlü/bozuk", next: "z_offset" }
+      ]
+    },
+    mid_print: {
+      question: "Sorun nasıl görünüyor?",
+      options: [
+        { text: "İpliklenme (Stringing)", next: "stringing" },
+        { text: "Katmanlar kaymış (Layer Shift)", next: "shifting" },
+        { text: "Eksik ekstrüzyon", next: "extrusion" }
+      ]
+    },
+    finished: {
+      question: "Bitmiş parçada ne sorun var?",
+      options: [
+        { text: "Boyutlar yanlış", next: "dimensions" },
+        { text: "Yüzey kalitesi kötü", next: "surface" }
+      ]
+    },
+    adhesion: {
+      solution: true,
+      title: "Tabla Yapışma Sorunu",
+      icon: "🖐️",
+      text: `
+        <ol>
+          <li>Tablanızı <strong>İzopropil Alkol (IPA)</strong> ile temizleyin.</li>
+          <li>Tabla sıcaklığını kontrol edin (PLA: 60°C, PETG: 80-85°C).</li>
+          <li><strong>First Layer Calibration</strong> yaparak nozulu tablaya yaklaştırın.</li>
+          <li>Glue stick veya hair spray kullanmayı deneyin.</li>
+        </ol>
+      `
+    },
+    z_offset: {
+      solution: true,
+      title: "Z Offset Ayarı Hatası",
+      icon: "📏",
+      text: `
+        <ol>
+          <li>Nozul çok yakınsa yüzeyde <strong>dalgalanma</strong> olur.</li>
+          <li>Çok uzaksa çizgiler arasında <strong>boşluk</strong> kalır.</li>
+          <li>İdeal ilk katman tek parça <strong>kağıt gibi</strong> görünmelidir.</li>
+          <li>Canlı Z ayarını küçük adımlarla değiştirin.</li>
+        </ol>
+      `
+    },
+    stringing: {
+      solution: true,
+      title: "İpliklenme (Stringing)",
+      icon: "🕸️",
+      text: `
+        <ol>
+          <li><strong>Retraction</strong> mesafesini artırın (Direct: 1-2mm, Bowden: 4-6mm).</li>
+          <li>Baskı sıcaklığını <strong>5-10°C düşürün</strong>.</li>
+          <li>'Z-hop' ayarını kapatmayı deneyin.</li>
+          <li>Filamentiniz nem almış olabilir, <strong>kurutun</strong>.</li>
+        </ol>
+      `
+    },
+    shifting: {
+      solution: true,
+      title: "Katman Kayması",
+      icon: "📐",
+      text: `
+        <ol>
+          <li><strong>Kayış gerginliğini</strong> kontrol edin.</li>
+          <li>Motor sürücü akımını kontrol edin.</li>
+          <li>Baskı hızını <strong>düşürün</strong>.</li>
+          <li>Çarpışma olup olmadığını kontrol edin.</li>
+        </ol>
+      `
+    },
+    extrusion: {
+      solution: true,
+      title: "Eksik Ekstrüzyon",
+      icon: "🔧",
+      text: `
+        <ol>
+          <li>Nozul <strong>tıkanmış</strong> olabilir, temizleyin.</li>
+          <li>Ekstruder gear'ı kontrol edin.</li>
+          <li>Sıcaklığı <strong>5-10°C artırın</strong>.</li>
+          <li>Akış oranını (Flow Rate) %105-110 yapın.</li>
+        </ol>
+      `
+    },
+    dimensions: {
+      solution: true,
+      title: "Boyut Hataları",
+      icon: "📐",
+      text: `
+        <ol>
+          <li><strong>E-steps kalibrasyonu</strong> yapın.</li>
+          <li>XYZ adım sayısını kontrol edin.</li>
+          <li>Horizontal expansion ayarını kullanın.</li>
+          <li>Filament çapını doğru girdiğinizden emin olun.</li>
+        </ol>
+      `
+    },
+    surface: {
+      solution: true,
+      title: "Yüzey Kalitesi",
+      icon: "✨",
+      text: `
+        <ol>
+          <li><strong>Dış duvar hızını</strong> düşürün (25-40mm/s).</li>
+          <li>Katman yüksekliğini azaltın.</li>
+          <li>Sıcaklık kulesi ile optimal sıcaklığı bulun.</li>
+          <li>Ringing/Ghosting için <strong>Input Shaper</strong> kullanın.</li>
+        </ol>
+      `
+    }
+  };
+
+  let currentTsNode = 'start';
+
+  function renderTroubleshootNode() {
+    const card = document.getElementById('troubleshootCard');
+    if (!card) return;
+
+    const data = troubleshootTree[currentTsNode];
+
+    if (data.solution) {
+      card.innerHTML = `
+        <div class="ts-solution">
+          <div class="ts-icon">${data.icon}</div>
+          <h3>${data.title}</h3>
+          <div class="ts-content">${data.text}</div>
+        </div>
+      `;
+    } else {
+      card.innerHTML = `
+        <div class="ts-question">
+          <h3>${data.question}</h3>
+          <div class="ts-options">
+            ${data.options.map(opt => `
+              <button class="ts-option" onclick="advanceTroubleshoot('${opt.next}')">
+                <span>${opt.text}</span>
+                <span class="arrow">→</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  function advanceTroubleshoot(next) {
+    currentTsNode = next;
+    renderTroubleshootNode();
+  }
+
+  function resetTroubleshoot() {
+    currentTsNode = 'start';
+    renderTroubleshootNode();
+  }
+
+  // Charts
+  let radarChart = null;
+  let impactChart = null;
+  let tempChart = null;
+
+  function initRadarChart() {
+    const ctx = document.getElementById('materialRadarChart');
+    if (!ctx) return;
+
+    if (radarChart) radarChart.destroy();
+
+    radarChart = new Chart(ctx.getContext('2d'), {
+      type: 'radar',
+      data: {
+        labels: ['Kolaylık', 'Isı Dayanımı', 'Darbe Dayanımı', 'Sertlik', 'Esneklik'],
+        datasets: [
+          {
+            label: 'PLA',
+            data: [10, 2, 4, 8, 1],
+            backgroundColor: 'rgba(74, 222, 128, 0.2)',
+            borderColor: 'rgb(74, 222, 128)',
+            pointBackgroundColor: 'rgb(74, 222, 128)',
+            borderWidth: 2
+          },
+          {
+            label: 'PETG',
+            data: [8, 5, 7, 6, 4],
+            backgroundColor: 'rgba(251, 146, 60, 0.2)',
+            borderColor: 'rgb(251, 146, 60)',
+            pointBackgroundColor: 'rgb(251, 146, 60)',
+            borderWidth: 2
+          },
+          {
+            label: 'ABS',
+            data: [4, 8, 9, 7, 2],
+            backgroundColor: 'rgba(248, 113, 113, 0.2)',
+            borderColor: 'rgb(248, 113, 113)',
+            pointBackgroundColor: 'rgb(248, 113, 113)',
+            borderWidth: 2
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          r: {
+            angleLines: { color: 'rgba(255,255,255,0.1)' },
+            grid: { color: 'rgba(255,255,255,0.1)' },
+            pointLabels: {
+              font: { size: 11 },
+              color: '#9ca3af'
+            },
+            ticks: { display: false },
+            suggestedMin: 0,
+            suggestedMax: 10
+          }
+        },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: '#9ca3af' }
+          }
+        }
+      }
+    });
+  }
+
+  function initImpactChart() {
+    const ctx = document.getElementById('impactChart');
+    if (!ctx) return;
+
+    if (impactChart) impactChart.destroy();
+
+    impactChart = new Chart(ctx.getContext('2d'), {
+      type: 'bubble',
+      data: {
+        datasets: [{
+          label: 'Baskı Profilleri',
+          data: [
+            { x: 10, y: 9, r: 8 },
+            { x: 50, y: 7, r: 10 },
+            { x: 90, y: 4, r: 12 }
+          ],
+          backgroundColor: ['rgba(251, 146, 60, 0.6)', 'rgba(59, 130, 246, 0.6)', 'rgba(74, 222, 128, 0.6)']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            title: { display: true, text: 'Hız', color: '#9ca3af' },
+            min: 0, max: 100,
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: { color: '#9ca3af' }
+          },
+          y: {
+            title: { display: true, text: 'Kalite', color: '#9ca3af' },
+            min: 0, max: 10,
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: { color: '#9ca3af' }
+          }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  }
+
+  function initTempChart() {
+    const ctx = document.getElementById('tempChart');
+    if (!ctx) return;
+
+    if (tempChart) tempChart.destroy();
+
+    tempChart = new Chart(ctx.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['PLA', 'PETG', 'ABS', 'TPU'],
+        datasets: [
+          {
+            label: 'Nozul Sıcaklığı (°C)',
+            data: [215, 240, 250, 230],
+            backgroundColor: '#ea580c',
+            borderRadius: 4
+          },
+          {
+            label: 'Tabla Sıcaklığı (°C)',
+            data: [55, 85, 105, 55],
+            backgroundColor: '#4b5563',
+            borderRadius: 4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { color: '#9ca3af' }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            min: 40,
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: { color: '#9ca3af' }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#9ca3af' }
+          }
+        }
+      }
+    });
+  }
+
+  // Init on load
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      initRadarChart();
+    }, 100);
+  });
+</script>
+
+<style>
+  :root {
+    --prusa-orange: #ea580c;
+    --prusa-orange-light: rgba(234, 88, 12, 0.15);
+    --bg-main: #0a0a0f;
+    --bg-card: #12121a;
+    --bg-soft: #1a1a24;
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
+    --border-soft: rgba(255, 255, 255, 0.08);
+  }
+
+  /* Light Mode */
+  [data-theme="light"] {
+    --bg-main: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-soft: #f1f5f9;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-soft: rgba(0, 0, 0, 0.08);
+    --prusa-orange-light: rgba(234, 88, 12, 0.1);
+  }
+
+  .prusa-page {
+    padding-top: 160px;
+    padding-bottom: 60px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  .breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--prusa-orange);
+  }
+
+  /* Page Header */
+  .page-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .version-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--prusa-orange-light);
+    color: var(--prusa-orange);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .dot { opacity: 0.5; }
+
+  .page-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 12px;
+  }
+
+  .page-title .accent {
+    color: var(--prusa-orange);
+  }
+
+  .page-desc {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* Navigation Tabs */
+  .nav-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .nav-tab {
+    flex: 1;
+    min-width: 140px;
+    padding: 16px 20px;
+    background: var(--bg-card);
+    border: 2px solid var(--border-soft);
+    border-radius: 12px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-tab:hover {
+    border-color: var(--prusa-orange);
+    color: var(--prusa-orange);
+  }
+
+  .nav-tab.active {
+    background: var(--prusa-orange-light);
+    border-color: var(--prusa-orange);
+    color: var(--prusa-orange);
+  }
+
+  /* Main Card */
+  .main-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 24px;
+    padding: 32px;
+    min-height: 500px;
+  }
+
+  .tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Dashboard Tab */
+  .welcome-section {
+    margin-bottom: 32px;
+  }
+
+  .welcome-section h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 12px;
+  }
+
+  .welcome-section p {
+    color: var(--text-muted);
+    line-height: 1.7;
+    max-width: 800px;
+  }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+
+  .chart-card {
+    background: var(--bg-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .chart-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 4px;
+  }
+
+  .chart-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .chart-container {
+    position: relative;
+    height: 280px;
+  }
+
+  .quick-tips {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .tip-card {
+    display: flex;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid;
+  }
+
+  .tip-card.tip-layers {
+    background: var(--prusa-orange-light);
+    border-color: rgba(234, 88, 12, 0.3);
+  }
+
+  .tip-card.tip-infill {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+
+  .tip-card.tip-temp {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+
+  .tip-icon {
+    font-size: 1.5rem;
+  }
+
+  .tip-card h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 4px;
+  }
+
+  .tip-card p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* Features Section */
+  .features-section h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 16px;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .feature-card {
+    background: var(--bg-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.2s;
+  }
+
+  .feature-card:hover {
+    border-color: var(--prusa-orange);
+    transform: translateY(-2px);
+  }
+
+  .feature-icon {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .feature-card h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 8px;
+  }
+
+  .feature-card p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* Settings Tab */
+  .settings-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+  }
+
+  .settings-sidebar {
+    background: var(--bg-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 20px;
+  }
+
+  .sidebar-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 16px;
+  }
+
+  .category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .category-btn {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border: 2px solid var(--border-soft);
+    border-radius: 10px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+  }
+
+  .category-btn:hover {
+    border-color: var(--prusa-orange);
+  }
+
+  .category-btn.active {
+    background: var(--prusa-orange);
+    border-color: var(--prusa-orange);
+    color: white;
+  }
+
+  .impact-chart-section {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .impact-chart-section h4 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 4px;
+  }
+
+  .impact-chart-section p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .chart-container-small {
+    height: 200px;
+  }
+
+  .settings-detail {
+    background: var(--bg-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .settings-header h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 8px;
+  }
+
+  .settings-header p {
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  .settings-items {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .setting-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s;
+  }
+
+  .setting-item:hover {
+    border-color: var(--prusa-orange);
+  }
+
+  .setting-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+
+  .setting-top h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .setting-val {
+    background: var(--bg-soft);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .setting-desc {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .setting-bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .setting-impact {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--prusa-orange-light);
+    border-radius: 8px;
+    color: var(--prusa-orange);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .setting-tips {
+    list-style: disc;
+    padding-left: 20px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  .setting-tips li {
+    margin-bottom: 4px;
+  }
+
+  /* Materials Tab */
+  .materials-intro {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .materials-intro h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 8px;
+  }
+
+  .materials-intro p {
+    color: var(--text-muted);
+  }
+
+  .filament-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .filament-card {
+    background: var(--bg-soft);
+    border-radius: 16px;
+    padding: 20px;
+    border-top: 4px solid;
+  }
+
+  .filament-card.pla { border-color: #22c55e; }
+  .filament-card.petg { border-color: #f97316; }
+  .filament-card.abs { border-color: #ef4444; }
+  .filament-card.tpu { border-color: #3b82f6; }
+
+  .filament-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .filament-header h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .difficulty {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+
+  .difficulty.easy { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+  .difficulty.medium { background: rgba(249, 115, 22, 0.2); color: #f97316; }
+  .difficulty.hard { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+  .difficulty.special { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+
+  .filament-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  .temp-specs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .spec {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+  }
+
+  .spec-label { color: var(--text-muted); }
+  .spec-value { font-weight: 700; color: var(--text-main); font-family: monospace; }
+
+  .temp-chart-section {
+    background: var(--bg-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .temp-chart-section h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 4px;
+  }
+
+  .temp-chart-section p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+
+  .chart-container-wide {
+    height: 300px;
+  }
+
+  /* Troubleshoot Tab */
+  .troubleshoot-intro {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .troubleshoot-intro h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 8px;
+  }
+
+  .troubleshoot-intro p {
+    color: var(--text-muted);
+  }
+
+  .troubleshoot-card {
+    background: var(--bg-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .ts-question {
+    padding: 32px;
+  }
+
+  .ts-question h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-main);
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .ts-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .ts-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 16px 20px;
+    background: var(--bg-card);
+    border: 2px solid var(--border-soft);
+    border-radius: 12px;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .ts-option:hover {
+    border-color: var(--prusa-orange);
+    background: var(--prusa-orange-light);
+  }
+
+  .ts-option .arrow {
+    color: var(--text-muted);
+    transition: transform 0.2s;
+  }
+
+  .ts-option:hover .arrow {
+    transform: translateX(4px);
+    color: var(--prusa-orange);
+  }
+
+  .ts-solution {
+    padding: 40px;
+    text-align: center;
+    background: rgba(16, 185, 129, 0.1);
+  }
+
+  .ts-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+  }
+
+  .ts-solution h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 20px;
+  }
+
+  .ts-content {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: left;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .ts-content ol {
+    list-style: decimal;
+    padding-left: 20px;
+    color: var(--text-muted);
+    line-height: 2;
+  }
+
+  .ts-content strong {
+    color: var(--text-main);
+  }
+
+  .reset-btn {
+    display: block;
+    margin: 24px auto 0;
+    padding: 12px 24px;
+    background: transparent;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .reset-btn:hover {
+    border-color: var(--prusa-orange);
+    color: var(--prusa-orange);
+  }
+
+  /* Back Link */
+  .back-link {
+    display: inline-block;
+    margin-top: 32px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+  }
+
+  .back-link:hover {
+    color: var(--prusa-orange);
+  }
+
+  /* Light Mode Overrides */
+  [data-theme="light"] .main-card {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  }
+
+  [data-theme="light"] .nav-tab {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+  }
+
+  [data-theme="light"] .chart-card,
+  [data-theme="light"] .feature-card,
+  [data-theme="light"] .filament-card,
+  [data-theme="light"] .setting-card,
+  [data-theme="light"] .ts-content {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+  }
+
+  [data-theme="light"] .ts-choice {
+    background: #ffffff;
+    border-color: #e2e8f0;
+  }
+
+  [data-theme="light"] .ts-choice:hover {
+    background: #f8fafc;
+  }
+
+  [data-theme="light"] .setting-val {
+    background: #e2e8f0;
+  }
+
+  [data-theme="light"] .reset-btn {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .dashboard-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .features-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .settings-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .filament-cards {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .prusa-page {
+      padding-top: 130px;
+    }
+
+    .page-title {
+      font-size: 1.8rem;
+    }
+
+    .nav-tab {
+      padding: 12px 16px;
+      font-size: 0.8rem;
+      min-width: 100px;
+    }
+
+    .main-card {
+      padding: 20px;
+    }
+
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .filament-cards {
+      grid-template-columns: 1fr;
+    }
+
+    .setting-bottom {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

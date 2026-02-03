@@ -1,0 +1,3 @@
+# Google Search Console Dogrulama
+# Bu dosyayi Google Search Console'dan alinan dogrulama koduyla degistirin
+# Ornek: googleXXXXXXXXXXXXXXXX.html dosyasi olusturun

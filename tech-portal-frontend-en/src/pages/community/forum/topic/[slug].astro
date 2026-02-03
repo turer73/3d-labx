@@ -1,0 +1,925 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import Header from "../../../../components/Header.astro";
+import { getApiBase } from "../../../../lib/api";
+import { marked } from "marked";
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+const API_BASE = getApiBase(Astro.request);
+
+// Markdown ayarları - güvenli HTML render
+marked.setOptions({
+  breaks: true,
+  gfm: true
+});
+
+let thread: any = null;
+let replies: any[] = [];
+let pagination: any = null;
+
+try {
+  const res = await fetch(`${API_BASE}/api/forum/threads/${slug}`);
+  if (res.ok) {
+    const data = await res.json();
+    thread = data.thread;
+    replies = data.replies || [];
+    pagination = data.pagination;
+  }
+} catch (e) {
+  console.error("Konu yüklenemedi:", e);
+}
+
+if (!thread) {
+  return Astro.redirect("/topluluk/forum");
+}
+
+// YouTube linklerini placeholder ile değiştir (Markdown parse öncesi)
+function extractYouTubeLinks(content: string): { content: string, videos: string[] } {
+  const videos: string[] = [];
+
+  // YouTube URL patterns - satır başında veya tek başına olan linkler
+  const youtubePatterns = [
+    // https://www.youtube.com/watch?v=VIDEO_ID
+    /(?:^|\n)(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})(?:[^\s\n]*)?(?:\n|$)/gm,
+    // https://youtu.be/VIDEO_ID
+    /(?:^|\n)(?:https?:\/\/)?(?:www\.)?youtu\.be\/([a-zA-Z0-9_-]{11})(?:[^\s\n]*)?(?:\n|$)/gm,
+  ];
+
+  let result = content;
+
+  youtubePatterns.forEach(pattern => {
+    result = result.replace(pattern, (match, videoId) => {
+      const index = videos.length;
+      videos.push(videoId);
+      return `\n%%YOUTUBE_VIDEO_${index}%%\n`;
+    });
+  });
+
+  return { content: result, videos };
+}
+
+// Placeholder'ları gerçek iframe'lerle değiştir (Markdown parse sonrası)
+function restoreYouTubeEmbeds(html: string, videos: string[]): string {
+  let result = html;
+
+  videos.forEach((videoId, index) => {
+    const placeholder = `%%YOUTUBE_VIDEO_${index}%%`;
+    // <p> içinde olabilir, onu da temizle
+    const embedHtml = `<div class="video-wrapper"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`;
+
+    result = result.replace(`<p>${placeholder}</p>`, embedHtml);
+    result = result.replace(placeholder, embedHtml);
+  });
+
+  return result;
+}
+
+// İçeriği Markdown'dan HTML'e dönüştür
+function renderContent(content: string): string {
+  if (!content) return '';
+
+  // Eğer içerik zaten HTML ise (HTML tag kontrolü)
+  if (content.trim().startsWith('<') && (content.includes('</') || content.includes('/>'))) {
+    return content;
+  }
+
+  // 1. YouTube linklerini çıkar ve placeholder koy
+  const { content: processedContent, videos } = extractYouTubeLinks(content);
+
+  // 2. Markdown'ı HTML'e dönüştür
+  let html = marked.parse(processedContent) as string;
+
+  // 3. Placeholder'ları gerçek iframe'lerle değiştir
+  html = restoreYouTubeEmbeds(html, videos);
+
+  return html;
+}
+
+// Thread ve reply içeriklerini render et
+const renderedThreadContent = renderContent(thread.content);
+
+function timeAgo(dateStr: string) {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+  if (diff < 60) return "Az önce";
+  if (diff < 3600) return `${Math.floor(diff / 60)} dakika önce`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} saat önce`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)} gün önce`;
+  return date.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+}
+---
+
+<BaseLayout 
+  title={`${thread.title} - Forum | 3D-labX`}
+  description={thread.content?.substring(0, 160)}
+>
+  <Header />
+
+  <main class="thread-page">
+    <div class="container">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb">
+        <a href="/topluluk">Topluluk</a>
+        <span>/</span>
+        <a href="/topluluk/forum">Forum</a>
+        <span>/</span>
+        <a href={`/topluluk/forum/${thread.category_slug}`}>{thread.category_name}</a>
+        <span>/</span>
+        <span>Konu</span>
+      </nav>
+
+      <!-- Ana Konu -->
+      <article class="thread-main">
+        <div class="thread-header">
+          <div class="thread-badges">
+            {thread.is_pinned === 1 && <span class="badge pinned">📌 Sabitlenmiş</span>}
+            {thread.is_solved === 1 && <span class="badge solved">✓ Çözüldü</span>}
+            {thread.is_locked === 1 && <span class="badge locked">🔒 Kilitli</span>}
+          </div>
+          <h1>{thread.title}</h1>
+          <div class="thread-meta">
+            <div class="author-info">
+              {thread.avatar_url ? (
+                <img src={thread.avatar_url} alt={thread.username} class="author-avatar" />
+              ) : (
+                <div class="avatar-placeholder">{thread.username?.charAt(0).toUpperCase()}</div>
+              )}
+              <div class="author-details">
+                <a href={`/profil/${thread.username}`} class="author-name">@{thread.username}</a>
+                <span class="post-time">{timeAgo(thread.created_at)}</span>
+              </div>
+            </div>
+            <div class="thread-stats">
+              <span title="Görüntülenme">👁️ {thread.view_count}</span>
+              <span title="Cevap">💬 {thread.reply_count}</span>
+              <span title="Beğeni">❤️ {thread.like_count}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="thread-content prose" set:html={renderedThreadContent}>
+        </div>
+
+        <div class="thread-actions">
+          <button class="action-btn like-btn" data-type="thread" data-id={thread.id}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            Beğen
+          </button>
+          <button class="action-btn share-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+            Paylaş
+          </button>
+        </div>
+      </article>
+
+      <!-- Cevaplar -->
+      <section class="replies-section">
+        <h2>Cevaplar ({thread.reply_count})</h2>
+        
+        <div class="replies-list" id="repliesList">
+          {replies.map((reply) => (
+            <article class={`reply-item ${reply.is_best_answer ? 'best-answer' : ''}`} data-reply-id={reply.id}>
+              {reply.is_best_answer === 1 && (
+                <div class="best-answer-badge">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  En İyi Cevap
+                </div>
+              )}
+              <div class="reply-author">
+                {reply.avatar_url ? (
+                  <img src={reply.avatar_url} alt={reply.username} class="author-avatar" />
+                ) : (
+                  <div class="avatar-placeholder">{reply.username?.charAt(0).toUpperCase()}</div>
+                )}
+                <div class="author-details">
+                  <a href={`/profil/${reply.username}`} class="author-name">@{reply.username}</a>
+                  <span class="post-time">{timeAgo(reply.created_at)}</span>
+                </div>
+              </div>
+              <div class="reply-content prose" set:html={renderContent(reply.content)}>
+              </div>
+              <div class="reply-actions">
+                <button class="action-btn like-btn" data-type="reply" data-id={reply.id}>
+                  ❤️ {reply.like_count}
+                </button>
+                <button class="action-btn best-btn" data-reply-id={reply.id} title="En iyi cevap olarak işaretle">
+                  ✓ En İyi
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {replies.length === 0 && (
+          <div class="empty-replies">
+            <p>Henüz cevap yok. İlk cevabı sen yaz!</p>
+          </div>
+        )}
+      </section>
+
+      <!-- Cevap Yazma Formu -->
+      {thread.is_locked !== 1 && (
+        <section class="reply-form-section">
+          <h3>Cevap Yaz</h3>
+          <form id="replyForm" class="reply-form">
+            <textarea 
+              id="replyContent" 
+              placeholder="Cevabınızı yazın... (En az 10 karakter)"
+              rows="5"
+              minlength="10"
+              required
+            ></textarea>
+            <div class="form-actions">
+              <span class="char-count"><span id="charCount">0</span> / 10000</span>
+              <button type="submit" class="btn btn-primary" id="submitReply">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Gönder
+              </button>
+            </div>
+          </form>
+          <p class="login-notice hidden" id="loginNotice">
+            Cevap yazmak için <a href="/auth/giris">giriş yapmalısınız</a>.
+          </p>
+        </section>
+      )}
+
+      {thread.is_locked === 1 && (
+        <div class="locked-notice">
+          <span>🔒</span>
+          <p>Bu konu kilitlenmiş, yeni cevap yazılamaz.</p>
+        </div>
+      )}
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .thread-page {
+    padding-top: 140px;
+    padding-bottom: 64px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb a {
+    color: #F97316;
+    text-decoration: none;
+  }
+
+  /* Thread Main */
+  .thread-main {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+
+  .thread-badges {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .badge {
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 8px;
+  }
+
+  .badge.pinned { background: rgba(249, 115, 22, 0.15); color: #F97316; }
+  .badge.solved { background: rgba(34, 197, 94, 0.15); color: #22C55E; }
+  .badge.locked { background: rgba(107, 114, 128, 0.15); color: #6B7280; }
+
+  .thread-header h1 {
+    font-size: 1.6rem;
+    margin: 0 0 16px;
+    line-height: 1.4;
+  }
+
+  .thread-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .author-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .author-avatar, .avatar-placeholder {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    object-fit: cover;
+  }
+
+  .avatar-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #F97316, #EA580C);
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  .author-name {
+    color: var(--text-main);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .author-name:hover {
+    color: #F97316;
+  }
+
+  .post-time {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .thread-stats {
+    display: flex;
+    gap: 16px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .thread-content {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-main);
+  }
+
+  /* Prose Stilleri - Markdown/HTML İçerik */
+  .prose {
+    max-width: 100%;
+  }
+
+  .thread-content :global(h1),
+  .thread-content :global(h2),
+  .thread-content :global(h3),
+  .thread-content :global(h4),
+  .thread-content :global(h5),
+  .thread-content :global(h6),
+  .reply-content :global(h1),
+  .reply-content :global(h2),
+  .reply-content :global(h3),
+  .reply-content :global(h4),
+  .reply-content :global(h5),
+  .reply-content :global(h6) {
+    margin-top: 0.8em !important;
+    margin-bottom: 0.3em !important;
+    font-weight: 600 !important;
+    line-height: 1.3 !important;
+    color: var(--text-main) !important;
+    font-size: 1rem !important;
+  }
+
+  .thread-content :global(h1),
+  .reply-content :global(h1) { font-size: 1.1rem !important; }
+
+  .thread-content :global(h2),
+  .reply-content :global(h2) { font-size: 1.05rem !important; border-bottom: 1px solid var(--border-soft) !important; padding-bottom: 0.2em !important; }
+
+  .thread-content :global(h3),
+  .reply-content :global(h3) { font-size: 1rem !important; }
+
+  .thread-content :global(h4),
+  .reply-content :global(h4) { font-size: 0.95rem !important; }
+
+  .prose p {
+    margin: 1em 0;
+  }
+
+  .prose a {
+    color: #F97316;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(249, 115, 22, 0.3);
+    transition: all 0.2s;
+  }
+
+  .prose a:hover {
+    color: #EA580C;
+    border-bottom-color: #EA580C;
+  }
+
+  .prose img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin: 1em 0;
+    border: 1px solid var(--border-soft);
+  }
+
+  .prose ul, .prose ol {
+    margin: 1em 0;
+    padding-left: 1.5em;
+  }
+
+  .prose li {
+    margin: 0.5em 0;
+  }
+
+  .prose ul li::marker {
+    color: #F97316;
+  }
+
+  .prose ol li::marker {
+    color: #F97316;
+    font-weight: 600;
+  }
+
+  .prose blockquote {
+    margin: 1em 0;
+    padding: 1em 1.5em;
+    border-left: 4px solid #F97316;
+    background: rgba(249, 115, 22, 0.05);
+    border-radius: 0 12px 12px 0;
+    font-style: italic;
+    color: var(--text-muted);
+  }
+
+  .prose code {
+    background: rgba(249, 115, 22, 0.1);
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9em;
+    color: #F97316;
+  }
+
+  .prose pre {
+    margin: 1em 0;
+    padding: 1em;
+    background: #1a1a2e;
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    overflow-x: auto;
+  }
+
+  .prose pre code {
+    background: none;
+    padding: 0;
+    color: #e2e8f0;
+    font-size: 0.85rem;
+  }
+
+  .prose table {
+    width: 100%;
+    margin: 1em 0;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    display: block;
+    overflow-x: auto;
+  }
+
+  .prose th, .prose td {
+    padding: 0.5em 0.75em;
+    text-align: left;
+    border: 1px solid var(--border-soft);
+    white-space: nowrap;
+  }
+
+  .prose th {
+    background: rgba(249, 115, 22, 0.1);
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  .prose tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  /* Tablo içindeki linkler */
+  .prose td a {
+    color: #F97316;
+    text-decoration: none;
+  }
+
+  .prose td a:hover {
+    text-decoration: underline;
+  }
+
+  .prose hr {
+    margin: 2em 0;
+    border: none;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .prose strong {
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .prose em {
+    font-style: italic;
+  }
+
+  /* YouTube Embed */
+  .prose iframe {
+    max-width: 100%;
+    border-radius: 12px;
+    margin: 1em 0;
+  }
+
+  /* Video responsive wrapper */
+  .prose .video-wrapper {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    margin: 1em 0;
+    border-radius: 12px;
+  }
+
+  .prose .video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+  }
+
+  .thread-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .action-btn:hover {
+    border-color: #F97316;
+    color: #F97316;
+  }
+
+  /* Replies */
+  .replies-section {
+    margin-bottom: 32px;
+  }
+
+  .replies-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+
+  .replies-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .reply-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 20px;
+  }
+
+  .reply-item.best-answer {
+    border-color: #22C55E;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.05), transparent);
+  }
+
+  .best-answer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: #22C55E;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+
+  .reply-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .reply-author .author-avatar,
+  .reply-author .avatar-placeholder {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+  }
+
+  .reply-content {
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  .reply-content.prose h1,
+  .reply-content.prose h2,
+  .reply-content.prose h3 {
+    font-size: 1.1rem;
+    margin-top: 1em;
+  }
+
+  .reply-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .reply-actions .action-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  .empty-replies {
+    text-align: center;
+    padding: 40px;
+    background: var(--bg-card);
+    border: 1px dashed var(--border-soft);
+    border-radius: 16px;
+    color: var(--text-muted);
+  }
+
+  /* Reply Form */
+  .reply-form-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    padding: 24px;
+  }
+
+  .reply-form-section h3 {
+    font-size: 1.1rem;
+    margin: 0 0 16px;
+  }
+
+  .reply-form textarea {
+    width: 100%;
+    padding: 14px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    resize: vertical;
+    color: var(--text-main);
+  }
+
+  .reply-form textarea:focus {
+    outline: none;
+    border-color: #F97316;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+  }
+
+  .char-count {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(249, 115, 22, 0.4);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .login-notice {
+    text-align: center;
+    padding: 16px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .login-notice a {
+    color: #F97316;
+  }
+
+  .locked-notice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+    background: rgba(107, 114, 128, 0.1);
+    border: 1px solid rgba(107, 114, 128, 0.3);
+    border-radius: 12px;
+    color: var(--text-muted);
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  @media (max-width: 640px) {
+    .thread-page {
+      padding-top: 120px;
+    }
+
+    .thread-main {
+      padding: 20px;
+    }
+
+    .thread-header h1 {
+      font-size: 1.3rem;
+    }
+
+    .thread-meta {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
+
+<script define:vars={{ threadId: thread.id }}>
+  const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
+  
+  // Auth token kontrolü
+  function getAuthToken() {
+    return localStorage.getItem('authToken');
+  }
+
+  // Karakter sayacı
+  const textarea = document.getElementById('replyContent');
+  const charCount = document.getElementById('charCount');
+  
+  if (textarea && charCount) {
+    textarea.addEventListener('input', () => {
+      charCount.textContent = textarea.value.length.toString();
+    });
+  }
+
+  // Login notice kontrolü
+  const form = document.getElementById('replyForm');
+  const loginNotice = document.getElementById('loginNotice');
+  
+  if (!getAuthToken()) {
+    if (form) form.classList.add('hidden');
+    if (loginNotice) loginNotice.classList.remove('hidden');
+  }
+
+  // Cevap gönderme
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const token = getAuthToken();
+      if (!token) {
+        window.showToast('Cevap yazmak için <a href="/auth/giris">giriş yapın</a>', 'info');
+        return;
+      }
+
+      const content = textarea?.value?.trim();
+      if (!content || content.length < 10) {
+        window.showToast('Cevap en az 10 karakter olmalıdır', 'warning');
+        return;
+      }
+
+      const submitBtn = document.getElementById('submitReply');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Gönderiliyor...';
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/api/forum/threads/${threadId}/replies`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ content })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          window.showToast('Cevabınız gönderildi!', 'success');
+          setTimeout(() => window.location.reload(), 1000);
+        } else {
+          window.showToast(data.error || 'Bir hata oluştu', 'error');
+        }
+      } catch (err) {
+        console.error('Reply error:', err);
+        window.showToast('Bir hata oluştu, lütfen tekrar deneyin', 'error');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Gönder';
+        }
+      }
+    });
+  }
+
+  // Beğeni
+  document.querySelectorAll('.like-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const token = getAuthToken();
+      if (!token) {
+        window.showToast('Beğenmek için <a href="/auth/giris">giriş yapın</a>', 'info');
+        return;
+      }
+
+      const type = btn.dataset.type;
+      const id = btn.dataset.id;
+
+      try {
+        const res = await fetch(`${API_URL}/api/likes`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ type, id: parseInt(id) })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          btn.classList.toggle('liked', data.liked);
+        }
+      } catch (err) {
+        console.error('Like error:', err);
+      }
+    });
+  });
+
+  // Paylaş
+  document.querySelector('.share-btn')?.addEventListener('click', () => {
+    if (navigator.share) {
+      navigator.share({
+        title: document.title,
+        url: window.location.href
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      window.showToast('Link panoya kopyalandı!', 'success');
+    }
+  });
+</script>

@@ -1,0 +1,1303 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+
+export const prerender = true;
+
+const title = "Orca Slicer Türkçe Rehber - Kalibrasyon ve Ayarlar | 3D-labX";
+const description = "Orca Slicer için kapsamlı Türkçe rehber. Sıcaklık kulesi, akış oranı, Pressure Advance kalibrasyonu ve tüm ayarların detaylı açıklamaları.";
+---
+
+<BaseLayout title={title} description={description}>
+  <Header />
+
+  <!-- Schema.org -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Orca Slicer Türkçe Rehber",
+    "description": description,
+    "author": { "@type": "Organization", "name": "3D-labX" },
+    "publisher": { "@type": "Organization", "name": "3D-labX", "url": "https://3d-labx.com" },
+    "datePublished": "2026-02-02",
+    "mainEntityOfPage": "https://3d-labx.com/rehberler/orca-slicer-rehberi"
+  })} />
+
+  <main class="orca-guide">
+    <div class="container">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb">
+        <a href="/">Ana Sayfa</a>
+        <span>/</span>
+        <a href="/rehberler">Rehberler</a>
+        <span>/</span>
+        <span class="current">Orca Slicer</span>
+      </nav>
+
+      <!-- Header -->
+      <header class="guide-header">
+        <div class="version-badge">
+          <span>Sürüm 1.2</span>
+          <span class="dot">•</span>
+          <span>Pro Rehber</span>
+        </div>
+        <h1>Orca Slicer <span class="gradient-text">Türkçe Rehber</span></h1>
+        <p class="header-desc">Bambu Studio tabanlı bu güçlü dilimleyicinin ayarlarını, kalibrasyon süreçlerini ve gizli özelliklerini keşfedin.</p>
+      </header>
+
+      <!-- Navigation Tabs -->
+      <nav class="guide-tabs">
+        <button class="tab-btn active" data-tab="dashboard">
+          <span class="tab-icon">📊</span>
+          <span>Genel Bakış</span>
+        </button>
+        <button class="tab-btn" data-tab="calibration">
+          <span class="tab-icon">🎯</span>
+          <span>Kalibrasyon</span>
+        </button>
+        <button class="tab-btn" data-tab="settings">
+          <span class="tab-icon">⚙️</span>
+          <span>Ayarlar Sözlüğü</span>
+        </button>
+        <button class="tab-btn" data-tab="troubleshoot">
+          <span class="tab-icon">🔧</span>
+          <span>Sorun Giderme</span>
+        </button>
+      </nav>
+
+      <!-- Content Area -->
+      <div class="guide-content">
+
+        <!-- TAB 1: DASHBOARD -->
+        <section id="tab-dashboard" class="tab-panel active">
+          <div class="charts-grid">
+            <!-- Feature Radar -->
+            <div class="chart-card">
+              <h3>Neden Orca Slicer?</h3>
+              <p class="chart-desc">Diğer dilimleyicilere göre performans karşılaştırması.</p>
+              <div class="chart-container">
+                <canvas id="radarChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Time Distribution -->
+            <div class="chart-card">
+              <h3>Baskı Süresi Analizi</h3>
+              <p class="chart-desc">Hızlandırmak için nereye odaklanmalısınız?</p>
+              <div class="chart-container">
+                <canvas id="timeChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="tips-grid">
+            <div class="tip-card tip-speed">
+              <span class="tip-icon">🚀</span>
+              <div class="tip-content">
+                <h4>Hız İpucu</h4>
+                <p>"Sparse Infill" (Seyrek Dolgu) için "Lightning" desenini kullanırsanız baskı süresi %30'a kadar azalabilir.</p>
+              </div>
+            </div>
+            <div class="tip-card tip-quality">
+              <span class="tip-icon">⚠️</span>
+              <div class="tip-content">
+                <h4>Kalite Uyarısı</h4>
+                <p>Dış duvar hızını (Outer Wall Speed) düşürmek, yüzey kalitesini (VFA, Ghosting) iyileştiren en etkili yöntemdir.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Orca vs Others Comparison -->
+          <div class="comparison-section">
+            <h3>🆚 Orca Slicer vs Diğer Dilimleyiciler</h3>
+            <div class="comparison-table">
+              <div class="comp-header">
+                <span>Özellik</span>
+                <span>Orca</span>
+                <span>Cura</span>
+                <span>PrusaSlicer</span>
+              </div>
+              <div class="comp-row">
+                <span>Dahili Kalibrasyon</span>
+                <span class="check">✓</span>
+                <span class="cross">✗</span>
+                <span class="partial">~</span>
+              </div>
+              <div class="comp-row">
+                <span>Pressure Advance</span>
+                <span class="check">✓</span>
+                <span class="cross">✗</span>
+                <span class="check">✓</span>
+              </div>
+              <div class="comp-row">
+                <span>Scarf Joint Seam</span>
+                <span class="check">✓</span>
+                <span class="cross">✗</span>
+                <span class="cross">✗</span>
+              </div>
+              <div class="comp-row">
+                <span>Bambu Lab Desteği</span>
+                <span class="check">✓</span>
+                <span class="cross">✗</span>
+                <span class="cross">✗</span>
+              </div>
+              <div class="comp-row">
+                <span>Klipper Entegrasyonu</span>
+                <span class="check">✓</span>
+                <span class="partial">~</span>
+                <span class="check">✓</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 2: CALIBRATION -->
+        <section id="tab-calibration" class="tab-panel">
+          <div class="calibration-layout">
+            <!-- Steps List -->
+            <div class="cal-steps">
+              <h3 class="steps-title">Kalibrasyon Adımları</h3>
+
+              <button class="cal-step-btn active" data-step="0">
+                <span class="step-icon">🌡️</span>
+                <div class="step-info">
+                  <h4>1. Sıcaklık Kulesi</h4>
+                  <p>En iyi yapışma sıcaklığı</p>
+                </div>
+              </button>
+
+              <button class="cal-step-btn" data-step="1">
+                <span class="step-icon">🌊</span>
+                <div class="step-info">
+                  <h4>2. Akış Oranı</h4>
+                  <p>Pass 1 & Pass 2 Testi</p>
+                </div>
+              </button>
+
+              <button class="cal-step-btn" data-step="2">
+                <span class="step-icon">⚡</span>
+                <div class="step-info">
+                  <h4>3. Pressure Advance</h4>
+                  <p>Köşe Keskinliği</p>
+                </div>
+              </button>
+
+              <button class="cal-step-btn" data-step="3">
+                <span class="step-icon">🚀</span>
+                <div class="step-info">
+                  <h4>4. Max Volumetric</h4>
+                  <p>Hız Limiti Bulma</p>
+                </div>
+              </button>
+
+              <button class="cal-step-btn" data-step="4">
+                <span class="step-icon">↩️</span>
+                <div class="step-info">
+                  <h4>5. Retraction</h4>
+                  <p>İpliklenme Önleme</p>
+                </div>
+              </button>
+            </div>
+
+            <!-- Detail Panel -->
+            <div class="cal-detail" id="calDetailPanel">
+              <div class="cal-detail-content" id="calDetailContent">
+                <!-- Default: Temp Tower -->
+                <div class="detail-header">
+                  <span class="detail-icon">🌡️</span>
+                  <h3>Sıcaklık Kulesi (Temperature Tower)</h3>
+                </div>
+                <p class="detail-desc">Filamentin en iyi yapıştığı ve en pürüzsüz göründüğü sıcaklığı bulur.</p>
+
+                <div class="detail-steps">
+                  <h4>Nasıl Yapılır?</h4>
+                  <ol>
+                    <li>Orca Slicer'da üst menüden <strong>Calibration → Temperature</strong> seçin</li>
+                    <li>Filament türünüze göre sıcaklık aralığı seçin (PLA: 190-220°C)</li>
+                    <li>Testi başlatın ve kulenin her katmanını inceleyin</li>
+                    <li>En pürüzsüz, ipliklenme olmayan katmanın sıcaklığını not edin</li>
+                    <li>Bu değeri filament profilinize kaydedin</li>
+                  </ol>
+                </div>
+
+                <div class="detail-tip">
+                  <span>💡</span>
+                  <p>Farklı renkler farklı sıcaklıklar gerektirebilir. Her yeni filament rulosunda test yapın!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 3: SETTINGS -->
+        <section id="tab-settings" class="tab-panel">
+          <div class="settings-categories">
+
+            <!-- Quality Settings -->
+            <div class="settings-category">
+              <div class="category-header">
+                <span class="cat-icon">✨</span>
+                <h3>Kalite (Quality)</h3>
+              </div>
+              <div class="settings-list">
+                <div class="setting-item">
+                  <div class="setting-header">
+                    <h4>Layer Height (Katman Yüksekliği)</h4>
+                    <span class="setting-range">0.08 - 0.32mm</span>
+                  </div>
+                  <p>Düşük değer = daha iyi detay ama daha uzun süre. 0.4mm nozzle için 0.2mm ideal başlangıç.</p>
+                </div>
+                <div class="setting-item">
+                  <div class="setting-header">
+                    <h4>Seam Position (Dikiş Konumu)</h4>
+                    <span class="setting-values">Aligned / Back / Random</span>
+                  </div>
+                  <p>Dikiş izini gizlemek için 'Aligned' veya 'Back' kullanın. Orca'da 'Scarf Joint' deneysel özelliği dikişi tamamen yok edebilir.</p>
+                </div>
+                <div class="setting-item">
+                  <div class="setting-header">
+                    <h4>Ironing (Ütüleme)</h4>
+                    <span class="setting-values">On / Off</span>
+                  </div>
+                  <p>En üst katmanın üzerinden sıcak nozül ile geçerek pürüzsüzleştirir. Sadece düz üst yüzeyler için açın.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Strength Settings -->
+            <div class="settings-category">
+              <div class="category-header">
+                <span class="cat-icon">💪</span>
+                <h3>Mukavemet (Strength)</h3>
+              </div>
+              <div class="settings-list">
+                <div class="setting-item">
+                  <div class="setting-header">
+                    <h4>Wall Loops (Duvar Sayısı)</h4>
+                    <span class="setting-range">2 - 5</span>
+                  </div>
+                  <p>Parça sağlamlığı için dolguyu artırmak yerine duvar sayısını 3 veya 4 yapın. En etkili yöntem budur.</p>
+                </div>
+                <div class="setting-item">
+                  <div class="setting-header">
+                    <h4>Infill Density (Dolgu Yoğunluğu)</h4>
+                    <span class="setting-range">%10 - %100</span>
+                  </div>
+                  <p>Dekoratif: %10-15, Fonksiyonel: %20-40, Mekanik: %50+. %100 nadiren gerekli.</p>
+                </div>
+                <div class="setting-item">
+                  <div class="setting-header">
+                    <h4>Infill Pattern (Dolgu Deseni)</h4>
+                    <span class="setting-values">Gyroid / Grid / Lightning</span>
+                  </div>
+                  <p>'Grid' deseni kesişme noktalarında nozzle sürtmesine neden olur. Sessiz ve hızlı baskı için 'Gyroid' veya 'Cross Hatch' kullanın.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Speed Settings -->
+            <div class="settings-category">
+              <div class="category-header">
+                <span class="cat-icon">⚡</span>
+                <h3>Hız (Speed)</h3>
+              </div>
+              <div class="settings-list">
+                <div class="setting-item">
+                  <div class="setting-header">
+                    <h4>Outer Wall Speed</h4>
+                    <span class="setting-range">30 - 80 mm/s</span>
+                  </div>
+                  <p>Yüzey kalitesi için en kritik ayar. VFA veya Ghosting varsa bu değeri düşürün.</p>
+                </div>
+                <div class="setting-item">
+                  <div class="setting-header">
+                    <h4>Inner Wall Speed</h4>
+                    <span class="setting-range">80 - 200 mm/s</span>
+                  </div>
+                  <p>İç duvarlar görünmediği için daha hızlı olabilir. Outer wall'un 2-3 katı güvenli.</p>
+                </div>
+                <div class="setting-item">
+                  <div class="setting-header">
+                    <h4>Infill Speed</h4>
+                    <span class="setting-range">100 - 300 mm/s</span>
+                  </div>
+                  <p>Dolgu görünmez, en hızlı ayar burada olabilir. Volumetric limit'e dikkat edin.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Advanced Settings -->
+            <div class="settings-category">
+              <div class="category-header">
+                <span class="cat-icon">🔬</span>
+                <h3>İleri Seviye</h3>
+              </div>
+              <div class="settings-list">
+                <div class="setting-item">
+                  <div class="setting-header">
+                    <h4>Pressure Advance (PA)</h4>
+                    <span class="setting-range">0.01 - 0.1</span>
+                  </div>
+                  <p>Köşelerde taşma/eksik bırakmayı önler. Klipper firmware için kritik. Her filament için ayrı kalibre edin.</p>
+                </div>
+                <div class="setting-item">
+                  <div class="setting-header">
+                    <h4>Max Volumetric Speed</h4>
+                    <span class="setting-range">8 - 25 mm³/s</span>
+                  </div>
+                  <p>Hotend'in eritebileceği maksimum plastik. PLA: ~15, PETG: ~12, ABS: ~11. Aştığınızda baskı matlaşır.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 4: TROUBLESHOOT -->
+        <section id="tab-troubleshoot" class="tab-panel">
+          <div class="problems-grid">
+            <button class="problem-btn" data-problem="stringing">
+              <span class="problem-icon">🕸️</span>
+              <span class="problem-name">İpliklenme</span>
+            </button>
+            <button class="problem-btn" data-problem="warping">
+              <span class="problem-icon">📐</span>
+              <span class="problem-name">Köşe Kalkması</span>
+            </button>
+            <button class="problem-btn" data-problem="vfa">
+              <span class="problem-icon">〰️</span>
+              <span class="problem-name">Dalgalanma (VFA)</span>
+            </button>
+            <button class="problem-btn" data-problem="scar">
+              <span class="problem-icon">🔪</span>
+              <span class="problem-name">Yüzey Çiziği</span>
+            </button>
+            <button class="problem-btn" data-problem="layer">
+              <span class="problem-icon">📚</span>
+              <span class="problem-name">Katman Ayrılması</span>
+            </button>
+            <button class="problem-btn" data-problem="blob">
+              <span class="problem-icon">💧</span>
+              <span class="problem-name">Blob / Zit</span>
+            </button>
+          </div>
+
+          <div class="solution-panel" id="solutionPanel">
+            <div class="solution-placeholder">
+              <span>👆</span>
+              <p>Yukarıdan bir sorun seçin</p>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .orca-guide {
+    padding: 120px 0 60px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .breadcrumb a:hover { color: #10b981; }
+  .breadcrumb .current { color: var(--text-main); font-weight: 500; }
+
+  /* Header */
+  .guide-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .version-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #10b981;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+  }
+
+  .version-badge .dot { opacity: 0.5; }
+
+  .guide-header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 12px;
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, #10b981, #14b8a6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header-desc {
+    color: var(--text-muted);
+    font-size: 1rem;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* Navigation Tabs */
+  .guide-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--bg-card);
+    border: 2px solid var(--border-soft);
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover {
+    border-color: #10b981;
+    color: #10b981;
+  }
+
+  .tab-btn.active {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: #10b981;
+    color: #10b981;
+  }
+
+  .tab-icon { font-size: 1.1rem; }
+
+  /* Content Area */
+  .guide-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 24px;
+    padding: 32px;
+    min-height: 500px;
+  }
+
+  .tab-panel {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .tab-panel.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Dashboard Tab */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .chart-card {
+    background: var(--bg-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .chart-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 4px;
+  }
+
+  .chart-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .chart-container {
+    position: relative;
+    height: 250px;
+  }
+
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .tip-card {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid;
+  }
+
+  .tip-speed {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+
+  .tip-quality {
+    background: rgba(249, 115, 22, 0.1);
+    border-color: rgba(249, 115, 22, 0.3);
+  }
+
+  .tip-icon { font-size: 1.5rem; }
+
+  .tip-content h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .tip-speed h4 { color: #10b981; }
+  .tip-quality h4 { color: #f97316; }
+
+  .tip-content p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* Comparison Table */
+  .comparison-section {
+    margin-top: 24px;
+  }
+
+  .comparison-section h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 16px;
+  }
+
+  .comparison-table {
+    background: var(--bg-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .comp-header, .comp-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    padding: 12px 16px;
+  }
+
+  .comp-header {
+    background: var(--bg-card);
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .comp-row {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .comp-row:last-child { border-bottom: none; }
+
+  .comp-row span:first-child { color: var(--text-main); }
+
+  .check { color: #10b981; font-weight: bold; }
+  .cross { color: #ef4444; }
+  .partial { color: #f59e0b; }
+
+  /* Calibration Tab */
+  .calibration-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+  }
+
+  .steps-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+
+  .cal-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .cal-step-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: var(--bg-soft);
+    border: 2px solid var(--border-soft);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+
+  .cal-step-btn:hover {
+    border-color: #10b981;
+  }
+
+  .cal-step-btn.active {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+  }
+
+  .step-icon { font-size: 1.5rem; }
+
+  .step-info h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 2px;
+  }
+
+  .step-info p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .cal-detail {
+    background: var(--bg-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .detail-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .detail-icon { font-size: 2rem; }
+
+  .detail-header h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .detail-desc {
+    font-size: 1rem;
+    color: #10b981;
+    font-weight: 500;
+    margin-bottom: 20px;
+  }
+
+  .detail-steps {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .detail-steps h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 12px;
+  }
+
+  .detail-steps ol {
+    list-style: decimal;
+    padding-left: 20px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.8;
+  }
+
+  .detail-steps strong { color: var(--text-main); }
+
+  .detail-tip {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 12px;
+  }
+
+  .detail-tip span { font-size: 1.25rem; }
+
+  .detail-tip p {
+    font-size: 0.9rem;
+    color: var(--text-main);
+    line-height: 1.5;
+  }
+
+  /* Settings Tab */
+  .settings-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .settings-category {
+    background: var(--bg-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .cat-icon { font-size: 1.25rem; }
+
+  .category-header h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .settings-list {
+    padding: 8px;
+  }
+
+  .setting-item {
+    padding: 16px;
+    border-radius: 12px;
+    transition: background 0.2s;
+  }
+
+  .setting-item:hover {
+    background: var(--bg-card);
+  }
+
+  .setting-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .setting-header h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #10b981;
+  }
+
+  .setting-range, .setting-values {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    background: var(--bg-card);
+    border-radius: 6px;
+    color: var(--text-muted);
+    font-family: monospace;
+  }
+
+  .setting-item p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* Troubleshoot Tab */
+  .problems-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .problem-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 12px;
+    background: var(--bg-soft);
+    border: 2px solid var(--border-soft);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .problem-btn:hover {
+    border-color: #10b981;
+    transform: translateY(-2px);
+  }
+
+  .problem-btn.active {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+  }
+
+  .problem-icon { font-size: 1.75rem; }
+
+  .problem-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-main);
+    text-align: center;
+  }
+
+  .solution-panel {
+    background: var(--bg-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 32px;
+    min-height: 200px;
+  }
+
+  .solution-placeholder {
+    text-align: center;
+    color: var(--text-muted);
+  }
+
+  .solution-placeholder span {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .solution-content {
+    animation: fadeIn 0.3s ease;
+  }
+
+  .solution-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .solution-header span { font-size: 2rem; }
+
+  .solution-header h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ef4444;
+  }
+
+  .solution-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .cause-box, .fix-box {
+    padding: 20px;
+    border-radius: 12px;
+  }
+
+  .cause-box {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  .fix-box {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+
+  .cause-box h4 { color: #ef4444; }
+  .fix-box h4 { color: #10b981; }
+
+  .cause-box h4, .fix-box h4 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .cause-box p, .fix-box p {
+    font-size: 0.9rem;
+    color: var(--text-main);
+    line-height: 1.6;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .charts-grid, .tips-grid, .solution-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .calibration-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .problems-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .guide-header h1 {
+      font-size: 2rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .orca-guide {
+      padding-top: 100px;
+    }
+
+    .guide-content {
+      padding: 20px;
+    }
+
+    .tab-btn {
+      padding: 10px 14px;
+      font-size: 0.8rem;
+    }
+
+    .tab-btn span:last-child {
+      display: none;
+    }
+
+    .problems-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .comp-header, .comp-row {
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      font-size: 0.75rem;
+      padding: 10px 12px;
+    }
+  }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabId = btn.dataset.tab;
+
+      // Update buttons
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // Update panels
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.add('active');
+
+      // Init charts if dashboard
+      if (tabId === 'dashboard') initCharts();
+    });
+  });
+
+  // Calibration steps
+  const calData = [
+    {
+      icon: '🌡️',
+      title: 'Sıcaklık Kulesi (Temperature Tower)',
+      desc: 'Filamentin en iyi yapıştığı ve en pürüzsüz göründüğü sıcaklığı bulur.',
+      steps: [
+        'Orca Slicer\'da üst menüden <strong>Calibration → Temperature</strong> seçin',
+        'Filament türünüze göre sıcaklık aralığı seçin (PLA: 190-220°C)',
+        'Testi başlatın ve kulenin her katmanını inceleyin',
+        'En pürüzsüz, ipliklenme olmayan katmanın sıcaklığını not edin',
+        'Bu değeri filament profilinize kaydedin'
+      ],
+      tip: 'Farklı renkler farklı sıcaklıklar gerektirebilir. Her yeni filament rulosunda test yapın!'
+    },
+    {
+      icon: '🌊',
+      title: 'Akış Oranı (Flow Rate)',
+      desc: 'Boyutsal doğruluk ve üst yüzey kalitesi için en kritik ayardır.',
+      steps: [
+        '<strong>Calibration → Flow Rate</strong> seçin',
+        'Pass 1 (Kaba ayar) testini başlatın',
+        'En düzgün görünen karenin numarasını not edin',
+        'Pass 2 (Hassas ayar) testini yapın',
+        'Formül: Eski Akış × (100 + Değişim) / 100'
+      ],
+      tip: 'Üst yüzeyde boşluk = akış düşük, taşma = akış yüksek. Her filament için ayrı kalibre edin.'
+    },
+    {
+      icon: '⚡',
+      title: 'Pressure Advance (PA)',
+      desc: 'Köşelerin keskinliği ve dikiş izleri (seam) için gereklidir.',
+      steps: [
+        '<strong>Calibration → Pressure Advance</strong> seçin',
+        'PA Line veya PA Pattern testini başlatın',
+        'Çizgilerin kalınlığının en stabil olduğu değeri bulun',
+        'Köşelerde taşma veya eksik olmayan değeri seçin',
+        'Değeri filament profiline kaydedin (genellikle 0.02-0.06 arası)'
+      ],
+      tip: 'Bowden sistemlerde PA değeri daha yüksek (0.4-0.8), Direct Drive\'da düşük (0.01-0.05) olur.'
+    },
+    {
+      icon: '🚀',
+      title: 'Maksimum Hacimsel Hız (Max Volumetric Speed)',
+      desc: 'Hotend\'in eritebileceği maksimum plastik miktarını belirler.',
+      steps: [
+        '<strong>Calibration → Max Volumetric Speed</strong> seçin',
+        'Testi başlatın ve baskıyı izleyin',
+        'Baskının matlaştığı veya bozulduğu noktayı bulun',
+        'O noktadan önceki mm³/s değerini not edin',
+        'Bu değeri filament profilinde "Max Volumetric Speed" olarak girin'
+      ],
+      tip: 'Bu değer hız ayarlarını limitler. PLA için ~15 mm³/s, PETG için ~12 mm³/s tipik değerlerdir.'
+    },
+    {
+      icon: '↩️',
+      title: 'Retraction (Geri Çekme)',
+      desc: 'İpliklenme (stringing) sorununu çözmek için optimize eder.',
+      steps: [
+        '<strong>Calibration → Retraction Test</strong> seçin',
+        'Mesafe ve hız kombinasyonlarını test edin',
+        'İpliklenme olmayan en düşük değeri bulun',
+        'Direct Drive: 0.5-2mm, Bowden: 3-7mm tipik değerler',
+        'Hız genellikle 25-45 mm/s arası optimal'
+      ],
+      tip: 'Çok yüksek retraction tıkanmaya neden olabilir. Minimum gerekli değeri kullanın.'
+    }
+  ];
+
+  document.querySelectorAll('.cal-step-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const stepIndex = parseInt(btn.dataset.step);
+      const step = calData[stepIndex];
+
+      // Update active state
+      document.querySelectorAll('.cal-step-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // Update content
+      document.getElementById('calDetailContent').innerHTML = `
+        <div class="detail-header">
+          <span class="detail-icon">${step.icon}</span>
+          <h3>${step.title}</h3>
+        </div>
+        <p class="detail-desc">${step.desc}</p>
+        <div class="detail-steps">
+          <h4>Nasıl Yapılır?</h4>
+          <ol>
+            ${step.steps.map(s => `<li>${s}</li>`).join('')}
+          </ol>
+        </div>
+        <div class="detail-tip">
+          <span>💡</span>
+          <p>${step.tip}</p>
+        </div>
+      `;
+    });
+  });
+
+  // Troubleshooting solutions
+  const solutions = {
+    stringing: {
+      icon: '🕸️',
+      title: 'İpliklenme (Stringing)',
+      cause: 'Sıcaklık çok yüksek veya geri çekme (retraction) yetersiz. Filament nemli olabilir.',
+      fix: 'Sıcaklığı 5-10°C düşürün. Retraction mesafesini artırın (Direct Drive: 1-2mm, Bowden: 4-6mm). Filamentin nemli olmadığından emin olun - gerekirse kurutucu kullanın.'
+    },
+    warping: {
+      icon: '📐',
+      title: 'Köşe Kalkması (Warping)',
+      cause: 'Tabla soğuk, hava akımı var veya ilk katman yapışması zayıf.',
+      fix: 'Tabla sıcaklığını artırın (PLA: 60°C, PETG: 80°C). İlk katman fanını kapatın. Brim ekleyin. Enclosure kullanın. Tabla yüzeyini temizleyin (IPA).'
+    },
+    vfa: {
+      icon: '〰️',
+      title: 'Yüzeyde Dalgalanma (VFA)',
+      cause: 'Mekanik titreşimler, yanlış hız/ivme ayarları veya rezonans.',
+      fix: 'Dış duvar hızını (Outer Wall Speed) 40-60 mm/s arasına düşürün. Kayış gerginliklerini kontrol edin. Input Shaper kalibrasyonu yapın (Klipper).'
+    },
+    scar: {
+      icon: '🔪',
+      title: 'Üst Yüzeyde Çizikler',
+      cause: 'Nozül hareket ederken baskıya sürtüyor. Z-hop yetersiz.',
+      fix: '"Z-hop when retracting" özelliğini açın (0.2-0.4mm). Monotonic infill kullanın. Over-extrusion varsa akış oranını düşürün.'
+    },
+    layer: {
+      icon: '📚',
+      title: 'Katman Ayrılması (Delamination)',
+      cause: 'Katmanlar arası yapışma zayıf. Sıcaklık düşük veya fan çok yüksek.',
+      fix: 'Baskı sıcaklığını 5-10°C artırın. Fan hızını düşürün (özellikle ilk katmanlarda). Baskı hızını yavaşlatın. Enclosure kullanın (ABS/ASA için şart).'
+    },
+    blob: {
+      icon: '💧',
+      title: 'Blob / Zit (Kabarcık)',
+      cause: 'Dikiş noktalarında fazla malzeme birikimi. Wipe/coasting ayarları yanlış.',
+      fix: '"Wipe while retracting" özelliğini açın. Seam konumunu "Back" veya "Sharpest Corner" yapın. Retraction hızını artırın. Scarf Joint Seam özelliğini deneyin.'
+    }
+  };
+
+  document.querySelectorAll('.problem-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const problemId = btn.dataset.problem;
+      const sol = solutions[problemId];
+
+      // Update active state
+      document.querySelectorAll('.problem-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // Update content
+      document.getElementById('solutionPanel').innerHTML = `
+        <div class="solution-content">
+          <div class="solution-header">
+            <span>${sol.icon}</span>
+            <h3>${sol.title}</h3>
+          </div>
+          <div class="solution-grid">
+            <div class="cause-box">
+              <h4>Neden Oluşur?</h4>
+              <p>${sol.cause}</p>
+            </div>
+            <div class="fix-box">
+              <h4>Çözüm</h4>
+              <p>${sol.fix}</p>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  });
+
+  // Charts
+  let radarChart = null;
+  let timeChart = null;
+
+  function initCharts() {
+    if (radarChart) return;
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const textColor = isDark ? '#94a3b8' : '#475569';
+    const gridColor = isDark ? '#334155' : '#e2e8f0';
+
+    // Radar Chart
+    const ctxRadar = document.getElementById('radarChart')?.getContext('2d');
+    if (ctxRadar) {
+      radarChart = new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+          labels: ['Kalibrasyon', 'Arayüz', 'Hız', 'Yüzey Kalitesi', 'Özellikler'],
+          datasets: [{
+            label: 'Orca Slicer',
+            data: [10, 8, 9, 10, 9],
+            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+            borderColor: '#10b981',
+            pointBackgroundColor: '#10b981'
+          }, {
+            label: 'Diğer Dilimleyiciler',
+            data: [5, 7, 7, 7, 6],
+            backgroundColor: 'rgba(148, 163, 184, 0.2)',
+            borderColor: '#94a3b8',
+            pointBackgroundColor: '#94a3b8'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              grid: { color: gridColor },
+              angleLines: { display: false },
+              pointLabels: { color: textColor, font: { size: 11 } },
+              suggestedMin: 0,
+              suggestedMax: 10,
+              ticks: { display: false }
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: textColor, font: { size: 11 } }
+            }
+          }
+        }
+      });
+    }
+
+    // Time Chart
+    const ctxTime = document.getElementById('timeChart')?.getContext('2d');
+    if (ctxTime) {
+      timeChart = new Chart(ctxTime, {
+        type: 'doughnut',
+        data: {
+          labels: ['İç Duvarlar', 'Dış Duvar', 'Dolgu', 'Üst/Alt Katman', 'Hareket'],
+          datasets: [{
+            data: [35, 25, 20, 15, 5],
+            backgroundColor: ['#059669', '#10b981', '#34d399', '#6ee7b7', '#94a3b8'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: { color: textColor, font: { size: 10 } }
+            }
+          }
+        }
+      });
+    }
+  }
+
+  // Init charts on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(initCharts, 100);
+  });
+
+  // Re-init on Astro navigation
+  document.addEventListener('astro:page-load', () => {
+    radarChart = null;
+    timeChart = null;
+    setTimeout(initCharts, 100);
+  });
+</script>

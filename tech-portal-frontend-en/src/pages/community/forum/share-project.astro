@@ -1,0 +1,780 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Header from "../../../components/Header.astro";
+import { getApiBase } from "../../../lib/api";
+
+export const prerender = false;
+
+const API_BASE = getApiBase(Astro.request);
+
+// Projeler kategorisinin ID'sini al
+let projectCategoryId = 2; // Default: Projeler & Showcase
+
+try {
+  const res = await fetch(`${API_BASE}/api/forum/categories`);
+  if (res.ok) {
+    const data = await res.json();
+    const projectCat = data.categories?.find((c: any) => c.slug === 'projeler');
+    if (projectCat) projectCategoryId = projectCat.id;
+  }
+} catch (e) {
+  console.error("Kategori yüklenemedi:", e);
+}
+---
+
+<BaseLayout
+  title="Proje Paylas - 3D-labX Topluluk"
+  description="3D baski projenizi toplulukla paylasin. Gorseller, teknik detaylar ve daha fazlasi."
+>
+  <Header />
+
+  <main class="project-share-page">
+    <div class="container">
+      <nav class="breadcrumb">
+        <a href="/topluluk">Topluluk</a>
+        <span>/</span>
+        <a href="/topluluk/projeler">Projeler</a>
+        <span>/</span>
+        <span>Proje Paylas</span>
+      </nav>
+
+      <div class="form-card">
+        <div class="form-header">
+          <div class="header-icon">🏆</div>
+          <h1>Projenizi Paylasin</h1>
+          <p>3D baski projenizi toplulukla paylasin, ilham verin!</p>
+        </div>
+
+        <form id="projectForm" class="project-form">
+          <!-- Proje Basligi -->
+          <div class="form-group">
+            <label for="title">
+              <span class="label-icon">📝</span>
+              Proje Basligi
+            </label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              placeholder="Ornek: 3D Baskili Robot Kol Projesi"
+              minlength="5"
+              maxlength="200"
+              required
+            />
+            <span class="char-hint"><span id="titleCount">0</span>/200</span>
+          </div>
+
+          <!-- Gorsel Yukleme -->
+          <div class="form-group">
+            <label>
+              <span class="label-icon">📸</span>
+              Proje Gorselleri
+              <span class="optional">(Opsiyonel)</span>
+            </label>
+            <div class="image-upload-area" id="imageUploadArea">
+              <div class="upload-placeholder" id="uploadPlaceholder">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                <p>Gorselleri buraya surukleyin veya <span>secin</span></p>
+                <small>PNG, JPG, WEBP - Max 5MB</small>
+              </div>
+              <input type="file" id="imageInput" accept="image/png,image/jpeg,image/webp" multiple hidden />
+              <div class="image-previews" id="imagePreviews"></div>
+            </div>
+          </div>
+
+          <!-- Teknik Detaylar -->
+          <div class="form-section">
+            <h3>
+              <span class="section-icon">⚙️</span>
+              Teknik Detaylar
+              <span class="optional">(Opsiyonel)</span>
+            </h3>
+
+            <div class="form-row">
+              <div class="form-group half">
+                <label for="printer">Yazici Modeli</label>
+                <input
+                  type="text"
+                  id="printer"
+                  name="printer"
+                  placeholder="Ornek: Ender 3 V2"
+                />
+              </div>
+              <div class="form-group half">
+                <label for="filament">Filament</label>
+                <input
+                  type="text"
+                  id="filament"
+                  name="filament"
+                  placeholder="Ornek: PLA, PETG"
+                />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group half">
+                <label for="printTime">Baski Suresi</label>
+                <input
+                  type="text"
+                  id="printTime"
+                  name="printTime"
+                  placeholder="Ornek: 12 saat"
+                />
+              </div>
+              <div class="form-group half">
+                <label for="layerHeight">Katman Yuksekligi</label>
+                <input
+                  type="text"
+                  id="layerHeight"
+                  name="layerHeight"
+                  placeholder="Ornek: 0.2mm"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="stlLink">STL/Model Linki</label>
+              <input
+                type="url"
+                id="stlLink"
+                name="stlLink"
+                placeholder="Ornek: https://www.thingiverse.com/thing/..."
+              />
+            </div>
+          </div>
+
+          <!-- Proje Aciklamasi -->
+          <div class="form-group">
+            <label for="content">
+              <span class="label-icon">📄</span>
+              Proje Aciklamasi
+            </label>
+            <textarea
+              id="content"
+              name="content"
+              placeholder="Projenizi detayli bir sekilde anlatin...
+
+Ornek icerik:
+## Proje Hakkinda
+Bu projede ... yaptim.
+
+## Malzeme Listesi
+- Malzeme 1
+- Malzeme 2
+
+## Baski Ayarlari
+- Dolgu: %20
+- Destek: Gerekli
+
+## Notlar
+Dikkat edilmesi gerekenler..."
+              rows="12"
+              minlength="20"
+              maxlength="10000"
+              required
+            ></textarea>
+            <span class="char-hint"><span id="contentCount">0</span>/10000</span>
+            <div class="markdown-hint">
+              <span>💡 Markdown desteklenir:</span>
+              <code>**kalin**</code>
+              <code>*italik*</code>
+              <code>## Baslik</code>
+              <code>- Liste</code>
+              <code>[Link](url)</code>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <a href="/topluluk/projeler" class="btn btn-secondary">Iptal</a>
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              Projeyi Paylas
+            </button>
+          </div>
+        </form>
+
+        <div class="login-notice hidden" id="loginNotice">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+          <p>Proje paylasmak icin <a href="/auth/giris">giris yapmalisiniz</a>.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .project-share-page {
+    padding-top: 140px;
+    padding-bottom: 64px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 750px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  .breadcrumb a {
+    color: #8B5CF6;
+    text-decoration: none;
+  }
+
+  .form-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    padding: 32px;
+  }
+
+  .form-header {
+    text-align: center;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .header-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+  }
+
+  .form-header h1 {
+    font-size: 1.6rem;
+    margin: 0 0 8px;
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .form-header p {
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .project-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .form-section {
+    padding: 20px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+  }
+
+  .form-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    margin: 0 0 20px;
+    color: var(--text-main);
+  }
+
+  .section-icon {
+    font-size: 1.2rem;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 16px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+  }
+
+  .form-group.half {
+    flex: 1;
+  }
+
+  .form-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-main);
+  }
+
+  .label-icon {
+    font-size: 1rem;
+  }
+
+  .optional {
+    font-weight: 400;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .form-group input,
+  .form-group textarea {
+    padding: 14px 16px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    transition: border-color 0.2s ease;
+  }
+
+  .form-section .form-group input {
+    background: var(--bg-card);
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #8B5CF6;
+  }
+
+  .form-group textarea {
+    resize: vertical;
+    min-height: 250px;
+    line-height: 1.6;
+    font-family: inherit;
+  }
+
+  .char-hint {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    font-size: 0.75rem;
+    color: var(--text-light);
+  }
+
+  textarea + .char-hint {
+    bottom: 40px;
+  }
+
+  .markdown-hint {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .markdown-hint code {
+    padding: 2px 6px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.7rem;
+  }
+
+  /* Gorsel Yukleme */
+  .image-upload-area {
+    border: 2px dashed var(--border-soft);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .image-upload-area:hover,
+  .image-upload-area.dragover {
+    border-color: #8B5CF6;
+    background: rgba(139, 92, 246, 0.05);
+  }
+
+  .upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .upload-placeholder svg {
+    color: var(--text-light);
+  }
+
+  .upload-placeholder p {
+    margin: 0;
+  }
+
+  .upload-placeholder span {
+    color: #8B5CF6;
+    font-weight: 600;
+  }
+
+  .upload-placeholder small {
+    font-size: 0.75rem;
+    color: var(--text-light);
+  }
+
+  .image-previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .image-previews:empty {
+    display: none;
+  }
+
+  .image-preview {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--border-soft);
+  }
+
+  .image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .image-preview .remove-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 24px;
+    height: 24px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+  }
+
+  .btn-secondary {
+    background: var(--bg-main);
+    color: var(--text-main);
+    border: 1px solid var(--border-soft);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--text-muted);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(139, 92, 246, 0.4);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .login-notice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 40px;
+    text-align: center;
+    color: var(--text-muted);
+  }
+
+  .login-notice svg {
+    color: #8B5CF6;
+  }
+
+  .login-notice a {
+    color: #8B5CF6;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  @media (max-width: 640px) {
+    .project-share-page {
+      padding-top: 120px;
+    }
+
+    .form-card {
+      padding: 20px;
+    }
+
+    .form-row {
+      flex-direction: column;
+    }
+
+    .form-actions {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+
+<script define:vars={{ projectCategoryId }}>
+  const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
+  const R2_PUBLIC_URL = 'https://pub-9142f11355e84e1da1dd96a4c14e4afb.r2.dev';
+
+  let uploadedImages = [];
+
+  function getAuthToken() {
+    return localStorage.getItem('authToken');
+  }
+
+  // Login kontrolu
+  const form = document.getElementById('projectForm');
+  const loginNotice = document.getElementById('loginNotice');
+
+  if (!getAuthToken()) {
+    if (form) form.classList.add('hidden');
+    if (loginNotice) loginNotice.classList.remove('hidden');
+  }
+
+  // Karakter sayaclari
+  const titleInput = document.getElementById('title');
+  const titleCount = document.getElementById('titleCount');
+  const contentInput = document.getElementById('content');
+  const contentCount = document.getElementById('contentCount');
+
+  titleInput?.addEventListener('input', () => {
+    if (titleCount) titleCount.textContent = titleInput.value.length.toString();
+  });
+
+  contentInput?.addEventListener('input', () => {
+    if (contentCount) contentCount.textContent = contentInput.value.length.toString();
+  });
+
+  // Gorsel yukleme
+  const imageUploadArea = document.getElementById('imageUploadArea');
+  const imageInput = document.getElementById('imageInput');
+  const imagePreviews = document.getElementById('imagePreviews');
+  const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+
+  imageUploadArea?.addEventListener('click', () => {
+    imageInput?.click();
+  });
+
+  imageUploadArea?.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    imageUploadArea.classList.add('dragover');
+  });
+
+  imageUploadArea?.addEventListener('dragleave', () => {
+    imageUploadArea.classList.remove('dragover');
+  });
+
+  imageUploadArea?.addEventListener('drop', (e) => {
+    e.preventDefault();
+    imageUploadArea.classList.remove('dragover');
+    const files = e.dataTransfer?.files;
+    if (files) handleFiles(files);
+  });
+
+  imageInput?.addEventListener('change', (e) => {
+    const files = (e.target as HTMLInputElement).files;
+    if (files) handleFiles(files);
+  });
+
+  async function handleFiles(files: FileList) {
+    for (const file of Array.from(files)) {
+      if (!file.type.startsWith('image/')) continue;
+      if (file.size > 5 * 1024 * 1024) {
+        window.showToast(`${file.name} çok büyük (max 5MB)`, 'warning');
+        continue;
+      }
+      if (uploadedImages.length >= 5) {
+        window.showToast('En fazla 5 görsel yükleyebilirsiniz', 'warning');
+        break;
+      }
+
+      // Preview ekle
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const preview = document.createElement('div');
+        preview.className = 'image-preview';
+        preview.innerHTML = `
+          <img src="${e.target?.result}" alt="Preview" />
+          <button type="button" class="remove-btn">×</button>
+        `;
+
+        const idx = uploadedImages.length;
+        uploadedImages.push({ file, preview: e.target?.result });
+
+        preview.querySelector('.remove-btn')?.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          preview.remove();
+          uploadedImages = uploadedImages.filter((_, i) => i !== idx);
+        });
+
+        imagePreviews?.appendChild(preview);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // Form gonderme
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const token = getAuthToken();
+    if (!token) {
+      window.showToast('Lütfen <a href="/auth/giris">giriş yapın</a>', 'warning');
+      return;
+    }
+
+    const title = (document.getElementById('title') as HTMLInputElement)?.value?.trim();
+    const printer = (document.getElementById('printer') as HTMLInputElement)?.value?.trim();
+    const filament = (document.getElementById('filament') as HTMLInputElement)?.value?.trim();
+    const printTime = (document.getElementById('printTime') as HTMLInputElement)?.value?.trim();
+    const layerHeight = (document.getElementById('layerHeight') as HTMLInputElement)?.value?.trim();
+    const stlLink = (document.getElementById('stlLink') as HTMLInputElement)?.value?.trim();
+    let content = (document.getElementById('content') as HTMLTextAreaElement)?.value?.trim();
+
+    if (!title || title.length < 5) {
+      window.showToast('Başlık en az 5 karakter olmalıdır', 'warning');
+      return;
+    }
+
+    if (!content || content.length < 20) {
+      window.showToast('İçerik en az 20 karakter olmalıdır', 'warning');
+      return;
+    }
+
+    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = 'Yukleniyor...';
+    }
+
+    try {
+      // Gorselleri yukle (varsa)
+      let imageUrls = [];
+      for (const img of uploadedImages) {
+        try {
+          const formData = new FormData();
+          formData.append('file', img.file);
+
+          const uploadRes = await fetch(`${API_URL}/api/upload`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+            body: formData
+          });
+
+          if (uploadRes.ok) {
+            const uploadData = await uploadRes.json();
+            if (uploadData.url) {
+              imageUrls.push(uploadData.url);
+            }
+          }
+        } catch (uploadErr) {
+          console.error('Gorsel yukleme hatasi:', uploadErr);
+        }
+      }
+
+      // Teknik detaylari icerege ekle
+      let technicalSection = '';
+      if (printer || filament || printTime || layerHeight || stlLink) {
+        technicalSection = '\n\n---\n\n## Teknik Detaylar\n\n';
+        if (printer) technicalSection += `- **Yazici:** ${printer}\n`;
+        if (filament) technicalSection += `- **Filament:** ${filament}\n`;
+        if (printTime) technicalSection += `- **Baski Suresi:** ${printTime}\n`;
+        if (layerHeight) technicalSection += `- **Katman Yuksekligi:** ${layerHeight}\n`;
+        if (stlLink) technicalSection += `\n**Model Linki:** [STL Dosyasi](${stlLink})\n`;
+      }
+
+      // Gorselleri icerege ekle
+      let imageSection = '';
+      if (imageUrls.length > 0) {
+        imageSection = '\n\n---\n\n## Proje Gorselleri\n\n';
+        imageUrls.forEach((url, idx) => {
+          imageSection += `![Proje Gorseli ${idx + 1}](${url})\n\n`;
+        });
+      }
+
+      const finalContent = content + technicalSection + imageSection;
+
+      // Forum konusu olustur
+      const res = await fetch(`${API_URL}/api/forum/threads`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          category_id: projectCategoryId,
+          title,
+          content: finalContent
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.slug) {
+        window.showToast('Projeniz başarıyla paylaşıldı!', 'success');
+        window.location.href = `/topluluk/forum/konu/${data.slug}`;
+      } else {
+        window.showToast(data.error || 'Bir hata oluştu', 'error');
+      }
+    } catch (err) {
+      console.error('Project create error:', err);
+      window.showToast('Bir hata oluştu, lütfen tekrar deneyin', 'error');
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Projeyi Paylas';
+      }
+    }
+  });
+</script>

@@ -64,6 +64,67 @@ export const translations: Record<Language, {
     terms: string;
     allRights: string;
   };
+  // Homepage
+  homepage: {
+    title: string;
+    description: string;
+    errorLoading: string;
+    readMore: string;
+    viewProject: string;
+    troubleshootingSection: string;
+    mostSearched: string;
+    viewAll: string;
+    interactiveBadge: string;
+    slicerGuides: string;
+    slicerGuidesDesc: string;
+    allGuides: string;
+    guidesSection: string;
+    newsSection: string;
+    communityShowcase: string;
+    allProjects: string;
+    shareProject: string;
+    reviewsSection: string;
+    pollsSection: string;
+    communityPreferences: string;
+    activePoll: string;
+    slicerPoll: string;
+    votes: string;
+    voteRecorded: string;
+    voteFailed: string;
+    connectionError: string;
+    noPoll: string;
+    pollLoadError: string;
+    editorsChoice: string;
+    communityProject: string;
+    start: string;
+    // Quick Access
+    haveProblem: string;
+    findSolution: string;
+    newbie: string;
+    checkGuides: string;
+    lookingFilament: string;
+    comparePrices: string;
+    joinCommunity: string;
+    askShare: string;
+    // Slicer specific
+    flowCalcs: string;
+    zOffset: string;
+    calibration: string;
+    settingsDict: string;
+    paCalibration: string;
+    flowTest: string;
+    expertGuide: string;
+    troubleshoot: string;
+    flowRate: string;
+    layerSettings: string;
+    supportStructures: string;
+    organicSupport: string;
+    seamPaint: string;
+    // Poll questions
+    printerBrandQuestion: string;
+    slicerQuestion: string;
+    other: string;
+  };
 }> = {
   tr: {
     nav: {
@@ -121,6 +182,63 @@ export const translations: Record<Language, {
       privacy: "Gizlilik Politikası",
       terms: "Kullanım Koşulları",
       allRights: "Tüm hakları saklıdır"
+    },
+    homepage: {
+      title: "3D-LABX - Türkiye'nin 3D Baskı Rehberi | Yazıcı Ayarları, Sorun Çözümleri",
+      description: "3D yazıcı ayarları, filament rehberleri, sorun çözümleri ve ürün incelemeleri. Türkiye'nin en kapsamlı 3D baskı kaynağı.",
+      errorLoading: "İçerikler yüklenirken bir hata oluştu",
+      readMore: "Devamını Oku",
+      viewProject: "Projeyi Gör",
+      troubleshootingSection: "Sorun Çözümleri",
+      mostSearched: "En Çok Aranan",
+      viewAll: "Tümünü Gör",
+      interactiveBadge: "🎮 İnteraktif",
+      slicerGuides: "Slicer Rehberleri",
+      slicerGuidesDesc: "Hesaplayıcılar, simülasyonlar ve adım adım sorun giderme araçları ile dilimleyicinizi öğrenin.",
+      allGuides: "Tüm Rehberler",
+      guidesSection: "Rehberler",
+      newsSection: "3D Baskı Haberleri",
+      communityShowcase: "Topluluk Vitrini",
+      allProjects: "Tüm Projeler",
+      shareProject: "Projeni Paylaş",
+      reviewsSection: "İncelemeler",
+      pollsSection: "Anketler",
+      communityPreferences: "Topluluğun tercihleri",
+      activePoll: "Aktif Anket",
+      slicerPoll: "Slicer Anketi",
+      votes: "Oy",
+      voteRecorded: "Oyunuz kaydedildi!",
+      voteFailed: "Oy verilemedi",
+      connectionError: "Bağlantı hatası",
+      noPoll: "Aktif anket yok",
+      pollLoadError: "Anket yüklenemedi",
+      editorsChoice: "Editör Seçimi",
+      communityProject: "Topluluk Projesi",
+      start: "Başla",
+      haveProblem: "Sorun mu var?",
+      findSolution: "Hemen çözüm bul",
+      newbie: "Yeni başlayan mısın?",
+      checkGuides: "Rehberlere göz at",
+      lookingFilament: "Filament arıyorsun?",
+      comparePrices: "Fiyatları karşılaştır",
+      joinCommunity: "Topluluğa katıl!",
+      askShare: "Soru sor, paylaş",
+      flowCalcs: "Akış hesaplamaları ve sorun çözümleri",
+      zOffset: "Z-Offset",
+      calibration: "Kalibrasyon ve ayarlar sözlüğü",
+      settingsDict: "Ayarlar Sözlüğü",
+      paCalibration: "PA Kalibrasyonu",
+      flowTest: "Akış Testi",
+      expertGuide: "uzman rehberi",
+      troubleshoot: "Sorun Giderme",
+      flowRate: "Flow Rate",
+      layerSettings: "Katman ayarları ve destek yapıları",
+      supportStructures: "Destek Yapıları",
+      organicSupport: "Organik Destek",
+      seamPaint: "Seam Paint",
+      printerBrandQuestion: "En çok kullandığınız 3D yazıcı markası?",
+      slicerQuestion: "Hangi Slicer Kullanıyorsunuz?",
+      other: "Diğer"
     }
   },
   en: {
@@ -179,6 +297,63 @@ export const translations: Record<Language, {
       privacy: "Privacy Policy",
       terms: "Terms of Use",
       allRights: "All rights reserved"
+    },
+    homepage: {
+      title: "3D-LABX - Your 3D Printing Guide | Printer Settings, Troubleshooting",
+      description: "3D printer settings, filament guides, troubleshooting and product reviews. Your comprehensive 3D printing resource.",
+      errorLoading: "An error occurred while loading content",
+      readMore: "Read More",
+      viewProject: "View Project",
+      troubleshootingSection: "Troubleshooting",
+      mostSearched: "Most Searched",
+      viewAll: "View All",
+      interactiveBadge: "🎮 Interactive",
+      slicerGuides: "Slicer Guides",
+      slicerGuidesDesc: "Learn your slicer with calculators, simulations and step-by-step troubleshooting tools.",
+      allGuides: "All Guides",
+      guidesSection: "Guides",
+      newsSection: "3D Printing News",
+      communityShowcase: "Community Showcase",
+      allProjects: "All Projects",
+      shareProject: "Share Your Project",
+      reviewsSection: "Reviews",
+      pollsSection: "Polls",
+      communityPreferences: "Community preferences",
+      activePoll: "Active Poll",
+      slicerPoll: "Slicer Poll",
+      votes: "Votes",
+      voteRecorded: "Your vote has been recorded!",
+      voteFailed: "Failed to vote",
+      connectionError: "Connection error",
+      noPoll: "No active poll",
+      pollLoadError: "Failed to load poll",
+      editorsChoice: "Editor's Choice",
+      communityProject: "Community Project",
+      start: "Start",
+      haveProblem: "Having issues?",
+      findSolution: "Find a solution",
+      newbie: "New to 3D printing?",
+      checkGuides: "Check our guides",
+      lookingFilament: "Looking for filament?",
+      comparePrices: "Compare prices",
+      joinCommunity: "Join the community!",
+      askShare: "Ask questions, share",
+      flowCalcs: "Flow calculations and troubleshooting",
+      zOffset: "Z-Offset",
+      calibration: "Calibration and settings dictionary",
+      settingsDict: "Settings Dictionary",
+      paCalibration: "PA Calibration",
+      flowTest: "Flow Test",
+      expertGuide: "expert guide",
+      troubleshoot: "Troubleshooting",
+      flowRate: "Flow Rate",
+      layerSettings: "Layer settings and support structures",
+      supportStructures: "Support Structures",
+      organicSupport: "Organic Support",
+      seamPaint: "Seam Paint",
+      printerBrandQuestion: "Which 3D printer brand do you use the most?",
+      slicerQuestion: "Which Slicer do you use?",
+      other: "Other"
     }
   },
   de: {
@@ -237,6 +412,63 @@ export const translations: Record<Language, {
       privacy: "Datenschutz",
       terms: "Nutzungsbedingungen",
       allRights: "Alle Rechte vorbehalten"
+    },
+    homepage: {
+      title: "3D-LABX - Ihr 3D-Druck Ratgeber | Drucker-Einstellungen, Fehlerbehebung",
+      description: "3D-Drucker-Einstellungen, Filament-Anleitungen, Fehlerbehebung und Produktbewertungen. Ihre umfassende 3D-Druck-Ressource.",
+      errorLoading: "Beim Laden des Inhalts ist ein Fehler aufgetreten",
+      readMore: "Weiterlesen",
+      viewProject: "Projekt ansehen",
+      troubleshootingSection: "Fehlerbehebung",
+      mostSearched: "Meistgesucht",
+      viewAll: "Alle anzeigen",
+      interactiveBadge: "🎮 Interaktiv",
+      slicerGuides: "Slicer Anleitungen",
+      slicerGuidesDesc: "Lernen Sie Ihren Slicer mit Rechnern, Simulationen und Schritt-für-Schritt-Anleitungen.",
+      allGuides: "Alle Anleitungen",
+      guidesSection: "Anleitungen",
+      newsSection: "3D-Druck Nachrichten",
+      communityShowcase: "Community Vitrine",
+      allProjects: "Alle Projekte",
+      shareProject: "Projekt teilen",
+      reviewsSection: "Bewertungen",
+      pollsSection: "Umfragen",
+      communityPreferences: "Community-Präferenzen",
+      activePoll: "Aktive Umfrage",
+      slicerPoll: "Slicer Umfrage",
+      votes: "Stimmen",
+      voteRecorded: "Ihre Stimme wurde gezählt!",
+      voteFailed: "Abstimmung fehlgeschlagen",
+      connectionError: "Verbindungsfehler",
+      noPoll: "Keine aktive Umfrage",
+      pollLoadError: "Umfrage konnte nicht geladen werden",
+      editorsChoice: "Redaktionsauswahl",
+      communityProject: "Community Projekt",
+      start: "Starten",
+      haveProblem: "Haben Sie Probleme?",
+      findSolution: "Lösung finden",
+      newbie: "Neu beim 3D-Druck?",
+      checkGuides: "Anleitungen ansehen",
+      lookingFilament: "Filament gesucht?",
+      comparePrices: "Preise vergleichen",
+      joinCommunity: "Community beitreten!",
+      askShare: "Fragen stellen, teilen",
+      flowCalcs: "Flussberechnungen und Fehlerbehebung",
+      zOffset: "Z-Offset",
+      calibration: "Kalibrierung und Einstellungs-Wörterbuch",
+      settingsDict: "Einstellungs-Wörterbuch",
+      paCalibration: "PA Kalibrierung",
+      flowTest: "Fluss-Test",
+      expertGuide: "Experten-Anleitung",
+      troubleshoot: "Fehlerbehebung",
+      flowRate: "Durchflussrate",
+      layerSettings: "Schicht-Einstellungen und Stützstrukturen",
+      supportStructures: "Stützstrukturen",
+      organicSupport: "Organische Stützen",
+      seamPaint: "Naht-Anpassung",
+      printerBrandQuestion: "Welche 3D-Drucker-Marke verwenden Sie am häufigsten?",
+      slicerQuestion: "Welchen Slicer verwenden Sie?",
+      other: "Andere"
     }
   }
 };

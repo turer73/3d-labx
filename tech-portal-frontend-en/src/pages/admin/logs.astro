@@ -1,0 +1,645 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import "../../styles/admin.css";
+---
+
+<BaseLayout title="Site Logları – Admin Panel" noIndex={true}>
+  <button class="mobile-menu-toggle" id="mobileMenuToggle">
+    <span></span>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="admin-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <a href="/" class="logo">3D-labX</a>
+        <span class="badge badge-primary">Admin</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-item">
+          <span class="icon">📊</span>
+          Dashboard
+        </a>
+        <a href="/admin/posts" class="nav-item">
+          <span class="icon">📝</span>
+          Yazılar
+        </a>
+        <a href="/admin/users" class="nav-item">
+          <span class="icon">👥</span>
+          Üyeler
+        </a>
+        <a href="/admin/rss" class="nav-item">
+          <span class="icon">📡</span>
+          RSS Kaynakları
+        </a>
+        <a href="/admin/content-boxes" class="nav-item">
+          <span class="icon">📦</span>
+          İçerik Kutuları
+        </a>
+        <a href="/admin/logs" class="nav-item active">
+          <span class="icon">📋</span>
+          Site Logları
+        </a>
+        <a href="/admin/new" class="nav-item">
+          <span class="icon">➕</span>
+          Yeni Yazı
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="logoutBtn" class="btn btn-ghost btn-full">
+          🚪 Çıkış Yap
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="content-header">
+        <h1>📋 Site Logları</h1>
+        <p class="text-muted">Ziyaretçi aktiviteleri ve hata kayıtları</p>
+      </header>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid" id="logStats">
+        <div class="stat-card">
+          <div class="stat-icon">📊</div>
+          <div class="stat-info">
+            <span class="stat-value" id="totalToday">-</span>
+            <span class="stat-label">Bugün Toplam</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">👁️</div>
+          <div class="stat-info">
+            <span class="stat-value" id="pageviews">-</span>
+            <span class="stat-label">Sayfa Görüntüleme</span>
+          </div>
+        </div>
+        <div class="stat-card error-card">
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-info">
+            <span class="stat-value" id="errors24h">-</span>
+            <span class="stat-label">Hata (24 saat)</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔍</div>
+          <div class="stat-info">
+            <span class="stat-value" id="searches">-</span>
+            <span class="stat-label">Arama</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-bar">
+        <div class="filter-group">
+          <label>Log Tipi:</label>
+          <select id="filterType">
+            <option value="">Tümü</option>
+            <option value="pageview">Sayfa Görüntüleme</option>
+            <option value="error">Hatalar</option>
+            <option value="click">Tıklamalar</option>
+            <option value="search">Aramalar</option>
+            <option value="form">Form Gönderimleri</option>
+            <option value="auth">Giriş/Çıkış</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Seviye:</label>
+          <select id="filterLevel">
+            <option value="">Tümü</option>
+            <option value="info">Info</option>
+            <option value="warning">Warning</option>
+            <option value="error">Error</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" id="applyFilters">Filtrele</button>
+        <button class="btn btn-ghost" id="refreshLogs">🔄 Yenile</button>
+        <button class="btn btn-danger" id="cleanupLogs">🗑️ Eski Logları Sil</button>
+      </div>
+
+      <!-- Logs Table -->
+      <div class="table-container">
+        <table class="data-table" id="logsTable">
+          <thead>
+            <tr>
+              <th>Zaman</th>
+              <th>Tip</th>
+              <th>Seviye</th>
+              <th>Mesaj</th>
+              <th>Sayfa</th>
+              <th>Detay</th>
+            </tr>
+          </thead>
+          <tbody id="logsBody">
+            <tr>
+              <td colspan="6" class="loading">Yükleniyor...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" id="pagination"></div>
+    </main>
+  </div>
+</BaseLayout>
+
+<style>
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 1024px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .stat-card.error-card {
+    border-color: rgba(239, 68, 68, 0.3);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), var(--bg-card));
+  }
+
+  .stat-icon {
+    font-size: 2rem;
+  }
+
+  .stat-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .filters-bar {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    flex-wrap: wrap;
+  }
+
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .filter-group label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .filter-group select {
+    padding: 8px 12px;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    background: var(--bg-main);
+    color: var(--text-main);
+    font-size: 0.9rem;
+  }
+
+  .table-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .data-table th {
+    background: var(--bg-soft);
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .data-table td {
+    font-size: 0.9rem;
+    color: var(--text-main);
+  }
+
+  .data-table tr:hover {
+    background: var(--bg-soft);
+  }
+
+  .data-table .loading {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 40px;
+  }
+
+  .log-type {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .log-type.pageview { background: rgba(59, 130, 246, 0.15); color: #3B82F6; }
+  .log-type.error { background: rgba(239, 68, 68, 0.15); color: #EF4444; }
+  .log-type.click { background: rgba(34, 197, 94, 0.15); color: #22C55E; }
+  .log-type.search { background: rgba(168, 85, 247, 0.15); color: #A855F7; }
+  .log-type.form { background: rgba(249, 115, 22, 0.15); color: #F97316; }
+  .log-type.auth { background: rgba(6, 182, 212, 0.15); color: #06B6D4; }
+
+  .log-level {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  .log-level.info { background: rgba(107, 114, 128, 0.2); color: #9CA3AF; }
+  .log-level.warning { background: rgba(245, 158, 11, 0.2); color: #F59E0B; }
+  .log-level.error { background: rgba(239, 68, 68, 0.2); color: #EF4444; }
+
+  .page-url {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .detail-btn {
+    background: var(--bg-soft);
+    border: 1px solid var(--border-soft);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    color: var(--text-muted);
+  }
+
+  .detail-btn:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px;
+  }
+
+  .pagination button {
+    padding: 8px 14px;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    background: var(--bg-card);
+    color: var(--text-main);
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+
+  .pagination button:hover {
+    border-color: var(--accent);
+  }
+
+  .pagination button.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #EF4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  .btn-danger:hover {
+    background: #EF4444;
+    color: white;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .modal-overlay.open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .modal {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .modal h3 {
+    margin-bottom: 16px;
+    font-size: 1.2rem;
+  }
+
+  .modal pre {
+    background: var(--bg-main);
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .modal-close {
+    margin-top: 16px;
+    width: 100%;
+  }
+</style>
+
+<script>
+  const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
+  const ADMIN_SECRET = localStorage.getItem('adminSecret') || '';
+
+  let currentPage = 1;
+  let currentType = '';
+  let currentLevel = '';
+
+  // Check admin auth
+  if (!ADMIN_SECRET) {
+    const secret = prompt('Admin şifresini girin:');
+    if (secret) {
+      localStorage.setItem('adminSecret', secret);
+      location.reload();
+    } else {
+      window.location.href = '/';
+    }
+  }
+
+  // Load stats
+  async function loadStats() {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/logs/stats`, {
+        headers: { 'X-ADMIN-SECRET': ADMIN_SECRET }
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          localStorage.removeItem('adminSecret');
+          location.reload();
+        }
+        return;
+      }
+
+      const data = await res.json();
+
+      document.getElementById('totalToday').textContent = data.totalToday || 0;
+      document.getElementById('errors24h').textContent = data.errorsLast24h || 0;
+
+      // Calculate pageviews and searches from stats
+      let pageviews = 0;
+      let searches = 0;
+      data.stats?.forEach(s => {
+        if (s.log_type === 'pageview') pageviews += s.count;
+        if (s.log_type === 'search') searches += s.count;
+      });
+
+      document.getElementById('pageviews').textContent = pageviews;
+      document.getElementById('searches').textContent = searches;
+    } catch (err) {
+      console.error('Stats load error:', err);
+    }
+  }
+
+  // Load logs
+  async function loadLogs(page = 1) {
+    currentPage = page;
+    const tbody = document.getElementById('logsBody');
+    tbody.innerHTML = '<tr><td colspan="6" class="loading">Yükleniyor...</td></tr>';
+
+    try {
+      let url = `${API_URL}/api/admin/logs?page=${page}&limit=30`;
+      if (currentType) url += `&type=${currentType}`;
+      if (currentLevel) url += `&level=${currentLevel}`;
+
+      const res = await fetch(url, {
+        headers: { 'X-ADMIN-SECRET': ADMIN_SECRET }
+      });
+
+      if (!res.ok) throw new Error('Failed to load logs');
+
+      const data = await res.json();
+
+      if (!data.logs || data.logs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="loading">Kayıt bulunamadı</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = data.logs.map(log => {
+        const date = new Date(log.created_at + 'Z');
+        const timeStr = date.toLocaleString('tr-TR', {
+          day: '2-digit',
+          month: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        const pageUrl = log.page_url ? log.page_url.replace('https://3d-labx.com', '') : '-';
+
+        return `
+          <tr>
+            <td>${timeStr}</td>
+            <td><span class="log-type ${log.log_type}">${log.log_type}</span></td>
+            <td><span class="log-level ${log.log_level}">${log.log_level}</span></td>
+            <td>${log.message || '-'}</td>
+            <td class="page-url" title="${pageUrl}">${pageUrl}</td>
+            <td>
+              ${log.details ? `<button class="detail-btn" onclick="showDetail('${encodeURIComponent(log.details)}')">Göster</button>` : '-'}
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Render pagination
+      renderPagination(data.pagination);
+
+    } catch (err) {
+      console.error('Logs load error:', err);
+      tbody.innerHTML = '<tr><td colspan="6" class="loading">Hata oluştu</td></tr>';
+    }
+  }
+
+  // Render pagination
+  function renderPagination(pagination) {
+    const container = document.getElementById('pagination');
+    if (!pagination || pagination.totalPages <= 1) {
+      container.innerHTML = '';
+      return;
+    }
+
+    let html = '';
+
+    html += `<button ${pagination.page === 1 ? 'disabled' : ''} onclick="loadLogs(${pagination.page - 1})">← Önceki</button>`;
+
+    for (let i = 1; i <= Math.min(pagination.totalPages, 5); i++) {
+      html += `<button class="${i === pagination.page ? 'active' : ''}" onclick="loadLogs(${i})">${i}</button>`;
+    }
+
+    if (pagination.totalPages > 5) {
+      html += `<span style="padding: 8px;">...</span>`;
+      html += `<button onclick="loadLogs(${pagination.totalPages})">${pagination.totalPages}</button>`;
+    }
+
+    html += `<button ${pagination.page === pagination.totalPages ? 'disabled' : ''} onclick="loadLogs(${pagination.page + 1})">Sonraki →</button>`;
+
+    container.innerHTML = html;
+  }
+
+  // Show detail modal
+  window.showDetail = function(encodedDetails) {
+    const details = decodeURIComponent(encodedDetails);
+    let parsed;
+    try {
+      parsed = JSON.parse(details);
+    } catch {
+      parsed = details;
+    }
+
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+      <div class="modal">
+        <h3>Log Detayı</h3>
+        <pre>${typeof parsed === 'object' ? JSON.stringify(parsed, null, 2) : parsed}</pre>
+        <button class="btn btn-primary modal-close" onclick="this.closest('.modal-overlay').remove()">Kapat</button>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('open'), 10);
+  };
+
+  // Cleanup old logs
+  async function cleanupLogs() {
+    const days = prompt('Kaç günden eski loglar silinsin?', '30');
+    if (!days) return;
+
+    if (!confirm(`${days} günden eski tüm loglar silinecek. Emin misiniz?`)) return;
+
+    try {
+      const res = await fetch(`${API_URL}/api/admin/logs/cleanup?days=${days}`, {
+        method: 'DELETE',
+        headers: { 'X-ADMIN-SECRET': ADMIN_SECRET }
+      });
+
+      const data = await res.json();
+      alert(`${data.deleted || 0} log kaydı silindi.`);
+      loadLogs(1);
+      loadStats();
+    } catch (err) {
+      alert('Silme işlemi başarısız!');
+    }
+  }
+
+  // Event listeners
+  document.getElementById('applyFilters')?.addEventListener('click', () => {
+    currentType = document.getElementById('filterType').value;
+    currentLevel = document.getElementById('filterLevel').value;
+    loadLogs(1);
+  });
+
+  document.getElementById('refreshLogs')?.addEventListener('click', () => {
+    loadLogs(currentPage);
+    loadStats();
+  });
+
+  document.getElementById('cleanupLogs')?.addEventListener('click', cleanupLogs);
+
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    localStorage.removeItem('adminSecret');
+    window.location.href = '/';
+  });
+
+  // Mobile menu
+  document.getElementById('mobileMenuToggle')?.addEventListener('click', () => {
+    document.getElementById('sidebar')?.classList.toggle('open');
+    document.getElementById('sidebarOverlay')?.classList.toggle('open');
+  });
+
+  document.getElementById('sidebarOverlay')?.addEventListener('click', () => {
+    document.getElementById('sidebar')?.classList.remove('open');
+    document.getElementById('sidebarOverlay')?.classList.remove('open');
+  });
+
+  // Initial load
+  loadStats();
+  loadLogs(1);
+</script>

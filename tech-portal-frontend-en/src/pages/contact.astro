@@ -1,0 +1,519 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+
+const title = "İletişim – 3D-labX";
+const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz veya işbirliği talepleriniz için bize ulaşın.";
+---
+
+<BaseLayout title={title} description={description}>
+  <Header />
+
+  <main class="static-page">
+    <div class="container">
+      <article class="page-content">
+        <div class="page-header">
+          <h1>İletişim</h1>
+          <p class="lead">
+            Sorularınız, önerileriniz veya işbirliği talepleriniz için bizimle iletişime geçebilirsiniz.
+          </p>
+        </div>
+
+        <div class="contact-grid">
+          <div class="contact-info">
+            <h2>Bize Ulaşın</h2>
+
+            <div class="contact-item">
+              <div class="contact-icon">📧</div>
+              <div>
+                <h3>E-posta</h3>
+                <p>
+                  <a href="mailto:3d-labx@3d-labx.com">3d-labx@3d-labx.com</a>
+                </p>
+              </div>
+            </div>
+
+            <div class="contact-item">
+              <div class="contact-icon">🌐</div>
+              <div>
+                <h3>Sosyal Medya</h3>
+                <p>Yakında aktif olacaktır.</p>
+              </div>
+            </div>
+
+            <div class="info-box">
+              <h3>Yanıt Süresi</h3>
+              <p>
+                Mesajlarınıza genellikle 1-2 iş günü içerisinde dönüş yapılmaktadır.
+                Yoğun dönemlerde bu süre uzayabilir.
+              </p>
+            </div>
+          </div>
+
+          <div class="contact-form-wrapper">
+            <h2>Mesaj Gönderin</h2>
+
+            <form class="contact-form" id="contactForm">
+              <div class="form-group">
+                <label for="name">Adınız *</label>
+                <input type="text" id="name" name="name" required placeholder="Adınızı girin" />
+              </div>
+
+              <div class="form-group">
+                <label for="email">E-posta *</label>
+                <input type="email" id="email" name="email" required placeholder="ornek@email.com" />
+              </div>
+
+              <div class="form-group">
+                <label for="subject">Konu *</label>
+                <select id="subject" name="subject" required>
+                  <option value="">Bir konu seçin</option>
+                  <option value="genel">Genel Soru</option>
+                  <option value="oneri">Öneri</option>
+                  <option value="hata">Hata Bildirimi</option>
+                  <option value="isbirligi">İşbirliği</option>
+                  <option value="diger">Diğer</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="message">Mesajınız *</label>
+                <textarea id="message" name="message" required rows="5" placeholder="Mesajınızı buraya yazın..."></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary">Gönder</button>
+
+              <p class="form-note">
+                * işaretli alanlar zorunludur.
+              </p>
+            </form>
+
+            <div class="form-message" id="formMessage" style="display: none;"></div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('contactForm') as HTMLFormElement;
+  const formMessage = document.getElementById('formMessage');
+  const submitBtn = form?.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData);
+
+    // Loading state
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Gönderiliyor...';
+    }
+
+    if (formMessage) {
+      formMessage.style.display = 'none';
+    }
+
+    try {
+      const res = await fetch('https://tech-portal-api.turgut-d01.workers.dev/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      if (formMessage) {
+        formMessage.style.display = 'block';
+
+        if (res.ok) {
+          formMessage.className = 'form-message success';
+          formMessage.innerHTML = `
+            <strong>Teşekkürler!</strong>
+            <p>Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.</p>
+          `;
+          form.reset();
+        } else {
+          formMessage.className = 'form-message error';
+          formMessage.innerHTML = `
+            <strong>Hata!</strong>
+            <p>${result.error || 'Bir hata oluştu. Lütfen tekrar deneyin.'}</p>
+          `;
+        }
+      }
+    } catch (err) {
+      if (formMessage) {
+        formMessage.style.display = 'block';
+        formMessage.className = 'form-message error';
+        formMessage.innerHTML = `
+          <strong>Bağlantı Hatası</strong>
+          <p>Sunucuya ulaşılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.</p>
+        `;
+      }
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Gönder';
+      }
+    }
+  });
+</script>
+
+<style>
+  .static-page {
+    padding-top: 140px;
+    padding-bottom: 64px;
+    min-height: 100vh;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.03) 0%, rgba(16, 185, 129, 0.03) 100%);
+  }
+
+  .page-content {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: var(--spacing-2xl);
+    padding: 48px 40px;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+    border-radius: 24px;
+    border: 1px solid var(--border-soft);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .page-header::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .page-content h1 {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-md);
+    background: linear-gradient(135deg, var(--text-main) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+    z-index: 1;
+  }
+
+  .lead {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: var(--spacing-xl);
+  }
+
+  .contact-info h2,
+  .contact-form-wrapper h2 {
+    font-size: 1.25rem;
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .contact-info h2::before {
+    content: '';
+    width: 4px;
+    height: 24px;
+    background: linear-gradient(180deg, var(--accent), #10b981);
+    border-radius: 2px;
+  }
+
+  .contact-form-wrapper h2::before {
+    content: '';
+    width: 4px;
+    height: 24px;
+    background: linear-gradient(180deg, var(--accent), #8b5cf6);
+    border-radius: 2px;
+  }
+
+  .contact-item {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .contact-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--accent), #10b981);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .contact-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  }
+
+  .contact-item:hover::before {
+    opacity: 1;
+  }
+
+  .contact-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+
+  .contact-item h3 {
+    font-size: 0.95rem;
+    margin: 0 0 4px;
+    color: var(--text-main);
+  }
+
+  .contact-item p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .contact-item a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .contact-item a:hover {
+    color: #1d4ed8;
+  }
+
+  .info-box {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+    position: relative;
+  }
+
+  .info-box::before {
+    content: '⏱️';
+    position: absolute;
+    top: -12px;
+    left: 16px;
+    font-size: 1.25rem;
+    background: var(--bg-main);
+    padding: 0 8px;
+  }
+
+  .info-box h3 {
+    font-size: 0.95rem;
+    margin: 0 0 var(--spacing-sm);
+    color: var(--text-main);
+  }
+
+  .info-box p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .contact-form-wrapper {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    padding: var(--spacing-xl);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .contact-form-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), #8b5cf6, #10b981);
+  }
+
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-main);
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 14px 16px;
+    background: var(--bg-soft);
+    border: 2px solid var(--border-soft);
+    border-radius: 12px;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+  }
+
+  .form-group input::placeholder,
+  .form-group textarea::placeholder {
+    color: var(--text-light);
+  }
+
+  .form-group textarea {
+    resize: vertical;
+    min-height: 140px;
+  }
+
+  .form-group select {
+    cursor: pointer;
+  }
+
+  .contact-form .btn {
+    align-self: flex-start;
+    margin-top: var(--spacing-sm);
+    padding: 14px 32px;
+    background: linear-gradient(135deg, var(--accent) 0%, #1d4ed8 100%);
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    transition: all 0.2s ease;
+  }
+
+  .contact-form .btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+  }
+
+  .contact-form .btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .form-note {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin: var(--spacing-sm) 0 0;
+  }
+
+  .form-message {
+    margin-top: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    border-radius: 12px;
+  }
+
+  .form-message.success {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #22c55e;
+  }
+
+  .form-message.error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+  }
+
+  .form-message strong {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .form-message p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 768px) {
+    .contact-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .page-header {
+      padding: 32px 24px;
+    }
+
+    .page-content h1 {
+      font-size: 2rem;
+    }
+
+    .contact-form-wrapper {
+      padding: var(--spacing-lg);
+    }
+
+    .contact-form .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>

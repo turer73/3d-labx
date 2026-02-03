@@ -1,0 +1,877 @@
+---
+import "../styles/global.css";
+
+interface BreadcrumbItem {
+  name: string;
+  url: string;
+}
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  article?: boolean;
+  publishedTime?: string;
+  noIndex?: boolean;
+  breadcrumbs?: BreadcrumbItem[];
+}
+
+const {
+  title = "3D-labX – Your 3D Printing Guide",
+  description = "3D printer settings, filament guides, troubleshooting and product reviews. Your comprehensive 3D printing resource.",
+  image = "/og.png",
+  article = false,
+  publishedTime,
+  noIndex = false,
+  breadcrumbs,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || "https://en.3d-labx.com");
+const ogImage = image.startsWith("http") ? image : new URL(image, canonicalURL).href;
+
+// Auto-generate breadcrumbs from URL path if not provided
+const categoryNames: Record<string, string> = {
+  "3d-printing": "3D Printing",
+  "reviews": "Reviews",
+  "guides": "Guides",
+  "troubleshooting": "Troubleshooting",
+  "community": "Community",
+  "filaments": "Filaments",
+};
+
+const pathParts = Astro.url.pathname.split("/").filter(Boolean);
+const autoBreadcrumbs: BreadcrumbItem[] = [{ name: "Home", url: "https://en.3d-labx.com/" }];
+if (pathParts.length > 0 && categoryNames[pathParts[0]]) {
+  autoBreadcrumbs.push({ name: categoryNames[pathParts[0]], url: `https://en.3d-labx.com/${pathParts[0]}` });
+}
+if (pathParts.length > 1 && article) {
+  autoBreadcrumbs.push({ name: title.replace(" – 3D-labX", "").replace(" - 3D-labX", ""), url: canonicalURL.href });
+}
+
+const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs : null);
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google Analytics -->
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-7M54F92VCE"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-7M54F92VCE');
+    </script>
+
+    <!-- Theme Script (Prevents Flash) -->
+    <script is:inline>
+      (function() {
+        const theme = localStorage.getItem('theme') ||
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      })();
+    </script>
+
+    <!-- SEO -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+    <meta name="author" content="3D-labX" />
+    <meta name="publisher" content="3D-labX" />
+    <meta name="robots" content={noIndex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
+    <meta name="googlebot" content={noIndex ? "noindex, nofollow" : "index, follow"} />
+    <meta name="language" content="English" />
+    <meta name="revisit-after" content="7 days" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- RSS Feed -->
+    <link rel="alternate" type="application/rss+xml" title="3D-labX RSS" href="/rss.xml" />
+
+    <!-- Hreflang for multilingual support -->
+    <link rel="alternate" hreflang="tr" href={`https://3d-labx.com${Astro.url.pathname}`} />
+    <link rel="alternate" hreflang="en" href={`https://en.3d-labx.com${Astro.url.pathname}`} />
+    <link rel="alternate" hreflang="de" href={`https://de.3d-labx.com${Astro.url.pathname}`} />
+    <link rel="alternate" hreflang="x-default" href={`https://3d-labx.com${Astro.url.pathname}`} />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={article ? "article" : "website"} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:site_name" content="3D-labX" />
+    <meta property="og:locale" content="tr_TR" />
+
+    {article && publishedTime && (
+      <meta property="article:published_time" content={publishedTime} />
+    )}
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#2563EB" />
+    <meta name="msapplication-TileColor" content="#2563EB" />
+
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://tech-portal-api.turgut-d01.workers.dev" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": article ? "Article" : "WebSite",
+      "name": title,
+      "description": description,
+      "url": canonicalURL.href,
+      ...(article ? {
+        "headline": title,
+        "image": ogImage,
+        "datePublished": publishedTime,
+        "publisher": {
+          "@type": "Organization",
+          "name": "3D-labX",
+          "url": "https://3d-labx.com"
+        }
+      } : {
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://3d-labx.com/search?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      })
+    })} />
+
+    {/* BreadcrumbList Structured Data */}
+    {finalBreadcrumbs && finalBreadcrumbs.length > 1 && (
+      <script type="application/ld+json" set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": finalBreadcrumbs.map((item, index) => ({
+          "@type": "ListItem",
+          "position": index + 1,
+          "name": item.name,
+          "item": item.url
+        }))
+      })} />
+    )}
+  </head>
+
+  <body>
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <slot />
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-brand">
+            <a href="/" class="footer-logo">3D-labX</a>
+            <p>Türkiye'nin en kapsamlı 3D baskı kaynağı. Yazıcı ayarları, sorun çözümleri, filament rehberleri ve daha fazlası.</p>
+            <div class="footer-social">
+              <a href="https://www.youtube.com/@3D-LabX" target="_blank" rel="noopener" class="social-link youtube" title="YouTube Kanalımız">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="footer-links">
+            <div class="footer-column">
+              <h4>3D Baskı</h4>
+              <ul>
+                <li><a href="/3d-baski">Haberler</a></li>
+                <li><a href="/rehberler">Rehberler</a></li>
+                <li><a href="/sorun-cozumleri">Sorun Çözümleri</a></li>
+                <li><a href="/incelemeler">İncelemeler</a></li>
+                <li><a href="/topluluk">Topluluk</a></li>
+              </ul>
+            </div>
+
+            <div class="footer-column">
+              <h4>Popüler Konular</h4>
+              <ul>
+                <li><a href="/rehberler/cura-slicer-interaktif-rehber">Cura Slicer Rehberi</a></li>
+                <li><a href="/rehberler/orca-slicer-rehberi">Orca Slicer Rehberi</a></li>
+                <li><a href="/sorun-cozumleri">Sorun Çözümleri</a></li>
+                <li><a href="/filamentler">Filament Rehberi</a></li>
+                <li><a href="/iletisim">İletişim</a></li>
+                <li><a href="/rss.xml" class="rss-link">📡 RSS Feed</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Newsletter Section -->
+          <div class="footer-newsletter">
+            <h4>📬 Bülten</h4>
+            <p>Yeni içeriklerden haberdar olun</p>
+            <form class="newsletter-form" id="newsletterForm">
+              <input type="email" placeholder="E-posta adresiniz" required />
+              <button type="submit">Abone Ol</button>
+            </form>
+            <p class="newsletter-note">Spam göndermiyoruz, istediğinizde çıkabilirsiniz.</p>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>&copy; {new Date().getFullYear()} 3D-labX - Türkiye'nin 3D Baskı Rehberi</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Toast Notification System -->
+    <script is:inline>
+      window.showToast = function(message, type = 'info', duration = 4000) {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+
+        const icons = {
+          info: 'ℹ️',
+          success: '✅',
+          warning: '⚠️',
+          error: '❌'
+        };
+
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+          <span class="toast-icon">${icons[type] || icons.info}</span>
+          <div class="toast-content">${message}</div>
+          <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+        `;
+
+        container.appendChild(toast);
+
+        // Auto remove
+        setTimeout(() => {
+          toast.classList.add('hiding');
+          setTimeout(() => toast.remove(), 300);
+        }, duration);
+      };
+    </script>
+
+    <!-- Newsletter Script -->
+    <script is:inline>
+      document.getElementById('newsletterForm')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const email = this.querySelector('input[type="email"]').value;
+        const btn = this.querySelector('button');
+        const originalText = btn.textContent;
+
+        btn.textContent = 'Kaydediliyor...';
+        btn.disabled = true;
+
+        try {
+          const res = await fetch('https://tech-portal-api.turgut-d01.workers.dev/api/newsletter/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          });
+
+          if (res.ok) {
+            window.showToast('Bültene başarıyla abone oldunuz! 🎉', 'success');
+            this.reset();
+          } else {
+            const data = await res.json();
+            window.showToast(data.error || 'Bir hata oluştu', 'error');
+          }
+        } catch (err) {
+          window.showToast('Bağlantı hatası, lütfen tekrar deneyin', 'error');
+        } finally {
+          btn.textContent = originalText;
+          btn.disabled = false;
+        }
+      });
+    </script>
+
+    <!-- Code Copy Button Script -->
+    <script is:inline>
+      function initCodeCopyButtons() {
+        // Find all pre elements
+        document.querySelectorAll('pre').forEach(el => addCopyButton(el));
+
+        // Also find code blocks in article content (divs with monospace font and dark background)
+        document.querySelectorAll('.article-content div, .article-content p').forEach(el => {
+          // Skip if already wrapped
+          if (el.parentElement?.classList.contains('code-block-wrapper')) return;
+
+          // Check computed styles
+          const style = window.getComputedStyle(el);
+          const fontFamily = style.fontFamily.toLowerCase();
+          const bgColor = style.backgroundColor;
+
+          // Detect code blocks: monospace font + dark background
+          const isMonospace = fontFamily.includes('mono') || fontFamily.includes('consolas') || fontFamily.includes('fira');
+          const isDarkBg = bgColor.includes('rgb(30') || bgColor.includes('rgb(24') || bgColor.includes('rgb(31');
+
+          // Check if it looks like a code block (has monospace + dark bg or specific structure)
+          if (isMonospace && isDarkBg) {
+            // Make sure it's a standalone code block, not inline code
+            const text = el.textContent.trim();
+            if (text.length > 5 && !el.querySelector('ul, ol, table, img')) {
+              addCopyButton(el);
+            }
+          }
+        });
+
+        function addCopyButton(el) {
+          // Skip if already wrapped
+          if (el.parentElement?.classList.contains('code-block-wrapper')) return;
+
+          // Skip if it's inside certain containers
+          if (el.closest('.poll-options') || el.closest('.comment-form') || el.closest('.code-block-wrapper')) return;
+
+          // Create wrapper
+          const wrapper = document.createElement('div');
+          wrapper.className = 'code-block-wrapper';
+
+          // Create copy button
+          const copyBtn = document.createElement('button');
+          copyBtn.className = 'code-copy-btn';
+          copyBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span>Kopyala</span>
+          `;
+
+          // Copy functionality
+          copyBtn.addEventListener('click', async () => {
+            const code = el.querySelector('code')?.textContent || el.textContent;
+
+            try {
+              await navigator.clipboard.writeText(code.trim());
+              copyBtn.classList.add('copied');
+              copyBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Kopyalandı!</span>
+              `;
+
+              setTimeout(() => {
+                copyBtn.classList.remove('copied');
+                copyBtn.innerHTML = `
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span>Kopyala</span>
+                `;
+              }, 2000);
+            } catch (err) {
+              console.error('Copy failed:', err);
+            }
+          });
+
+          // Wrap the element
+          el.parentNode.insertBefore(wrapper, el);
+          wrapper.appendChild(el);
+          wrapper.appendChild(copyBtn);
+        }
+      }
+
+      // Run on page load
+      document.addEventListener('DOMContentLoaded', initCodeCopyButtons);
+
+      // Run on Astro page navigation
+      document.addEventListener('astro:after-swap', initCodeCopyButtons);
+
+      // Run immediately if DOM is already loaded
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        initCodeCopyButtons();
+      }
+    </script>
+
+    <!-- Site-Wide Logging System -->
+    <script is:inline>
+      (function() {
+        const LOG_API = 'https://tech-portal-api.turgut-d01.workers.dev/api/logs';
+        const LOG_QUEUE = [];
+        let isSending = false;
+
+        // Global logger
+        window.siteLog = function(type, message, details = null, level = 'info') {
+          const logEntry = {
+            type,
+            level,
+            message,
+            details,
+            pageUrl: window.location.href,
+            timestamp: new Date().toISOString()
+          };
+
+          LOG_QUEUE.push(logEntry);
+          processQueue();
+        };
+
+        // Process queue
+        async function processQueue() {
+          if (isSending || LOG_QUEUE.length === 0) return;
+          isSending = true;
+
+          while (LOG_QUEUE.length > 0) {
+            const entry = LOG_QUEUE.shift();
+            try {
+              const headers = { 'Content-Type': 'application/json' };
+              const token = localStorage.getItem('authToken');
+              if (token) headers['Authorization'] = `Bearer ${token}`;
+
+              await fetch(LOG_API, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(entry)
+              });
+            } catch (err) {
+              // Silently fail - don't break the site for logging
+            }
+          }
+          isSending = false;
+        }
+
+        // Auto-log page views
+        window.siteLog('pageview', 'Sayfa görüntülendi', {
+          referrer: document.referrer,
+          title: document.title
+        });
+
+        // Log page navigation (Astro)
+        document.addEventListener('astro:after-swap', () => {
+          window.siteLog('pageview', 'Sayfa görüntülendi', {
+            referrer: document.referrer,
+            title: document.title
+          });
+        });
+
+        // Log errors
+        window.addEventListener('error', (e) => {
+          window.siteLog('error', e.message || 'JavaScript hatası', {
+            filename: e.filename,
+            lineno: e.lineno,
+            colno: e.colno
+          }, 'error');
+        });
+
+        // Log unhandled promise rejections
+        window.addEventListener('unhandledrejection', (e) => {
+          window.siteLog('error', 'Promise rejection', {
+            reason: e.reason?.message || String(e.reason)
+          }, 'error');
+        });
+
+        // Log clicks on important elements
+        document.addEventListener('click', (e) => {
+          const target = e.target.closest('a, button, [data-track]');
+          if (!target) return;
+
+          // Track outbound links
+          if (target.tagName === 'A' && target.hostname !== window.location.hostname) {
+            window.siteLog('click', 'Dış link tıklandı', {
+              href: target.href,
+              text: target.textContent?.slice(0, 50)
+            });
+          }
+
+          // Track data-track elements
+          if (target.dataset.track) {
+            window.siteLog('click', target.dataset.track, {
+              element: target.tagName,
+              text: target.textContent?.slice(0, 50)
+            });
+          }
+        });
+
+        // Log search
+        const searchForm = document.querySelector('form[action="/search"]');
+        if (searchForm) {
+          searchForm.addEventListener('submit', (e) => {
+            const input = searchForm.querySelector('input[name="q"]');
+            if (input?.value) {
+              window.siteLog('search', 'Arama yapıldı', { query: input.value });
+            }
+          });
+        }
+
+        // Log form submissions
+        document.addEventListener('submit', (e) => {
+          const form = e.target;
+          if (form.id && !form.action?.includes('/search')) {
+            window.siteLog('form', 'Form gönderildi', { formId: form.id });
+          }
+        });
+
+        // Log auth events
+        window.addEventListener('storage', (e) => {
+          if (e.key === 'authToken') {
+            if (e.newValue && !e.oldValue) {
+              window.siteLog('auth', 'Kullanıcı giriş yaptı');
+            } else if (!e.newValue && e.oldValue) {
+              window.siteLog('auth', 'Kullanıcı çıkış yaptı');
+            }
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  /* Toast Notifications */
+  .toast-container {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 360px;
+  }
+
+  .toast {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    animation: toastSlideIn 0.3s ease;
+    font-size: 0.9rem;
+    color: var(--text-main);
+  }
+
+  .toast.info {
+    border-left: 4px solid #3B82F6;
+  }
+
+  .toast.success {
+    border-left: 4px solid #22C55E;
+  }
+
+  .toast.warning {
+    border-left: 4px solid #F59E0B;
+  }
+
+  .toast.error {
+    border-left: 4px solid #EF4444;
+  }
+
+  .toast-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .toast-content {
+    flex: 1;
+  }
+
+  .toast-content a {
+    color: #F97316;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .toast-content a:hover {
+    text-decoration: underline;
+  }
+
+  .toast-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    font-size: 1.1rem;
+    line-height: 1;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+
+  .toast-close:hover {
+    opacity: 1;
+  }
+
+  .toast.hiding {
+    animation: toastSlideOut 0.3s ease forwards;
+  }
+
+  @keyframes toastSlideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes toastSlideOut {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .toast-container {
+      left: 10px;
+      right: 10px;
+      max-width: none;
+    }
+  }
+
+  .site-footer {
+    margin-top: 64px;
+    padding: 48px 0 24px;
+    border-top: none;
+    background: var(--bg-card);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    position: relative;
+  }
+
+  .site-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #F97316, #EAB308, #22C55E, #06B6D4, #A855F7, #EC4899);
+  }
+
+  .footer-content {
+    display: grid;
+    grid-template-columns: 1.5fr 2fr;
+    gap: 48px;
+    margin-bottom: 32px;
+  }
+
+  .footer-brand {
+    max-width: 300px;
+  }
+
+  .footer-logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #F97316, #EAB308);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
+  .footer-brand p {
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .footer-social {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--bg-soft);
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+  }
+
+  .social-link:hover {
+    transform: translateY(-2px);
+  }
+
+  .social-link.youtube:hover {
+    background: #FF0000;
+    color: white;
+  }
+
+  .footer-links {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+
+  .footer-column h4 {
+    color: var(--text-main);
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 16px;
+  }
+
+  .footer-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .footer-column li {
+    margin-bottom: 10px;
+  }
+
+  .footer-column a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .footer-column a:hover {
+    color: var(--accent);
+  }
+
+  .footer-column .rss-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Newsletter */
+  .footer-newsletter {
+    grid-column: 1 / -1;
+    background: var(--bg-soft);
+    padding: 24px;
+    border-radius: 16px;
+    text-align: center;
+    margin-top: 16px;
+  }
+
+  .footer-newsletter h4 {
+    color: var(--text-main);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 8px;
+  }
+
+  .footer-newsletter > p {
+    color: var(--text-muted);
+    margin: 0 0 16px;
+    font-size: 0.9rem;
+  }
+
+  .newsletter-form {
+    display: flex;
+    gap: 10px;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .newsletter-form input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid var(--border-soft);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    background: var(--bg-card);
+    color: var(--text-main);
+    transition: border-color 0.2s ease;
+  }
+
+  .newsletter-form input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .newsletter-form button {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #F97316, #EAB308);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .newsletter-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+  }
+
+  .newsletter-note {
+    font-size: 0.75rem !important;
+    color: var(--text-light) !important;
+    margin-top: 10px !important;
+    margin-bottom: 0 !important;
+  }
+
+  @media (max-width: 480px) {
+    .newsletter-form {
+      flex-direction: column;
+    }
+
+    .newsletter-form button {
+      width: 100%;
+    }
+  }
+
+  .footer-bottom {
+    padding-top: 24px;
+    border-top: 1px solid var(--border-soft);
+    text-align: center;
+  }
+
+  .footer-bottom p {
+    margin: 0;
+    color: var(--text-light);
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 768px) {
+    .footer-content {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    .footer-brand {
+      max-width: 100%;
+      text-align: center;
+    }
+
+    .footer-social {
+      justify-content: center;
+    }
+
+    .footer-links {
+      grid-template-columns: repeat(2, 1fr);
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .footer-links {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+</style>

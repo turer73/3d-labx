@@ -1,0 +1,438 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+
+export const prerender = true;
+
+const AI_TOOLS = [
+  { 
+    id: 1, 
+    name: "Obico", 
+    type: "Baskı Denetimi", 
+    description: "Yapay zeka ile hata tespiti. Spagetti olunca yazıcıyı durdurur.", 
+    icon: "eye",
+    link: "https://obico.io",
+    tag: "Açık Kaynak",
+    tagColor: "green"
+  },
+  { 
+    id: 2, 
+    name: "Luma AI", 
+    type: "3D Tarama", 
+    description: "Telefondan fotogrametri. Videoyu 3D modele çevirir (NeRF).", 
+    icon: "box",
+    link: "https://lumalabs.ai",
+    tag: "Mobil App",
+    tagColor: "blue"
+  },
+  { 
+    id: 3, 
+    name: "Kaedim", 
+    type: "2D to 3D", 
+    description: "2D görselleri dakikalar içinde üretime hazır 3D modellere dönüştürür.", 
+    icon: "layers",
+    link: "https://kaedim3d.com",
+    tag: "Web Tabanlı",
+    tagColor: "cyan"
+  },
+  { 
+    id: 4, 
+    name: "CSM (Cube)", 
+    type: "Generative 3D", 
+    description: "Tek bir görselden veya metinden 3D varlıklar oluşturan güçlü yapay zeka.", 
+    icon: "cube",
+    link: "https://csm.ai",
+    tag: "Beta",
+    tagColor: "orange"
+  },
+  { 
+    id: 5, 
+    name: "ChatGPT G-Code", 
+    type: "Kod Yardımcısı", 
+    description: "Klipper makroları yazmak veya G-Code hatalarını ayıklamak için asistan.", 
+    icon: "bot",
+    link: "https://chat.openai.com",
+    tag: "LLM",
+    tagColor: "purple"
+  },
+  { 
+    id: 6, 
+    name: "Polycam", 
+    type: "LiDAR Tarama", 
+    description: "iPhone LiDAR sensörünü kullanarak mekanları ve objeleri tarayın.", 
+    icon: "scan",
+    link: "https://poly.cam",
+    tag: "iOS/Android",
+    tagColor: "pink"
+  },
+  { 
+    id: 7, 
+    name: "Meshy", 
+    type: "Text to 3D", 
+    description: "Metin komutlarından 3D modeller oluşturun. Oyun ve animasyon için ideal.", 
+    icon: "sparkles",
+    link: "https://meshy.ai",
+    tag: "Freemium",
+    tagColor: "yellow"
+  },
+  { 
+    id: 8, 
+    name: "Rodin", 
+    type: "AI 3D Gen", 
+    description: "Hyper3D tarafından geliştirilen profesyonel 3D model üretici.", 
+    icon: "zap",
+    link: "https://hyperhuman.deemos.com",
+    tag: "Pro",
+    tagColor: "red"
+  }
+];
+---
+
+<BaseLayout 
+  title="AI Araçlar - 3D Tasarım ve Üretim İçin Yapay Zeka - 3D-labX"
+  description="3D tasarım ve üretim süreçlerinizi hızlandıracak yapay zeka araçları. Obico, Luma AI, Meshy ve daha fazlası."
+>
+  <Header />
+
+  <main class="ai-page">
+    <div class="container">
+      <div class="page-header">
+        <div class="header-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>
+          </svg>
+        </div>
+        <div>
+          <div class="title-row">
+            <h1>AI Araclar</h1>
+            <span class="beta-badge">BETA</span>
+          </div>
+          <p class="subtitle">3D tasarım ve üretim süreçlerinizi hızlandıracak yapay zeka araçları.</p>
+        </div>
+      </div>
+
+      <div class="beta-notice">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        <p>Bu sayfa aktif geliştirme aşamasındadır. Yeni araçlar ve özellikler yakın zamanda eklenecektir.</p>
+      </div>
+
+      <div class="tools-grid">
+        {AI_TOOLS.map((tool) => (
+          <a href={tool.link} target="_blank" rel="noopener noreferrer" class="tool-card">
+            <div class="tool-header">
+              <div class="tool-icon">
+                {tool.icon === "eye" && <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>}
+                {tool.icon === "box" && <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>}
+                {tool.icon === "layers" && <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 12.5-8.58 3.91a2 2 0 0 1-1.66 0L3.18 12.5"/><path d="m22 17.5-8.58 3.91a2 2 0 0 1-1.66 0L3.18 17.5"/></svg>}
+                {tool.icon === "cube" && <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>}
+                {tool.icon === "bot" && <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>}
+                {tool.icon === "scan" && <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect width="10" height="8" x="7" y="8" rx="1"/></svg>}
+                {tool.icon === "sparkles" && <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>}
+                {tool.icon === "zap" && <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>}
+              </div>
+              <span class={`tool-tag tag-${tool.tagColor}`}>{tool.tag}</span>
+            </div>
+            <div class="tool-type">{tool.type}</div>
+            <h3 class="tool-name">{tool.name}</h3>
+            <p class="tool-desc">{tool.description}</p>
+            <div class="tool-footer">
+              <span class="visit-link">
+                Ziyaret Et
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+              </span>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      <section class="info-section">
+        <h2>Neden AI Araclar?</h2>
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <h3>Zaman Tasarrufu</h3>
+            <p>Saatler suren islemleri dakikalara indirin. AI destekli araclar is akisinizi hizlandirir.</p>
+          </div>
+          <div class="info-card">
+            <div class="info-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <h3>Hata Onleme</h3>
+            <p>Obico gibi araçlarla baskı hatalarını erken tespit edin ve malzeme israfını önleyin.</p>
+          </div>
+          <div class="info-card">
+            <div class="info-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+            </div>
+            <h3>Kolay Uretim</h3>
+            <p>Text-to-3D ve 2D-to-3D araclariyla fikirlerinizi hizla prototipe donusturun.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .ai-page {
+    padding-top: 156px;
+    padding-bottom: 64px;
+    min-height: 100vh;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 24px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid rgba(168, 85, 247, 0.2);
+  }
+
+  .title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .beta-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    background: linear-gradient(135deg, #A855F7, #7C3AED);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 800;
+    border-radius: 6px;
+    letter-spacing: 0.1em;
+    animation: pulse-badge 2s infinite;
+  }
+
+  @keyframes pulse-badge {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  .beta-notice {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(168, 85, 247, 0.1);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 32px;
+    color: #A855F7;
+  }
+
+  .beta-notice p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .beta-notice svg {
+    flex-shrink: 0;
+  }
+
+  .header-icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #A855F7 0%, #7C3AED 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 8px 32px rgba(168, 85, 247, 0.3);
+  }
+
+  .page-header h1 {
+    margin: 0 0 8px;
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, #A855F7, #7C3AED);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+  }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 24px;
+    margin-bottom: 64px;
+  }
+
+  @media (min-width: 640px) {
+    .tools-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .tools-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .tool-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 24px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tool-card:hover {
+    transform: translateY(-4px);
+    border-color: #A855F7;
+    box-shadow: 0 12px 40px rgba(168, 85, 247, 0.15);
+  }
+
+  .tool-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  .tool-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(168, 85, 247, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #A855F7;
+  }
+
+  .tool-tag {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .tag-green { background: rgba(34, 197, 94, 0.1); color: #22C55E; }
+  .tag-blue { background: rgba(59, 130, 246, 0.1); color: #3B82F6; }
+  .tag-cyan { background: rgba(6, 182, 212, 0.1); color: #06B6D4; }
+  .tag-orange { background: rgba(249, 115, 22, 0.1); color: #F97316; }
+  .tag-purple { background: rgba(168, 85, 247, 0.1); color: #A855F7; }
+  .tag-pink { background: rgba(236, 72, 153, 0.1); color: #EC4899; }
+  .tag-yellow { background: rgba(234, 179, 8, 0.1); color: #EAB308; }
+  .tag-red { background: rgba(239, 68, 68, 0.1); color: #EF4444; }
+
+  .tool-type {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #A855F7;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+
+  .tool-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0 0 8px;
+  }
+
+  .tool-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0;
+    flex: 1;
+  }
+
+  .tool-footer {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .visit-link {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #A855F7;
+  }
+
+  .tool-card:hover .visit-link svg {
+    transform: translateX(4px);
+  }
+
+  .visit-link svg {
+    transition: transform 0.2s ease;
+  }
+
+  .info-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 24px;
+    padding: 48px;
+  }
+
+  .info-section h2 {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 24px;
+  }
+
+  @media (min-width: 768px) {
+    .info-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .info-card {
+    text-align: center;
+    padding: 24px;
+  }
+
+  .info-icon {
+    width: 56px;
+    height: 56px;
+    background: rgba(168, 85, 247, 0.1);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #A855F7;
+    margin: 0 auto 16px;
+  }
+
+  .info-card h3 {
+    font-size: 1.1rem;
+    margin: 0 0 8px;
+  }
+
+  .info-card p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.6;
+  }
+</style>

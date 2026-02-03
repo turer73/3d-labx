@@ -1,0 +1,152 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+
+const title = "E-posta Doğrulama – 3D-labX";
+const description = "E-posta adresinizi doğrulayın.";
+---
+
+<BaseLayout title={title} description={description} noIndex={true}>
+  <Header />
+
+  <main class="auth-page">
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="verify-content" id="verifyContent">
+          <div class="verify-loading">
+            <svg class="spinner-large" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="32" stroke-linecap="round"/></svg>
+            <p>E-posta adresiniz doğrulanıyor...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  const content = document.getElementById('verifyContent')!;
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+
+  if (!token) {
+    content.innerHTML = `
+      <div class="verify-error">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+        <h1>Geçersiz Bağlantı</h1>
+        <p>Doğrulama kodu bulunamadı.</p>
+        <a href="/auth/kayit" class="btn btn-primary">Kayıt Ol</a>
+      </div>
+    `;
+  } else {
+    // Verify token
+    fetch('https://tech-portal-api.turgut-d01.workers.dev/api/auth/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        content.innerHTML = `
+          <div class="verify-success">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <h1>E-posta Doğrulandı!</h1>
+            <p>Hesabınız aktif. Artık giriş yapabilirsiniz.</p>
+            <a href="/auth/giris" class="btn btn-primary">Giriş Yap</a>
+          </div>
+        `;
+      } else {
+        content.innerHTML = `
+          <div class="verify-error">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+            <h1>Doğrulama Başarısız</h1>
+            <p>${data.error || 'Doğrulama kodu geçersiz veya süresi dolmuş.'}</p>
+            <a href="/auth/kayit" class="btn btn-secondary">Tekrar Kayıt Ol</a>
+          </div>
+        `;
+      }
+    })
+    .catch(() => {
+      content.innerHTML = `
+        <div class="verify-error">
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+          <h1>Bağlantı Hatası</h1>
+          <p>Sunucuya bağlanılamadı. Lütfen tekrar deneyin.</p>
+          <button onclick="location.reload()" class="btn btn-primary">Tekrar Dene</button>
+        </div>
+      `;
+    });
+  }
+</script>
+
+<style>
+  .auth-page {
+    padding-top: 136px;
+    padding-bottom: 64px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .auth-container {
+    width: 100%;
+    max-width: 440px;
+    padding: 0 var(--spacing-lg);
+  }
+
+  .auth-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-2xl);
+  }
+
+  .verify-loading,
+  .verify-success,
+  .verify-error {
+    text-align: center;
+    padding: var(--spacing-xl) 0;
+  }
+
+  .verify-loading svg,
+  .verify-success svg,
+  .verify-error svg {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .verify-loading p {
+    color: var(--text-muted);
+  }
+
+  .verify-success svg {
+    color: #22c55e;
+  }
+
+  .verify-error svg {
+    color: #ef4444;
+  }
+
+  .verify-success h1,
+  .verify-error h1 {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .verify-success p,
+  .verify-error p {
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .spinner-large {
+    width: 48px;
+    height: 48px;
+    color: var(--accent);
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+</style>

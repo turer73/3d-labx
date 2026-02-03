@@ -1,0 +1,383 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import "../../styles/admin.css";
+---
+
+<BaseLayout title="Dashboard – Admin Panel" noIndex={true}>
+  <button class="mobile-menu-toggle" id="mobileMenuToggle">
+    <span></span>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="admin-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <a href="/" class="logo">3D-labX</a>
+        <span class="badge badge-primary">Admin</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-item active">
+          <span class="icon">📊</span>
+          Dashboard
+        </a>
+        <a href="/admin/posts" class="nav-item">
+          <span class="icon">📝</span>
+          Yazılar
+        </a>
+        <a href="/admin/users" class="nav-item">
+          <span class="icon">👥</span>
+          Üyeler
+        </a>
+        <a href="/admin/rss" class="nav-item">
+          <span class="icon">📡</span>
+          RSS Kaynakları
+        </a>
+        <a href="/admin/content-boxes" class="nav-item">
+          <span class="icon">📦</span>
+          İçerik Kutuları
+        </a>
+        <a href="/admin/logs" class="nav-item">
+          <span class="icon">📋</span>
+          Site Logları
+        </a>
+        <a href="/admin/new" class="nav-item">
+          <span class="icon">➕</span>
+          Yeni Yazı
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="logoutBtn" class="btn btn-ghost btn-full">
+          🚪 Çıkış Yap
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="content-header">
+        <h1>Dashboard</h1>
+        <p class="text-muted">Genel bakış ve istatistikler</p>
+      </header>
+
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+          <div class="stat-icon">📄</div>
+          <div class="stat-info">
+            <span class="stat-value" id="totalPosts">-</span>
+            <span class="stat-label">Toplam Yazı</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-info">
+            <span class="stat-value" id="totalUsers">-</span>
+            <span class="stat-label">Toplam Üye</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">💬</div>
+          <div class="stat-info">
+            <span class="stat-value" id="totalComments">-</span>
+            <span class="stat-label">Yorumlar</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📅</div>
+          <div class="stat-info">
+            <span class="stat-value" id="todayUsers">-</span>
+            <span class="stat-label">Bugün Kayıt</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3D Baskı Kategorileri -->
+      <div class="stats-grid secondary">
+        <div class="stat-card small highlight">
+          <div class="stat-icon small">🖨️</div>
+          <div class="stat-info">
+            <span class="stat-value" id="posts3d">-</span>
+            <span class="stat-label">3D Baskı Haberleri</span>
+          </div>
+        </div>
+        <div class="stat-card small highlight">
+          <div class="stat-icon small">📘</div>
+          <div class="stat-info">
+            <span class="stat-value" id="postsRehber">-</span>
+            <span class="stat-label">Rehberler</span>
+          </div>
+        </div>
+        <div class="stat-card small highlight">
+          <div class="stat-icon small">🔧</div>
+          <div class="stat-info">
+            <span class="stat-value" id="postsSorun">-</span>
+            <span class="stat-label">Sorun Çözümleri</span>
+          </div>
+        </div>
+        <div class="stat-card small highlight">
+          <div class="stat-icon small">⭐</div>
+          <div class="stat-info">
+            <span class="stat-value" id="postsInceleme">-</span>
+            <span class="stat-label">İncelemeler</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Yayın Durumu -->
+      <div class="stats-grid secondary">
+        <div class="stat-card small">
+          <div class="stat-icon small">✅</div>
+          <div class="stat-info">
+            <span class="stat-value" id="publishedPosts">-</span>
+            <span class="stat-label">Yayında</span>
+          </div>
+        </div>
+        <div class="stat-card small">
+          <div class="stat-icon small">📝</div>
+          <div class="stat-info">
+            <span class="stat-value" id="draftPosts">-</span>
+            <span class="stat-label">Taslak</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hızlı Eylemler -->
+      <div class="quick-actions">
+        <h3>🚀 Hızlı İçerik Ekle</h3>
+        <div class="action-buttons">
+          <a href="/admin/new?category=rehberler" class="action-btn rehber">📘 Yeni Rehber</a>
+          <a href="/admin/new?category=sorun-cozumleri" class="action-btn sorun">🔧 Sorun Çözümü</a>
+          <a href="/admin/new?category=incelemeler" class="action-btn inceleme">⭐ İnceleme</a>
+          <a href="/admin/new?category=3d-baski" class="action-btn haber">📰 3D Baskı Haber</a>
+        </div>
+      </div>
+
+      <section class="recent-section">
+        <div class="section-header">
+          <h2>Son Eklenen Yazılar</h2>
+          <a href="/admin/posts" class="btn btn-secondary">Tümünü Gör</a>
+        </div>
+
+        <div class="posts-table-container">
+          <table class="posts-table" id="recentPosts">
+            <thead>
+              <tr>
+                <th>Başlık</th>
+                <th>Kategori</th>
+                <th>Durum</th>
+                <th>Tarih</th>
+                <th>İşlem</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="5" class="loading-row">
+                  <span class="spinner"></span> Yükleniyor...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</BaseLayout>
+
+<script>
+  const API_BASE = 'https://tech-portal-api.turgut-d01.workers.dev';
+
+  // Auth kontrolü
+  const secret = localStorage.getItem('adminSecret');
+  if (!secret) {
+    window.location.href = '/admin';
+  }
+
+  // Logout
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    localStorage.removeItem('adminSecret');
+    window.location.href = '/admin';
+  });
+
+  // Mobile menu toggle
+  const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+  const sidebar = document.getElementById('sidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+  function toggleMobileMenu() {
+    mobileMenuToggle?.classList.toggle('active');
+    sidebar?.classList.toggle('open');
+    sidebarOverlay?.classList.toggle('active');
+  }
+
+  mobileMenuToggle?.addEventListener('click', toggleMobileMenu);
+  sidebarOverlay?.addEventListener('click', toggleMobileMenu);
+
+  // İstatistikleri yükle
+  async function loadStats() {
+    try {
+      // Post istatistikleri
+      const res = await fetch(`${API_BASE}/api/stats`);
+      const data = await res.json();
+
+      document.getElementById('totalPosts')!.textContent = data.total || '0';
+      document.getElementById('posts3d')!.textContent = data.baski_3d || '0';
+      document.getElementById('postsRehber')!.textContent = data.rehberler || '0';
+      document.getElementById('postsSorun')!.textContent = data.sorun_cozumleri || '0';
+      document.getElementById('postsInceleme')!.textContent = data.incelemeler || '0';
+      document.getElementById('publishedPosts')!.textContent = data.published || '0';
+
+      // Dashboard istatistikleri
+      const dashRes = await fetch(`${API_BASE}/admin/dashboard-stats`, {
+        headers: { 'X-ADMIN-SECRET': secret! }
+      });
+
+      if (dashRes.ok) {
+        const dashData = await dashRes.json();
+        document.getElementById('totalUsers')!.textContent = dashData.stats?.totalUsers || '0';
+        document.getElementById('totalComments')!.textContent = dashData.stats?.totalComments || '0';
+        document.getElementById('todayUsers')!.textContent = dashData.stats?.todayUsers || '0';
+      }
+    } catch (err) {
+      console.error('Stats yüklenemedi:', err);
+    }
+  }
+
+  // Son yazıları yükle
+  async function loadRecentPosts() {
+    try {
+      const res = await fetch(`${API_BASE}/admin/posts?limit=5`, {
+        headers: { 'X-ADMIN-SECRET': secret! }
+      });
+
+      if (!res.ok) throw new Error('Unauthorized');
+
+      const posts = await res.json();
+      const tbody = document.querySelector('#recentPosts tbody')!;
+
+      if (posts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-row">Henüz yazı yok</td></tr>';
+        return;
+      }
+
+      const categoryNames: Record<string, string> = {
+        '3d-baski': '3D Baskı',
+        'rehberler': 'Rehber',
+        'sorun-cozumleri': 'Sorun Çözümü',
+        'incelemeler': 'İnceleme'
+      };
+
+      tbody.innerHTML = posts.map((post: any) => `
+        <tr>
+          <td class="title-cell">
+            <a href="/admin/edit/${post.id}">${post.title_tr?.substring(0, 50)}${post.title_tr?.length > 50 ? '...' : ''}</a>
+          </td>
+          <td>
+            <span class="category-badge ${post.category}">${categoryNames[post.category] || post.category}</span>
+          </td>
+          <td>
+            <span class="status-badge ${post.published ? 'published' : 'draft'}">
+              ${post.published ? 'Yayında' : 'Taslak'}
+            </span>
+          </td>
+          <td class="date-cell">${new Date(post.created_at).toLocaleDateString('tr-TR')}</td>
+          <td>
+            <a href="/admin/edit/${post.id}" class="btn btn-ghost btn-sm">Düzenle</a>
+          </td>
+        </tr>
+      `).join('');
+    } catch (err) {
+      console.error('Posts yüklenemedi:', err);
+      const tbody = document.querySelector('#recentPosts tbody')!;
+      tbody.innerHTML = '<tr><td colspan="5" class="error-row">Yüklenirken hata oluştu</td></tr>';
+    }
+  }
+
+  // Yükle
+  loadStats();
+  loadRecentPosts();
+</script>
+
+<style>
+  .quick-actions {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 32px;
+  }
+
+  .quick-actions h3 {
+    margin: 0 0 16px;
+    font-size: 1.1rem;
+    color: var(--text-main);
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .action-btn {
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+  }
+
+  .action-btn.rehber {
+    background: rgba(6, 182, 212, 0.1);
+    color: #06B6D4;
+    border-color: rgba(6, 182, 212, 0.3);
+  }
+  .action-btn.rehber:hover {
+    background: rgba(6, 182, 212, 0.2);
+  }
+
+  .action-btn.sorun {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22C55E;
+    border-color: rgba(34, 197, 94, 0.3);
+  }
+  .action-btn.sorun:hover {
+    background: rgba(34, 197, 94, 0.2);
+  }
+
+  .action-btn.inceleme {
+    background: rgba(168, 85, 247, 0.1);
+    color: #A855F7;
+    border-color: rgba(168, 85, 247, 0.3);
+  }
+  .action-btn.inceleme:hover {
+    background: rgba(168, 85, 247, 0.2);
+  }
+
+  .action-btn.haber {
+    background: rgba(249, 115, 22, 0.1);
+    color: #F97316;
+    border-color: rgba(249, 115, 22, 0.3);
+  }
+  .action-btn.haber:hover {
+    background: rgba(249, 115, 22, 0.2);
+  }
+
+  .stat-card.small.highlight {
+    border: 2px solid rgba(249, 115, 22, 0.3);
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, var(--bg-card) 100%);
+  }
+
+  .category-badge.rehberler { background: rgba(6, 182, 212, 0.1); color: #06B6D4; }
+  .category-badge.sorun-cozumleri { background: rgba(34, 197, 94, 0.1); color: #22C55E; }
+  .category-badge.incelemeler { background: rgba(168, 85, 247, 0.1); color: #A855F7; }
+
+  @media (max-width: 768px) {
+    .action-buttons {
+      flex-direction: column;
+    }
+    .action-btn {
+      text-align: center;
+    }
+  }
+</style>

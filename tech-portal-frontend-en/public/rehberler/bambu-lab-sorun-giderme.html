@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bambu Lab Sorun Giderme Rehberi | 3D-labX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .bambu-green { color: #00AE42; }
+        .bg-bambu-green { background-color: #00AE42; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <a href="/" class="flex items-center space-x-3">
+                    <svg class="w-8 h-8 text-[#F97316]" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                    <span class="text-xl font-bold">3D-lab<span class="text-[#F97316]">X</span></span>
+                </a>
+            </div>
+            <a href="https://wiki.bambulab.com/en/home" target="_blank" class="text-sm text-slate-400 hover:text-[#00AE42] transition">Resmi Wiki'ye Git &rarr;</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-white border-b border-slate-200">
+        <div class="container mx-auto px-6 py-12 text-center max-w-3xl">
+            <div class="inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                Bambu Lab Wiki Özeti
+            </div>
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 text-slate-900">En Sık Karşılaşılan Sorunlar ve Çözümleri</h2>
+            <p class="text-lg text-slate-600">Bambu Lab X1, P1 ve A1 serisi yazıcılarda karşılaşabileceğiniz yaygın sorunlar için hızlı başvuru kaynağı. Bu bilgiler resmi Wiki'den derlenmiştir.</p>
+        </div>
+    </section>
+
+    <!-- Content Grid -->
+    <main class="container mx-auto px-6 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <!-- Card 1: Adhesion Issues -->
+            <div class="bg-white rounded-xl shadow-md border border-slate-100 overflow-hidden card-hover transition-all duration-300 flex flex-col">
+                <div class="bg-slate-50 p-6 flex justify-center items-center h-48 border-b border-slate-100">
+                    <!-- SVG: Warping / Bed Adhesion -->
+                    <svg width="120" height="120" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-700">
+                        <rect x="10" y="80" width="80" height="10" fill="#e2e8f0" stroke="none" />
+                        <path d="M10 80 L90 80" stroke="#94a3b8" stroke-width="4"/>
+                        <path d="M20 78 Q 20 50 30 50 L 70 50 Q 80 50 80 78" stroke="#ef4444" stroke-width="3" fill="none"/>
+                        <path d="M20 78 L 80 78" stroke="#ef4444" stroke-width="1" stroke-dasharray="2 2"/>
+                        <text x="50" y="30" text-anchor="middle" font-size="12" fill="#ef4444" stroke="none">Kalkma / Warping</text>
+                    </svg>
+                </div>
+                <div class="p-6 flex-grow">
+                    <h3 class="text-xl font-bold mb-2 flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+                        Tabla Yapışma Sorunu
+                    </h3>
+                    <p class="text-slate-600 mb-4 text-sm">Baskının ilk katmanının tablaya yapışmaması veya köşelerden kalkması (warping).</p>
+
+                    <div class="space-y-3">
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                            <h4 class="font-semibold text-sm text-slate-800 mb-1">Çözüm Adımları:</h4>
+                            <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
+                                <li>Tablayı <strong>sıcak su ve bulaşık deterjanı</strong> ile yıkayın (IPA bazen yağı sadece yayar).</li>
+                                <li>Doğru tabla tipini seçtiğinizden emin olun (Slicer ayarlarında).</li>
+                                <li>Textured PEI plaka için Nozzle sıcaklığını ilk katmanda 5°C artırın.</li>
+                                <li>Cool Plate veya Engineering Plate kullanıyorsanız <strong>Glue Stick</strong> tazeleyin.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Clogged Nozzle -->
+            <div class="bg-white rounded-xl shadow-md border border-slate-100 overflow-hidden card-hover transition-all duration-300 flex flex-col">
+                <div class="bg-slate-50 p-6 flex justify-center items-center h-48 border-b border-slate-100">
+                    <!-- SVG: Clogged Nozzle -->
+                    <svg width="100" height="100" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-700">
+                        <path d="M35 10 L65 10 L55 60 L45 60 Z" fill="#cbd5e1" stroke="#475569"/>
+                        <path d="M45 60 L55 60 L50 75 Z" fill="#eab308" stroke="#ca8a04"/>
+                        <circle cx="50" cy="50" r="8" fill="#ef4444" stroke="none"/>
+                        <path d="M46 46 L54 54 M54 46 L46 54" stroke="white" stroke-width="2"/>
+                        <text x="50" y="90" text-anchor="middle" font-size="12" fill="#475569" stroke="none">Tıkanıklık</text>
+                    </svg>
+                </div>
+                <div class="p-6 flex-grow">
+                    <h3 class="text-xl font-bold mb-2 flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></span>
+                        Nozzle Tıkanıklığı
+                    </h3>
+                    <p class="text-slate-600 mb-4 text-sm">Filamentin akmaması veya extruder'dan tık tık ses gelmesi.</p>
+
+                    <div class="space-y-3">
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                            <h4 class="font-semibold text-sm text-slate-800 mb-1">Çözüm Adımları:</h4>
+                            <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
+                                <li><strong>Cold Pull (Soğuk Çekme):</strong> Nozzle'ı ısıtıp filamenti manuel itip soğutarak çekin.</li>
+                                <li>İğne aracı (Unclogging Pin) ile nozzle ucunu temizleyin.</li>
+                                <li>Extruder dişlilerini kontrol edin, filament kalıntısı olabilir.</li>
+                                <li>Heat creep (ısı sürünmesi) olmaması için kapalı kasalı yazıcılarda PLA basarken üst kapağı aralayın.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: Stringing -->
+            <div class="bg-white rounded-xl shadow-md border border-slate-100 overflow-hidden card-hover transition-all duration-300 flex flex-col">
+                <div class="bg-slate-50 p-6 flex justify-center items-center h-48 border-b border-slate-100">
+                    <!-- SVG: Stringing -->
+                    <svg width="100" height="100" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-700">
+                        <rect x="20" y="40" width="20" height="40" fill="#3b82f6" stroke="none"/>
+                        <rect x="60" y="40" width="20" height="40" fill="#3b82f6" stroke="none"/>
+                        <path d="M40 50 C 50 55, 50 45, 60 50" stroke="#93c5fd" stroke-width="1"/>
+                        <path d="M40 60 C 45 60, 55 65, 60 55" stroke="#93c5fd" stroke-width="1"/>
+                        <path d="M40 70 L 60 65" stroke="#93c5fd" stroke-width="1"/>
+                        <text x="50" y="25" text-anchor="middle" font-size="12" fill="#3b82f6" stroke="none">İpliklenme</text>
+                    </svg>
+                </div>
+                <div class="p-6 flex-grow">
+                    <h3 class="text-xl font-bold mb-2 flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
+                        İpliklenme (Stringing)
+                    </h3>
+                    <p class="text-slate-600 mb-4 text-sm">Modelin parçaları arasında örümcek ağı gibi ince filament iplikleri oluşması.</p>
+
+                    <div class="space-y-3">
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                            <h4 class="font-semibold text-sm text-slate-800 mb-1">Çözüm Adımları:</h4>
+                            <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
+                                <li><strong>Filamenti Kurutun:</strong> En yaygın sebep nemli filamenttir. Özellikle PETG ve TPU.</li>
+                                <li>Nozzle sıcaklığını 5-10°C düşürün.</li>
+                                <li>"Retraction" (Geri çekme) ayarlarını kontrol edin.</li>
+                                <li>Z-Hop ayarını kontrol edin, gereksizse kapatın.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 4: AMS Issues -->
+            <div class="bg-white rounded-xl shadow-md border border-slate-100 overflow-hidden card-hover transition-all duration-300 flex flex-col">
+                <div class="bg-slate-50 p-6 flex justify-center items-center h-48 border-b border-slate-100">
+                    <!-- SVG: AMS Spool -->
+                    <svg width="100" height="100" viewBox="0 0 100 100" fill="none" class="text-slate-700">
+                        <circle cx="50" cy="50" r="30" stroke="#475569" stroke-width="4" fill="none"/>
+                        <circle cx="50" cy="50" r="10" fill="#cbd5e1"/>
+                        <path d="M50 20 L50 10 M80 50 L90 50 M50 80 L50 90 M20 50 L10 50" stroke="#475569" stroke-width="2"/>
+                        <path d="M65 65 L85 65 L75 45 Z" fill="#ef4444" stroke="#b91c1c" stroke-width="1"/>
+                        <path d="M75 52 L75 58 M75 62 L75 62" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                         <text x="50" y="95" text-anchor="middle" font-size="10" fill="#475569" stroke="none">AMS Hatası</text>
+                    </svg>
+                </div>
+                <div class="p-6 flex-grow">
+                    <h3 class="text-xl font-bold mb-2 flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-orange-500 mr-2"></span>
+                        AMS Geri Çekme Hatası
+                    </h3>
+                    <p class="text-slate-600 mb-4 text-sm">Filament değiştirirken "Failed to pull back filament" hatası.</p>
+
+                    <div class="space-y-3">
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                            <h4 class="font-semibold text-sm text-slate-800 mb-1">Çözüm Adımları:</h4>
+                            <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
+                                <li>Makarayı elinizle hafifçe geri sararak motorlara yardımcı olun.</li>
+                                <li>Filamentin makarada sıkışıp sıkışmadığını (düğüm) kontrol edin.</li>
+                                <li>PTFE tüplerinin (özellikle Toolhead üzerindeki eğimin) çok keskin olmadığından emin olun.</li>
+                                <li>Karton makaraların kenarına bant yapıştırmak sürtünmeyi artırabilir, plastik adaptör kullanın.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+             <!-- Card 5: Poor Quality / VFA -->
+             <div class="bg-white rounded-xl shadow-md border border-slate-100 overflow-hidden card-hover transition-all duration-300 flex flex-col">
+                <div class="bg-slate-50 p-6 flex justify-center items-center h-48 border-b border-slate-100">
+                    <!-- SVG: VFA / Ringing -->
+                    <svg width="100" height="100" viewBox="0 0 100 100" fill="none" class="text-slate-700">
+                        <rect x="30" y="30" width="40" height="40" fill="#e2e8f0" stroke="#475569" stroke-width="2"/>
+                        <path d="M75 30 L75 70" stroke="#94a3b8" stroke-width="2" stroke-dasharray="2 2"/>
+                        <path d="M80 30 L80 70" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="2 2"/>
+                         <text x="50" y="20" text-anchor="middle" font-size="10" fill="#475569" stroke="none">Ghosting / VFA</text>
+                    </svg>
+                </div>
+                <div class="p-6 flex-grow">
+                    <h3 class="text-xl font-bold mb-2 flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-purple-500 mr-2"></span>
+                        Yüzey Kalitesi (Ghosting)
+                    </h3>
+                    <p class="text-slate-600 mb-4 text-sm">Düz yüzeylerde dalgalanmalar veya dikey ince çizgiler (VFA).</p>
+
+                    <div class="space-y-3">
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                            <h4 class="font-semibold text-sm text-slate-800 mb-1">Çözüm Adımları:</h4>
+                            <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
+                                <li><strong>Kayış Gerginliği:</strong> Arkadaki vidaları gevşetip, kafayı hareket ettirip tekrar sıkarak kayışları gerin (Wiki prosedürünü izleyin).</li>
+                                <li>Yazıcıyı sağlam, sallanmayan bir zemine koyun veya anti-vibrasyon ayakları kullanın.</li>
+                                <li>"Calibration" menüsünden "Flow Dynamics" ve "Vibration Compensation" kalibrasyonlarını tekrar yapın.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Link Card -->
+             <div class="bg-gradient-to-br from-[#F97316] to-orange-700 rounded-xl shadow-md overflow-hidden card-hover transition-all duration-300 flex flex-col text-white">
+                <div class="p-8 flex flex-col justify-center items-center h-full text-center">
+                    <svg class="w-16 h-16 mb-4 text-white opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <h3 class="text-2xl font-bold mb-4">Daha Fazla Yardım mı Lazım?</h3>
+                    <p class="mb-6 opacity-90 text-sm">Bu özet, en yaygın sorunları kapsar. Karmaşık elektronik arızalar veya parça değişimi için resmi Wiki'ye başvurun.</p>
+                    <a href="https://wiki.bambulab.com/en/home" target="_blank" class="bg-white text-[#F97316] px-6 py-3 rounded-full font-bold hover:bg-slate-100 transition shadow-lg w-full max-w-xs">
+                        Resmi Wiki'yi Aç
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Back to Site -->
+        <div class="mt-12 text-center">
+            <a href="/" class="inline-flex items-center gap-2 text-slate-600 hover:text-[#F97316] transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                3D-labX Ana Sayfaya Dön
+            </a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 mt-auto">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-sm mb-2">&copy; 2026 3D-labX - Bambu Lab Sorun Giderme Rehberi</p>
+            <p class="text-xs text-slate-500">Bu içerik bilgilendirme amaçlıdır. Cihazınıza müdahale etmeden önce garanti koşullarını kontrol ediniz.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
