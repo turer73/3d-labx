@@ -7,8 +7,10 @@ export const prerender = false;
 
 type Post = {
   id: number;
-  title_tr: string;
-  summary_tr: string;
+  title: string;
+  title_tr?: string;
+  summary: string;
+  summary_tr?: string;
   slug: string;
   category: string;
   image_url?: string;
@@ -65,7 +67,7 @@ try {
 const title = "3D Baskı Haberleri – 3D-labX";
 
 const description = posts.length > 0
-  ? `En güncel 3D baskı haberleri: ${posts.slice(0, 3).map((p) => p.title_tr).join(", ")}`
+  ? `En güncel 3D baskı haberleri: ${posts.slice(0, 3).map((p) => p.title_tr || p.title).join(", ")}`
   : "3D baskı dünyasından en güncel haberler ve analizler.";
 
 // Bugünün tarihi (her gün yenilenecek)
@@ -125,7 +127,7 @@ const gridPosts = posts.slice(2);
               {heroPosts[0] && (
                 <a href={`/3d-baski/${heroPosts[0].slug}`} class="hero-card hero-main">
                   <div class="hero-image">
-                    {heroPosts[0].image_url && <img src={heroPosts[0].image_url} alt={heroPosts[0].title_tr} />}
+                    {heroPosts[0].image_url && <img src={heroPosts[0].image_url} alt={heroPosts[0].title_tr || heroPosts[0].title} />}
                     <div class="hero-overlay"></div>
                   </div>
                   <div class="hero-content">
@@ -133,8 +135,8 @@ const gridPosts = posts.slice(2);
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
                       Güncel
                     </span>
-                    <h2>{heroPosts[0].title_tr}</h2>
-                    <p>{heroPosts[0].summary_tr}</p>
+                    <h2>{heroPosts[0].title_tr || heroPosts[0].title}</h2>
+                    <p>{heroPosts[0].summary_tr || heroPosts[0].summary}</p>
                     {heroPosts[0].created_at && (
                       <time class="hero-date">
                         {new Date(heroPosts[0].created_at).toLocaleDateString("tr-TR", {
@@ -148,12 +150,12 @@ const gridPosts = posts.slice(2);
               {heroPosts[1] && (
                 <a href={`/3d-baski/${heroPosts[1].slug}`} class="hero-card hero-side">
                   <div class="hero-image">
-                    {heroPosts[1].image_url && <img src={heroPosts[1].image_url} alt={heroPosts[1].title_tr} />}
+                    {heroPosts[1].image_url && <img src={heroPosts[1].image_url} alt={heroPosts[1].title_tr || heroPosts[1].title} />}
                     <div class="hero-overlay"></div>
                   </div>
                   <div class="hero-content">
-                    <h2>{heroPosts[1].title_tr}</h2>
-                    <p>{heroPosts[1].summary_tr}</p>
+                    <h2>{heroPosts[1].title_tr || heroPosts[1].title}</h2>
+                    <p>{heroPosts[1].summary_tr || heroPosts[1].summary}</p>
                     {heroPosts[1].created_at && (
                       <time class="hero-date">
                         {new Date(heroPosts[1].created_at).toLocaleDateString("tr-TR", {
@@ -170,22 +172,22 @@ const gridPosts = posts.slice(2);
           <!-- Posts Bento Grid -->
           <div class="bento-grid" id="postsGrid">
             {gridPosts.map((post, index) => (
-              <a 
-                href={`/3d-baski/${post.slug}`} 
+              <a
+                href={`/3d-baski/${post.slug}`}
                 class={`bento-card ${post.is_featured ? 'featured' : ''} ${index === 0 ? 'bento-wide' : ''}`}
                 data-post-id={post.id}
               >
                 {post.image_url && (
                   <div class="bento-image">
-                    <img src={post.image_url} alt={post.title_tr} loading="lazy" />
+                    <img src={post.image_url} alt={post.title_tr || post.title} loading="lazy" />
                   </div>
                 )}
                 <div class="bento-content">
                   {post.is_featured === 1 && (
                     <span class="bento-badge">Öne Çıkan</span>
                   )}
-                  <h3>{post.title_tr}</h3>
-                  <p>{post.summary_tr}</p>
+                  <h3>{post.title_tr || post.title}</h3>
+                  <p>{post.summary_tr || post.summary}</p>
                   {post.created_at && (
                     <time class="bento-date" datetime={post.created_at}>
                       {new Date(post.created_at).toLocaleDateString("tr-TR", {

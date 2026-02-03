@@ -237,7 +237,7 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
                 <a href={`/3d-baski/${rp.slug}`} class="related-post">
                   <div class="related-post-icon">{catInfo.icon}</div>
                   <div>
-                    <div class="related-post-title">{rp.title_tr}</div>
+                    <div class="related-post-title">{rp.title_tr || rp.title}</div>
                     <div class="related-post-cat">{catInfo.name}</div>
                   </div>
                 </a>
