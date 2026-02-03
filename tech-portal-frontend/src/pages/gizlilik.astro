@@ -159,9 +159,10 @@ const lastUpdated = "26 Ocak 2025";
 
 <style>
   .static-page {
-    padding-top: 156px;
+    padding-top: 140px;
     padding-bottom: 64px;
     min-height: 100vh;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%);
   }
 
   .page-content {
@@ -169,15 +170,33 @@ const lastUpdated = "26 Ocak 2025";
     margin: 0 auto;
   }
 
+  .legal-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 24px;
+    padding: 48px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+  }
+
   .page-content h1 {
     font-size: 2.5rem;
     margin-bottom: var(--spacing-sm);
-    color: var(--text-main);
+    background: linear-gradient(135deg, var(--text-main) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .last-updated {
-    color: var(--text-light);
-    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(37, 99, 235, 0.1);
+    border-radius: 20px;
+    color: var(--accent);
+    font-size: 0.85rem;
+    font-weight: 500;
     margin-bottom: var(--spacing-xl);
   }
 
@@ -192,12 +211,27 @@ const lastUpdated = "26 Ocak 2025";
 
   .legal-section {
     margin-bottom: var(--spacing-2xl);
+    padding: 24px;
+    background: var(--bg-soft);
+    border-radius: 16px;
+    border-left: 4px solid var(--accent);
   }
 
   .legal-section h2 {
     font-size: 1.3rem;
     margin-bottom: var(--spacing-md);
     color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .legal-section h2::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
   }
 
   .legal-section h3 {
@@ -221,14 +255,22 @@ const lastUpdated = "26 Ocak 2025";
 
   .legal-section li {
     margin-bottom: var(--spacing-xs);
+    position: relative;
+  }
+
+  .legal-section li::marker {
+    color: var(--accent);
   }
 
   .legal-section a {
     color: var(--accent);
     text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s;
   }
 
   .legal-section a:hover {
+    opacity: 0.8;
     text-decoration: underline;
   }
 
@@ -237,8 +279,17 @@ const lastUpdated = "26 Ocak 2025";
   }
 
   @media (max-width: 640px) {
+    .legal-content {
+      padding: 24px;
+      border-radius: 16px;
+    }
+
     .page-content h1 {
-      font-size: 2rem;
+      font-size: 1.75rem;
+    }
+
+    .legal-section {
+      padding: 16px;
     }
   }
 </style>
