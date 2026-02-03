@@ -32,17 +32,16 @@ type ApiResponse = {
 
 const API_BASE = getApiBase(Astro.request);
 
-const url = new URL(Astro.request.url);
-const currentPage = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
-const POSTS_PER_PAGE = 12;
+// Maksimum 37 haber, tarih sırasına göre
+const MAX_POSTS = 37;
 
 let posts: Post[] = [];
-let pagination: Pagination | null = null;
+let totalPosts = 0;
 let error: string | null = null;
 
 try {
   const res = await fetch(
-    `${API_BASE}/api/posts?category=3d-baski&page=${currentPage}&limit=${POSTS_PER_PAGE}`,
+    `${API_BASE}/api/posts?category=3d-baski&limit=${MAX_POSTS}`,
     { headers: { "Accept": "application/json" } }
   );
 
@@ -51,20 +50,28 @@ try {
   }
 
   const data: ApiResponse = await res.json();
-  posts = data.posts;
-  pagination = data.pagination;
+  // Tarih sırasına göre sırala (en yeni en üstte)
+  posts = data.posts.sort((a, b) => {
+    const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return dateB - dateA;
+  }).slice(0, MAX_POSTS);
+  totalPosts = posts.length;
 } catch (e) {
   error = e instanceof Error ? e.message : "Bilinmeyen hata";
   console.error("3D Baskı sayfası hatası:", error);
 }
 
-const title = currentPage > 1
-  ? `3D Baskı Haberleri - Sayfa ${currentPage} – 3D-labX`
-  : "3D Baskı Haberleri – 3D-labX";
+const title = "3D Baskı Haberleri – 3D-labX";
 
 const description = posts.length > 0
   ? `En güncel 3D baskı haberleri: ${posts.slice(0, 3).map((p) => p.title_tr).join(", ")}`
   : "3D baskı dünyasından en güncel haberler ve analizler.";
+
+// Bugünün tarihi (her gün yenilenecek)
+const today = new Date().toLocaleDateString("tr-TR", {
+  year: "numeric", month: "long", day: "numeric"
+});
 
 // İlk 2 post hero için, geri kalanı grid için
 const heroPosts = posts.slice(0, 2);
@@ -86,11 +93,10 @@ const gridPosts = posts.slice(2);
           <h1>3D Baskı Haberleri</h1>
           <p class="page-desc">En güncel 3D baskı haberleri, teknoloji gelişmeleri ve sektör analizleri</p>
         </div>
-        {pagination && (
-          <div class="post-stats">
-            <span class="post-count">{pagination.total} içerik</span>
-          </div>
-        )}
+        <div class="post-stats">
+          <span class="post-count">{totalPosts} haber</span>
+          <span class="update-date">Son güncelleme: {today}</span>
+        </div>
       </div>
 
       {error && (
@@ -192,36 +198,14 @@ const gridPosts = posts.slice(2);
             ))}
           </div>
 
-          <!-- Infinite Scroll -->
-          {pagination && pagination.totalPages > 1 && (
-            <div class="infinite-scroll-container" id="infiniteScrollContainer">
-              <div class="load-more-wrapper" id="loadMoreWrapper">
-                <button class="load-more-btn" id="loadMoreBtn">
-                  <span class="btn-text">Daha Fazla Göster</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-                </button>
-                <div class="scroll-progress" id="scrollProgress">
-                  <span id="loadedCount">{posts.length}</span> / <span id="totalCount">{pagination.total}</span> içerik gösteriliyor
-                </div>
-              </div>
-              <div class="loading-more hidden" id="loadingMore">
-                <div class="spinner"></div>
-                <span>Yükleniyor...</span>
-              </div>
-              <div class="all-loaded hidden" id="allLoaded">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                <span>Tüm içerikler yüklendi</span>
-              </div>
-            </div>
-          )}
+          <!-- Tüm haberler gösteriliyor bilgisi -->
+          <div class="all-posts-info">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span>{totalPosts} haber gösteriliyor • Her gün güncellenir</span>
+          </div>
         </>
       )}
 
-      <!-- Data for JavaScript -->
-      <script define:vars={{ initialPosts: posts, initialPagination: pagination }}>
-        window.__INITIAL_POSTS__ = initialPosts;
-        window.__INITIAL_PAGINATION__ = initialPagination;
-      </script>
     </div>
   </main>
 </BaseLayout>
@@ -298,6 +282,16 @@ const gridPosts = posts.slice(2);
     border-radius: 20px;
     color: var(--text-muted);
     font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .update-date {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(234, 88, 12, 0.05));
+    border: 1px solid rgba(249, 115, 22, 0.2);
+    border-radius: 20px;
+    color: #F97316;
+    font-size: 0.8rem;
     font-weight: 500;
   }
 
@@ -512,87 +506,18 @@ const gridPosts = posts.slice(2);
     color: var(--text-light);
   }
 
-  /* Infinite Scroll */
-  .infinite-scroll-container {
+  /* All Posts Info */
+  .all-posts-info {
     margin-top: 40px;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 16px;
-  }
-
-  .load-more-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .load-more-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 14px 32px;
-    background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
-    color: white;
-    border: none;
-    border-radius: 50px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 20px rgba(249, 115, 22, 0.3);
-  }
-
-  .load-more-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(249, 115, 22, 0.4);
-  }
-
-  .load-more-btn:active {
-    transform: translateY(0);
-  }
-
-  .load-more-btn svg {
-    transition: transform 0.3s ease;
-  }
-
-  .load-more-btn:hover svg {
-    transform: translateY(3px);
-  }
-
-  .scroll-progress {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-  }
-
-  .loading-more {
-    display: flex;
-    align-items: center;
+    justify-content: center;
     gap: 10px;
-    padding: 20px;
-    color: var(--text-muted);
-    font-size: 0.9rem;
-  }
-
-  .spinner {
-    width: 24px;
-    height: 24px;
-    border: 3px solid var(--border-soft);
-    border-top-color: #F97316;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  .all-loaded {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 16px 24px;
-    background: rgba(34, 197, 94, 0.1);
-    border: 1px solid rgba(34, 197, 94, 0.3);
+    padding: 16px 28px;
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(234, 88, 12, 0.05));
+    border: 1px solid rgba(249, 115, 22, 0.2);
     border-radius: 50px;
-    color: #22C55E;
+    color: #F97316;
     font-size: 0.9rem;
     font-weight: 500;
   }
@@ -691,127 +616,3 @@ const gridPosts = posts.slice(2);
   }
 </style>
 
-<script>
-  const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
-
-  (function initInfiniteScroll() {
-    const postsGrid = document.getElementById('postsGrid');
-    const loadMoreBtn = document.getElementById('loadMoreBtn');
-    const loadMoreWrapper = document.getElementById('loadMoreWrapper');
-    const loadingMore = document.getElementById('loadingMore');
-    const allLoaded = document.getElementById('allLoaded');
-    const loadedCountEl = document.getElementById('loadedCount');
-    const totalCountEl = document.getElementById('totalCount');
-
-    if (!postsGrid || !loadMoreBtn) return;
-
-    const initialPagination = (window as any).__INITIAL_PAGINATION__;
-    if (!initialPagination) return;
-
-    let currentPage = initialPagination.page || 1;
-    let totalPages = initialPagination.totalPages || 1;
-    let totalPosts = initialPagination.total || 0;
-    let isLoading = false;
-
-    function updateUI() {
-      const heroCards = document.querySelectorAll('.hero-card').length;
-      const gridCards = postsGrid.querySelectorAll('.bento-card').length;
-      const currentLoaded = heroCards + gridCards;
-      
-      if (loadedCountEl) loadedCountEl.textContent = currentLoaded.toString();
-      if (totalCountEl) totalCountEl.textContent = totalPosts.toString();
-
-      if (currentPage >= totalPages) {
-        loadMoreWrapper?.classList.add('hidden');
-        allLoaded?.classList.remove('hidden');
-      } else {
-        loadMoreWrapper?.classList.remove('hidden');
-        allLoaded?.classList.add('hidden');
-      }
-    }
-
-    async function loadMorePosts() {
-      if (isLoading || currentPage >= totalPages) return;
-
-      isLoading = true;
-      loadMoreBtn?.classList.add('hidden');
-      loadingMore?.classList.remove('hidden');
-
-      try {
-        const nextPage = currentPage + 1;
-        const res = await fetch(`${API_URL}/api/posts?category=3d-baski&page=${nextPage}&limit=12`);
-        const data = await res.json();
-
-        if (data.posts && data.posts.length > 0) {
-          data.posts.forEach((post: any, index: number) => {
-            const card = createBentoCard(post, index === 0 && currentPage === 1);
-            card.style.animationDelay = `${index * 0.08}s`;
-            postsGrid.appendChild(card);
-          });
-
-          currentPage = nextPage;
-          updateUI();
-        }
-      } catch (err) {
-        console.error('Load more error:', err);
-      } finally {
-        isLoading = false;
-        loadingMore?.classList.add('hidden');
-        if (currentPage < totalPages) {
-          loadMoreBtn?.classList.remove('hidden');
-        }
-      }
-    }
-
-    function createBentoCard(post: any, isWide: boolean = false): HTMLElement {
-      const card = document.createElement('a');
-      card.href = `/3d-baski/${post.slug}`;
-      card.className = `bento-card new-post ${post.is_featured ? 'featured' : ''} ${isWide ? 'bento-wide' : ''}`;
-      card.dataset.postId = post.id;
-
-      const dateFormatted = post.created_at
-        ? new Date(post.created_at).toLocaleDateString('tr-TR', {
-            year: 'numeric', month: 'short', day: 'numeric'
-          })
-        : '';
-
-      card.innerHTML = `
-        ${post.image_url ? `
-          <div class="bento-image">
-            <img src="${post.image_url}" alt="${post.title_tr}" loading="lazy" />
-          </div>
-        ` : ''}
-        <div class="bento-content">
-          ${post.is_featured === 1 ? '<span class="bento-badge">Öne Çıkan</span>' : ''}
-          <h3>${post.title_tr}</h3>
-          <p>${post.summary_tr}</p>
-          ${dateFormatted ? `<time class="bento-date" datetime="${post.created_at}">${dateFormatted}</time>` : ''}
-        </div>
-      `;
-
-      return card;
-    }
-
-    loadMoreBtn.addEventListener('click', loadMorePosts);
-
-    let scrollTimeout: number;
-    function handleScroll() {
-      clearTimeout(scrollTimeout);
-      scrollTimeout = window.setTimeout(() => {
-        const scrollPosition = window.innerHeight + window.scrollY;
-        const threshold = document.body.offsetHeight - 600;
-
-        if (scrollPosition >= threshold && !isLoading && currentPage < totalPages) {
-          loadMorePosts();
-        }
-      }, 100);
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    updateUI();
-
-    document.addEventListener('astro:before-swap', () => {
-      window.removeEventListener('scroll', handleScroll);
-    });
-  })();
-</script>
