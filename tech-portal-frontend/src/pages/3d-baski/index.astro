@@ -1,9 +1,73 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
-import { getApiBase } from "../../lib/api";
+import { getApiBase, getLanguage, type Language } from "../../lib/api";
 
 export const prerender = false;
+
+// Dil algılama
+const lang = getLanguage(Astro.request);
+
+// Dil bazlı çeviriler
+const translations: Record<Language, {
+  pageTitle: string;
+  pageDesc: string;
+  badge: string;
+  newsCount: string;
+  lastUpdate: string;
+  current: string;
+  featured: string;
+  showingNews: string;
+  updatesDaily: string;
+  errorTitle: string;
+  noContent: string;
+  backHome: string;
+}> = {
+  tr: {
+    pageTitle: "3D Baskı Haberleri",
+    pageDesc: "En güncel 3D baskı haberleri, teknoloji gelişmeleri ve sektör analizleri",
+    badge: "3D Baskı",
+    newsCount: "haber",
+    lastUpdate: "Son güncelleme",
+    current: "Güncel",
+    featured: "Öne Çıkan",
+    showingNews: "haber gösteriliyor",
+    updatesDaily: "Her gün güncellenir",
+    errorTitle: "İçerikler yüklenirken bir hata oluştu.",
+    noContent: "Bu kategoride henüz içerik bulunmuyor.",
+    backHome: "Ana Sayfaya Dön"
+  },
+  en: {
+    pageTitle: "3D Printing News",
+    pageDesc: "Latest 3D printing news, technology developments and industry analysis",
+    badge: "3D Printing",
+    newsCount: "news",
+    lastUpdate: "Last updated",
+    current: "Latest",
+    featured: "Featured",
+    showingNews: "news showing",
+    updatesDaily: "Updates daily",
+    errorTitle: "An error occurred while loading content.",
+    noContent: "No content in this category yet.",
+    backHome: "Back to Home"
+  },
+  de: {
+    pageTitle: "3D-Druck Nachrichten",
+    pageDesc: "Neueste 3D-Druck-Nachrichten, Technologieentwicklungen und Branchenanalysen",
+    badge: "3D-Druck",
+    newsCount: "Nachrichten",
+    lastUpdate: "Letzte Aktualisierung",
+    current: "Aktuell",
+    featured: "Empfohlen",
+    showingNews: "Nachrichten angezeigt",
+    updatesDaily: "Tägliche Updates",
+    errorTitle: "Beim Laden des Inhalts ist ein Fehler aufgetreten.",
+    noContent: "Noch keine Inhalte in dieser Kategorie.",
+    backHome: "Zurück zur Startseite"
+  }
+};
+
+const t = translations[lang];
 
 type Post = {
   id: number;
@@ -41,9 +105,12 @@ let posts: Post[] = [];
 let totalPosts = 0;
 let error: string | null = null;
 
+// Dil parametresi ekle
+const langParam = lang !== "tr" ? `&lang=${lang}` : "";
+
 try {
   const res = await fetch(
-    `${API_BASE}/api/posts?category=3d-baski&limit=${MAX_POSTS}`,
+    `${API_BASE}/api/posts?category=3d-baski&limit=${MAX_POSTS}${langParam}`,
     { headers: { "Accept": "application/json" } }
   );
 
@@ -64,14 +131,17 @@ try {
   console.error("3D Baskı sayfası hatası:", error);
 }
 
-const title = "3D Baskı Haberleri – 3D-labX";
+const title = `${t.pageTitle} – 3D-labX`;
 
 const description = posts.length > 0
-  ? `En güncel 3D baskı haberleri: ${posts.slice(0, 3).map((p) => p.title_tr || p.title).join(", ")}`
-  : "3D baskı dünyasından en güncel haberler ve analizler.";
+  ? `${t.pageDesc}: ${posts.slice(0, 3).map((p) => p.title).join(", ")}`
+  : t.pageDesc;
+
+// Dil bazlı tarih locale'leri
+const dateLocales: Record<Language, string> = { tr: "tr-TR", en: "en-US", de: "de-DE" };
 
 // Bugünün tarihi (her gün yenilenecek)
-const today = new Date().toLocaleDateString("tr-TR", {
+const today = new Date().toLocaleDateString(dateLocales[lang], {
   year: "numeric", month: "long", day: "numeric"
 });
 
@@ -90,20 +160,20 @@ const gridPosts = posts.slice(2);
         <div class="page-title-group">
           <div class="title-badge">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-            <span>3D Baskı</span>
+            <span>{t.badge}</span>
           </div>
-          <h1>3D Baskı Haberleri</h1>
-          <p class="page-desc">En güncel 3D baskı haberleri, teknoloji gelişmeleri ve sektör analizleri</p>
+          <h1>{t.pageTitle}</h1>
+          <p class="page-desc">{t.pageDesc}</p>
         </div>
         <div class="post-stats">
-          <span class="post-count">{totalPosts} haber</span>
-          <span class="update-date">Son güncelleme: {today}</span>
+          <span class="post-count">{totalPosts} {t.newsCount}</span>
+          <span class="update-date">{t.lastUpdate}: {today}</span>
         </div>
       </div>
 
       {error && (
         <div class="message message-error">
-          <p><strong>İçerikler yüklenirken bir hata oluştu.</strong></p>
+          <p><strong>{t.errorTitle}</strong></p>
           <p class="text-sm">{error}</p>
         </div>
       )}
@@ -113,9 +183,9 @@ const gridPosts = posts.slice(2);
           <div class="empty-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
           </div>
-          <h2>Henüz İçerik Yok</h2>
-          <p>Bu kategoride henüz içerik bulunmuyor.</p>
-          <a href="/" class="btn btn-primary">Ana Sayfaya Dön</a>
+          <h2>{lang === "tr" ? "Henüz İçerik Yok" : lang === "en" ? "No Content Yet" : "Noch keine Inhalte"}</h2>
+          <p>{t.noContent}</p>
+          <a href="/" class="btn btn-primary">{t.backHome}</a>
         </div>
       )}
 
@@ -133,13 +203,13 @@ const gridPosts = posts.slice(2);
                   <div class="hero-content">
                     <span class="hero-badge">
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-                      Güncel
+                      {t.current}
                     </span>
                     <h2>{heroPosts[0].title_tr || heroPosts[0].title}</h2>
                     <p>{heroPosts[0].summary_tr || heroPosts[0].summary}</p>
                     {heroPosts[0].created_at && (
                       <time class="hero-date">
-                        {new Date(heroPosts[0].created_at).toLocaleDateString("tr-TR", {
+                        {new Date(heroPosts[0].created_at).toLocaleDateString(dateLocales[lang], {
                           year: "numeric", month: "long", day: "numeric"
                         })}
                       </time>
@@ -158,7 +228,7 @@ const gridPosts = posts.slice(2);
                     <p>{heroPosts[1].summary_tr || heroPosts[1].summary}</p>
                     {heroPosts[1].created_at && (
                       <time class="hero-date">
-                        {new Date(heroPosts[1].created_at).toLocaleDateString("tr-TR", {
+                        {new Date(heroPosts[1].created_at).toLocaleDateString(dateLocales[lang], {
                           year: "numeric", month: "long", day: "numeric"
                         })}
                       </time>
@@ -184,13 +254,13 @@ const gridPosts = posts.slice(2);
                 )}
                 <div class="bento-content">
                   {post.is_featured === 1 && (
-                    <span class="bento-badge">Öne Çıkan</span>
+                    <span class="bento-badge">{t.featured}</span>
                   )}
                   <h3>{post.title_tr || post.title}</h3>
                   <p>{post.summary_tr || post.summary}</p>
                   {post.created_at && (
                     <time class="bento-date" datetime={post.created_at}>
-                      {new Date(post.created_at).toLocaleDateString("tr-TR", {
+                      {new Date(post.created_at).toLocaleDateString(dateLocales[lang], {
                         year: "numeric", month: "short", day: "numeric"
                       })}
                     </time>
@@ -203,7 +273,7 @@ const gridPosts = posts.slice(2);
           <!-- Tüm haberler gösteriliyor bilgisi -->
           <div class="all-posts-info">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            <span>{totalPosts} haber gösteriliyor • Her gün güncellenir</span>
+            <span>{totalPosts} {t.showingNews} • {t.updatesDaily}</span>
           </div>
         </>
       )}
