@@ -1,9 +1,16 @@
-import urllib.request, json, ssl
+import urllib.request, json, ssl, os
 
-API_BASE = "https://tech-portal-api.turgut-d01.workers.dev"
+API_BASE = os.environ.get("API_BASE", "https://tech-portal-api.turgut-d01.workers.dev")
+ADMIN_SECRET = os.environ.get("ADMIN_SECRET", "")
+
+if not ADMIN_SECRET:
+    print("HATA: ADMIN_SECRET environment variable gerekli!")
+    print("Kullanım: ADMIN_SECRET=your_secret python update_filament.py")
+    exit(1)
+
 HEADERS = {
     "Content-Type": "application/json",
-    "X-ADMIN-SECRET": "Tur04520,",
+    "X-ADMIN-SECRET": ADMIN_SECRET,
     "User-Agent": "Mozilla/5.0"
 }
 

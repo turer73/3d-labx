@@ -35,8 +35,8 @@ C:\3dlabx\
 - **API URL:** https://tech-portal-api.turgut-d01.workers.dev
 - **Frontend URL:** https://3d-labx.com
 - **R2 Public URL:** https://pub-9142f11355e84e1da1dd96a4c14e4afb.r2.dev
-- **Admin Secret:** Tur04520,
-- **D1 Database ID:** f9456434-6c54-43a2-8374-d7695a51626f
+- **Admin Secret:** (Cloudflare secrets'da - ADMIN_SECRET env var kullan)
+- **D1 Database ID:** (wrangler.json'da tanımlı)
 - **GitHub Repo:** https://github.com/turer73/3d-labx
 
 ## Devam Etme Talimatı

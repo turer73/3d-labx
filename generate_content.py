@@ -9,8 +9,15 @@ import urllib.request
 import urllib.error
 import ssl
 
-API_BASE = "https://tech-portal-api.turgut-d01.workers.dev"
-ADMIN_SECRET = "Tur04520,"
+import os
+
+API_BASE = os.environ.get("API_BASE", "https://tech-portal-api.turgut-d01.workers.dev")
+ADMIN_SECRET = os.environ.get("ADMIN_SECRET", "")
+
+if not ADMIN_SECRET:
+    print("HATA: ADMIN_SECRET environment variable gerekli!")
+    print("Kullanım: ADMIN_SECRET=your_secret python generate_content.py")
+    exit(1)
 
 ctx = ssl.create_default_context()
 ctx.check_hostname = False

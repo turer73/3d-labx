@@ -1,8 +1,15 @@
 import json
 import urllib.request
+import os
 
-API_URL = "https://tech-portal-api.turgut-d01.workers.dev/admin/filament-prices"
-SECRET = "Tur04520,"
+API_BASE = os.environ.get("API_BASE", "https://tech-portal-api.turgut-d01.workers.dev")
+API_URL = f"{API_BASE}/admin/filament-prices"
+SECRET = os.environ.get("ADMIN_SECRET", "")
+
+if not SECRET:
+    print("HATA: ADMIN_SECRET environment variable gerekli!")
+    print("Kullanım: ADMIN_SECRET=your_secret python seed_filament_prices.py")
+    exit(1)
 
 prices = [
     # PLA Filamentler

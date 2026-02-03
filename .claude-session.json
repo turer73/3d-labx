@@ -16,7 +16,7 @@
     "apiUrl": "https://tech-portal-api.turgut-d01.workers.dev",
     "frontendUrl": "https://3d-labx.com",
     "r2PublicUrl": "https://pub-9142f11355e84e1da1dd96a4c14e4afb.r2.dev",
-    "adminSecret": "Tur04520,",
+    "adminSecret": "(ADMIN_SECRET env var kullan)",
     "r2Endpoints": {
       "upload": "POST /admin/upload-image",
       "delete": "DELETE /admin/delete-image/{key}",

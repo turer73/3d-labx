@@ -57,8 +57,8 @@ try {
 }
 
 const title = currentPage > 1
-  ? `Incelemeler - Sayfa ${currentPage} - 3D-labX`
-  : "Incelemeler - 3D-labX";
+  ? `Reviews - Page ${currentPage} - 3D-labX`
+  : "Reviews - 3D-labX";
 
 const description = posts.length > 0
   ? `3D yazıcı ve ekipman incelemeleri: ${posts.slice(0, 3).map((p) => p.title_tr).join(", ")}`
@@ -75,7 +75,7 @@ const nextUrl = pagination?.hasNext ? `/incelemeler?page=${currentPage + 1}` : n
     <div class="container">
       <div class="page-header">
         <div class="page-title-group">
-          <h1>Incelemeler</h1>
+          <h1>Reviews</h1>
           <p class="page-desc">3D yazıcı, filament ve ekipman incelemeleri</p>
         </div>
         {pagination && (

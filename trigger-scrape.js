@@ -1,9 +1,17 @@
 async function triggerScrape() {
+  const ADMIN_SECRET = process.env.ADMIN_SECRET;
+
+  if (!ADMIN_SECRET) {
+    console.error('HATA: ADMIN_SECRET environment variable gerekli!');
+    console.error('Kullanım: ADMIN_SECRET=your_secret node trigger-scrape.js');
+    process.exit(1);
+  }
+
   console.log('Triggering filament price scrape...');
 
   const res = await fetch('https://tech-portal-api.turgut-d01.workers.dev/admin/filament-prices/scrape', {
     method: 'POST',
-    headers: { 'X-ADMIN-SECRET': 'Tur04520,' }
+    headers: { 'X-ADMIN-SECRET': ADMIN_SECRET }
   });
 
   const result = await res.json();
