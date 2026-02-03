@@ -1,5 +1,7 @@
 ---
 import "../styles/global.css";
+import { translations, type Language } from "../lib/translations";
+import { getLanguage } from "../lib/api";
 
 interface BreadcrumbItem {
   name: string;
@@ -14,7 +16,11 @@ interface Props {
   publishedTime?: string;
   noIndex?: boolean;
   breadcrumbs?: BreadcrumbItem[];
+  lang?: Language;
 }
+
+// Auto-detect language from subdomain if not provided
+const detectedLang = getLanguage(Astro.request);
 
 const {
   title = "3D-labX – Türkiye'nin 3D Baskı Rehberi",
@@ -24,7 +30,11 @@ const {
   publishedTime,
   noIndex = false,
   breadcrumbs,
+  lang = detectedLang,
 } = Astro.props;
+
+// Get translations for footer
+const t = translations[lang];
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site || "https://3d-labx.com");
 const ogImage = image.startsWith("http") ? image : new URL(image, canonicalURL).href;
@@ -51,7 +61,7 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
 ---
 
 <!DOCTYPE html>
-<html lang="tr">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -176,9 +186,9 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
         <div class="footer-content">
           <div class="footer-brand">
             <a href="/" class="footer-logo">3D-labX</a>
-            <p>Türkiye'nin en kapsamlı 3D baskı kaynağı. Yazıcı ayarları, sorun çözümleri, filament rehberleri ve daha fazlası.</p>
+            <p>{t.footer.brandDescription}</p>
             <div class="footer-social">
-              <a href="https://www.youtube.com/@3D-LabX" target="_blank" rel="noopener" class="social-link youtube" title="YouTube Kanalımız">
+              <a href="https://www.youtube.com/@3D-LabX" target="_blank" rel="noopener" class="social-link youtube" title="YouTube">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                 </svg>
@@ -188,43 +198,43 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
 
           <div class="footer-links">
             <div class="footer-column">
-              <h4>3D Baskı</h4>
+              <h4>{t.footer.printing3d}</h4>
               <ul>
-                <li><a href="/3d-baski">Haberler</a></li>
-                <li><a href="/rehberler">Rehberler</a></li>
-                <li><a href="/sorun-cozumleri">Sorun Çözümleri</a></li>
-                <li><a href="/incelemeler">İncelemeler</a></li>
-                <li><a href="/topluluk">Topluluk</a></li>
+                <li><a href="/3d-baski">{t.footer.news}</a></li>
+                <li><a href="/rehberler">{t.footer.guides}</a></li>
+                <li><a href="/sorun-cozumleri">{t.footer.troubleshooting}</a></li>
+                <li><a href="/incelemeler">{t.footer.reviews}</a></li>
+                <li><a href="/topluluk">{t.footer.community}</a></li>
               </ul>
             </div>
 
             <div class="footer-column">
-              <h4>Popüler Konular</h4>
+              <h4>{t.footer.popularTopics}</h4>
               <ul>
-                <li><a href="/rehberler/cura-slicer-interaktif-rehber">Cura Slicer Rehberi</a></li>
-                <li><a href="/rehberler/orca-slicer-rehberi">Orca Slicer Rehberi</a></li>
-                <li><a href="/sorun-cozumleri">Sorun Çözümleri</a></li>
-                <li><a href="/filamentler">Filament Rehberi</a></li>
-                <li><a href="/iletisim">İletişim</a></li>
-                <li><a href="/rss.xml" class="rss-link">📡 RSS Feed</a></li>
+                <li><a href="/rehberler/cura-slicer-interaktif-rehber">{t.footer.curaGuide}</a></li>
+                <li><a href="/rehberler/orca-slicer-rehberi">{t.footer.orcaGuide}</a></li>
+                <li><a href="/sorun-cozumleri">{t.footer.troubleshooting}</a></li>
+                <li><a href="/filamentler">{t.footer.filamentGuide}</a></li>
+                <li><a href="/iletisim">{t.footer.contact}</a></li>
+                <li><a href="/rss.xml" class="rss-link">📡 {t.footer.rssFeed}</a></li>
               </ul>
             </div>
           </div>
 
           <!-- Newsletter Section -->
           <div class="footer-newsletter">
-            <h4>📬 Bülten</h4>
-            <p>Yeni içeriklerden haberdar olun</p>
+            <h4>📬 {t.footer.newsletter}</h4>
+            <p>{t.footer.newsletterDesc}</p>
             <form class="newsletter-form" id="newsletterForm">
-              <input type="email" placeholder="E-posta adresiniz" required />
-              <button type="submit">Abone Ol</button>
+              <input type="email" placeholder={t.footer.emailPlaceholder} required />
+              <button type="submit">{t.footer.subscribe}</button>
             </form>
-            <p class="newsletter-note">Spam göndermiyoruz, istediğinizde çıkabilirsiniz.</p>
+            <p class="newsletter-note">{t.footer.noSpam}</p>
           </div>
         </div>
 
         <div class="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} 3D-labX - Türkiye'nin 3D Baskı Rehberi</p>
+          <p>&copy; {new Date().getFullYear()} 3D-labX - {t.footer.copyright}</p>
         </div>
       </div>
     </footer>

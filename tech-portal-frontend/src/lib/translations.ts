@@ -63,6 +63,25 @@ export const translations: Record<Language, {
     privacy: string;
     terms: string;
     allRights: string;
+    brandDescription: string;
+    printing3d: string;
+    news: string;
+    guides: string;
+    troubleshooting: string;
+    reviews: string;
+    community: string;
+    popularTopics: string;
+    curaGuide: string;
+    orcaGuide: string;
+    filamentGuide: string;
+    contact: string;
+    rssFeed: string;
+    newsletter: string;
+    newsletterDesc: string;
+    emailPlaceholder: string;
+    subscribe: string;
+    noSpam: string;
+    copyright: string;
   };
   // Homepage
   homepage: {
@@ -181,7 +200,26 @@ export const translations: Record<Language, {
       aboutUs: "Hakkımızda",
       privacy: "Gizlilik Politikası",
       terms: "Kullanım Koşulları",
-      allRights: "Tüm hakları saklıdır"
+      allRights: "Tüm hakları saklıdır",
+      brandDescription: "Türkiye'nin en kapsamlı 3D baskı kaynağı. Yazıcı ayarları, sorun çözümleri, filament rehberleri ve daha fazlası.",
+      printing3d: "3D Baskı",
+      news: "Haberler",
+      guides: "Rehberler",
+      troubleshooting: "Sorun Çözümleri",
+      reviews: "İncelemeler",
+      community: "Topluluk",
+      popularTopics: "Popüler Konular",
+      curaGuide: "Cura Slicer Rehberi",
+      orcaGuide: "Orca Slicer Rehberi",
+      filamentGuide: "Filament Rehberi",
+      contact: "İletişim",
+      rssFeed: "RSS Feed",
+      newsletter: "Bülten",
+      newsletterDesc: "Yeni içeriklerden haberdar olun",
+      emailPlaceholder: "E-posta adresiniz",
+      subscribe: "Abone Ol",
+      noSpam: "Spam göndermiyoruz, istediğinizde çıkabilirsiniz.",
+      copyright: "Türkiye'nin 3D Baskı Rehberi"
     },
     homepage: {
       title: "3D-LABX - Türkiye'nin 3D Baskı Rehberi | Yazıcı Ayarları, Sorun Çözümleri",
@@ -296,7 +334,26 @@ export const translations: Record<Language, {
       aboutUs: "About Us",
       privacy: "Privacy Policy",
       terms: "Terms of Use",
-      allRights: "All rights reserved"
+      allRights: "All rights reserved",
+      brandDescription: "Your comprehensive 3D printing resource. Printer settings, troubleshooting, filament guides and more.",
+      printing3d: "3D Printing",
+      news: "News",
+      guides: "Guides",
+      troubleshooting: "Troubleshooting",
+      reviews: "Reviews",
+      community: "Community",
+      popularTopics: "Popular Topics",
+      curaGuide: "Cura Slicer Guide",
+      orcaGuide: "Orca Slicer Guide",
+      filamentGuide: "Filament Guide",
+      contact: "Contact",
+      rssFeed: "RSS Feed",
+      newsletter: "Newsletter",
+      newsletterDesc: "Stay updated with new content",
+      emailPlaceholder: "Your email address",
+      subscribe: "Subscribe",
+      noSpam: "No spam, unsubscribe anytime.",
+      copyright: "Your 3D Printing Guide"
     },
     homepage: {
       title: "3D-LABX - Your 3D Printing Guide | Printer Settings, Troubleshooting",
@@ -411,7 +468,26 @@ export const translations: Record<Language, {
       aboutUs: "Über uns",
       privacy: "Datenschutz",
       terms: "Nutzungsbedingungen",
-      allRights: "Alle Rechte vorbehalten"
+      allRights: "Alle Rechte vorbehalten",
+      brandDescription: "Ihre umfassende 3D-Druck-Ressource. Druckereinstellungen, Fehlerbehebung, Filament-Anleitungen und mehr.",
+      printing3d: "3D-Druck",
+      news: "Nachrichten",
+      guides: "Anleitungen",
+      troubleshooting: "Fehlerbehebung",
+      reviews: "Bewertungen",
+      community: "Community",
+      popularTopics: "Beliebte Themen",
+      curaGuide: "Cura Slicer Anleitung",
+      orcaGuide: "Orca Slicer Anleitung",
+      filamentGuide: "Filament-Anleitung",
+      contact: "Kontakt",
+      rssFeed: "RSS Feed",
+      newsletter: "Newsletter",
+      newsletterDesc: "Bleiben Sie über neue Inhalte informiert",
+      emailPlaceholder: "Ihre E-Mail-Adresse",
+      subscribe: "Abonnieren",
+      noSpam: "Kein Spam, jederzeit abmelden.",
+      copyright: "Ihr 3D-Druck Ratgeber"
     },
     homepage: {
       title: "3D-LABX - Ihr 3D-Druck Ratgeber | Drucker-Einstellungen, Fehlerbehebung",
