@@ -573,13 +573,39 @@ async function logAdminAction(env, request, action, postId = null, details = nul
                request.headers.get("X-Forwarded-For")?.split(',')[0] ||
                "unknown";
     const ua = (request.headers.get("User-Agent") || "unknown").substring(0, 255);
+    const detailsStr = details ? JSON.stringify(details).substring(0, 1000) : null;
 
     await env.DB.prepare(`
-      INSERT INTO admin_logs (action, post_id, ip, user_agent)
-      VALUES (?, ?, ?, ?)
-    `).bind(action, postId, ip, ua).run();
+      INSERT INTO admin_logs (action, post_id, ip, user_agent, details)
+      VALUES (?, ?, ?, ?, ?)
+    `).bind(action, postId, ip, ua, detailsStr).run();
   } catch (error) {
     console.error("Log error:", error.message);
+  }
+}
+
+// Hata loglama fonksiyonu
+async function logError(env, request, errorType, errorMessage, context = {}) {
+  try {
+    const ip = request.headers.get("CF-Connecting-IP") ||
+               request.headers.get("X-Forwarded-For")?.split(',')[0] ||
+               "unknown";
+    const ua = (request.headers.get("User-Agent") || "unknown").substring(0, 255);
+    const url = new URL(request.url);
+
+    const details = JSON.stringify({
+      error: errorMessage,
+      path: url.pathname,
+      method: request.method,
+      ...context
+    }).substring(0, 1000);
+
+    await env.DB.prepare(`
+      INSERT INTO admin_logs (action, post_id, ip, user_agent, details)
+      VALUES (?, ?, ?, ?, ?)
+    `).bind(`error_${errorType}`, null, ip, ua, details).run();
+  } catch (err) {
+    console.error("Error log failed:", err.message);
   }
 }
 
@@ -2095,10 +2121,27 @@ Content: ${post.content_tr?.substring(0, 3000) || ''}`;
 
         // Admin: Loglar
         if (path === "/admin/logs" && method === "GET") {
-          const logs = await env.DB.prepare(`
-            SELECT * FROM admin_logs ORDER BY created_at DESC LIMIT 100
-          `).all();
-          return jsonResponse(logs.results || []);
+          const actionFilter = url.searchParams.get("action");
+          const errorsOnly = url.searchParams.get("errors") === "true";
+          const limit = Math.min(parseInt(url.searchParams.get("limit") || "100"), 500);
+
+          let query = `SELECT * FROM admin_logs`;
+          let conditions = [];
+
+          if (errorsOnly) {
+            conditions.push(`action LIKE 'error_%'`);
+          } else if (actionFilter) {
+            conditions.push(`action = '${actionFilter}'`);
+          }
+
+          if (conditions.length > 0) {
+            query += ` WHERE ` + conditions.join(' AND ');
+          }
+
+          query += ` ORDER BY created_at DESC LIMIT ${limit}`;
+
+          const logs = await env.DB.prepare(query).all();
+          return jsonResponse({ logs: logs.results || [] });
         }
 
         // Admin: R2 Image Upload
@@ -4878,6 +4921,10 @@ Content: ${post.content_tr?.substring(0, 3000) || ''}`;
 
     } catch (error) {
       console.error("Worker error:", error);
+      // Hata logla
+      await logError(env, request, "worker", error.message, {
+        stack: error.stack?.substring(0, 500)
+      });
       return errorResponse("Internal Server Error", 500, "INTERNAL_ERROR");
     }
   },
