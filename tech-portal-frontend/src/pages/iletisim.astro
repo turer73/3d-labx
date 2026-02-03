@@ -12,11 +12,12 @@ const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz
   <main class="static-page">
     <div class="container">
       <article class="page-content">
-        <h1>İletişim</h1>
-
-        <p class="lead">
-          Sorularınız, önerileriniz veya işbirliği talepleriniz için bizimle iletişime geçebilirsiniz.
-        </p>
+        <div class="page-header">
+          <h1>İletişim</h1>
+          <p class="lead">
+            Sorularınız, önerileriniz veya işbirliği talepleriniz için bizimle iletişime geçebilirsiniz.
+          </p>
+        </div>
 
         <div class="contact-grid">
           <div class="contact-info">
@@ -163,9 +164,10 @@ const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz
 
 <style>
   .static-page {
-    padding-top: 156px;
+    padding-top: 140px;
     padding-bottom: 64px;
     min-height: 100vh;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.03) 0%, rgba(16, 185, 129, 0.03) 100%);
   }
 
   .page-content {
@@ -173,44 +175,137 @@ const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz
     margin: 0 auto;
   }
 
+  .page-header {
+    text-align: center;
+    margin-bottom: var(--spacing-2xl);
+    padding: 48px 40px;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+    border-radius: 24px;
+    border: 1px solid var(--border-soft);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .page-header::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
   .page-content h1 {
     font-size: 2.5rem;
     margin-bottom: var(--spacing-md);
-    color: var(--text-main);
+    background: linear-gradient(135deg, var(--text-main) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+    z-index: 1;
   }
 
   .lead {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     color: var(--text-muted);
-    margin-bottom: var(--spacing-2xl);
     line-height: 1.7;
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
   }
 
   .contact-grid {
     display: grid;
     grid-template-columns: 1fr 1.5fr;
-    gap: var(--spacing-2xl);
+    gap: var(--spacing-xl);
   }
 
   .contact-info h2,
   .contact-form-wrapper h2 {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
     margin-bottom: var(--spacing-lg);
     color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .contact-info h2::before {
+    content: '';
+    width: 4px;
+    height: 24px;
+    background: linear-gradient(180deg, var(--accent), #10b981);
+    border-radius: 2px;
+  }
+
+  .contact-form-wrapper h2::before {
+    content: '';
+    width: 4px;
+    height: 24px;
+    background: linear-gradient(180deg, var(--accent), #8b5cf6);
+    border-radius: 2px;
   }
 
   .contact-item {
     display: flex;
     gap: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
-    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-lg);
     background: var(--bg-card);
     border: 1px solid var(--border-soft);
-    border-radius: var(--radius-md);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .contact-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--accent), #10b981);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .contact-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  }
+
+  .contact-item:hover::before {
+    opacity: 1;
   }
 
   .contact-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 1.5rem;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+    border-radius: 12px;
     flex-shrink: 0;
   }
 
@@ -229,17 +324,31 @@ const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz
   .contact-item a {
     color: var(--accent);
     text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
   }
 
   .contact-item a:hover {
-    text-decoration: underline;
+    color: #1d4ed8;
   }
 
   .info-box {
-    background: var(--bg-soft);
-    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
     padding: var(--spacing-lg);
     margin-top: var(--spacing-lg);
+    position: relative;
+  }
+
+  .info-box::before {
+    content: '⏱️';
+    position: absolute;
+    top: -12px;
+    left: 16px;
+    font-size: 1.25rem;
+    background: var(--bg-main);
+    padding: 0 8px;
   }
 
   .info-box h3 {
@@ -258,8 +367,21 @@ const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz
   .contact-form-wrapper {
     background: var(--bg-card);
     border: 1px solid var(--border-soft);
-    border-radius: var(--radius-lg);
+    border-radius: 20px;
     padding: var(--spacing-xl);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .contact-form-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), #8b5cf6, #10b981);
   }
 
   .contact-form {
@@ -283,13 +405,13 @@ const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz
   .form-group input,
   .form-group select,
   .form-group textarea {
-    padding: 12px 14px;
-    background: var(--bg-main);
-    border: 1px solid var(--border-soft);
-    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    background: var(--bg-soft);
+    border: 2px solid var(--border-soft);
+    border-radius: 12px;
     color: var(--text-main);
     font-size: 0.95rem;
-    transition: border-color var(--transition-fast);
+    transition: all 0.2s ease;
   }
 
   .form-group input:focus,
@@ -297,6 +419,8 @@ const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz
   .form-group textarea:focus {
     outline: none;
     border-color: var(--accent);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
   }
 
   .form-group input::placeholder,
@@ -306,12 +430,34 @@ const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz
 
   .form-group textarea {
     resize: vertical;
-    min-height: 120px;
+    min-height: 140px;
+  }
+
+  .form-group select {
+    cursor: pointer;
   }
 
   .contact-form .btn {
     align-self: flex-start;
     margin-top: var(--spacing-sm);
+    padding: 14px 32px;
+    background: linear-gradient(135deg, var(--accent) 0%, #1d4ed8 100%);
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    transition: all 0.2s ease;
+  }
+
+  .contact-form .btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+  }
+
+  .contact-form .btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 
   .form-note {
@@ -323,7 +469,7 @@ const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz
   .form-message {
     margin-top: var(--spacing-lg);
     padding: var(--spacing-lg);
-    border-radius: var(--radius-md);
+    border-radius: 12px;
   }
 
   .form-message.success {
@@ -353,8 +499,21 @@ const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz
       grid-template-columns: 1fr;
     }
 
+    .page-header {
+      padding: 32px 24px;
+    }
+
     .page-content h1 {
       font-size: 2rem;
+    }
+
+    .contact-form-wrapper {
+      padding: var(--spacing-lg);
+    }
+
+    .contact-form .btn {
+      width: 100%;
+      justify-content: center;
     }
   }
 </style>
