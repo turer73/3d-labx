@@ -25,3 +25,17 @@ export function getApiUrlWithLang(baseUrl: string, lang: Language): string {
   const separator = baseUrl.includes("?") ? "&" : "?";
   return `${baseUrl}${separator}lang=${lang}`;
 }
+
+// Dile göre base URL (subdomain)
+export function getBaseUrl(lang: Language): string {
+  if (lang === "en") return "https://en.3d-labx.com";
+  if (lang === "de") return "https://de.3d-labx.com";
+  return "https://3d-labx.com";
+}
+
+// Date locale mapping
+export const dateLocales: Record<Language, string> = {
+  tr: "tr-TR",
+  en: "en-US",
+  de: "de-DE"
+};

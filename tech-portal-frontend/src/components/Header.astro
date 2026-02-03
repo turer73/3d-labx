@@ -1,19 +1,24 @@
 ---
+import { getLanguage, type Language } from "../lib/api";
+import { translations } from "../lib/translations";
+
 const currentPath = Astro.url.pathname;
+const lang = getLanguage(Astro.request);
+const t = translations[lang];
 ---
 
 <!-- Announcement Bar -->
 <div class="announcement-bar" id="announcementBar">
   <div class="announcement-content">
     <span class="announcement-text">
-      <span class="announcement-item">🎉 Yeni içerikler eklendi!</span>
+      <span class="announcement-item">🎉 {t.announcement.newContent}</span>
       <span class="announcement-separator">•</span>
-      <span class="announcement-item">📚 Rehberleri keşfedin</span>
+      <span class="announcement-item">📚 {t.announcement.exploreGuides}</span>
       <span class="announcement-separator">•</span>
-      <span class="announcement-item">🇹🇷 Türk filament markaları</span>
+      <span class="announcement-item">🇹🇷 {t.announcement.turkishBrands}</span>
     </span>
   </div>
-  <button class="announcement-close" id="announcementClose" aria-label="Duyuruyu kapat">
+  <button class="announcement-close" id="announcementClose" aria-label={t.common.closeAnnouncement}>
     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
   </button>
 </div>
@@ -34,63 +39,63 @@ const currentPath = Astro.url.pathname;
     <nav class="desktop-nav">
       <div class="nav-dropdown-wrapper">
         <a href="/3d-baski" class={`nav-btn nav-btn-orange ${currentPath.startsWith("/3d-baski") || currentPath.startsWith("/rehberler") || currentPath.startsWith("/sorun-cozumleri") || currentPath.startsWith("/filamentler") ? "active" : ""}`}>
-          3D Baskı
+          {t.nav.printing3d}
           <svg class="dropdown-chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
         </a>
         <div class="nav-dropdown">
           <a href="/3d-baski" class="nav-dropdown-item">
             <span class="dropdown-icon">📰</span>
-            <span>Haberler</span>
+            <span>{t.nav.news}</span>
           </a>
           <a href="/rehberler" class="nav-dropdown-item">
             <span class="dropdown-icon">📚</span>
-            <span>Rehberler</span>
+            <span>{t.nav.guides}</span>
           </a>
           <a href="/sorun-cozumleri" class="nav-dropdown-item">
             <span class="dropdown-icon">🔧</span>
-            <span>Sorun Çözümleri</span>
+            <span>{t.nav.troubleshooting}</span>
           </a>
           <a href="/3d-baski/malzemeler" class="nav-dropdown-item">
             <span class="dropdown-icon">🧵</span>
-            <span>Filament Türleri</span>
+            <span>{t.nav.filamentTypes}</span>
           </a>
           <a href="/filamentler" class="nav-dropdown-item">
             <span class="dropdown-icon">🇹🇷</span>
-            <span>Yerli Markalar</span>
+            <span>{t.nav.localBrands}</span>
           </a>
         </div>
       </div>
-      <a href="/incelemeler" class={`nav-btn nav-btn-cyan ${currentPath.startsWith("/incelemeler") ? "active" : ""}`}>İncelemeler</a>
+      <a href="/incelemeler" class={`nav-btn nav-btn-cyan ${currentPath.startsWith("/incelemeler") ? "active" : ""}`}>{t.nav.reviews}</a>
       <div class="nav-dropdown-wrapper">
         <a href="/topluluk" class={`nav-btn nav-btn-purple ${currentPath.startsWith("/topluluk") ? "active" : ""}`}>
-          Topluluk
+          {t.nav.community}
           <svg class="dropdown-chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
         </a>
         <div class="nav-dropdown">
           <a href="/topluluk/forum" class="nav-dropdown-item">
             <span class="dropdown-icon">💬</span>
-            <span>Forum</span>
+            <span>{t.nav.forum}</span>
           </a>
           <a href="/topluluk/projeler" class="nav-dropdown-item">
             <span class="dropdown-icon">🎨</span>
-            <span>Ben de Bastım</span>
+            <span>{t.nav.iAlsoPrinted}</span>
           </a>
           <a href="/topluluk/basarisizliklar" class="nav-dropdown-item">
             <span class="dropdown-icon">🔥</span>
-            <span>Başarısızlık Galerisi</span>
+            <span>{t.nav.failGallery}</span>
           </a>
           <a href="/topluluk/harita" class="nav-dropdown-item">
             <span class="dropdown-icon">🗺️</span>
-            <span>Maker Haritası</span>
+            <span>{t.nav.makerMap}</span>
           </a>
         </div>
       </div>
-      <a href="https://magaza.3d-labx.com" class="nav-btn nav-btn-green" target="_blank">Mağaza</a>
+      <a href="https://magaza.3d-labx.com" class="nav-btn nav-btn-green" target="_blank">{t.nav.store}</a>
     </nav>
 
     <div class="header-actions">
       <div class="search-wrapper" id="searchWrapper">
-        <button class="search-toggle" id="searchToggle" aria-label="Arama aç">
+        <button class="search-toggle" id="searchToggle" aria-label={t.common.search}>
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"></circle>
             <path d="m21 21-4.35-4.35"></path>
@@ -100,19 +105,19 @@ const currentPath = Astro.url.pathname;
           <input
             type="search"
             name="q"
-            placeholder="Ara..."
-            aria-label="Site içi arama"
+            placeholder={t.common.searchPlaceholder}
+            aria-label={t.common.search}
             autocomplete="off"
             id="searchInput"
           />
-          <button type="button" class="search-close" id="searchClose" aria-label="Aramayı kapat">
+          <button type="button" class="search-close" id="searchClose" aria-label={t.common.search}>
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
             </svg>
           </button>
         </form>
       </div>
-      <button class="theme-toggle" id="themeToggle" aria-label="Tema değiştir">
+      <button class="theme-toggle" id="themeToggle" aria-label={t.common.darkTheme}>
         <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
         </svg>
@@ -123,9 +128,9 @@ const currentPath = Astro.url.pathname;
 
       <!-- Auth Buttons (Guest) -->
       <div class="auth-buttons" id="authGuest">
-        <a href="/auth/giris" class="auth-link">Giriş</a>
+        <a href="/auth/giris" class="auth-link">{t.auth.login}</a>
         <span class="auth-divider">|</span>
-        <a href="/auth/kayit" class="auth-link auth-register">Kayıt</a>
+        <a href="/auth/kayit" class="auth-link auth-register">{t.auth.register}</a>
       </div>
 
       <!-- User Menu (Logged In) -->
@@ -144,16 +149,16 @@ const currentPath = Astro.url.pathname;
           <div class="dropdown-divider"></div>
           <a href="/profil" class="dropdown-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
-            Profilim
+            {t.auth.profile}
           </a>
           <a href="/profil/ayarlar" class="dropdown-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-            Ayarlar
+            {t.auth.settings}
           </a>
           <div class="dropdown-divider"></div>
           <button class="dropdown-item logout-btn" id="logoutBtn">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
-            Çıkış Yap
+            {t.auth.logout}
           </button>
         </div>
       </div>
@@ -169,23 +174,23 @@ const currentPath = Astro.url.pathname;
   <!-- Mobile Menu -->
   <div class="mobile-menu">
     <nav class="mobile-nav">
-      <a href="/" class={currentPath === "/" ? "active" : ""}>Ana Sayfa</a>
-      <a href="/3d-baski" class={currentPath.startsWith("/3d-baski") ? "active" : ""}>3D Baskı</a>
-      <a href="/rehberler" class="mobile-sub-link">📚 Rehberler</a>
-      <a href="/sorun-cozumleri" class="mobile-sub-link">🔧 Sorun Çözümleri</a>
-      <a href="/3d-baski/malzemeler" class="mobile-sub-link">🧵 Filament Türleri</a>
-      <a href="/filamentler" class="mobile-sub-link">🇹🇷 Yerli Markalar</a>
-      <a href="/incelemeler" class={currentPath.startsWith("/incelemeler") ? "active" : ""}>İncelemeler</a>
-      <a href="/topluluk" class={currentPath.startsWith("/topluluk") ? "active" : ""}>Topluluk</a>
-      <a href="/topluluk/projeler" class="mobile-sub-link">🎨 Ben de Bastım</a>
-      <a href="/topluluk/basarisizliklar" class="mobile-sub-link">🔥 Başarısızlık Galerisi</a>
-      <a href="/topluluk/harita" class="mobile-sub-link">🗺️ Maker Haritası</a>
-      <a href="https://magaza.3d-labx.com" target="_blank">🛒 Mağaza</a>
-      <a href="/iletisim" class={currentPath.startsWith("/iletisim") ? "active" : ""}>İletişim</a>
+      <a href="/" class={currentPath === "/" ? "active" : ""}>{t.nav.home}</a>
+      <a href="/3d-baski" class={currentPath.startsWith("/3d-baski") ? "active" : ""}>{t.nav.printing3d}</a>
+      <a href="/rehberler" class="mobile-sub-link">📚 {t.nav.guides}</a>
+      <a href="/sorun-cozumleri" class="mobile-sub-link">🔧 {t.nav.troubleshooting}</a>
+      <a href="/3d-baski/malzemeler" class="mobile-sub-link">🧵 {t.nav.filamentTypes}</a>
+      <a href="/filamentler" class="mobile-sub-link">🇹🇷 {t.nav.localBrands}</a>
+      <a href="/incelemeler" class={currentPath.startsWith("/incelemeler") ? "active" : ""}>{t.nav.reviews}</a>
+      <a href="/topluluk" class={currentPath.startsWith("/topluluk") ? "active" : ""}>{t.nav.community}</a>
+      <a href="/topluluk/projeler" class="mobile-sub-link">🎨 {t.nav.iAlsoPrinted}</a>
+      <a href="/topluluk/basarisizliklar" class="mobile-sub-link">🔥 {t.nav.failGallery}</a>
+      <a href="/topluluk/harita" class="mobile-sub-link">🗺️ {t.nav.makerMap}</a>
+      <a href="https://magaza.3d-labx.com" target="_blank">🛒 {t.nav.store}</a>
+      <a href="/iletisim" class={currentPath.startsWith("/iletisim") ? "active" : ""}>{t.nav.contact}</a>
     </nav>
     <form action="/search" method="get" class="mobile-search">
-      <input type="search" name="q" placeholder="Ara..." />
-      <button type="submit">Ara</button>
+      <input type="search" name="q" placeholder={t.common.searchPlaceholder} />
+      <button type="submit">{t.common.search}</button>
     </form>
     <button class="mobile-theme-toggle" id="mobileThemeToggle" aria-label="Tema değiştir">
       <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -194,14 +199,14 @@ const currentPath = Astro.url.pathname;
       <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
       </svg>
-      <span class="theme-label light-label">Açık Tema</span>
-      <span class="theme-label dark-label">Karanlık Tema</span>
+      <span class="theme-label light-label">{t.common.lightTheme}</span>
+      <span class="theme-label dark-label">{t.common.darkTheme}</span>
     </button>
 
     <!-- Mobile Auth (Guest) -->
     <div class="mobile-auth-buttons" id="mobileAuthGuest">
-      <a href="/auth/giris" class="btn btn-outline">Giriş Yap</a>
-      <a href="/auth/kayit" class="btn btn-primary">Kayıt Ol</a>
+      <a href="/auth/giris" class="btn btn-outline">{t.auth.login}</a>
+      <a href="/auth/kayit" class="btn btn-primary">{t.auth.register}</a>
     </div>
 
     <!-- Mobile User Info (Logged In) -->
@@ -216,9 +221,9 @@ const currentPath = Astro.url.pathname;
         </div>
       </div>
       <div class="mobile-user-actions">
-        <a href="/profil" class="mobile-user-action">Profilim</a>
-        <a href="/profil/ayarlar" class="mobile-user-action">Ayarlar</a>
-        <button class="mobile-user-action logout" id="mobileLogoutBtn">Çıkış Yap</button>
+        <a href="/profil" class="mobile-user-action">{t.auth.profile}</a>
+        <a href="/profil/ayarlar" class="mobile-user-action">{t.auth.settings}</a>
+        <button class="mobile-user-action logout" id="mobileLogoutBtn">{t.auth.logout}</button>
       </div>
     </div>
   </div>
