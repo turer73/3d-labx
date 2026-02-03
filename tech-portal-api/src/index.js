@@ -1955,6 +1955,56 @@ export default {
           await env.DB.prepare(`UPDATE posts SET ${updates.join(", ")} WHERE id = ?`).bind(...bindings).run();
           await logAdminAction(env, request, "update", id);
 
+          // Auto-translate when publishing (if translations missing)
+          if (body.published === true || body.published === 1) {
+            const post = await env.DB.prepare(`
+              SELECT id, title_tr, summary_tr, content_tr, title_en, title_de FROM posts WHERE id = ?
+            `).bind(id).first();
+
+            if (post && post.title_tr) {
+              const needsEnglish = !post.title_en;
+              const needsGerman = !post.title_de;
+
+              // Trigger async translation (non-blocking)
+              if (needsEnglish || needsGerman) {
+                const translatePost = async (targetLang) => {
+                  try {
+                    const langNames = { en: "English", de: "German" };
+                    const prompt = `Translate the following Turkish text to ${langNames[targetLang]}. Return ONLY valid JSON, nothing else.
+
+{
+  "title": "Translated title (max 100 chars)",
+  "summary": "Translated summary (max 200 chars)",
+  "content": "Translated content (keep paragraphs, maintain HTML if any)"
+}
+
+Turkish text to translate:
+Title: ${post.title_tr}
+Summary: ${post.summary_tr || ''}
+Content: ${(post.content_tr || '').substring(0, 3000)}`;
+
+                    const aiText = await generateWithAI(env, prompt);
+                    if (aiText) {
+                      const cleanJson = aiText.replace(/```json\n?|\n?```/g, "").trim();
+                      const parsed = JSON.parse(cleanJson);
+                      await env.DB.prepare(`
+                        UPDATE posts SET title_${targetLang} = ?, summary_${targetLang} = ?, content_${targetLang} = ?
+                        WHERE id = ?
+                      `).bind(parsed.title, parsed.summary, parsed.content, post.id).run();
+                      console.log(`Auto-translated post ${post.id} to ${targetLang}`);
+                    }
+                  } catch (err) {
+                    console.error(`Auto-translate error (${targetLang}):`, err.message);
+                  }
+                };
+
+                // Run translations in background (don't await)
+                if (needsEnglish) translatePost("en");
+                if (needsGerman) translatePost("de");
+              }
+            }
+          }
+
           return jsonResponse({ success: true, id });
         }
 
