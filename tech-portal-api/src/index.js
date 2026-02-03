@@ -75,17 +75,41 @@ const POST_TYPES = ["haber", "inceleme", "rehber", "tartisma"];
 // ================================
 // 🔧 CORS & RESPONSE HELPERS
 // ================================
+const ALLOWED_ORIGINS = [
+  "https://3d-labx.com",
+  "https://www.3d-labx.com",
+  "https://tech-portal.pages.dev",
+  "http://localhost:4321",
+  "http://localhost:3000"
+];
+
+function getCorsHeaders(request) {
+  const origin = request?.headers?.get("Origin") || "";
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Credentials": "true",
+    "Access-Control-Max-Age": "86400"
+  };
+}
+
+// Geriye uyumluluk için varsayılan headers (request olmadan)
 const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://3d-labx.com",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, X-ADMIN-SECRET, Authorization",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Allow-Credentials": "true",
   "Access-Control-Max-Age": "86400"
 };
 
-function jsonResponse(data, status = 200, cacheSeconds = 0) {
+function jsonResponse(data, status = 200, cacheSeconds = 0, request = null) {
+  const corsHeaders = request ? getCorsHeaders(request) : CORS_HEADERS;
   const headers = {
     "Content-Type": "application/json; charset=utf-8",
-    ...CORS_HEADERS
+    ...corsHeaders
   };
 
   if (cacheSeconds > 0) {
@@ -97,8 +121,8 @@ function jsonResponse(data, status = 200, cacheSeconds = 0) {
   return new Response(JSON.stringify(data), { status, headers });
 }
 
-function errorResponse(message, status = 500, code = "ERROR") {
-  return jsonResponse({ error: message, code }, status, 0);
+function errorResponse(message, status = 500, code = "ERROR", request = null) {
+  return jsonResponse({ error: message, code }, status, 0, request);
 }
 
 // ================================
@@ -145,6 +169,19 @@ function sanitizeString(str, maxLength = 1000) {
   return str.trim().substring(0, maxLength);
 }
 
+// XSS korumalı sanitize (HTML encode)
+function sanitizeHtml(str, maxLength = 1000) {
+  if (typeof str !== 'string') return '';
+  return str
+    .trim()
+    .substring(0, maxLength)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
 function validateCategory(category) {
   return CATEGORIES.includes(category);
 }
@@ -162,6 +199,36 @@ function validatePagination(page, limit) {
   const p = Math.max(1, parseInt(page, 10) || 1);
   const l = Math.min(CONFIG.PAGINATION_MAX, Math.max(1, parseInt(limit, 10) || CONFIG.PAGINATION_DEFAULT));
   return { page: p, limit: l, offset: (p - 1) * l };
+}
+
+// Güvenli dil doğrulama (SQL injection koruması)
+const ALLOWED_LANGUAGES = ["tr", "en"];
+function validateLang(lang) {
+  return ALLOWED_LANGUAGES.includes(lang) ? lang : "tr";
+}
+
+// Güvenli JSON parse (hata yakalama ile)
+async function safeParseJSON(request) {
+  try {
+    const text = await request.text();
+    if (!text || text.trim() === '') {
+      return { data: null, error: "Empty request body" };
+    }
+    const data = JSON.parse(text);
+    return { data, error: null };
+  } catch (e) {
+    return { data: null, error: "Invalid JSON: " + e.message };
+  }
+}
+
+// Dil bazlı alan adları (whitelist)
+function getLangFields(lang) {
+  const safeLang = validateLang(lang);
+  return {
+    titleField: safeLang === "tr" ? "title_tr" : "title_en",
+    summaryField: safeLang === "tr" ? "summary_tr" : "summary_en",
+    contentField: safeLang === "tr" ? "content_tr" : "content_en"
+  };
 }
 
 // ================================
@@ -709,15 +776,14 @@ export default {
       if (path === "/api/posts" && method === "GET") {
         const category = url.searchParams.get("category");
         const postType = url.searchParams.get("post_type");
-        const lang = url.searchParams.get("lang") || "tr";
+        const lang = validateLang(url.searchParams.get("lang") || "tr");
         const { page, limit, offset } = validatePagination(
           url.searchParams.get("page"),
           url.searchParams.get("limit")
         );
 
-        // Dile göre alan seçimi
-        const titleField = lang === "tr" ? "title_tr" : `title_${lang}`;
-        const summaryField = lang === "tr" ? "summary_tr" : `summary_${lang}`;
+        // Dile göre alan seçimi (güvenli whitelist)
+        const { titleField, summaryField } = getLangFields(lang);
 
         let query = `
           SELECT id, ${titleField} as title, ${summaryField} as summary, slug, category, post_type, image_url, is_featured, created_at, language
@@ -764,13 +830,11 @@ export default {
       // Tek Post - Çok dilli destek
       if (path.startsWith("/api/post/") && method === "GET") {
         const slug = sanitizeString(path.replace("/api/post/", ""), 150);
-        const lang = url.searchParams.get("lang") || "tr";
+        const lang = validateLang(url.searchParams.get("lang") || "tr");
         if (!slug) return errorResponse("Slug required", 400, "INVALID_SLUG");
 
-        // Dile göre alan seçimi
-        const titleField = lang === "tr" ? "title_tr" : `title_${lang}`;
-        const summaryField = lang === "tr" ? "summary_tr" : `summary_${lang}`;
-        const contentField = lang === "tr" ? "content_tr" : `content_${lang}`;
+        // Dile göre alan seçimi (güvenli whitelist)
+        const { titleField, summaryField, contentField } = getLangFields(lang);
 
         const post = await env.DB.prepare(`
           SELECT id, ${titleField} as title, ${summaryField} as summary, ${contentField} as content,
