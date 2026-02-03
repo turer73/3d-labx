@@ -9,88 +9,135 @@ const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz
 <BaseLayout title={title} description={description}>
   <Header />
 
-  <main class="static-page">
+  <main class="contact-page">
     <div class="container">
-      <article class="page-content">
+      <!-- Hero Section -->
+      <section class="contact-hero">
+        <div class="hero-badge">
+          <span class="badge-icon">💬</span>
+          <span>Bize Ulaşın</span>
+        </div>
         <h1>İletişim</h1>
-
-        <p class="lead">
+        <p class="hero-desc">
           Sorularınız, önerileriniz veya işbirliği talepleriniz için bizimle iletişime geçebilirsiniz.
         </p>
+      </section>
 
-        <div class="contact-grid">
-          <div class="contact-info">
-            <h2>Bize Ulaşın</h2>
-
-            <div class="contact-item">
-              <div class="contact-icon">📧</div>
-              <div>
-                <h3>E-posta</h3>
-                <p>
-                  <a href="mailto:3d-labx@3d-labx.com">3d-labx@3d-labx.com</a>
-                </p>
-              </div>
+      <div class="contact-layout">
+        <!-- Contact Info Cards -->
+        <aside class="contact-sidebar">
+          <div class="contact-card">
+            <div class="contact-card-icon" style="--icon-color: #3B82F6;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
             </div>
-
-            <div class="contact-item">
-              <div class="contact-icon">🌐</div>
-              <div>
-                <h3>Sosyal Medya</h3>
-                <p>Yakında aktif olacaktır.</p>
-              </div>
-            </div>
-
-            <div class="info-box">
-              <h3>Yanıt Süresi</h3>
-              <p>
-                Mesajlarınıza genellikle 1-2 iş günü içerisinde dönüş yapılmaktadır.
-                Yoğun dönemlerde bu süre uzayabilir.
-              </p>
+            <div class="contact-card-content">
+              <h3>E-posta</h3>
+              <a href="mailto:3d-labx@3d-labx.com">3d-labx@3d-labx.com</a>
             </div>
           </div>
 
-          <div class="contact-form-wrapper">
-            <h2>Mesaj Gönderin</h2>
+          <div class="contact-card">
+            <div class="contact-card-icon" style="--icon-color: #8B5CF6;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </div>
+            <div class="contact-card-content">
+              <h3>Sosyal Medya</h3>
+              <span>Yakında aktif olacaktır</span>
+            </div>
+          </div>
 
-            <form class="contact-form" id="contactForm">
+          <div class="contact-card">
+            <div class="contact-card-icon" style="--icon-color: #10B981;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="contact-card-content">
+              <h3>Yanıt Süresi</h3>
+              <span>1-2 iş günü</span>
+            </div>
+          </div>
+
+          <!-- Quick Links -->
+          <div class="quick-links">
+            <h4>Hızlı Bağlantılar</h4>
+            <a href="/topluluk/forum" class="quick-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Topluluk Forumu
+            </a>
+            <a href="/rehberler" class="quick-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+              Rehberler
+            </a>
+            <a href="/sorun-cozumleri" class="quick-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              Sorun Çözümleri
+            </a>
+          </div>
+        </aside>
+
+        <!-- Contact Form -->
+        <div class="contact-form-wrapper">
+          <div class="form-header">
+            <h2>Mesaj Gönderin</h2>
+            <p>Formu doldurarak bize ulaşabilirsiniz</p>
+          </div>
+
+          <form class="contact-form" id="contactForm">
+            <div class="form-row">
               <div class="form-group">
-                <label for="name">Adınız *</label>
+                <label for="name">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Adınız
+                </label>
                 <input type="text" id="name" name="name" required placeholder="Adınızı girin" />
               </div>
 
               <div class="form-group">
-                <label for="email">E-posta *</label>
+                <label for="email">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                  E-posta
+                </label>
                 <input type="email" id="email" name="email" required placeholder="ornek@email.com" />
               </div>
+            </div>
 
-              <div class="form-group">
-                <label for="subject">Konu *</label>
-                <select id="subject" name="subject" required>
-                  <option value="">Bir konu seçin</option>
-                  <option value="genel">Genel Soru</option>
-                  <option value="oneri">Öneri</option>
-                  <option value="hata">Hata Bildirimi</option>
-                  <option value="isbirligi">İşbirliği</option>
-                  <option value="diger">Diğer</option>
-                </select>
-              </div>
+            <div class="form-group">
+              <label for="subject">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
+                Konu
+              </label>
+              <select id="subject" name="subject" required>
+                <option value="">Bir konu seçin</option>
+                <option value="genel">💬 Genel Soru</option>
+                <option value="oneri">💡 Öneri</option>
+                <option value="hata">🐛 Hata Bildirimi</option>
+                <option value="isbirligi">🤝 İşbirliği</option>
+                <option value="diger">📝 Diğer</option>
+              </select>
+            </div>
 
-              <div class="form-group">
-                <label for="message">Mesajınız *</label>
-                <textarea id="message" name="message" required rows="5" placeholder="Mesajınızı buraya yazın..."></textarea>
-              </div>
+            <div class="form-group">
+              <label for="message">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Mesajınız
+              </label>
+              <textarea id="message" name="message" required rows="5" placeholder="Mesajınızı buraya yazın..."></textarea>
+            </div>
 
-              <button type="submit" class="btn btn-primary">Gönder</button>
-
+            <div class="form-footer">
               <p class="form-note">
-                * işaretli alanlar zorunludur.
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                Tüm alanlar zorunludur
               </p>
-            </form>
+              <button type="submit" class="btn btn-submit">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                <span class="btn-text">Gönder</span>
+              </button>
+            </div>
+          </form>
 
-            <div class="form-message" id="formMessage" style="display: none;"></div>
-          </div>
+          <div class="form-message" id="formMessage" style="display: none;"></div>
         </div>
-      </article>
+      </div>
     </div>
   </main>
 </BaseLayout>
@@ -99,6 +146,7 @@ const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz
   const form = document.getElementById('contactForm') as HTMLFormElement;
   const formMessage = document.getElementById('formMessage');
   const submitBtn = form?.querySelector('button[type="submit"]') as HTMLButtonElement;
+  const btnText = submitBtn?.querySelector('.btn-text');
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -109,7 +157,8 @@ const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz
     // Loading state
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Gönderiliyor...';
+      submitBtn.classList.add('loading');
+      if (btnText) btnText.textContent = 'Gönderiliyor...';
     }
 
     if (formMessage) {
@@ -131,15 +180,21 @@ const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz
         if (res.ok) {
           formMessage.className = 'form-message success';
           formMessage.innerHTML = `
-            <strong>Teşekkürler!</strong>
-            <p>Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.</p>
+            <div class="message-icon">✅</div>
+            <div class="message-content">
+              <strong>Teşekkürler!</strong>
+              <p>Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.</p>
+            </div>
           `;
           form.reset();
         } else {
           formMessage.className = 'form-message error';
           formMessage.innerHTML = `
-            <strong>Hata!</strong>
-            <p>${result.error || 'Bir hata oluştu. Lütfen tekrar deneyin.'}</p>
+            <div class="message-icon">❌</div>
+            <div class="message-content">
+              <strong>Hata!</strong>
+              <p>${result.error || 'Bir hata oluştu. Lütfen tekrar deneyin.'}</p>
+            </div>
           `;
         }
       }
@@ -148,148 +203,258 @@ const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz
         formMessage.style.display = 'block';
         formMessage.className = 'form-message error';
         formMessage.innerHTML = `
-          <strong>Bağlantı Hatası</strong>
-          <p>Sunucuya ulaşılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.</p>
+          <div class="message-icon">⚠️</div>
+          <div class="message-content">
+            <strong>Bağlantı Hatası</strong>
+            <p>Sunucuya ulaşılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.</p>
+          </div>
         `;
       }
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Gönder';
+        submitBtn.classList.remove('loading');
+        if (btnText) btnText.textContent = 'Gönder';
       }
     }
   });
 </script>
 
 <style>
-  .static-page {
-    padding-top: 156px;
+  .contact-page {
+    padding-top: 140px;
     padding-bottom: 64px;
     min-height: 100vh;
   }
 
-  .page-content {
-    max-width: 1000px;
+  .container {
+    max-width: 1100px;
     margin: 0 auto;
+    padding: 0 20px;
   }
 
-  .page-content h1 {
-    font-size: 2.5rem;
-    margin-bottom: var(--spacing-md);
+  /* Hero Section */
+  .contact-hero {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 48px;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(99, 102, 241, 0.1));
+    border: 1px solid rgba(37, 99, 235, 0.3);
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .badge-icon {
+    font-size: 1.1rem;
+  }
+
+  .contact-hero h1 {
+    font-size: 2.75rem;
+    font-weight: 800;
     color: var(--text-main);
+    margin-bottom: 16px;
   }
 
-  .lead {
+  .hero-desc {
     font-size: 1.15rem;
-    color: var(--text-muted);
-    margin-bottom: var(--spacing-2xl);
     line-height: 1.7;
+    color: var(--text-muted);
   }
 
-  .contact-grid {
+  /* Contact Layout */
+  .contact-layout {
     display: grid;
-    grid-template-columns: 1fr 1.5fr;
-    gap: var(--spacing-2xl);
+    grid-template-columns: 320px 1fr;
+    gap: 40px;
   }
 
-  .contact-info h2,
-  .contact-form-wrapper h2 {
-    font-size: 1.3rem;
-    margin-bottom: var(--spacing-lg);
-    color: var(--text-main);
-  }
-
-  .contact-item {
+  /* Sidebar */
+  .contact-sidebar {
     display: flex;
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
-    padding: var(--spacing-md);
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .contact-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
     background: var(--bg-card);
     border: 1px solid var(--border-soft);
-    border-radius: var(--radius-md);
+    border-radius: 16px;
+    transition: all 0.2s;
   }
 
-  .contact-icon {
-    font-size: 1.5rem;
+  .contact-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    border-color: var(--accent);
+  }
+
+  .contact-card-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));
+    border-radius: 12px;
+    color: var(--icon-color, #3B82F6);
     flex-shrink: 0;
   }
 
-  .contact-item h3 {
-    font-size: 0.95rem;
+  .contact-card-content h3 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
     margin: 0 0 4px;
-    color: var(--text-main);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
-  .contact-item p {
-    margin: 0;
-    color: var(--text-muted);
-    font-size: 0.9rem;
-  }
-
-  .contact-item a {
-    color: var(--accent);
-    text-decoration: none;
-  }
-
-  .contact-item a:hover {
-    text-decoration: underline;
-  }
-
-  .info-box {
-    background: var(--bg-soft);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-lg);
-    margin-top: var(--spacing-lg);
-  }
-
-  .info-box h3 {
+  .contact-card-content a,
+  .contact-card-content span {
     font-size: 0.95rem;
-    margin: 0 0 var(--spacing-sm);
     color: var(--text-main);
+    text-decoration: none;
+    font-weight: 500;
   }
 
-  .info-box p {
-    margin: 0;
+  .contact-card-content a:hover {
+    color: var(--accent);
+  }
+
+  /* Quick Links */
+  .quick-links {
+    margin-top: 16px;
+    padding: 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+  }
+
+  .quick-links h4 {
+    font-size: 0.85rem;
+    font-weight: 600;
     color: var(--text-muted);
-    font-size: 0.9rem;
-    line-height: 1.6;
+    margin: 0 0 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
+  .quick-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border-bottom: 1px solid var(--border-soft);
+    transition: all 0.2s;
+  }
+
+  .quick-link:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .quick-link:first-of-type {
+    padding-top: 0;
+  }
+
+  .quick-link svg {
+    color: var(--text-muted);
+    transition: color 0.2s;
+  }
+
+  .quick-link:hover {
+    color: var(--accent);
+  }
+
+  .quick-link:hover svg {
+    color: var(--accent);
+  }
+
+  /* Contact Form */
   .contact-form-wrapper {
     background: var(--bg-card);
     border: 1px solid var(--border-soft);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-xl);
+    border-radius: 24px;
+    padding: 40px;
+  }
+
+  .form-header {
+    margin-bottom: 32px;
+  }
+
+  .form-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0 0 8px;
+  }
+
+  .form-header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin: 0;
   }
 
   .contact-form {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: 24px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
   }
 
   .form-group {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xs);
+    gap: 8px;
   }
 
   .form-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text-main);
+  }
+
+  .form-group label svg {
+    color: var(--text-muted);
   }
 
   .form-group input,
   .form-group select,
   .form-group textarea {
-    padding: 12px 14px;
+    padding: 14px 18px;
     background: var(--bg-main);
-    border: 1px solid var(--border-soft);
-    border-radius: var(--radius-md);
+    border: 2px solid var(--border-soft);
+    border-radius: 12px;
     color: var(--text-main);
     font-size: 0.95rem;
-    transition: border-color var(--transition-fast);
+    transition: all 0.2s;
+    font-family: inherit;
   }
 
   .form-group input:focus,
@@ -297,6 +462,7 @@ const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz
   .form-group textarea:focus {
     outline: none;
     border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
   }
 
   .form-group input::placeholder,
@@ -306,55 +472,141 @@ const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz
 
   .form-group textarea {
     resize: vertical;
-    min-height: 120px;
+    min-height: 140px;
   }
 
-  .contact-form .btn {
-    align-self: flex-start;
-    margin-top: var(--spacing-sm);
+  .form-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
   }
 
   .form-note {
-    font-size: 0.8rem;
-    color: var(--text-light);
-    margin: var(--spacing-sm) 0 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0;
   }
 
+  .btn-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 32px;
+    background: linear-gradient(135deg, var(--accent), #6366F1);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+  }
+
+  .btn-submit:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(37, 99, 235, 0.4);
+  }
+
+  .btn-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .btn-submit.loading {
+    background: var(--text-muted);
+    box-shadow: none;
+  }
+
+  /* Form Message */
   .form-message {
-    margin-top: var(--spacing-lg);
-    padding: var(--spacing-lg);
-    border-radius: var(--radius-md);
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-top: 24px;
+    padding: 20px;
+    border-radius: 16px;
   }
 
   .form-message.success {
     background: rgba(34, 197, 94, 0.1);
     border: 1px solid rgba(34, 197, 94, 0.3);
-    color: #22c55e;
+  }
+
+  .form-message.success .message-content strong {
+    color: #22C55E;
   }
 
   .form-message.error {
     background: rgba(239, 68, 68, 0.1);
     border: 1px solid rgba(239, 68, 68, 0.3);
-    color: #ef4444;
   }
 
-  .form-message strong {
+  .form-message.error .message-content strong {
+    color: #EF4444;
+  }
+
+  .message-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .message-content strong {
     display: block;
-    margin-bottom: var(--spacing-xs);
+    margin-bottom: 4px;
+    font-size: 1rem;
   }
 
-  .form-message p {
+  .message-content p {
     margin: 0;
     font-size: 0.9rem;
+    color: var(--text-muted);
   }
 
-  @media (max-width: 768px) {
-    .contact-grid {
+  /* Responsive */
+  @media (max-width: 900px) {
+    .contact-layout {
       grid-template-columns: 1fr;
     }
 
-    .page-content h1 {
+    .contact-sidebar {
+      order: 2;
+    }
+
+    .contact-form-wrapper {
+      order: 1;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .contact-page {
+      padding-top: 120px;
+    }
+
+    .contact-hero h1 {
       font-size: 2rem;
+    }
+
+    .contact-form-wrapper {
+      padding: 28px;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .form-footer {
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      justify-content: center;
     }
   }
 </style>
