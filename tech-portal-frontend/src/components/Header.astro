@@ -7,15 +7,11 @@ const lang = getLanguage(Astro.request);
 const t = translations[lang];
 ---
 
-<!-- Announcement Bar -->
+<!-- Announcement Bar - Simplified -->
 <div class="announcement-bar" id="announcementBar">
   <div class="announcement-content">
     <span class="announcement-text">
-      <span class="announcement-item">🎉 {t.announcement.newContent}</span>
-      <span class="announcement-separator">•</span>
-      <span class="announcement-item">📚 {t.announcement.exploreGuides}</span>
-      <span class="announcement-separator">•</span>
-      <span class="announcement-item">🇹🇷 {t.announcement.turkishBrands}</span>
+      <span class="announcement-item">🚀 {t.announcement.newContent}</span>
     </span>
   </div>
   <button class="announcement-close" id="announcementClose" aria-label={t.common.closeAnnouncement}>
@@ -501,17 +497,7 @@ const t = translations[lang];
     display: flex;
     align-items: center;
     gap: 8px;
-    animation: text-scroll 30s linear infinite;
     white-space: nowrap;
-  }
-
-  @keyframes text-scroll {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
-  }
-
-  .announcement-bar:hover .announcement-content {
-    animation-play-state: paused;
   }
 
   .announcement-text {
