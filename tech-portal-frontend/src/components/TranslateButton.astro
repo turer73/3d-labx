@@ -1,0 +1,429 @@
+---
+// Floating translate button component
+// Sayfa içeriğini seçilen dile çevirir (Gemini API ile)
+import { getLanguage, type Language } from "../lib/api";
+
+const currentLang = Astro.props.currentLang || 'tr';
+
+const translations: Record<Language, {
+  translate: string;
+  translating: string;
+  originalContent: string;
+  translatedTo: string;
+  turkish: string;
+  english: string;
+  german: string;
+  error: string;
+  close: string;
+}> = {
+  tr: {
+    translate: "Çevir",
+    translating: "Çevriliyor...",
+    originalContent: "Orijinal",
+    translatedTo: "Çevrildi:",
+    turkish: "Türkçe",
+    english: "İngilizce",
+    german: "Almanca",
+    error: "Çeviri başarısız",
+    close: "Kapat"
+  },
+  en: {
+    translate: "Translate",
+    translating: "Translating...",
+    originalContent: "Original",
+    translatedTo: "Translated to:",
+    turkish: "Turkish",
+    english: "English",
+    german: "German",
+    error: "Translation failed",
+    close: "Close"
+  },
+  de: {
+    translate: "Übersetzen",
+    translating: "Wird übersetzt...",
+    originalContent: "Original",
+    translatedTo: "Übersetzt nach:",
+    turkish: "Türkisch",
+    english: "Englisch",
+    german: "Deutsch",
+    error: "Übersetzung fehlgeschlagen",
+    close: "Schließen"
+  }
+};
+
+const t = translations[currentLang as Language] || translations.tr;
+---
+
+<div class="translate-widget" id="translateWidget">
+  <!-- Main floating button -->
+  <button class="translate-fab" id="translateFab" title={t.translate}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="2" y1="12" x2="22" y2="12"/>
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+    </svg>
+  </button>
+
+  <!-- Language menu -->
+  <div class="translate-menu" id="translateMenu">
+    <div class="menu-header">
+      <span>🌐 {t.translate}</span>
+      <button class="close-btn" id="closeMenu">×</button>
+    </div>
+    <div class="menu-options">
+      <button class="lang-btn" data-lang="tr" data-active={currentLang === 'tr'}>
+        <span class="flag">🇹🇷</span>
+        <span>{t.turkish}</span>
+      </button>
+      <button class="lang-btn" data-lang="en" data-active={currentLang === 'en'}>
+        <span class="flag">🇬🇧</span>
+        <span>{t.english}</span>
+      </button>
+      <button class="lang-btn" data-lang="de" data-active={currentLang === 'de'}>
+        <span class="flag">🇩🇪</span>
+        <span>{t.german}</span>
+      </button>
+    </div>
+    <div class="menu-status" id="translateStatus"></div>
+  </div>
+</div>
+
+<style>
+  .translate-widget {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+  }
+
+  .translate-fab {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4);
+    transition: all 0.3s ease;
+  }
+
+  .translate-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(249, 115, 22, 0.5);
+  }
+
+  .translate-fab.loading {
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+  }
+
+  .translate-menu {
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    width: 220px;
+    background: var(--bg-card, #1a1a2e);
+    border: 1px solid var(--border-soft, #333);
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+  }
+
+  .translate-menu.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-soft, #333);
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: var(--text-main, #fff);
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted, #888);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+  }
+
+  .close-btn:hover {
+    color: var(--text-main, #fff);
+  }
+
+  .menu-options {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg-main, #0f0f1a);
+    border: 1px solid transparent;
+    border-radius: 10px;
+    color: var(--text-main, #fff);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+  }
+
+  .lang-btn:hover {
+    background: rgba(249, 115, 22, 0.1);
+    border-color: rgba(249, 115, 22, 0.3);
+  }
+
+  .lang-btn[data-active="true"] {
+    background: rgba(249, 115, 22, 0.2);
+    border-color: #F97316;
+  }
+
+  .lang-btn.translating {
+    opacity: 0.7;
+    cursor: wait;
+  }
+
+  .flag {
+    font-size: 1.2rem;
+  }
+
+  .menu-status {
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    text-align: center;
+    display: none;
+  }
+
+  .menu-status.loading {
+    display: block;
+    background: rgba(249, 115, 22, 0.1);
+    color: #F97316;
+  }
+
+  .menu-status.error {
+    display: block;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+  }
+
+  .menu-status.success {
+    display: block;
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55a;
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 640px) {
+    .translate-widget {
+      bottom: 80px; /* Above mobile nav */
+      right: 16px;
+    }
+
+    .translate-fab {
+      width: 48px;
+      height: 48px;
+    }
+
+    .translate-fab svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .translate-menu {
+      width: 200px;
+      right: 0;
+    }
+  }
+</style>
+
+<script define:vars={{
+  currentLang,
+  tTranslating: t.translating,
+  tError: t.error,
+  tTranslatedTo: t.translatedTo
+}}>
+  const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
+
+  const fab = document.getElementById('translateFab');
+  const menu = document.getElementById('translateMenu');
+  const closeBtn = document.getElementById('closeMenu');
+  const status = document.getElementById('translateStatus');
+  const langBtns = document.querySelectorAll('.lang-btn');
+
+  let isMenuOpen = false;
+  let isTranslating = false;
+  let originalContent = null;
+
+  // Toggle menu
+  fab?.addEventListener('click', () => {
+    isMenuOpen = !isMenuOpen;
+    menu?.classList.toggle('open', isMenuOpen);
+  });
+
+  // Close menu
+  closeBtn?.addEventListener('click', () => {
+    isMenuOpen = false;
+    menu?.classList.remove('open');
+  });
+
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.translate-widget')) {
+      isMenuOpen = false;
+      menu?.classList.remove('open');
+    }
+  });
+
+  // Language button click
+  langBtns.forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const targetLang = btn.dataset.lang;
+
+      if (targetLang === currentLang || isTranslating) return;
+
+      isTranslating = true;
+      fab?.classList.add('loading');
+      btn.classList.add('translating');
+
+      status.textContent = tTranslating;
+      status.className = 'menu-status loading';
+
+      try {
+        // Get translatable content
+        const contentElements = document.querySelectorAll('[data-translatable], .thread-content, .article-content, .cat-main h2, .cat-main p');
+
+        if (contentElements.length === 0) {
+          // If no specific elements, try main content
+          const mainContent = document.querySelector('main');
+          if (mainContent) {
+            await translateElement(mainContent, targetLang);
+          }
+        } else {
+          // Translate each element
+          for (const el of contentElements) {
+            await translateElement(el, targetLang);
+          }
+        }
+
+        status.textContent = `✓ ${tTranslatedTo} ${btn.querySelector('span:last-child').textContent}`;
+        status.className = 'menu-status success';
+
+        // Update active state
+        langBtns.forEach(b => b.dataset.active = 'false');
+        btn.dataset.active = 'true';
+
+        setTimeout(() => {
+          status.className = 'menu-status';
+        }, 3000);
+
+      } catch (error) {
+        console.error('Translation error:', error);
+        status.textContent = tError;
+        status.className = 'menu-status error';
+      } finally {
+        isTranslating = false;
+        fab?.classList.remove('loading');
+        btn.classList.remove('translating');
+      }
+    });
+  });
+
+  async function translateElement(element, targetLang) {
+    const text = element.innerText || element.textContent;
+    if (!text || text.trim().length < 5) return;
+
+    // Store original if not already stored
+    if (!element.dataset.originalText) {
+      element.dataset.originalText = element.innerHTML;
+    }
+
+    // Split into chunks if text is too long
+    const maxChunkSize = 4000;
+    if (text.length > maxChunkSize) {
+      // For very long content, translate in parts
+      const chunks = splitTextIntoChunks(text, maxChunkSize);
+      let translatedParts = [];
+
+      for (const chunk of chunks) {
+        const translated = await callTranslateAPI(chunk, targetLang);
+        translatedParts.push(translated);
+      }
+
+      element.innerHTML = translatedParts.join(' ');
+    } else {
+      const translated = await callTranslateAPI(text, targetLang);
+      if (translated) {
+        // Preserve HTML structure if possible
+        if (element.innerHTML.includes('<')) {
+          // Has HTML, try to preserve structure
+          element.innerHTML = translated;
+        } else {
+          element.textContent = translated;
+        }
+      }
+    }
+  }
+
+  function splitTextIntoChunks(text, maxSize) {
+    const chunks = [];
+    const sentences = text.split(/(?<=[.!?])\s+/);
+    let currentChunk = '';
+
+    for (const sentence of sentences) {
+      if ((currentChunk + sentence).length > maxSize) {
+        if (currentChunk) chunks.push(currentChunk.trim());
+        currentChunk = sentence;
+      } else {
+        currentChunk += ' ' + sentence;
+      }
+    }
+    if (currentChunk) chunks.push(currentChunk.trim());
+
+    return chunks;
+  }
+
+  async function callTranslateAPI(text, targetLang) {
+    const response = await fetch(`${API_URL}/api/translate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: text,
+        targetLang: targetLang,
+        sourceLang: currentLang
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Translation API error');
+    }
+
+    const data = await response.json();
+    return data.translatedText;
+  }
+</script>

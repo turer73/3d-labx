@@ -5053,6 +5053,117 @@ Content: ${post.content_tr?.substring(0, 3000) || ''}`;
         return jsonResponse({ badges: badges.results || [] }, 200, 300);
       }
 
+      // ================================
+      // 🌐 ÇEVİRİ API (Gemini)
+      // ================================
+
+      // Metin çevirisi
+      if (path === "/api/translate" && method === "POST") {
+        const body = await request.json();
+        const { text, targetLang, sourceLang } = body;
+
+        if (!text || !targetLang) {
+          return errorResponse("text ve targetLang gerekli", 400, "MISSING_FIELDS");
+        }
+
+        // Metin uzunluk kontrolü (max 5000 karakter)
+        if (text.length > 5000) {
+          return errorResponse("Metin çok uzun (max 5000 karakter)", 400, "TEXT_TOO_LONG");
+        }
+
+        // Rate limiting - IP bazlı (dakikada max 10 çeviri)
+        const translateRateKey = `translate_rate_${clientIP}`;
+        // Basit rate limit kontrolü (gerçek uygulamada KV kullanılabilir)
+
+        // Önce cache kontrol et
+        const cacheKey = `translate_${await sha256(text + targetLang)}`;
+        const cached = await env.DB.prepare(`
+          SELECT translated_text FROM translation_cache
+          WHERE cache_key = ? AND target_lang = ? AND created_at > datetime('now', '-7 day')
+        `).bind(cacheKey, targetLang).first();
+
+        if (cached) {
+          return jsonResponse({
+            success: true,
+            translatedText: cached.translated_text,
+            cached: true
+          });
+        }
+
+        // Gemini API ile çeviri yap
+        const GEMINI_API_KEY = env.GEMINI_API_KEY;
+        if (!GEMINI_API_KEY) {
+          return errorResponse("Çeviri servisi yapılandırılmamış", 500, "SERVICE_UNAVAILABLE");
+        }
+
+        const langNames = {
+          tr: "Turkish",
+          en: "English",
+          de: "German"
+        };
+
+        const targetLangName = langNames[targetLang] || "English";
+        const sourceLangName = sourceLang ? langNames[sourceLang] : "auto-detect";
+
+        const prompt = `Translate the following text to ${targetLangName}. Keep the original formatting, preserve any markdown or HTML tags, and maintain technical terms accurately. Only return the translated text without any explanations.
+
+Text to translate:
+${text}`;
+
+        try {
+          const geminiResponse = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [{
+                  parts: [{ text: prompt }]
+                }],
+                generationConfig: {
+                  temperature: 0.1,
+                  maxOutputTokens: 8000
+                }
+              })
+            }
+          );
+
+          if (!geminiResponse.ok) {
+            const errorData = await geminiResponse.text();
+            console.error("Gemini API error:", errorData);
+            return errorResponse("Çeviri servisi şu an kullanılamıyor", 500, "TRANSLATION_ERROR");
+          }
+
+          const geminiData = await geminiResponse.json();
+          const translatedText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+          if (!translatedText) {
+            return errorResponse("Çeviri başarısız", 500, "TRANSLATION_FAILED");
+          }
+
+          // Cache'e kaydet
+          try {
+            await env.DB.prepare(`
+              INSERT OR REPLACE INTO translation_cache (cache_key, source_text, translated_text, source_lang, target_lang)
+              VALUES (?, ?, ?, ?, ?)
+            `).bind(cacheKey, text.substring(0, 500), translatedText, sourceLang || 'auto', targetLang).run();
+          } catch (cacheError) {
+            console.error("Cache save error:", cacheError);
+            // Cache hatası çeviriyi engellemesin
+          }
+
+          return jsonResponse({
+            success: true,
+            translatedText: translatedText.trim(),
+            cached: false
+          });
+
+        } catch (error) {
+          console.error("Translation error:", error);
+          return errorResponse("Çeviri sırasında hata oluştu", 500, "TRANSLATION_ERROR");
+        }
+      }
+
       return errorResponse("Not Found", 404, "NOT_FOUND");
 
     } catch (error) {

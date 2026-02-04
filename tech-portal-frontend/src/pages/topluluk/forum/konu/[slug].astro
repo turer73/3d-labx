@@ -1,13 +1,140 @@
 ---
 import BaseLayout from "../../../../layouts/BaseLayout.astro";
 import Header from "../../../../components/Header.astro";
-import { getApiBase } from "../../../../lib/api";
+import TranslateButton from "../../../../components/TranslateButton.astro";
+import { getApiBase, getLanguage, type Language } from "../../../../lib/api";
 import { marked } from "marked";
 
 export const prerender = false;
 
+const lang = getLanguage(Astro.request);
 const { slug } = Astro.params;
 const API_BASE = getApiBase(Astro.request);
+
+// Çeviriler
+const translations: Record<Language, {
+  community: string;
+  forum: string;
+  topic: string;
+  pinned: string;
+  solved: string;
+  locked: string;
+  views: string;
+  replies: string;
+  likes: string;
+  like: string;
+  share: string;
+  repliesTitle: string;
+  bestAnswer: string;
+  replyPlaceholder: string;
+  sendReply: string;
+  loginToReply: string;
+  login: string;
+  noReplies: string;
+  beFirstToReply: string;
+  justNow: string;
+  minutesAgo: string;
+  hoursAgo: string;
+  daysAgo: string;
+  lockedMessage: string;
+  linkCopied: string;
+  replySuccess: string;
+  errorOccurred: string;
+  minChars: string;
+}> = {
+  tr: {
+    community: "Topluluk",
+    forum: "Forum",
+    topic: "Konu",
+    pinned: "📌 Sabitlenmiş",
+    solved: "✓ Çözüldü",
+    locked: "🔒 Kilitli",
+    views: "Görüntülenme",
+    replies: "Cevap",
+    likes: "Beğeni",
+    like: "Beğen",
+    share: "Paylaş",
+    repliesTitle: "Cevaplar",
+    bestAnswer: "En İyi Cevap",
+    replyPlaceholder: "Cevabınızı yazın...",
+    sendReply: "Cevap Gönder",
+    loginToReply: "Cevap yazmak için giriş yapmalısınız",
+    login: "Giriş Yap",
+    noReplies: "Henüz cevap yok",
+    beFirstToReply: "İlk cevabı siz yazın!",
+    justNow: "Az önce",
+    minutesAgo: "dakika önce",
+    hoursAgo: "saat önce",
+    daysAgo: "gün önce",
+    lockedMessage: "Bu konu kilitlenmiş, yeni cevap yazılamaz.",
+    linkCopied: "Link panoya kopyalandı!",
+    replySuccess: "Cevabınız gönderildi!",
+    errorOccurred: "Bir hata oluştu",
+    minChars: "Cevap en az 10 karakter olmalıdır"
+  },
+  en: {
+    community: "Community",
+    forum: "Forum",
+    topic: "Topic",
+    pinned: "📌 Pinned",
+    solved: "✓ Solved",
+    locked: "🔒 Locked",
+    views: "Views",
+    replies: "Replies",
+    likes: "Likes",
+    like: "Like",
+    share: "Share",
+    repliesTitle: "Replies",
+    bestAnswer: "Best Answer",
+    replyPlaceholder: "Write your reply...",
+    sendReply: "Send Reply",
+    loginToReply: "You must log in to reply",
+    login: "Log In",
+    noReplies: "No replies yet",
+    beFirstToReply: "Be the first to reply!",
+    justNow: "Just now",
+    minutesAgo: "minutes ago",
+    hoursAgo: "hours ago",
+    daysAgo: "days ago",
+    lockedMessage: "This topic is locked, no new replies allowed.",
+    linkCopied: "Link copied to clipboard!",
+    replySuccess: "Your reply has been posted!",
+    errorOccurred: "An error occurred",
+    minChars: "Reply must be at least 10 characters"
+  },
+  de: {
+    community: "Community",
+    forum: "Forum",
+    topic: "Thema",
+    pinned: "📌 Angepinnt",
+    solved: "✓ Gelöst",
+    locked: "🔒 Gesperrt",
+    views: "Aufrufe",
+    replies: "Antworten",
+    likes: "Likes",
+    like: "Gefällt mir",
+    share: "Teilen",
+    repliesTitle: "Antworten",
+    bestAnswer: "Beste Antwort",
+    replyPlaceholder: "Schreiben Sie Ihre Antwort...",
+    sendReply: "Antwort senden",
+    loginToReply: "Sie müssen sich anmelden, um zu antworten",
+    login: "Anmelden",
+    noReplies: "Noch keine Antworten",
+    beFirstToReply: "Seien Sie der Erste, der antwortet!",
+    justNow: "Gerade eben",
+    minutesAgo: "Minuten her",
+    hoursAgo: "Stunden her",
+    daysAgo: "Tage her",
+    lockedMessage: "Dieses Thema ist gesperrt, keine neuen Antworten erlaubt.",
+    linkCopied: "Link in die Zwischenablage kopiert!",
+    replySuccess: "Ihre Antwort wurde gesendet!",
+    errorOccurred: "Ein Fehler ist aufgetreten",
+    minChars: "Antwort muss mindestens 10 Zeichen haben"
+  }
+};
+
+const t = translations[lang];
 
 // Markdown ayarları - güvenli HTML render
 marked.setOptions({
@@ -104,12 +231,14 @@ function timeAgo(dateStr: string) {
   const date = new Date(dateStr);
   const now = new Date();
   const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
-  
-  if (diff < 60) return "Az önce";
-  if (diff < 3600) return `${Math.floor(diff / 60)} dakika önce`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} saat önce`;
-  if (diff < 604800) return `${Math.floor(diff / 86400)} gün önce`;
-  return date.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+
+  if (diff < 60) return t.justNow;
+  if (diff < 3600) return `${Math.floor(diff / 60)} ${t.minutesAgo}`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} ${t.hoursAgo}`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)} ${t.daysAgo}`;
+
+  const locale = lang === 'tr' ? 'tr-TR' : lang === 'de' ? 'de-DE' : 'en-US';
+  return date.toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" });
 }
 ---
 
@@ -123,22 +252,22 @@ function timeAgo(dateStr: string) {
     <div class="container">
       <!-- Breadcrumb -->
       <nav class="breadcrumb">
-        <a href="/topluluk">Topluluk</a>
+        <a href="/topluluk">{t.community}</a>
         <span>/</span>
-        <a href="/topluluk/forum">Forum</a>
+        <a href="/topluluk/forum">{t.forum}</a>
         <span>/</span>
         <a href={`/topluluk/forum/${thread.category_slug}`}>{thread.category_name}</a>
         <span>/</span>
-        <span>Konu</span>
+        <span>{t.topic}</span>
       </nav>
 
       <!-- Ana Konu -->
       <article class="thread-main">
         <div class="thread-header">
           <div class="thread-badges">
-            {thread.is_pinned === 1 && <span class="badge pinned">📌 Sabitlenmiş</span>}
-            {thread.is_solved === 1 && <span class="badge solved">✓ Çözüldü</span>}
-            {thread.is_locked === 1 && <span class="badge locked">🔒 Kilitli</span>}
+            {thread.is_pinned === 1 && <span class="badge pinned">{t.pinned}</span>}
+            {thread.is_solved === 1 && <span class="badge solved">{t.solved}</span>}
+            {thread.is_locked === 1 && <span class="badge locked">{t.locked}</span>}
           </div>
           <h1>{thread.title}</h1>
           <div class="thread-meta">
@@ -154,9 +283,9 @@ function timeAgo(dateStr: string) {
               </div>
             </div>
             <div class="thread-stats">
-              <span title="Görüntülenme">👁️ {thread.view_count}</span>
-              <span title="Cevap">💬 {thread.reply_count}</span>
-              <span title="Beğeni">❤️ {thread.like_count}</span>
+              <span title={t.views}>👁️ {thread.view_count}</span>
+              <span title={t.replies}>💬 {thread.reply_count}</span>
+              <span title={t.likes}>❤️ {thread.like_count}</span>
             </div>
           </div>
         </div>
@@ -167,18 +296,18 @@ function timeAgo(dateStr: string) {
         <div class="thread-actions">
           <button class="action-btn like-btn" data-type="thread" data-id={thread.id}>
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-            Beğen
+            {t.like}
           </button>
           <button class="action-btn share-btn">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
-            Paylaş
+            {t.share}
           </button>
         </div>
       </article>
 
       <!-- Cevaplar -->
       <section class="replies-section">
-        <h2>Cevaplar ({thread.reply_count})</h2>
+        <h2>{t.repliesTitle} ({thread.reply_count})</h2>
         
         <div class="replies-list" id="repliesList">
           {replies.map((reply) => (
@@ -186,7 +315,7 @@ function timeAgo(dateStr: string) {
               {reply.is_best_answer === 1 && (
                 <div class="best-answer-badge">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                  En İyi Cevap
+                  {t.bestAnswer}
                 </div>
               )}
               <div class="reply-author">
@@ -206,8 +335,8 @@ function timeAgo(dateStr: string) {
                 <button class="action-btn like-btn" data-type="reply" data-id={reply.id}>
                   ❤️ {reply.like_count}
                 </button>
-                <button class="action-btn best-btn" data-reply-id={reply.id} title="En iyi cevap olarak işaretle">
-                  ✓ En İyi
+                <button class="action-btn best-btn" data-reply-id={reply.id} title={t.bestAnswer}>
+                  ✓ {t.bestAnswer}
                 </button>
               </div>
             </article>
@@ -216,7 +345,7 @@ function timeAgo(dateStr: string) {
 
         {replies.length === 0 && (
           <div class="empty-replies">
-            <p>Henüz cevap yok. İlk cevabı sen yaz!</p>
+            <p>{t.noReplies} {t.beFirstToReply}</p>
           </div>
         )}
       </section>
@@ -224,11 +353,11 @@ function timeAgo(dateStr: string) {
       <!-- Cevap Yazma Formu -->
       {thread.is_locked !== 1 && (
         <section class="reply-form-section">
-          <h3>Cevap Yaz</h3>
+          <h3>{t.repliesTitle}</h3>
           <form id="replyForm" class="reply-form">
-            <textarea 
-              id="replyContent" 
-              placeholder="Cevabınızı yazın... (En az 10 karakter)"
+            <textarea
+              id="replyContent"
+              placeholder={t.replyPlaceholder}
               rows="5"
               minlength="10"
               required
@@ -237,12 +366,12 @@ function timeAgo(dateStr: string) {
               <span class="char-count"><span id="charCount">0</span> / 10000</span>
               <button type="submit" class="btn btn-primary" id="submitReply">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                Gönder
+                {t.sendReply}
               </button>
             </div>
           </form>
           <p class="login-notice hidden" id="loginNotice">
-            Cevap yazmak için <a href="/auth/giris">giriş yapmalısınız</a>.
+            {t.loginToReply} <a href="/auth/giris">{t.login}</a>
           </p>
         </section>
       )}
@@ -250,11 +379,14 @@ function timeAgo(dateStr: string) {
       {thread.is_locked === 1 && (
         <div class="locked-notice">
           <span>🔒</span>
-          <p>Bu konu kilitlenmiş, yeni cevap yazılamaz.</p>
+          <p>{t.lockedMessage}</p>
         </div>
       )}
     </div>
   </main>
+
+  <!-- Çeviri Butonu -->
+  <TranslateButton currentLang={lang} />
 </BaseLayout>
 
 <style>
@@ -798,7 +930,15 @@ function timeAgo(dateStr: string) {
   }
 </style>
 
-<script define:vars={{ threadId: thread.id }}>
+<script define:vars={{
+  threadId: thread.id,
+  tLinkCopied: t.linkCopied,
+  tReplySuccess: t.replySuccess,
+  tErrorOccurred: t.errorOccurred,
+  tMinChars: t.minChars,
+  tLoginToReply: t.loginToReply,
+  tSendReply: t.sendReply
+}}>
   const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
   
   // Auth token kontrolü
@@ -832,13 +972,13 @@ function timeAgo(dateStr: string) {
       
       const token = getAuthToken();
       if (!token) {
-        window.showToast('Cevap yazmak için <a href="/auth/giris">giriş yapın</a>', 'info');
+        window.showToast(`${tLoginToReply} <a href="/auth/giris">Login</a>`, 'info');
         return;
       }
 
       const content = textarea?.value?.trim();
       if (!content || content.length < 10) {
-        window.showToast('Cevap en az 10 karakter olmalıdır', 'warning');
+        window.showToast(tMinChars, 'warning');
         return;
       }
 
@@ -861,18 +1001,18 @@ function timeAgo(dateStr: string) {
         const data = await res.json();
 
         if (res.ok) {
-          window.showToast('Cevabınız gönderildi!', 'success');
+          window.showToast(tReplySuccess, 'success');
           setTimeout(() => window.location.reload(), 1000);
         } else {
-          window.showToast(data.error || 'Bir hata oluştu', 'error');
+          window.showToast(data.error || tErrorOccurred, 'error');
         }
       } catch (err) {
         console.error('Reply error:', err);
-        window.showToast('Bir hata oluştu, lütfen tekrar deneyin', 'error');
+        window.showToast(tErrorOccurred, 'error');
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Gönder';
+          submitBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> ${tSendReply}`;
         }
       }
     });
@@ -883,7 +1023,7 @@ function timeAgo(dateStr: string) {
     btn.addEventListener('click', async () => {
       const token = getAuthToken();
       if (!token) {
-        window.showToast('Beğenmek için <a href="/auth/giris">giriş yapın</a>', 'info');
+        window.showToast(`${tLoginToReply} <a href="/auth/giris">Login</a>`, 'info');
         return;
       }
 
@@ -919,7 +1059,7 @@ function timeAgo(dateStr: string) {
       });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      window.showToast('Link panoya kopyalandı!', 'success');
+      window.showToast(tLinkCopied, 'success');
     }
   });
 </script>
