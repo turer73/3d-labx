@@ -1428,13 +1428,12 @@ export default {
       // ================================
 
       // Aktif anketi getir
+      // Yazıcı markası anketi (ID: 5)
       if (path === "/api/poll/active" && method === "GET") {
         const poll = await env.DB.prepare(`
           SELECT id, question, ends_at, created_at
           FROM polls
-          WHERE is_active = 1
-          ORDER BY created_at DESC
-          LIMIT 1
+          WHERE id = 5
         `).first();
 
         if (!poll) {

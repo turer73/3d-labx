@@ -144,15 +144,15 @@ function getExcerpt(content: string, length: number = 120): string {
   <Header />
 
   <!-- HERO SLIDER SECTION -->
-  <section class="hero-section">
+  <section class="hero-section" aria-label={t.homepage.featuredContent || "Öne çıkan içerikler"}>
     <div class="container">
-      <div class="hero-slider-box">
-        <div class="slider-container">
+      <div class="hero-slider-box" role="region" aria-roledescription="carousel" aria-label={t.homepage.featuredSlider || "Öne çıkan içerik slider"}>
+        <div class="slider-container" tabindex="0">
           {heroSlides.map((slide, index) => (
-            <div class={`slide ${index === 0 ? 'active' : ''} ${slide.category === 'topluluk-projesi' ? 'community-slide' : ''}`} data-index={index}>
+            <div class={`slide ${index === 0 ? 'active' : ''} ${slide.category === 'topluluk-projesi' ? 'community-slide' : ''}`} data-index={index} role="group" aria-roledescription="slide" aria-label={`${index + 1} / ${heroSlides.length}`}>
               <div class="slide-bg">
                 {slide.image_url ? (
-                  <img src={slide.image_url} alt={slide.title_tr} />
+                  <img src={slide.image_url} alt={slide.title_tr} loading={index === 0 ? "eager" : "lazy"} />
                 ) : slide.category === 'topluluk-projesi' ? (
                   <div class="community-gradient"></div>
                 ) : null}
@@ -1254,6 +1254,13 @@ function getExcerpt(content: string, length: number = 120): string {
     z-index: 1;
   }
 
+  /* Tek proje varsa tam genişlik */
+  .showcase-card:only-child {
+    grid-column: 1 / -1;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
   @media (max-width: 1024px) {
     .showcase-grid { grid-template-columns: repeat(2, 1fr); }
   }
@@ -2046,6 +2053,25 @@ function getExcerpt(content: string, length: number = 120): string {
     if (sliderContainer) {
       sliderContainer.addEventListener('mouseenter', stopAutoPlay);
       sliderContainer.addEventListener('mouseleave', startAutoPlay);
+
+      // Keyboard navigation for accessibility
+      sliderContainer.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          const prev = (current - 1 + total) % total;
+          goToSlide(prev);
+        } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          const next = (current + 1) % total;
+          goToSlide(next);
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          goToSlide(0);
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          goToSlide(total - 1);
+        }
+      });
     }
 
     // Start
