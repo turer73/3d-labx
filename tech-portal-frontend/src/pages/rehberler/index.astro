@@ -209,7 +209,75 @@ const title = currentPage > 1
 
 const description = t.pageDesc;
 
-// İnteraktif rehberler (statik sayfalar)
+// İnteraktif rehberler (çok dilli)
+const interactiveGuidesData: Record<Language, {
+  cura: { description: string; features: string[] };
+  orca: { description: string; features: string[] };
+  bambu: { description: string; features: string[] };
+  prusa: { description: string; features: string[] };
+  badge: string;
+}> = {
+  tr: {
+    cura: {
+      description: "Akış hesaplamaları, yapısal mekanik ve sorun çözümleri",
+      features: ["Volumetrik Akış", "Z-Offset Simülasyonu", "Infill Desenleri"]
+    },
+    orca: {
+      description: "Kalibrasyon, ayarlar sözlüğü ve sorun giderme",
+      features: ["PA Kalibrasyonu", "Akış Testi", "Max Volumetric"]
+    },
+    bambu: {
+      description: "X1C, P1P, P1S, A1 için uzman rehberi ve sorun giderme",
+      features: ["Filament Kurutma", "Volumetric Flow", "Sorun Giderme"]
+    },
+    prusa: {
+      description: "Katman ayarları, destek yapıları ve filament profilleri",
+      features: ["Organik Destekler", "Seam Painting", "Multi-material"]
+    },
+    badge: "İNTERAKTİF"
+  },
+  en: {
+    cura: {
+      description: "Flow calculations, structural mechanics and troubleshooting",
+      features: ["Volumetric Flow", "Z-Offset Simulation", "Infill Patterns"]
+    },
+    orca: {
+      description: "Calibration, settings dictionary and troubleshooting",
+      features: ["PA Calibration", "Flow Test", "Max Volumetric"]
+    },
+    bambu: {
+      description: "Expert guide and troubleshooting for X1C, P1P, P1S, A1",
+      features: ["Filament Drying", "Volumetric Flow", "Troubleshooting"]
+    },
+    prusa: {
+      description: "Layer settings, support structures and filament profiles",
+      features: ["Organic Supports", "Seam Painting", "Multi-material"]
+    },
+    badge: "INTERACTIVE"
+  },
+  de: {
+    cura: {
+      description: "Flussberechnungen, Strukturmechanik und Fehlerbehebung",
+      features: ["Volumetrischer Fluss", "Z-Offset Simulation", "Füllmuster"]
+    },
+    orca: {
+      description: "Kalibrierung, Einstellungs-Wörterbuch und Fehlerbehebung",
+      features: ["PA Kalibrierung", "Fluss-Test", "Max Volumetric"]
+    },
+    bambu: {
+      description: "Experten-Anleitung und Fehlerbehebung für X1C, P1P, P1S, A1",
+      features: ["Filament Trocknung", "Volumetric Flow", "Fehlerbehebung"]
+    },
+    prusa: {
+      description: "Schicht-Einstellungen, Stützstrukturen und Filament-Profile",
+      features: ["Organische Stützen", "Seam Painting", "Multi-material"]
+    },
+    badge: "INTERAKTIV"
+  }
+};
+
+const guideLang = interactiveGuidesData[lang];
+
 const interactiveGuides = [
   {
     name: "Cura Slicer",
@@ -217,8 +285,9 @@ const interactiveGuides = [
     icon: "🎯",
     logo: "/slicer-logos/cura.svg",
     color: "#0077C8",
-    description: "Akış hesaplamaları, yapısal mekanik ve sorun çözümleri",
-    features: ["Volumetrik Akış", "Z-Offset Simülasyonu", "Infill Desenleri"]
+    description: guideLang.cura.description,
+    features: guideLang.cura.features,
+    badge: guideLang.badge
   },
   {
     name: "Orca Slicer",
@@ -226,8 +295,9 @@ const interactiveGuides = [
     icon: "🐋",
     logo: "/slicer-logos/orca.svg",
     color: "#10b981",
-    description: "Kalibrasyon, ayarlar sözlüğü ve sorun giderme",
-    features: ["PA Kalibrasyonu", "Akış Testi", "Max Volumetric"]
+    description: guideLang.orca.description,
+    features: guideLang.orca.features,
+    badge: guideLang.badge
   },
   {
     name: "Bambu Lab Slicer",
@@ -235,8 +305,9 @@ const interactiveGuides = [
     icon: "🎋",
     logo: "/slicer-logos/bambu.svg",
     color: "#00AE42",
-    description: "X1C, P1P, P1S, A1 için uzman rehberi ve sorun giderme",
-    features: ["Filament Kurutma", "Volumetric Flow", "Sorun Giderme"]
+    description: guideLang.bambu.description,
+    features: guideLang.bambu.features,
+    badge: guideLang.badge
   },
   {
     name: "PrusaSlicer",
@@ -244,44 +315,78 @@ const interactiveGuides = [
     icon: "🔶",
     logo: "/slicer-logos/prusa.svg",
     color: "#ea580c",
-    description: "Katman ayarları, destek yapıları ve filament profilleri",
-    features: ["Organik Destekler", "Seam Painting", "Multi-material"]
+    description: guideLang.prusa.description,
+    features: guideLang.prusa.features,
+    badge: guideLang.badge
   }
 ];
+
+// Kategori çevirileri
+const categoryNames: Record<Language, {
+  slicer: string;
+  klipper: string;
+  material: string;
+  calibration: string;
+  business: string;
+}> = {
+  tr: {
+    slicer: "Dilimleyici Rehberleri",
+    klipper: "Klipper & Firmware",
+    material: "Malzeme Rehberleri",
+    calibration: "Kalibrasyon",
+    business: "İş & Satış"
+  },
+  en: {
+    slicer: "Slicer Guides",
+    klipper: "Klipper & Firmware",
+    material: "Material Guides",
+    calibration: "Calibration",
+    business: "Business & Sales"
+  },
+  de: {
+    slicer: "Slicer Anleitungen",
+    klipper: "Klipper & Firmware",
+    material: "Material Anleitungen",
+    calibration: "Kalibrierung",
+    business: "Geschäft & Verkauf"
+  }
+};
+
+const catNames = categoryNames[lang];
 
 // Kategoriler
 const categories = [
   {
     id: "slicer",
-    name: "Dilimleyici Rehberleri",
+    name: catNames.slicer,
     icon: "🖥️",
     color: "#3B82F6",
     keywords: ["cura", "orca", "prusa", "slicer", "dilimleme", "dilimleyici"]
   },
   {
     id: "klipper",
-    name: "Klipper & Firmware",
+    name: catNames.klipper,
     icon: "⚡",
     color: "#F97316",
     keywords: ["klipper", "firmware", "marlin", "input shaping", "pressure advance"]
   },
   {
     id: "material",
-    name: "Malzeme Rehberleri",
+    name: catNames.material,
     icon: "🧵",
     color: "#8B5CF6",
     keywords: ["filament", "pla", "petg", "abs", "tpu", "reçine", "malzeme", "shore"]
   },
   {
     id: "calibration",
-    name: "Kalibrasyon",
+    name: catNames.calibration,
     icon: "📐",
     color: "#22C55E",
     keywords: ["kalibrasyon", "ayar", "seviyeleme", "e-step", "pid"]
   },
   {
     id: "business",
-    name: "İş & Satış",
+    name: catNames.business,
     icon: "💰",
     color: "#EAB308",
     keywords: ["mağaza", "satış", "esnaf", "vergi", "kazanç", "fiyat"]
@@ -402,7 +507,7 @@ const schemaData = {
                   <img src={guide.logo} alt={guide.name + " logo"} class="card-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                   <span class="card-icon-fallback" style="display:none;">{guide.icon}</span>
                 </div>
-                <span class="card-badge">İnteraktif</span>
+                <span class="card-badge">{guide.badge}</span>
               </div>
               <div class="card-body">
                 <h3>{guide.name}</h3>
