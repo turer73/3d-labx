@@ -2,8 +2,16 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
 import { marked } from "marked";
+import { getLanguage, getBaseUrl, dateLocales } from "../../lib/api";
+import { getTranslations, type Language } from "../../lib/translations";
 
 export const prerender = false;
+
+// Dil algılama
+const lang = getLanguage(Astro.request) as Language;
+const t = getTranslations(lang);
+const baseUrl = getBaseUrl(lang);
+const dateLocale = dateLocales[lang];
 
 const API_BASE = "https://tech-portal-api.turgut-d01.workers.dev";
 const { slug } = Astro.params;
@@ -45,7 +53,14 @@ try {
   fetchError = e?.message || "Fetch error";
 }
 
-const title = post?.title_tr || "İçerik Bulunamadı";
+// Dile göre başlık ve içerik seç
+const getLocalizedField = (field: string) => {
+  if (lang === 'en' && post?.[`${field}_en`]) return post[`${field}_en`];
+  if (lang === 'de' && post?.[`${field}_de`]) return post[`${field}_de`];
+  return post?.[`${field}_tr`] || post?.[field] || '';
+};
+
+const title = getLocalizedField('title') || t.article.notFound;
 
 // İçerik HTML mi yoksa Markdown mı kontrol et
 function formatContent(content: string): string {
@@ -85,24 +100,26 @@ function calculateReadTime(content: string): number {
   return Math.ceil(words / 200); // 200 kelime/dakika
 }
 
-const formattedContent = post ? formatContent(post.content_tr) : "";
+const localizedContent = getLocalizedField('content');
+const formattedContent = post ? formatContent(localizedContent) : "";
 const headings = extractHeadings(formattedContent);
-const readTime = post ? calculateReadTime(post.content_tr || "") : 0;
+const readTime = post ? calculateReadTime(localizedContent || "") : 0;
 
-// Tarihi formatla
+// Tarihi formatla (dile göre)
 const formattedDate = post?.created_at
-  ? new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })
+  ? new Date(post.created_at).toLocaleDateString(dateLocale, { day: "numeric", month: "long", year: "numeric" })
   : "";
 
-// Kategori bilgileri
-const categoryInfo: Record<string, {name: string, color: string, icon: string}> = {
-  "3d-baski": { name: "3D Baskı", color: "#22c55e", icon: "🖨️" },
-  "rehberler": { name: "Rehber", color: "#06b6d4", icon: "📚" },
-  "incelemeler": { name: "İnceleme", color: "#f59e0b", icon: "⭐" },
-  "sorun-cozumleri": { name: "Sorun Çözümü", color: "#ef4444", icon: "🔧" },
+// Kategori bilgileri (çok dilli)
+const categoryInfo: Record<string, {name: Record<Language, string>, color: string, icon: string}> = {
+  "3d-baski": { name: { tr: "3D Baskı", en: "3D Printing", de: "3D-Druck" }, color: "#22c55e", icon: "🖨️" },
+  "rehberler": { name: { tr: "Rehber", en: "Guide", de: "Anleitung" }, color: "#06b6d4", icon: "📚" },
+  "incelemeler": { name: { tr: "İnceleme", en: "Review", de: "Bewertung" }, color: "#f59e0b", icon: "⭐" },
+  "sorun-cozumleri": { name: { tr: "Sorun Çözümü", en: "Troubleshooting", de: "Fehlerbehebung" }, color: "#ef4444", icon: "🔧" },
 };
 
-const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f6", icon: "📄" };
+const catData = categoryInfo[post?.category] || { name: { tr: "Makale", en: "Article", de: "Artikel" }, color: "#3b82f6", icon: "📄" };
+const catInfo = { name: catData.name[lang], color: catData.color, icon: catData.icon };
 ---
 
 <BaseLayout title={title}>
@@ -110,15 +127,15 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
 
   {fetchError && (
     <main class="error-page">
-      <p style="color: red;">Hata: {fetchError}</p>
-      <a href="/rehberler">← Geri dön</a>
+      <p style="color: red;">{t.homepage.connectionError}: {fetchError}</p>
+      <a href="/rehberler">{t.article.backToGuides}</a>
     </main>
   )}
 
   {!post && !fetchError && (
     <main class="error-page">
-      <h1>İçerik Bulunamadı</h1>
-      <a href="/rehberler">← Geri dön</a>
+      <h1>{t.article.notFound}</h1>
+      <a href="/rehberler">{t.article.backToGuides}</a>
     </main>
   )}
 
@@ -137,15 +154,15 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
             </span>
             <span class="meta-item">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-              {readTime} dk okuma
+              {readTime} {t.article.minRead}
             </span>
             <span class="meta-item author-badge">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
               Turer
             </span>
           </div>
-          <h1 class="hero-title">{post.title_tr}</h1>
-          <p class="hero-summary">{post.summary_tr}</p>
+          <h1 class="hero-title">{getLocalizedField('title')}</h1>
+          <p class="hero-summary">{getLocalizedField('summary')}</p>
         </div>
       </section>
 
@@ -160,7 +177,7 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
             <div class="comments-header">
               <h3>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                Yorumlar
+                {t.article.comments}
                 <span class="comment-count" id="commentCount">(0)</span>
               </h3>
             </div>
@@ -168,8 +185,8 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
             <!-- Yorum Yazma Formu -->
             <div class="comment-form-box" id="commentFormBox">
               <div class="comment-login-prompt" id="loginPrompt">
-                <p>Yorum yapmak için giriş yapmalısınız</p>
-                <a href="/auth/giris" class="btn-login">Giriş Yap</a>
+                <p>{t.article.loginToComment}</p>
+                <a href="/auth/giris" class="btn-login">{t.article.login}</a>
               </div>
               <form class="comment-form" id="commentForm" style="display: none;">
                 <div class="form-avatar" id="formAvatar">
@@ -178,7 +195,7 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
                 <div class="form-input-wrapper">
                   <textarea
                     id="commentInput"
-                    placeholder="Düşüncelerinizi paylaşın..."
+                    placeholder={t.article.writeComment}
                     rows="3"
                     maxlength="1000"
                   ></textarea>
@@ -186,7 +203,7 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
                     <span class="char-count"><span id="charCount">0</span>/1000</span>
                     <button type="submit" class="btn-submit" id="submitComment">
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                      Gönder
+                      {t.article.send}
                     </button>
                   </div>
                 </div>
@@ -197,19 +214,19 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
             <div class="comments-list" id="commentsList">
               <div class="comments-loading" id="commentsLoading">
                 <div class="loading-spinner"></div>
-                <span>Yorumlar yükleniyor...</span>
+                <span>{t.article.commentsLoading}</span>
               </div>
               <div class="no-comments" id="noComments" style="display: none;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                <p>Henüz yorum yok</p>
-                <span>İlk yorumu siz yazın!</span>
+                <p>{t.article.noComments}</p>
+                <span>{t.article.beFirstComment}</span>
               </div>
             </div>
           </section>
 
           <a href="/rehberler" class="back-link">
             <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            Tüm Rehberler
+            {t.article.backToGuides}
           </a>
         </main>
 
@@ -218,7 +235,7 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
           <!-- İçindekiler -->
           {headings.length > 0 && (
             <div class="sidebar-card">
-              <h3 class="sidebar-title">📑 İçindekiler</h3>
+              <h3 class="sidebar-title">📑 {t.article.tableOfContents}</h3>
               <ul class="toc-list">
                 {headings.map(h => (
                   <li><a href={`#${h.id}`}>{h.text}</a></li>
@@ -229,15 +246,15 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
 
           <!-- Paylaş -->
           <div class="sidebar-card">
-            <h3 class="sidebar-title">🔗 Paylaş</h3>
+            <h3 class="sidebar-title">🔗 {t.article.share}</h3>
             <div class="share-buttons">
-              <button class="share-btn" id="share-x" title="X'te Paylaş">
+              <button class="share-btn" id="share-x" title={t.article.shareOnX}>
                 <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
               </button>
-              <button class="share-btn" id="share-linkedin" title="LinkedIn'de Paylaş">
+              <button class="share-btn" id="share-linkedin" title={t.article.shareOnLinkedIn}>
                 <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
               </button>
-              <button class="share-btn" id="share-copy" title="Linki Kopyala">
+              <button class="share-btn" id="share-copy" title={t.article.copyLink}>
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
               </button>
             </div>
@@ -246,16 +263,21 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
           <!-- İlgili Yazılar -->
           {relatedPosts.length > 0 && (
             <div class="sidebar-card">
-              <h3 class="sidebar-title">📚 İlgili Yazılar</h3>
-              {relatedPosts.map(rp => (
-                <a href={`/rehberler/${rp.slug}`} class="related-post">
-                  <div class="related-post-icon">{catInfo.icon}</div>
-                  <div>
-                    <div class="related-post-title">{rp.title_tr}</div>
-                    <div class="related-post-cat">{catInfo.name}</div>
-                  </div>
-                </a>
-              ))}
+              <h3 class="sidebar-title">📚 {t.article.relatedPosts}</h3>
+              {relatedPosts.map(rp => {
+                const rpTitle = lang === 'en' && rp.title_en ? rp.title_en :
+                               lang === 'de' && rp.title_de ? rp.title_de :
+                               rp.title_tr || rp.title;
+                return (
+                  <a href={`/rehberler/${rp.slug}`} class="related-post">
+                    <div class="related-post-icon">{catInfo.icon}</div>
+                    <div>
+                      <div class="related-post-title">{rpTitle}</div>
+                      <div class="related-post-cat">{catInfo.name}</div>
+                    </div>
+                  </a>
+                );
+              })}
             </div>
           )}
         </aside>
@@ -968,7 +990,14 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
   });
 </script>
 
-<script is:inline define:vars={{ postId: post?.id }}>
+<script is:inline define:vars={{ postId: post?.id, dateLocale, i18nStrings: {
+  commentsLoadFailed: t.article.commentsLoadFailed,
+  sending: t.article.sending,
+  commentSent: t.article.commentSent,
+  commentFailed: t.article.commentFailed,
+  connectionError: t.article.connectionError,
+  send: t.article.send
+} }}>
   const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
   const POST_ID = postId;
 
@@ -1026,7 +1055,7 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
 
       const commentsHTML = comments.map(c => {
         const initial = (c.display_name || c.username || 'K').charAt(0).toUpperCase();
-        const date = new Date(c.created_at).toLocaleDateString('tr-TR', {
+        const date = new Date(c.created_at).toLocaleDateString(dateLocale, {
           day: 'numeric',
           month: 'short',
           year: 'numeric'
@@ -1056,7 +1085,7 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
 
     } catch (err) {
       console.error('Comments load error:', err);
-      if (commentsLoading) commentsLoading.innerHTML = '<p style="color: var(--text-muted);">Yorumlar yüklenemedi</p>';
+      if (commentsLoading) commentsLoading.innerHTML = `<p style="color: var(--text-muted);">${i18nStrings.commentsLoadFailed}</p>`;
     }
   }
 
@@ -1085,7 +1114,7 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
 
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span>Gönderiliyor...</span>';
+        submitBtn.innerHTML = `<span>${i18nStrings.sending}</span>`;
       }
 
       try {
@@ -1103,20 +1132,20 @@ const catInfo = categoryInfo[post?.category] || { name: "Makale", color: "#3b82f
         if (data.success) {
           if (commentInput) commentInput.value = '';
           if (charCount) charCount.textContent = '0';
-          window.showToast('Yorumunuz gönderildi!', 'success');
+          window.showToast(i18nStrings.commentSent, 'success');
           loadComments();
         } else {
-          window.showToast(data.error || 'Yorum gönderilemedi', 'error');
+          window.showToast(data.error || i18nStrings.commentFailed, 'error');
         }
       } catch (err) {
         console.error('Submit error:', err);
-        window.showToast('Bağlantı hatası', 'error');
+        window.showToast(i18nStrings.connectionError, 'error');
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            Gönder
+            ${i18nStrings.send}
           `;
         }
       }
