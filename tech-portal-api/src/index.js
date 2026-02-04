@@ -792,7 +792,7 @@ export default {
               slug, category, post_type, image_url, is_featured, created_at
             FROM posts
             WHERE published = 1 AND category = ?
-            ORDER BY is_featured DESC, created_at DESC
+            ORDER BY created_at DESC
             LIMIT 6
           `).bind(category).all();
 
@@ -837,8 +837,8 @@ export default {
         const countResult = await env.DB.prepare(countQuery).bind(...bindings).first();
         const total = countResult?.total || 0;
 
-        // Get posts
-        query += ` ORDER BY is_featured DESC, created_at DESC LIMIT ? OFFSET ?`;
+        // Get posts - sadece tarih sırasına göre (en yeni üstte)
+        query += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`;
         bindings.push(limit, offset);
 
         const posts = await env.DB.prepare(query).bind(...bindings).all();
@@ -5332,7 +5332,7 @@ Başlık: ${item.title}
           try {
             await env.DB.prepare(`
               INSERT INTO posts (title_tr, summary_tr, content_tr, slug, category, post_type, source_url, image_url, ai_generated, status, published)
-              VALUES (?, ?, ?, ?, ?, 'haber', ?, ?, 1, 'draft', 0)
+              VALUES (?, ?, ?, ?, ?, 'haber', ?, ?, 1, 'published', 1)
             `).bind(
               parsed.title_tr,
               parsed.summary_tr,
