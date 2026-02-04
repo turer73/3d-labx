@@ -64,7 +64,7 @@ const t = translations[lang];
 let categories: any[] = [];
 
 try {
-  const res = await fetch(`${API_BASE}/api/forum/categories`);
+  const res = await fetch(`${API_BASE}/api/forum/categories?lang=${lang}`);
   if (res.ok) {
     const data = await res.json();
     categories = data.categories || [];

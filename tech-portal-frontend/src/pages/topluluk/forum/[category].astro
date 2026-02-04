@@ -1,12 +1,13 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import Header from "../../../components/Header.astro";
-import { getApiBase } from "../../../lib/api";
+import { getApiBase, getLanguage } from "../../../lib/api";
 
 export const prerender = false;
 
 const { category: categorySlug } = Astro.params;
 const API_BASE = getApiBase(Astro.request);
+const lang = getLanguage(Astro.request);
 
 const url = new URL(Astro.request.url);
 const currentPage = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
@@ -17,7 +18,7 @@ let threads: any[] = [];
 let pagination: any = null;
 
 try {
-  const res = await fetch(`${API_BASE}/api/forum/categories/${categorySlug}/threads?page=${currentPage}&limit=20&sort=${sort}`);
+  const res = await fetch(`${API_BASE}/api/forum/categories/${categorySlug}/threads?page=${currentPage}&limit=20&sort=${sort}&lang=${lang}`);
   if (res.ok) {
     const data = await res.json();
     category = data.category;

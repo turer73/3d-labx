@@ -146,7 +146,7 @@ let replies: any[] = [];
 let pagination: any = null;
 
 try {
-  const res = await fetch(`${API_BASE}/api/forum/threads/${slug}`);
+  const res = await fetch(`${API_BASE}/api/forum/threads/${slug}?lang=${lang}`);
   if (res.ok) {
     const data = await res.json();
     thread = data.thread;
@@ -226,26 +226,8 @@ function renderContent(content: string): string {
 // Thread ve reply içeriklerini render et
 const renderedThreadContent = renderContent(thread.content);
 
-// Forum kategori çevirileri (slug -> çok dilli isim)
-const categoryTranslations: Record<string, Record<Language, string>> = {
-  'sorular-yardim': { tr: 'Sorular & Yardım', en: 'Questions & Help', de: 'Fragen & Hilfe' },
-  'projeler': { tr: 'Projeler', en: 'Projects', de: 'Projekte' },
-  'genel-tartisma': { tr: 'Genel Tartışma', en: 'General Discussion', de: 'Allgemeine Diskussion' },
-  'haberler-duyurular': { tr: 'Haberler & Duyurular', en: 'News & Announcements', de: 'Nachrichten & Ankündigungen' },
-  'incelemeler': { tr: 'İncelemeler', en: 'Reviews', de: 'Bewertungen' },
-  'alisveris': { tr: 'Alışveriş', en: 'Shopping', de: 'Einkaufen' },
-};
-
-// Kategori ismini dile göre al
-function getCategoryName(slug: string, originalName: string): string {
-  const translations = categoryTranslations[slug];
-  if (translations && translations[lang]) {
-    return translations[lang];
-  }
-  return originalName; // Çeviri yoksa orijinal ismi kullan
-}
-
-const translatedCategoryName = getCategoryName(thread.category_slug, thread.category_name);
+// Kategori ismi artık API'den doğru dilde geliyor (lang parametresi ile)
+const translatedCategoryName = thread.category_name;
 
 function timeAgo(dateStr: string) {
   const date = new Date(dateStr);

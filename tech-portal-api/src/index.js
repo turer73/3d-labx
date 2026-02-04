@@ -3413,15 +3413,34 @@ Content: ${post.content_tr?.substring(0, 3000) || ''}`;
 
       // Forum kategorilerini getir
       if (path === "/api/forum/categories" && method === "GET") {
+        const lang = url.searchParams.get("lang") || "tr";
         const categories = await env.DB.prepare(`
           SELECT * FROM forum_categories WHERE is_active = 1 ORDER BY display_order ASC
         `).all();
-        return jsonResponse({ categories: categories.results || [] }, 200, 300);
+
+        // Dil desteği: name ve description alanlarını dile göre döndür
+        const translatedCategories = (categories.results || []).map(cat => {
+          let name = cat.name;
+          let description = cat.description;
+
+          if (lang === "en" && cat.name_en) {
+            name = cat.name_en;
+            description = cat.description_en || cat.description;
+          } else if (lang === "de" && cat.name_de) {
+            name = cat.name_de;
+            description = cat.description_de || cat.description;
+          }
+
+          return { ...cat, name, description };
+        });
+
+        return jsonResponse({ categories: translatedCategories }, 200, 300);
       }
 
       // Kategori konularını getir
       if (path.match(/^\/api\/forum\/categories\/([a-z0-9-]+)\/threads$/) && method === "GET") {
         const categorySlug = path.split("/")[4];
+        const lang = url.searchParams.get("lang") || "tr";
         const { page, limit, offset } = validatePagination(
           url.searchParams.get("page"),
           url.searchParams.get("limit") || "20"
@@ -3432,6 +3451,15 @@ Content: ${post.content_tr?.substring(0, 3000) || ''}`;
           SELECT * FROM forum_categories WHERE slug = ? AND is_active = 1
         `).bind(categorySlug).first();
         if (!category) return errorResponse("Kategori bulunamadı", 404, "NOT_FOUND");
+
+        // Dil desteği: category name'i dile göre ayarla
+        if (lang === "en" && category.name_en) {
+          category.name = category.name_en;
+          category.description = category.description_en || category.description;
+        } else if (lang === "de" && category.name_de) {
+          category.name = category.name_de;
+          category.description = category.description_de || category.description;
+        }
 
         const countResult = await env.DB.prepare(`
           SELECT COUNT(*) as total FROM forum_threads WHERE category_id = ? AND is_deleted = 0
@@ -3463,16 +3491,27 @@ Content: ${post.content_tr?.substring(0, 3000) || ''}`;
       // Tek konu detayı
       if (path.match(/^\/api\/forum\/threads\/([a-z0-9-]+)$/) && method === "GET") {
         const threadSlug = path.split("/")[4];
+        const lang = url.searchParams.get("lang") || "tr";
 
         const thread = await env.DB.prepare(`
           SELECT t.*, u.username, u.display_name, u.avatar_url,
-            c.name as category_name, c.slug as category_slug
+            c.name as category_name, c.slug as category_slug,
+            c.name_en as category_name_en, c.name_de as category_name_de
           FROM forum_threads t
           JOIN users u ON t.user_id = u.id
           JOIN forum_categories c ON t.category_id = c.id
           WHERE t.slug = ? AND t.is_deleted = 0
         `).bind(threadSlug).first();
         if (!thread) return errorResponse("Konu bulunamadı", 404, "NOT_FOUND");
+
+        // Dil desteği: category_name'i dile göre ayarla
+        if (lang === "en" && thread.category_name_en) {
+          thread.category_name = thread.category_name_en;
+        } else if (lang === "de" && thread.category_name_de) {
+          thread.category_name = thread.category_name_de;
+        }
+        delete thread.category_name_en;
+        delete thread.category_name_de;
 
         // View count artır
         await env.DB.prepare(`
