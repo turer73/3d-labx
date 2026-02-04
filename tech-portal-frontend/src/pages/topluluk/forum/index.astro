@@ -1,11 +1,65 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import Header from "../../../components/Header.astro";
-import { getApiBase } from "../../../lib/api";
+import { getApiBase, getLanguage, type Language } from "../../../lib/api";
 
 export const prerender = false;
 
+const lang = getLanguage(Astro.request);
 const API_BASE = getApiBase(Astro.request);
+
+// Çeviriler
+const translations: Record<Language, {
+  pageTitle: string;
+  pageDesc: string;
+  breadcrumbCommunity: string;
+  breadcrumbForum: string;
+  title: string;
+  subtitle: string;
+  newTopic: string;
+  topics: string;
+  messages: string;
+  loadError: string;
+}> = {
+  tr: {
+    pageTitle: "Forum - 3D-labX Topluluk",
+    pageDesc: "3D baskı forumu. Sorularınızı sorun, tartışmalara katılın, deneyimlerinizi paylaşın.",
+    breadcrumbCommunity: "Topluluk",
+    breadcrumbForum: "Forum",
+    title: "Forum",
+    subtitle: "Sorularınızı sorun, tartışmalara katılın, deneyimlerinizi paylaşın",
+    newTopic: "Yeni Konu",
+    topics: "Konu",
+    messages: "Mesaj",
+    loadError: "Forum kategorileri yüklenemedi."
+  },
+  en: {
+    pageTitle: "Forum - 3D-labX Community",
+    pageDesc: "3D printing forum. Ask questions, join discussions, share your experiences.",
+    breadcrumbCommunity: "Community",
+    breadcrumbForum: "Forum",
+    title: "Forum",
+    subtitle: "Ask questions, join discussions, share your experiences",
+    newTopic: "New Topic",
+    topics: "Topics",
+    messages: "Messages",
+    loadError: "Failed to load forum categories."
+  },
+  de: {
+    pageTitle: "Forum - 3D-labX Community",
+    pageDesc: "3D-Druck-Forum. Stellen Sie Fragen, nehmen Sie an Diskussionen teil, teilen Sie Ihre Erfahrungen.",
+    breadcrumbCommunity: "Community",
+    breadcrumbForum: "Forum",
+    title: "Forum",
+    subtitle: "Fragen stellen, an Diskussionen teilnehmen, Erfahrungen teilen",
+    newTopic: "Neues Thema",
+    topics: "Themen",
+    messages: "Nachrichten",
+    loadError: "Forum-Kategorien konnten nicht geladen werden."
+  }
+};
+
+const t = translations[lang];
 
 let categories: any[] = [];
 
@@ -20,9 +74,9 @@ try {
 }
 ---
 
-<BaseLayout 
-  title="Forum - 3D-labX Topluluk"
-  description="3D baskı forumu. Sorularınızı sorun, tartışmalara katılın, deneyimlerinizi paylaşın."
+<BaseLayout
+  title={t.pageTitle}
+  description={t.pageDesc}
 >
   <Header />
 
@@ -31,17 +85,17 @@ try {
       <div class="page-header">
         <div class="header-left">
           <nav class="breadcrumb">
-            <a href="/topluluk">Topluluk</a>
+            <a href="/topluluk">{t.breadcrumbCommunity}</a>
             <span>/</span>
-            <span>Forum</span>
+            <span>{t.breadcrumbForum}</span>
           </nav>
-          <h1>Forum</h1>
-          <p>Sorularınızı sorun, tartışmalara katılın, deneyimlerinizi paylaşın</p>
+          <h1>{t.title}</h1>
+          <p>{t.subtitle}</p>
         </div>
         <div class="header-right">
           <a href="/topluluk/forum/yeni" class="btn btn-primary" id="newThreadBtn">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-            Yeni Konu
+            {t.newTopic}
           </a>
         </div>
       </div>
@@ -59,11 +113,11 @@ try {
             <div class="cat-stats">
               <div class="stat">
                 <span class="stat-value">{cat.thread_count}</span>
-                <span class="stat-label">Konu</span>
+                <span class="stat-label">{t.topics}</span>
               </div>
               <div class="stat">
                 <span class="stat-value">{cat.post_count}</span>
-                <span class="stat-label">Mesaj</span>
+                <span class="stat-label">{t.messages}</span>
               </div>
             </div>
             <div class="cat-arrow">
@@ -75,7 +129,7 @@ try {
 
       {categories.length === 0 && (
         <div class="empty-state">
-          <p>Forum kategorileri yüklenemedi.</p>
+          <p>{t.loadError}</p>
         </div>
       )}
     </div>
