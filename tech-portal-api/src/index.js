@@ -80,6 +80,8 @@ const ALLOWED_ORIGINS = [
   "https://www.3d-labx.com",
   "https://en.3d-labx.com",
   "https://de.3d-labx.com",
+  "https://magaza.3d-labx.com",
+  "https://dergi.3d-labx.com",
   "https://tech-portal.pages.dev",
   "http://localhost:4321",
   "http://localhost:3000"
@@ -92,7 +94,7 @@ function getCorsHeaders(request) {
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-ADMIN-SECRET",
     "Access-Control-Allow-Credentials": "true",
     "Access-Control-Max-Age": "86400"
   };
@@ -102,7 +104,7 @@ function getCorsHeaders(request) {
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "https://3d-labx.com",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-ADMIN-SECRET",
   "Access-Control-Allow-Credentials": "true",
   "Access-Control-Max-Age": "86400"
 };
@@ -264,6 +266,26 @@ async function sha256(text) {
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// IP adresini hash'le (GDPR uyumlu, geri dönüşümsüz)
+async function hashIP(ip) {
+  if (!ip || ip === 'unknown') return 'unknown';
+  return await sha256(ip + '_3dlabx_salt');
+}
+
+// Token doğrulama (session bazlı)
+async function verifyToken(token, env) {
+  if (!token) return null;
+
+  const session = await env.DB.prepare(`
+    SELECT s.*, u.id, u.email, u.username, u.display_name, u.avatar_url, u.role, u.email_verified
+    FROM sessions s
+    JOIN users u ON s.user_id = u.id
+    WHERE s.token = ? AND s.expires_at > datetime('now') AND u.is_active = 1
+  `).bind(token).first();
+
+  return session || null;
 }
 
 function generateToken(length = 32) {
@@ -690,7 +712,7 @@ export default {
 
     // CORS Preflight
     if (method === "OPTIONS") {
-      return new Response(null, { status: 204, headers: CORS_HEADERS });
+      return new Response(null, { status: 204, headers: getCorsHeaders(request) });
     }
 
     // Get client IP
@@ -1118,7 +1140,7 @@ export default {
           await env.DB.prepare("DELETE FROM sessions WHERE token = ?")
             .bind(session.token).run();
         }
-        return jsonResponse({ success: true });
+        return jsonResponse({ success: true }, 200, 0, request);
       }
 
       // Mevcut kullanıcı bilgisi
@@ -1159,7 +1181,7 @@ export default {
             badges: 0
           },
           maker_profile: makerProfile || null
-        });
+        }, 200, 0, request);
       }
 
       // Şifre sıfırlama isteği
@@ -1369,9 +1391,10 @@ export default {
           }
 
           // Insert new subscriber
+          const ipHash = await hashIP(clientIP);
           await env.DB.prepare(
             `INSERT INTO newsletter_subscribers (email, ip_hash) VALUES (?, ?)`
-          ).bind(email, hashIP(clientIP)).run();
+          ).bind(email, ipHash).run();
 
           return jsonResponse({ success: true, message: "Bültene başarıyla abone oldunuz." }, 201);
         } catch (error) {
@@ -2257,26 +2280,30 @@ Content: ${post.content_tr?.substring(0, 3000) || ''}`;
 
         // Admin: Loglar
         if (path === "/admin/logs" && method === "GET") {
-          const actionFilter = url.searchParams.get("action");
+          const actionFilter = sanitizeString(url.searchParams.get("action"), 50);
           const errorsOnly = url.searchParams.get("errors") === "true";
           const limit = Math.min(parseInt(url.searchParams.get("limit") || "100"), 500);
 
           let query = `SELECT * FROM admin_logs`;
           let conditions = [];
+          let params = [];
 
           if (errorsOnly) {
-            conditions.push(`action LIKE 'error_%'`);
+            conditions.push(`action LIKE ?`);
+            params.push('error_%');
           } else if (actionFilter) {
-            conditions.push(`action = '${actionFilter}'`);
+            conditions.push(`action = ?`);
+            params.push(actionFilter);
           }
 
           if (conditions.length > 0) {
             query += ` WHERE ` + conditions.join(' AND ');
           }
 
-          query += ` ORDER BY created_at DESC LIMIT ${limit}`;
+          query += ` ORDER BY created_at DESC LIMIT ?`;
+          params.push(limit);
 
-          const logs = await env.DB.prepare(query).all();
+          const logs = await env.DB.prepare(query).bind(...params).all();
           return jsonResponse({ logs: logs.results || [] });
         }
 
@@ -3110,8 +3137,8 @@ Content: ${post.content_tr?.substring(0, 3000) || ''}`;
           const body = await request.json();
           const { newPassword } = body;
 
-          if (!newPassword || newPassword.length < 6) {
-            return errorResponse("Şifre en az 6 karakter olmalı", 400, "INVALID_PASSWORD");
+          if (!newPassword || newPassword.length < 8) {
+            return errorResponse("Şifre en az 8 karakter olmalı", 400, "INVALID_PASSWORD");
           }
 
           const existing = await env.DB.prepare(`SELECT id FROM users WHERE id = ?`).bind(userId).first();
@@ -3275,7 +3302,7 @@ Content: ${post.content_tr?.substring(0, 3000) || ''}`;
       // 💬 YORUM SİSTEMİ API
       // ================================
 
-      // Post yorumlarını getir
+      // Post yorumlarını getir (N+1 query problemi çözüldü - tek sorguda tüm cevaplar)
       if (path.match(/^\/api\/posts\/(\d+)\/comments$/) && method === "GET") {
         const postId = parseInt(path.split("/")[3], 10);
         const { page, limit, offset } = validatePagination(
@@ -3285,7 +3312,7 @@ Content: ${post.content_tr?.substring(0, 3000) || ''}`;
 
         // Toplam yorum sayısı
         const countResult = await env.DB.prepare(`
-          SELECT COUNT(*) as total FROM comments 
+          SELECT COUNT(*) as total FROM comments
           WHERE post_id = ? AND parent_id IS NULL AND is_deleted = 0
         `).bind(postId).first();
         const total = countResult?.total || 0;
@@ -3301,20 +3328,36 @@ Content: ${post.content_tr?.substring(0, 3000) || ''}`;
           LIMIT ? OFFSET ?
         `).bind(postId, limit, offset).all();
 
-        // Her yorum için cevapları getir (ilk 3)
-        const commentsWithReplies = await Promise.all(
-          (comments.results || []).map(async (comment) => {
-            const replies = await env.DB.prepare(`
-              SELECT c.*, u.username, u.display_name, u.avatar_url
-              FROM comments c
-              JOIN users u ON c.user_id = u.id
-              WHERE c.parent_id = ? AND c.is_deleted = 0
-              ORDER BY c.created_at ASC
-              LIMIT 3
-            `).bind(comment.id).all();
-            return { ...comment, replies: replies.results || [] };
-          })
-        );
+        const commentIds = (comments.results || []).map(c => c.id);
+
+        // Tüm cevapları tek sorguda getir (N+1 problemi çözümü)
+        let repliesMap = {};
+        if (commentIds.length > 0) {
+          const placeholders = commentIds.map(() => '?').join(',');
+          const allReplies = await env.DB.prepare(`
+            SELECT c.*, u.username, u.display_name, u.avatar_url,
+              ROW_NUMBER() OVER (PARTITION BY c.parent_id ORDER BY c.created_at ASC) as rn
+            FROM comments c
+            JOIN users u ON c.user_id = u.id
+            WHERE c.parent_id IN (${placeholders}) AND c.is_deleted = 0
+          `).bind(...commentIds).all();
+
+          // Cevapları parent_id'ye göre grupla (her parent için max 3)
+          for (const reply of (allReplies.results || [])) {
+            if (reply.rn <= 3) {
+              if (!repliesMap[reply.parent_id]) {
+                repliesMap[reply.parent_id] = [];
+              }
+              repliesMap[reply.parent_id].push(reply);
+            }
+          }
+        }
+
+        // Yorumları cevaplarla birleştir
+        const commentsWithReplies = (comments.results || []).map(comment => ({
+          ...comment,
+          replies: repliesMap[comment.id] || []
+        }));
 
         return jsonResponse({
           comments: commentsWithReplies,
