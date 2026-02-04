@@ -1,7 +1,6 @@
 ---
 import BaseLayout from "../../../../layouts/BaseLayout.astro";
 import Header from "../../../../components/Header.astro";
-import TranslateButton from "../../../../components/TranslateButton.astro";
 import { getApiBase, getLanguage, type Language } from "../../../../lib/api";
 import { marked } from "marked";
 
@@ -227,6 +226,27 @@ function renderContent(content: string): string {
 // Thread ve reply içeriklerini render et
 const renderedThreadContent = renderContent(thread.content);
 
+// Forum kategori çevirileri (slug -> çok dilli isim)
+const categoryTranslations: Record<string, Record<Language, string>> = {
+  'sorular-yardim': { tr: 'Sorular & Yardım', en: 'Questions & Help', de: 'Fragen & Hilfe' },
+  'projeler': { tr: 'Projeler', en: 'Projects', de: 'Projekte' },
+  'genel-tartisma': { tr: 'Genel Tartışma', en: 'General Discussion', de: 'Allgemeine Diskussion' },
+  'haberler-duyurular': { tr: 'Haberler & Duyurular', en: 'News & Announcements', de: 'Nachrichten & Ankündigungen' },
+  'incelemeler': { tr: 'İncelemeler', en: 'Reviews', de: 'Bewertungen' },
+  'alisveris': { tr: 'Alışveriş', en: 'Shopping', de: 'Einkaufen' },
+};
+
+// Kategori ismini dile göre al
+function getCategoryName(slug: string, originalName: string): string {
+  const translations = categoryTranslations[slug];
+  if (translations && translations[lang]) {
+    return translations[lang];
+  }
+  return originalName; // Çeviri yoksa orijinal ismi kullan
+}
+
+const translatedCategoryName = getCategoryName(thread.category_slug, thread.category_name);
+
 function timeAgo(dateStr: string) {
   const date = new Date(dateStr);
   const now = new Date();
@@ -256,7 +276,7 @@ function timeAgo(dateStr: string) {
         <span>/</span>
         <a href="/topluluk/forum">{t.forum}</a>
         <span>/</span>
-        <a href={`/topluluk/forum/${thread.category_slug}`}>{thread.category_name}</a>
+        <a href={`/topluluk/forum/${thread.category_slug}`}>{translatedCategoryName}</a>
         <span>/</span>
         <span>{t.topic}</span>
       </nav>
@@ -384,9 +404,6 @@ function timeAgo(dateStr: string) {
       )}
     </div>
   </main>
-
-  <!-- Çeviri Butonu -->
-  <TranslateButton currentLang={lang} />
 </BaseLayout>
 
 <style>
