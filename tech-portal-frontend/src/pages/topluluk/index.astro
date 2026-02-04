@@ -1,11 +1,192 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
-import { getApiBase } from "../../lib/api";
+import { getApiBase, getLanguage, type Language } from "../../lib/api";
 
 export const prerender = false;
 
+const lang = getLanguage(Astro.request);
 const API_BASE = getApiBase(Astro.request);
+
+// Çeviriler
+const translations: Record<Language, {
+  pageTitle: string;
+  pageDesc: string;
+  badge: string;
+  heroTitle: string;
+  heroDesc: string;
+  topics: string;
+  messages: string;
+  projects: string;
+  quickAccess: string;
+  askQuestion: string;
+  shareProject: string;
+  shareFail: string;
+  makerMap: string;
+  iAlsoPrinted: string;
+  communityProjects: string;
+  failGallery: string;
+  learnFromMistakes: string;
+  makerMapTitle: string;
+  makersInTurkey: string;
+  makersInGermany: string;
+  makersNearYou: string;
+  recentTopics: string;
+  viewAll: string;
+  noTopicsYet: string;
+  openFirstTopic: string;
+  featuredProjects: string;
+  noProjectsYet: string;
+  shareFirstProject: string;
+  communityRules: string;
+  rule1: string;
+  rule2: string;
+  rule3: string;
+  rule4: string;
+  storeName: string;
+  storeDesc: string;
+  topic: string;
+  message: string;
+  justNow: string;
+  minutesAgo: string;
+  hoursAgo: string;
+  daysAgo: string;
+}> = {
+  tr: {
+    pageTitle: "Topluluk - 3D-labX | Forum, Projeler, Tartışmalar",
+    pageDesc: "3D baskı topluluğuna katılın. Sorularınızı sorun, projelerinizi paylaşın, diğer makerlarla tanışın.",
+    badge: "Topluluk",
+    heroTitle: "3D Baskı Topluluğu",
+    heroDesc: "Sorularını sor, projelerini paylaş, makerlarla tanış",
+    topics: "Konu",
+    messages: "Mesaj",
+    projects: "Proje",
+    quickAccess: "Hızlı Erişim",
+    askQuestion: "Soru Sor",
+    shareProject: "Proje Paylaş",
+    shareFail: "Hata Paylaş",
+    makerMap: "Maker Haritası",
+    iAlsoPrinted: "Ben de Bastım",
+    communityProjects: "Topluluk projeleri",
+    failGallery: "Başarısızlık Galerisi",
+    learnFromMistakes: "Hatalardan öğren",
+    makerMapTitle: "Maker Haritası",
+    makersInTurkey: "Türkiye'deki makerlar",
+    makersInGermany: "Almanya'daki makerlar",
+    makersNearYou: "Makers near you",
+    recentTopics: "Son Konular",
+    viewAll: "Tümü →",
+    noTopicsYet: "Henüz konu yok",
+    openFirstTopic: "İlk Konuyu Aç",
+    featuredProjects: "Öne Çıkan Projeler",
+    noProjectsYet: "Henüz proje paylaşılmamış",
+    shareFirstProject: "İlk Projeyi Paylaş",
+    communityRules: "📋 Topluluk Kuralları",
+    rule1: "Saygılı ve yapıcı olun",
+    rule2: "Spam ve reklam yapmayın",
+    rule3: "Doğru kategori kullanın",
+    rule4: "Sorularınızı detaylı anlatın",
+    storeName: "3D-labX Mağaza",
+    storeDesc: "3D baskı ürünlerini keşfet!",
+    topic: "konu",
+    message: "mesaj",
+    justNow: "Az önce",
+    minutesAgo: "dk önce",
+    hoursAgo: "sa önce",
+    daysAgo: "g önce"
+  },
+  en: {
+    pageTitle: "Community - 3D-labX | Forum, Projects, Discussions",
+    pageDesc: "Join the 3D printing community. Ask questions, share your projects, meet other makers.",
+    badge: "Community",
+    heroTitle: "3D Printing Community",
+    heroDesc: "Ask questions, share projects, meet makers",
+    topics: "Topics",
+    messages: "Messages",
+    projects: "Projects",
+    quickAccess: "Quick Access",
+    askQuestion: "Ask Question",
+    shareProject: "Share Project",
+    shareFail: "Share Fail",
+    makerMap: "Maker Map",
+    iAlsoPrinted: "I Also Printed",
+    communityProjects: "Community projects",
+    failGallery: "Fail Gallery",
+    learnFromMistakes: "Learn from mistakes",
+    makerMapTitle: "Maker Map",
+    makersInTurkey: "Makers in Turkey",
+    makersInGermany: "Makers in Germany",
+    makersNearYou: "Makers near you",
+    recentTopics: "Recent Topics",
+    viewAll: "View All →",
+    noTopicsYet: "No topics yet",
+    openFirstTopic: "Open First Topic",
+    featuredProjects: "Featured Projects",
+    noProjectsYet: "No projects shared yet",
+    shareFirstProject: "Share First Project",
+    communityRules: "📋 Community Rules",
+    rule1: "Be respectful and constructive",
+    rule2: "No spam or advertising",
+    rule3: "Use the correct category",
+    rule4: "Describe your questions in detail",
+    storeName: "3D-labX Store",
+    storeDesc: "Discover 3D printing products!",
+    topic: "topics",
+    message: "messages",
+    justNow: "Just now",
+    minutesAgo: "min ago",
+    hoursAgo: "hr ago",
+    daysAgo: "d ago"
+  },
+  de: {
+    pageTitle: "Community - 3D-labX | Forum, Projekte, Diskussionen",
+    pageDesc: "Werden Sie Teil der 3D-Druck-Community. Stellen Sie Fragen, teilen Sie Ihre Projekte, lernen Sie andere Maker kennen.",
+    badge: "Community",
+    heroTitle: "3D-Druck Community",
+    heroDesc: "Fragen stellen, Projekte teilen, Maker kennenlernen",
+    topics: "Themen",
+    messages: "Nachrichten",
+    projects: "Projekte",
+    quickAccess: "Schnellzugriff",
+    askQuestion: "Frage stellen",
+    shareProject: "Projekt teilen",
+    shareFail: "Fehler teilen",
+    makerMap: "Maker-Karte",
+    iAlsoPrinted: "Ich habe auch gedruckt",
+    communityProjects: "Community-Projekte",
+    failGallery: "Fehlergalerie",
+    learnFromMistakes: "Aus Fehlern lernen",
+    makerMapTitle: "Maker-Karte",
+    makersInTurkey: "Maker in der Türkei",
+    makersInGermany: "Maker in Deutschland",
+    makersNearYou: "Maker in deiner Nähe",
+    recentTopics: "Neueste Themen",
+    viewAll: "Alle ansehen →",
+    noTopicsYet: "Noch keine Themen",
+    openFirstTopic: "Erstes Thema eröffnen",
+    featuredProjects: "Ausgewählte Projekte",
+    noProjectsYet: "Noch keine Projekte geteilt",
+    shareFirstProject: "Erstes Projekt teilen",
+    communityRules: "📋 Community-Regeln",
+    rule1: "Seien Sie respektvoll und konstruktiv",
+    rule2: "Kein Spam oder Werbung",
+    rule3: "Verwenden Sie die richtige Kategorie",
+    rule4: "Beschreiben Sie Ihre Fragen detailliert",
+    storeName: "3D-labX Shop",
+    storeDesc: "Entdecken Sie 3D-Druck-Produkte!",
+    topic: "Themen",
+    message: "Nachrichten",
+    justNow: "Gerade eben",
+    minutesAgo: "Min. her",
+    hoursAgo: "Std. her",
+    daysAgo: "T. her"
+  }
+};
+
+const t = translations[lang];
+
+// Maker haritası açıklaması dile göre
+const makerMapDesc = lang === 'tr' ? t.makersInTurkey : lang === 'de' ? t.makersInGermany : t.makersNearYou;
 
 // Forum kategorilerini ve son konuları çek
 let categories: any[] = [];
@@ -44,7 +225,8 @@ const totalPosts = categories.reduce((sum: number, c: any) => sum + (c.post_coun
 const projectCategory = categories.find((c: any) => c.slug === 'projeler');
 const projectCount = projectCategory?.thread_count || 0;
 
-// Tarih formatlama
+// Tarih formatlama (dile göre)
+const dateLocale = lang === 'tr' ? 'tr-TR' : lang === 'de' ? 'de-DE' : 'en-US';
 function formatDate(dateStr: string) {
   const date = new Date(dateStr);
   const now = new Date();
@@ -53,17 +235,17 @@ function formatDate(dateStr: string) {
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
 
-  if (minutes < 1) return 'Az önce';
-  if (minutes < 60) return `${minutes}dk önce`;
-  if (hours < 24) return `${hours}sa önce`;
-  if (days < 7) return `${days}g önce`;
-  return date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+  if (minutes < 1) return t.justNow;
+  if (minutes < 60) return `${minutes}${t.minutesAgo}`;
+  if (hours < 24) return `${hours}${t.hoursAgo}`;
+  if (days < 7) return `${days}${t.daysAgo}`;
+  return date.toLocaleDateString(dateLocale, { day: 'numeric', month: 'short' });
 }
 ---
 
 <BaseLayout
-  title="Topluluk - 3D-labX | Forum, Projeler, Tartışmalar"
-  description="3D baskı topluluğuna katılın. Sorularınızı sorun, projelerinizi paylaşın, diğer makerlarla tanışın."
+  title={t.pageTitle}
+  description={t.pageDesc}
 >
   <Header />
 
@@ -78,22 +260,22 @@ function formatDate(dateStr: string) {
           <div class="hero-content">
             <div class="hero-badge">
               <span class="badge-dot"></span>
-              Topluluk
+              {t.badge}
             </div>
-            <h1>3D Baskı Topluluğu</h1>
-            <p>Sorularını sor, projelerini paylaş, makerlarla tanış</p>
+            <h1>{t.heroTitle}</h1>
+            <p>{t.heroDesc}</p>
             <div class="hero-stats">
               <div class="mini-stat">
                 <span class="stat-num">{totalThreads}</span>
-                <span class="stat-text">Konu</span>
+                <span class="stat-text">{t.topics}</span>
               </div>
               <div class="mini-stat">
                 <span class="stat-num">{totalPosts}</span>
-                <span class="stat-text">Mesaj</span>
+                <span class="stat-text">{t.messages}</span>
               </div>
               <div class="mini-stat">
                 <span class="stat-num">{projectCount}</span>
-                <span class="stat-text">Proje</span>
+                <span class="stat-text">{t.projects}</span>
               </div>
             </div>
           </div>
@@ -101,23 +283,23 @@ function formatDate(dateStr: string) {
 
         <!-- Quick Actions Card -->
         <div class="bento-card actions-card">
-          <h3>Hızlı Erişim</h3>
+          <h3>{t.quickAccess}</h3>
           <div class="quick-actions">
             <a href="/topluluk/forum/yeni" class="quick-action ask">
               <span class="action-icon">❓</span>
-              <span class="action-text">Soru Sor</span>
+              <span class="action-text">{t.askQuestion}</span>
             </a>
             <a href="/topluluk/projeler/paylas" class="quick-action share">
               <span class="action-icon">🎨</span>
-              <span class="action-text">Proje Paylaş</span>
+              <span class="action-text">{t.shareProject}</span>
             </a>
             <a href="/topluluk/basarisizliklar/paylas" class="quick-action fail">
               <span class="action-icon">🔥</span>
-              <span class="action-text">Hata Paylaş</span>
+              <span class="action-text">{t.shareFail}</span>
             </a>
             <a href="/topluluk/harita" class="quick-action map">
               <span class="action-icon">🗺️</span>
-              <span class="action-text">Maker Haritası</span>
+              <span class="action-text">{t.makerMap}</span>
             </a>
           </div>
         </div>
@@ -126,8 +308,8 @@ function formatDate(dateStr: string) {
         <a href="/topluluk/projeler" class="bento-card feature-card projects-feature">
           <div class="feature-icon">🎨</div>
           <div class="feature-content">
-            <h3>Ben de Bastım</h3>
-            <p>Topluluk projeleri</p>
+            <h3>{t.iAlsoPrinted}</h3>
+            <p>{t.communityProjects}</p>
           </div>
           <div class="feature-arrow">→</div>
         </a>
@@ -135,8 +317,8 @@ function formatDate(dateStr: string) {
         <a href="/topluluk/basarisizliklar" class="bento-card feature-card fails-feature">
           <div class="feature-icon">🔥</div>
           <div class="feature-content">
-            <h3>Başarısızlık Galerisi</h3>
-            <p>Hatalardan öğren</p>
+            <h3>{t.failGallery}</h3>
+            <p>{t.learnFromMistakes}</p>
           </div>
           <div class="feature-arrow">→</div>
         </a>
@@ -144,8 +326,8 @@ function formatDate(dateStr: string) {
         <a href="/topluluk/harita" class="bento-card feature-card map-feature">
           <div class="feature-icon">🗺️</div>
           <div class="feature-content">
-            <h3>Maker Haritası</h3>
-            <p>Türkiye'deki makerlar</p>
+            <h3>{t.makerMapTitle}</h3>
+            <p>{makerMapDesc}</p>
           </div>
           <div class="feature-arrow">→</div>
         </a>
@@ -159,8 +341,8 @@ function formatDate(dateStr: string) {
               <p>{cat.description}</p>
             </div>
             <div class="cat-footer">
-              <span class="cat-stat">{cat.thread_count} konu</span>
-              <span class="cat-stat">{cat.post_count} mesaj</span>
+              <span class="cat-stat">{cat.thread_count} {t.topic}</span>
+              <span class="cat-stat">{cat.post_count} {t.message}</span>
             </div>
             <div class="cat-arrow">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
@@ -173,9 +355,9 @@ function formatDate(dateStr: string) {
           <div class="card-header">
             <h3>
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              Son Konular
+              {t.recentTopics}
             </h3>
-            <a href="/topluluk/forum" class="see-all">Tümü →</a>
+            <a href="/topluluk/forum" class="see-all">{t.viewAll}</a>
           </div>
           <div class="threads-list">
             {recentThreads.length > 0 ? recentThreads.map((thread) => (
@@ -201,8 +383,8 @@ function formatDate(dateStr: string) {
               </a>
             )) : (
               <div class="empty-state">
-                <p>Henüz konu yok</p>
-                <a href="/topluluk/forum/yeni" class="btn-small">İlk Konuyu Aç</a>
+                <p>{t.noTopicsYet}</p>
+                <a href="/topluluk/forum/yeni" class="btn-small">{t.openFirstTopic}</a>
               </div>
             )}
           </div>
@@ -213,9 +395,9 @@ function formatDate(dateStr: string) {
           <div class="card-header">
             <h3>
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-              Öne Çıkan Projeler
+              {t.featuredProjects}
             </h3>
-            <a href="/topluluk/projeler" class="see-all">Tümü →</a>
+            <a href="/topluluk/projeler" class="see-all">{t.viewAll}</a>
           </div>
           <div class="projects-grid">
             {featuredProjects.length > 0 ? featuredProjects.slice(0, 6).map((project, i) => (
@@ -231,8 +413,8 @@ function formatDate(dateStr: string) {
               </a>
             )) : (
               <div class="empty-state full">
-                <p>Henüz proje paylaşılmamış</p>
-                <a href="/topluluk/forum/proje-paylas" class="btn-small">İlk Projeyi Paylaş</a>
+                <p>{t.noProjectsYet}</p>
+                <a href="/topluluk/forum/proje-paylas" class="btn-small">{t.shareFirstProject}</a>
               </div>
             )}
           </div>
@@ -240,23 +422,23 @@ function formatDate(dateStr: string) {
 
         <!-- Community Rules Card -->
         <div class="bento-card rules-card">
-          <h3>📋 Topluluk Kuralları</h3>
+          <h3>{t.communityRules}</h3>
           <ul class="rules-list">
             <li>
               <span class="rule-icon">✓</span>
-              <span>Saygılı ve yapıcı olun</span>
+              <span>{t.rule1}</span>
             </li>
             <li>
               <span class="rule-icon">✓</span>
-              <span>Spam ve reklam yapmayın</span>
+              <span>{t.rule2}</span>
             </li>
             <li>
               <span class="rule-icon">✓</span>
-              <span>Doğru kategori kullanın</span>
+              <span>{t.rule3}</span>
             </li>
             <li>
               <span class="rule-icon">✓</span>
-              <span>Sorularınızı detaylı anlatın</span>
+              <span>{t.rule4}</span>
             </li>
           </ul>
         </div>
@@ -265,8 +447,8 @@ function formatDate(dateStr: string) {
         <a href="https://magaza.3d-labx.com" target="_blank" class="bento-card store-card">
           <div class="store-icon">🛒</div>
           <div class="store-content">
-            <h3>3D-labX Mağaza</h3>
-            <p>3D baskı ürünlerini keşfet!</p>
+            <h3>{t.storeName}</h3>
+            <p>{t.storeDesc}</p>
           </div>
           <div class="store-arrow">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
