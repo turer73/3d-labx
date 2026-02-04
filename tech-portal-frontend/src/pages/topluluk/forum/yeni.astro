@@ -1,14 +1,144 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import Header from "../../../components/Header.astro";
-import { getApiBase } from "../../../lib/api";
+import { getApiBase, getLanguage, type Language } from "../../../lib/api";
 
 export const prerender = false;
 
+const lang = getLanguage(Astro.request);
 const API_BASE = getApiBase(Astro.request);
 
 const url = new URL(Astro.request.url);
 const preselectedCategory = url.searchParams.get("category") || "";
+
+// Çeviriler
+const translations: Record<Language, {
+  pageTitle: string;
+  pageDesc: string;
+  breadcrumbCommunity: string;
+  breadcrumbForum: string;
+  breadcrumbNewTopic: string;
+  title: string;
+  subtitle: string;
+  categoryLabel: string;
+  categoryPlaceholder: string;
+  titleLabel: string;
+  titlePlaceholder: string;
+  contentLabel: string;
+  contentPlaceholder: string;
+  tipsTitle: string;
+  tip1: string;
+  tip2: string;
+  tip3: string;
+  tip4: string;
+  cancelBtn: string;
+  submitBtn: string;
+  loginNotice: string;
+  loginLink: string;
+  toastLogin: string;
+  toastCategory: string;
+  toastTitleMin: string;
+  toastContentMin: string;
+  toastSuccess: string;
+  toastError: string;
+  submitting: string;
+}> = {
+  tr: {
+    pageTitle: "Yeni Konu Aç - Forum | 3D-labX",
+    pageDesc: "3D baskı forumunda yeni bir konu açın",
+    breadcrumbCommunity: "Topluluk",
+    breadcrumbForum: "Forum",
+    breadcrumbNewTopic: "Yeni Konu",
+    title: "Yeni Konu Aç",
+    subtitle: "Toplulukla paylaşmak istediğiniz sorunuzu veya konuyu yazın",
+    categoryLabel: "Kategori",
+    categoryPlaceholder: "Kategori seçin...",
+    titleLabel: "Başlık",
+    titlePlaceholder: "Konunuzun başlığı (en az 5 karakter)",
+    contentLabel: "İçerik",
+    contentPlaceholder: "Konunuzu detaylı bir şekilde açıklayın... (en az 20 karakter)",
+    tipsTitle: "İpuçları:",
+    tip1: "Açık ve anlaşılır bir başlık kullanın",
+    tip2: "Sorununuzu detaylı açıklayın",
+    tip3: "Varsa yazıcı modelinizi ve kullandığınız filamenti belirtin",
+    tip4: "Hata mesajları varsa ekleyin",
+    cancelBtn: "İptal",
+    submitBtn: "Konu Aç",
+    loginNotice: "Konu açmak için",
+    loginLink: "giriş yapmalısınız",
+    toastLogin: "Lütfen giriş yapın",
+    toastCategory: "Lütfen bir kategori seçin",
+    toastTitleMin: "Başlık en az 5 karakter olmalıdır",
+    toastContentMin: "İçerik en az 20 karakter olmalıdır",
+    toastSuccess: "Konu başarıyla oluşturuldu!",
+    toastError: "Bir hata oluştu, lütfen tekrar deneyin",
+    submitting: "Oluşturuluyor..."
+  },
+  en: {
+    pageTitle: "New Topic - Forum | 3D-labX",
+    pageDesc: "Create a new topic in the 3D printing forum",
+    breadcrumbCommunity: "Community",
+    breadcrumbForum: "Forum",
+    breadcrumbNewTopic: "New Topic",
+    title: "Create New Topic",
+    subtitle: "Share your question or topic with the community",
+    categoryLabel: "Category",
+    categoryPlaceholder: "Select a category...",
+    titleLabel: "Title",
+    titlePlaceholder: "Your topic title (minimum 5 characters)",
+    contentLabel: "Content",
+    contentPlaceholder: "Describe your topic in detail... (minimum 20 characters)",
+    tipsTitle: "Tips:",
+    tip1: "Use a clear and descriptive title",
+    tip2: "Explain your issue in detail",
+    tip3: "Mention your printer model and filament if applicable",
+    tip4: "Include any error messages",
+    cancelBtn: "Cancel",
+    submitBtn: "Create Topic",
+    loginNotice: "You must",
+    loginLink: "log in to create a topic",
+    toastLogin: "Please log in",
+    toastCategory: "Please select a category",
+    toastTitleMin: "Title must be at least 5 characters",
+    toastContentMin: "Content must be at least 20 characters",
+    toastSuccess: "Topic created successfully!",
+    toastError: "An error occurred, please try again",
+    submitting: "Creating..."
+  },
+  de: {
+    pageTitle: "Neues Thema - Forum | 3D-labX",
+    pageDesc: "Erstellen Sie ein neues Thema im 3D-Druck-Forum",
+    breadcrumbCommunity: "Community",
+    breadcrumbForum: "Forum",
+    breadcrumbNewTopic: "Neues Thema",
+    title: "Neues Thema erstellen",
+    subtitle: "Teilen Sie Ihre Frage oder Ihr Thema mit der Community",
+    categoryLabel: "Kategorie",
+    categoryPlaceholder: "Kategorie auswählen...",
+    titleLabel: "Titel",
+    titlePlaceholder: "Ihr Thementitel (mindestens 5 Zeichen)",
+    contentLabel: "Inhalt",
+    contentPlaceholder: "Beschreiben Sie Ihr Thema ausführlich... (mindestens 20 Zeichen)",
+    tipsTitle: "Tipps:",
+    tip1: "Verwenden Sie einen klaren und verständlichen Titel",
+    tip2: "Erklären Sie Ihr Problem im Detail",
+    tip3: "Geben Sie Ihr Druckermodell und Filament an, falls zutreffend",
+    tip4: "Fügen Sie Fehlermeldungen hinzu",
+    cancelBtn: "Abbrechen",
+    submitBtn: "Thema erstellen",
+    loginNotice: "Sie müssen sich",
+    loginLink: "anmelden, um ein Thema zu erstellen",
+    toastLogin: "Bitte melden Sie sich an",
+    toastCategory: "Bitte wählen Sie eine Kategorie",
+    toastTitleMin: "Titel muss mindestens 5 Zeichen lang sein",
+    toastContentMin: "Inhalt muss mindestens 20 Zeichen lang sein",
+    toastSuccess: "Thema erfolgreich erstellt!",
+    toastError: "Ein Fehler ist aufgetreten, bitte versuchen Sie es erneut",
+    submitting: "Wird erstellt..."
+  }
+};
+
+const t = translations[lang];
 
 let categories: any[] = [];
 
@@ -23,33 +153,33 @@ try {
 }
 ---
 
-<BaseLayout 
-  title="Yeni Konu Aç - Forum | 3D-labX"
-  description="3D baskı forumunda yeni bir konu açın"
+<BaseLayout
+  title={t.pageTitle}
+  description={t.pageDesc}
 >
   <Header />
 
   <main class="new-thread-page">
     <div class="container">
       <nav class="breadcrumb">
-        <a href="/topluluk">Topluluk</a>
+        <a href="/topluluk">{t.breadcrumbCommunity}</a>
         <span>/</span>
-        <a href="/topluluk/forum">Forum</a>
+        <a href="/topluluk/forum">{t.breadcrumbForum}</a>
         <span>/</span>
-        <span>Yeni Konu</span>
+        <span>{t.breadcrumbNewTopic}</span>
       </nav>
 
       <div class="form-card">
         <div class="form-header">
-          <h1>Yeni Konu Aç</h1>
-          <p>Toplulukla paylaşmak istediğiniz sorunuzu veya konuyu yazın</p>
+          <h1>{t.title}</h1>
+          <p>{t.subtitle}</p>
         </div>
 
         <form id="newThreadForm" class="thread-form">
           <div class="form-group">
-            <label for="category">Kategori</label>
+            <label for="category">{t.categoryLabel}</label>
             <select id="category" name="category" required>
-              <option value="">Kategori seçin...</option>
+              <option value="">{t.categoryPlaceholder}</option>
               {categories.map((cat) => (
                 <option value={cat.id} selected={cat.slug === preselectedCategory}>
                   {cat.icon} {cat.name}
@@ -59,12 +189,12 @@ try {
           </div>
 
           <div class="form-group">
-            <label for="title">Başlık</label>
-            <input 
-              type="text" 
-              id="title" 
-              name="title" 
-              placeholder="Konunuzun başlığı (en az 5 karakter)"
+            <label for="title">{t.titleLabel}</label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              placeholder={t.titlePlaceholder}
               minlength="5"
               maxlength="200"
               required
@@ -73,11 +203,11 @@ try {
           </div>
 
           <div class="form-group">
-            <label for="content">İçerik</label>
-            <textarea 
-              id="content" 
-              name="content" 
-              placeholder="Konunuzu detaylı bir şekilde açıklayın... (en az 20 karakter)"
+            <label for="content">{t.contentLabel}</label>
+            <textarea
+              id="content"
+              name="content"
+              placeholder={t.contentPlaceholder}
               rows="10"
               minlength="20"
               maxlength="10000"
@@ -87,27 +217,27 @@ try {
           </div>
 
           <div class="form-tips">
-            <h4>İpuçları:</h4>
+            <h4>{t.tipsTitle}</h4>
             <ul>
-              <li>Açık ve anlaşılır bir başlık kullanın</li>
-              <li>Sorununuzu detaylı açıklayın</li>
-              <li>Varsa yazıcı modelinizi ve kullandığınız filamenti belirtin</li>
-              <li>Hata mesajları varsa ekleyin</li>
+              <li>{t.tip1}</li>
+              <li>{t.tip2}</li>
+              <li>{t.tip3}</li>
+              <li>{t.tip4}</li>
             </ul>
           </div>
 
           <div class="form-actions">
-            <a href="/topluluk/forum" class="btn btn-secondary">İptal</a>
+            <a href="/topluluk/forum" class="btn btn-secondary">{t.cancelBtn}</a>
             <button type="submit" class="btn btn-primary" id="submitBtn">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-              Konu Aç
+              {t.submitBtn}
             </button>
           </div>
         </form>
 
         <div class="login-notice hidden" id="loginNotice">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
-          <p>Konu açmak için <a href="/auth/giris">giriş yapmalısınız</a>.</p>
+          <p>{t.loginNotice} <a href="/auth/giris">{t.loginLink}</a>.</p>
         </div>
       </div>
     </div>
@@ -330,7 +460,16 @@ try {
   }
 </style>
 
-<script>
+<script define:vars={{
+  toastLogin: t.toastLogin,
+  toastCategory: t.toastCategory,
+  toastTitleMin: t.toastTitleMin,
+  toastContentMin: t.toastContentMin,
+  toastSuccess: t.toastSuccess,
+  toastError: t.toastError,
+  submitting: t.submitting,
+  submitBtnText: t.submitBtn
+}}>
   const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
 
   function getAuthToken() {
@@ -366,33 +505,33 @@ try {
 
     const token = getAuthToken();
     if (!token) {
-      window.showToast('Lütfen <a href="/auth/giris">giriş yapın</a>', 'warning');
+      window.showToast(`${toastLogin} <a href="/auth/giris">→</a>`, 'warning');
       return;
     }
 
-    const categoryId = (document.getElementById('category') as HTMLSelectElement)?.value;
-    const title = (document.getElementById('title') as HTMLInputElement)?.value?.trim();
-    const content = (document.getElementById('content') as HTMLTextAreaElement)?.value?.trim();
+    const categoryId = document.getElementById('category')?.value;
+    const title = document.getElementById('title')?.value?.trim();
+    const content = document.getElementById('content')?.value?.trim();
 
     if (!categoryId) {
-      window.showToast('Lütfen bir kategori seçin', 'warning');
+      window.showToast(toastCategory, 'warning');
       return;
     }
 
     if (!title || title.length < 5) {
-      window.showToast('Başlık en az 5 karakter olmalıdır', 'warning');
+      window.showToast(toastTitleMin, 'warning');
       return;
     }
 
     if (!content || content.length < 20) {
-      window.showToast('İçerik en az 20 karakter olmalıdır', 'warning');
+      window.showToast(toastContentMin, 'warning');
       return;
     }
 
-    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+    const submitBtn = document.getElementById('submitBtn');
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.innerHTML = 'Oluşturuluyor...';
+      submitBtn.innerHTML = submitting;
     }
 
     try {
@@ -412,18 +551,18 @@ try {
       const data = await res.json();
 
       if (res.ok && data.slug) {
-        window.showToast('Konu başarıyla oluşturuldu!', 'success');
+        window.showToast(toastSuccess, 'success');
         window.location.href = `/topluluk/forum/konu/${data.slug}`;
       } else {
-        window.showToast(data.error || 'Bir hata oluştu', 'error');
+        window.showToast(data.error || toastError, 'error');
       }
     } catch (err) {
       console.error('Thread create error:', err);
-      window.showToast('Bir hata oluştu, lütfen tekrar deneyin', 'error');
+      window.showToast(toastError, 'error');
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Konu Aç';
+        submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> ' + submitBtnText;
       }
     }
   });
