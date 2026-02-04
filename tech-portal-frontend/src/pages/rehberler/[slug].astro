@@ -32,15 +32,15 @@ let relatedPosts: any[] = [];
 let fetchError = "";
 
 try {
-  // Ana makaleyi çek
-  const res = await fetch(`${API_BASE}/api/post/${slug}`);
+  // Ana makaleyi çek (dil parametresiyle)
+  const res = await fetch(`${API_BASE}/api/post/${slug}?lang=${lang}`);
   if (res.ok) {
     post = await res.json();
   }
 
-  // İlgili yazıları çek (aynı kategori)
+  // İlgili yazıları çek (aynı kategori, aynı dil)
   if (post) {
-    const relatedRes = await fetch(`${API_BASE}/api/posts?category=${post.category}&limit=4`);
+    const relatedRes = await fetch(`${API_BASE}/api/posts?category=${post.category}&limit=4&lang=${lang}`);
     if (relatedRes.ok) {
       const relatedData = await relatedRes.json();
       // API { posts: [...], pagination: {...} } yapısında dönüyor
@@ -53,14 +53,8 @@ try {
   fetchError = e?.message || "Fetch error";
 }
 
-// Dile göre başlık ve içerik seç
-const getLocalizedField = (field: string) => {
-  if (lang === 'en' && post?.[`${field}_en`]) return post[`${field}_en`];
-  if (lang === 'de' && post?.[`${field}_de`]) return post[`${field}_de`];
-  return post?.[`${field}_tr`] || post?.[field] || '';
-};
-
-const title = getLocalizedField('title') || t.article.notFound;
+// API artık dile göre title, summary, content döndürüyor
+const title = post?.title || t.article.notFound;
 
 // İçerik HTML mi yoksa Markdown mı kontrol et
 function formatContent(content: string): string {
@@ -100,10 +94,10 @@ function calculateReadTime(content: string): number {
   return Math.ceil(words / 200); // 200 kelime/dakika
 }
 
-const localizedContent = getLocalizedField('content');
-const formattedContent = post ? formatContent(localizedContent) : "";
+// API'den gelen content zaten doğru dilde
+const formattedContent = post ? formatContent(post.content || "") : "";
 const headings = extractHeadings(formattedContent);
-const readTime = post ? calculateReadTime(localizedContent || "") : 0;
+const readTime = post ? calculateReadTime(post.content || "") : 0;
 
 // Tarihi formatla (dile göre)
 const formattedDate = post?.created_at
@@ -161,8 +155,8 @@ const catInfo = { name: catData.name[lang], color: catData.color, icon: catData.
               Turer
             </span>
           </div>
-          <h1 class="hero-title">{getLocalizedField('title')}</h1>
-          <p class="hero-summary">{getLocalizedField('summary')}</p>
+          <h1 class="hero-title">{post.title}</h1>
+          <p class="hero-summary">{post.summary}</p>
         </div>
       </section>
 
@@ -264,20 +258,15 @@ const catInfo = { name: catData.name[lang], color: catData.color, icon: catData.
           {relatedPosts.length > 0 && (
             <div class="sidebar-card">
               <h3 class="sidebar-title">📚 {t.article.relatedPosts}</h3>
-              {relatedPosts.map(rp => {
-                const rpTitle = lang === 'en' && rp.title_en ? rp.title_en :
-                               lang === 'de' && rp.title_de ? rp.title_de :
-                               rp.title_tr || rp.title;
-                return (
-                  <a href={`/rehberler/${rp.slug}`} class="related-post">
-                    <div class="related-post-icon">{catInfo.icon}</div>
-                    <div>
-                      <div class="related-post-title">{rpTitle}</div>
-                      <div class="related-post-cat">{catInfo.name}</div>
-                    </div>
-                  </a>
-                );
-              })}
+              {relatedPosts.map(rp => (
+                <a href={`/rehberler/${rp.slug}`} class="related-post">
+                  <div class="related-post-icon">{catInfo.icon}</div>
+                  <div>
+                    <div class="related-post-title">{rp.title}</div>
+                    <div class="related-post-cat">{catInfo.name}</div>
+                  </div>
+                </a>
+              ))}
             </div>
           )}
         </aside>
