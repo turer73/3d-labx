@@ -1,11 +1,28 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
+import { getLanguage, getBaseUrl } from "../../lib/api";
+import { getTranslations, type Language } from "../../lib/translations";
 
-export const prerender = true;
+export const prerender = false;
 
-const title = "Orca Slicer Türkçe Rehber - Kalibrasyon ve Ayarlar | 3D-labX";
-const description = "Orca Slicer için kapsamlı Türkçe rehber. Sıcaklık kulesi, akış oranı, Pressure Advance kalibrasyonu ve tüm ayarların detaylı açıklamaları.";
+const lang = getLanguage(Astro.request) as Language;
+const t = getTranslations(lang);
+const baseUrl = getBaseUrl(lang);
+
+const titles: Record<Language, string> = {
+  tr: "Orca Slicer Türkçe Rehber - Kalibrasyon ve Ayarlar | 3D-labX",
+  en: "Orca Slicer Guide - Calibration and Settings | 3D-labX",
+  de: "Orca Slicer Anleitung - Kalibrierung und Einstellungen | 3D-labX"
+};
+const descriptions: Record<Language, string> = {
+  tr: "Orca Slicer için kapsamlı Türkçe rehber. Sıcaklık kulesi, akış oranı, Pressure Advance kalibrasyonu ve tüm ayarların detaylı açıklamaları.",
+  en: "Comprehensive guide for Orca Slicer. Temperature tower, flow rate, Pressure Advance calibration and detailed explanations of all settings.",
+  de: "Umfassende Anleitung für Orca Slicer. Temperaturturm, Durchflussrate, Pressure Advance Kalibrierung und detaillierte Erklärungen aller Einstellungen."
+};
+
+const title = titles[lang];
+const description = descriptions[lang];
 ---
 
 <BaseLayout title={title} description={description}>
@@ -15,53 +32,53 @@ const description = "Orca Slicer için kapsamlı Türkçe rehber. Sıcaklık kul
   <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "TechArticle",
-    "headline": "Orca Slicer Türkçe Rehber",
+    "headline": `${t.interactiveGuide.orcaSlicer} ${t.interactiveGuide.masterClass}`,
     "description": description,
     "author": { "@type": "Organization", "name": "3D-labX" },
-    "publisher": { "@type": "Organization", "name": "3D-labX", "url": "https://3d-labx.com" },
+    "publisher": { "@type": "Organization", "name": "3D-labX", "url": baseUrl },
     "datePublished": "2026-02-02",
-    "mainEntityOfPage": "https://3d-labx.com/rehberler/orca-slicer-rehberi"
+    "mainEntityOfPage": `${baseUrl}/rehberler/orca-slicer-rehberi`
   })} />
 
   <main class="orca-guide">
     <div class="container">
       <!-- Breadcrumb -->
       <nav class="breadcrumb">
-        <a href="/">Ana Sayfa</a>
+        <a href="/">{t.interactiveGuide.home}</a>
         <span>/</span>
-        <a href="/rehberler">Rehberler</a>
+        <a href="/rehberler">{t.interactiveGuide.guides}</a>
         <span>/</span>
-        <span class="current">Orca Slicer</span>
+        <span class="current">{t.interactiveGuide.orcaSlicer}</span>
       </nav>
 
       <!-- Header -->
       <header class="guide-header">
         <div class="version-badge">
-          <span>Sürüm 1.2</span>
+          <span>{lang === 'tr' ? 'Sürüm 1.2' : lang === 'en' ? 'Version 1.2' : 'Version 1.2'}</span>
           <span class="dot">•</span>
-          <span>Pro Rehber</span>
+          <span>{lang === 'tr' ? 'Pro Rehber' : lang === 'en' ? 'Pro Guide' : 'Pro Anleitung'}</span>
         </div>
-        <h1>Orca Slicer <span class="gradient-text">Türkçe Rehber</span></h1>
-        <p class="header-desc">Bambu Studio tabanlı bu güçlü dilimleyicinin ayarlarını, kalibrasyon süreçlerini ve gizli özelliklerini keşfedin.</p>
+        <h1>{t.interactiveGuide.orcaSlicer} <span class="gradient-text">{t.interactiveGuide.masterClass}</span></h1>
+        <p class="header-desc">{lang === 'tr' ? 'Bambu Studio tabanlı bu güçlü dilimleyicinin ayarlarını, kalibrasyon süreçlerini ve gizli özelliklerini keşfedin.' : lang === 'en' ? 'Discover the settings, calibration processes and hidden features of this powerful Bambu Studio-based slicer.' : 'Entdecken Sie die Einstellungen, Kalibrierungsprozesse und versteckten Funktionen dieses leistungsstarken Bambu Studio-basierten Slicers.'}</p>
       </header>
 
       <!-- Navigation Tabs -->
       <nav class="guide-tabs">
         <button class="tab-btn active" data-tab="dashboard">
           <span class="tab-icon">📊</span>
-          <span>Genel Bakış</span>
+          <span>{lang === 'tr' ? 'Genel Bakış' : lang === 'en' ? 'Overview' : 'Übersicht'}</span>
         </button>
         <button class="tab-btn" data-tab="calibration">
           <span class="tab-icon">🎯</span>
-          <span>Kalibrasyon</span>
+          <span>{lang === 'tr' ? 'Kalibrasyon' : lang === 'en' ? 'Calibration' : 'Kalibrierung'}</span>
         </button>
         <button class="tab-btn" data-tab="settings">
           <span class="tab-icon">⚙️</span>
-          <span>Ayarlar Sözlüğü</span>
+          <span>{lang === 'tr' ? 'Ayarlar Sözlüğü' : lang === 'en' ? 'Settings Dictionary' : 'Einstellungs-Wörterbuch'}</span>
         </button>
         <button class="tab-btn" data-tab="troubleshoot">
           <span class="tab-icon">🔧</span>
-          <span>Sorun Giderme</span>
+          <span>{t.interactiveGuide.troubleshootingCenter.split(' ')[0]}</span>
         </button>
       </nav>
 
@@ -1018,6 +1035,244 @@ const description = "Orca Slicer için kapsamlı Türkçe rehber. Sıcaklık kul
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Language data for JavaScript -->
+<script define:vars={{ lang, orcaI18n: {
+  // Chart labels
+  chartLabels: {
+    calibration: lang === 'tr' ? 'Kalibrasyon' : lang === 'en' ? 'Calibration' : 'Kalibrierung',
+    interface: lang === 'tr' ? 'Arayüz' : lang === 'en' ? 'Interface' : 'Oberfläche',
+    speed: lang === 'tr' ? 'Hız' : lang === 'en' ? 'Speed' : 'Geschwindigkeit',
+    surfaceQuality: lang === 'tr' ? 'Yüzey Kalitesi' : lang === 'en' ? 'Surface Quality' : 'Oberflächenqualität',
+    features: lang === 'tr' ? 'Özellikler' : lang === 'en' ? 'Features' : 'Funktionen',
+    orcaSlicer: 'Orca Slicer',
+    otherSlicers: lang === 'tr' ? 'Diğer Dilimleyiciler' : lang === 'en' ? 'Other Slicers' : 'Andere Slicer'
+  },
+  timeChartLabels: {
+    innerWalls: lang === 'tr' ? 'İç Duvarlar' : lang === 'en' ? 'Inner Walls' : 'Innenwände',
+    outerWall: lang === 'tr' ? 'Dış Duvar' : lang === 'en' ? 'Outer Wall' : 'Außenwand',
+    infill: lang === 'tr' ? 'Dolgu' : lang === 'en' ? 'Infill' : 'Füllung',
+    topBottom: lang === 'tr' ? 'Üst/Alt Katman' : lang === 'en' ? 'Top/Bottom' : 'Oben/Unten',
+    travel: lang === 'tr' ? 'Hareket' : lang === 'en' ? 'Travel' : 'Bewegung'
+  },
+  // Calibration steps
+  calData: [
+    {
+      icon: '🌡️',
+      title: lang === 'tr' ? 'Sıcaklık Kulesi (Temperature Tower)' : lang === 'en' ? 'Temperature Tower' : 'Temperaturturm',
+      desc: lang === 'tr' ? 'Filamentin en iyi yapıştığı ve en pürüzsüz göründüğü sıcaklığı bulur.' :
+            lang === 'en' ? 'Finds the temperature where filament adheres best and looks smoothest.' :
+            'Findet die Temperatur, bei der das Filament am besten haftet und am glattesten aussieht.',
+      steps: lang === 'tr' ? [
+        'Orca Slicer\'da üst menüden <strong>Calibration → Temperature</strong> seçin',
+        'Filament türünüze göre sıcaklık aralığı seçin (PLA: 190-220°C)',
+        'Testi başlatın ve kulenin her katmanını inceleyin',
+        'En pürüzsüz, ipliklenme olmayan katmanın sıcaklığını not edin',
+        'Bu değeri filament profilinize kaydedin'
+      ] : lang === 'en' ? [
+        'Select <strong>Calibration → Temperature</strong> from top menu',
+        'Choose temperature range for your filament (PLA: 190-220°C)',
+        'Start the test and examine each layer of the tower',
+        'Note the temperature of the smoothest layer without stringing',
+        'Save this value to your filament profile'
+      ] : [
+        'Wählen Sie <strong>Calibration → Temperature</strong> aus dem Menü',
+        'Wählen Sie den Temperaturbereich für Ihr Filament (PLA: 190-220°C)',
+        'Starten Sie den Test und untersuchen Sie jede Schicht',
+        'Notieren Sie die Temperatur der glattesten Schicht ohne Fäden',
+        'Speichern Sie diesen Wert in Ihrem Filamentprofil'
+      ],
+      tip: lang === 'tr' ? 'Farklı renkler farklı sıcaklıklar gerektirebilir. Her yeni filament rulosunda test yapın!' :
+           lang === 'en' ? 'Different colors may require different temperatures. Test with each new filament roll!' :
+           'Verschiedene Farben können unterschiedliche Temperaturen erfordern. Testen Sie mit jeder neuen Rolle!'
+    },
+    {
+      icon: '🌊',
+      title: lang === 'tr' ? 'Akış Oranı (Flow Rate)' : lang === 'en' ? 'Flow Rate' : 'Durchflussrate',
+      desc: lang === 'tr' ? 'Boyutsal doğruluk ve üst yüzey kalitesi için en kritik ayardır.' :
+            lang === 'en' ? 'The most critical setting for dimensional accuracy and top surface quality.' :
+            'Die wichtigste Einstellung für Maßgenauigkeit und Oberflächenqualität.',
+      steps: lang === 'tr' ? [
+        '<strong>Calibration → Flow Rate</strong> seçin',
+        'Pass 1 (Kaba ayar) testini başlatın',
+        'En düzgün görünen karenin numarasını not edin',
+        'Pass 2 (Hassas ayar) testini yapın',
+        'Formül: Eski Akış × (100 + Değişim) / 100'
+      ] : lang === 'en' ? [
+        'Select <strong>Calibration → Flow Rate</strong>',
+        'Start Pass 1 (Coarse) test',
+        'Note the number of the smoothest looking square',
+        'Run Pass 2 (Fine) test',
+        'Formula: Old Flow × (100 + Change) / 100'
+      ] : [
+        'Wählen Sie <strong>Calibration → Flow Rate</strong>',
+        'Starten Sie Pass 1 (Grob) Test',
+        'Notieren Sie die Nummer des glattesten Quadrats',
+        'Führen Sie Pass 2 (Fein) Test durch',
+        'Formel: Alter Fluss × (100 + Änderung) / 100'
+      ],
+      tip: lang === 'tr' ? 'Üst yüzeyde boşluk = akış düşük, taşma = akış yüksek.' :
+           lang === 'en' ? 'Gap on top surface = flow too low, overflow = flow too high.' :
+           'Lücke auf Oberfläche = Fluss zu niedrig, Überlauf = Fluss zu hoch.'
+    },
+    {
+      icon: '⚡',
+      title: 'Pressure Advance (PA)',
+      desc: lang === 'tr' ? 'Köşelerin keskinliği ve dikiş izleri (seam) için gereklidir.' :
+            lang === 'en' ? 'Required for corner sharpness and seam quality.' :
+            'Erforderlich für Eckenschärfe und Nahtqualität.',
+      steps: lang === 'tr' ? [
+        '<strong>Calibration → Pressure Advance</strong> seçin',
+        'PA Line veya PA Pattern testini başlatın',
+        'Çizgilerin kalınlığının en stabil olduğu değeri bulun',
+        'Köşelerde taşma veya eksik olmayan değeri seçin',
+        'Değeri filament profiline kaydedin'
+      ] : lang === 'en' ? [
+        'Select <strong>Calibration → Pressure Advance</strong>',
+        'Start PA Line or PA Pattern test',
+        'Find value where line thickness is most stable',
+        'Select value without overflow or gaps at corners',
+        'Save value to filament profile'
+      ] : [
+        'Wählen Sie <strong>Calibration → Pressure Advance</strong>',
+        'Starten Sie PA Line oder PA Pattern Test',
+        'Finden Sie den Wert mit stabilster Liniendicke',
+        'Wählen Sie Wert ohne Überlauf oder Lücken',
+        'Speichern Sie den Wert im Filamentprofil'
+      ],
+      tip: lang === 'tr' ? 'Bowden: 0.4-0.8, Direct Drive: 0.01-0.05' :
+           lang === 'en' ? 'Bowden: 0.4-0.8, Direct Drive: 0.01-0.05' :
+           'Bowden: 0.4-0.8, Direct Drive: 0.01-0.05'
+    },
+    {
+      icon: '🚀',
+      title: lang === 'tr' ? 'Maksimum Hacimsel Hız' : lang === 'en' ? 'Max Volumetric Speed' : 'Max. Volumetrische Geschwindigkeit',
+      desc: lang === 'tr' ? 'Hotend\'in eritebileceği maksimum plastik miktarını belirler.' :
+            lang === 'en' ? 'Determines maximum plastic amount the hotend can melt.' :
+            'Bestimmt die maximale Plastikmenge, die das Hotend schmelzen kann.',
+      steps: lang === 'tr' ? [
+        '<strong>Calibration → Max Volumetric Speed</strong> seçin',
+        'Testi başlatın ve baskıyı izleyin',
+        'Baskının matlaştığı noktayı bulun',
+        'O noktadan önceki mm³/s değerini not edin',
+        'Bu değeri filament profiline girin'
+      ] : lang === 'en' ? [
+        'Select <strong>Calibration → Max Volumetric Speed</strong>',
+        'Start test and watch the print',
+        'Find where print becomes matte',
+        'Note mm³/s value before that point',
+        'Enter this value in filament profile'
+      ] : [
+        'Wählen Sie <strong>Calibration → Max Volumetric Speed</strong>',
+        'Starten Sie Test und beobachten Sie',
+        'Finden Sie wo der Druck matt wird',
+        'Notieren Sie mm³/s Wert vor diesem Punkt',
+        'Geben Sie diesen Wert im Profil ein'
+      ],
+      tip: 'PLA: ~15 mm³/s, PETG: ~12 mm³/s'
+    },
+    {
+      icon: '↩️',
+      title: lang === 'tr' ? 'Retraction (Geri Çekme)' : lang === 'en' ? 'Retraction' : 'Rückzug',
+      desc: lang === 'tr' ? 'İpliklenme (stringing) sorununu çözmek için optimize eder.' :
+            lang === 'en' ? 'Optimizes to solve stringing issues.' :
+            'Optimiert zur Lösung von Fädenziehen.',
+      steps: lang === 'tr' ? [
+        '<strong>Calibration → Retraction Test</strong> seçin',
+        'Mesafe ve hız kombinasyonlarını test edin',
+        'İpliklenme olmayan en düşük değeri bulun',
+        'Direct Drive: 0.5-2mm, Bowden: 3-7mm',
+        'Hız: 25-45 mm/s'
+      ] : lang === 'en' ? [
+        'Select <strong>Calibration → Retraction Test</strong>',
+        'Test distance and speed combinations',
+        'Find lowest value without stringing',
+        'Direct Drive: 0.5-2mm, Bowden: 3-7mm',
+        'Speed: 25-45 mm/s'
+      ] : [
+        'Wählen Sie <strong>Calibration → Retraction Test</strong>',
+        'Testen Sie Entfernung und Geschwindigkeit',
+        'Finden Sie niedrigsten Wert ohne Fäden',
+        'Direct Drive: 0.5-2mm, Bowden: 3-7mm',
+        'Geschwindigkeit: 25-45 mm/s'
+      ],
+      tip: lang === 'tr' ? 'Çok yüksek retraction tıkanmaya neden olabilir.' :
+           lang === 'en' ? 'Too high retraction can cause clogging.' :
+           'Zu hoher Rückzug kann Verstopfung verursachen.'
+    }
+  ],
+  // Troubleshooting solutions
+  solutions: {
+    stringing: {
+      icon: '🕸️',
+      title: lang === 'tr' ? 'İpliklenme (Stringing)' : lang === 'en' ? 'Stringing' : 'Fädenziehen',
+      cause: lang === 'tr' ? 'Sıcaklık çok yüksek veya geri çekme yetersiz. Filament nemli olabilir.' :
+             lang === 'en' ? 'Temperature too high or retraction insufficient. Filament may be wet.' :
+             'Temperatur zu hoch oder Rückzug unzureichend. Filament könnte feucht sein.',
+      fix: lang === 'tr' ? 'Sıcaklığı 5-10°C düşürün. Retraction mesafesini artırın. Filamentin kuru olduğundan emin olun.' :
+           lang === 'en' ? 'Lower temperature by 5-10°C. Increase retraction distance. Ensure filament is dry.' :
+           'Temperatur um 5-10°C senken. Rückzugstrecke erhöhen. Filament muss trocken sein.'
+    },
+    warping: {
+      icon: '📐',
+      title: lang === 'tr' ? 'Köşe Kalkması (Warping)' : lang === 'en' ? 'Warping' : 'Verzug',
+      cause: lang === 'tr' ? 'Tabla soğuk, hava akımı var veya ilk katman yapışması zayıf.' :
+             lang === 'en' ? 'Bed cold, air draft present or poor first layer adhesion.' :
+             'Bett kalt, Zugluft vorhanden oder schlechte erste Schichthaftung.',
+      fix: lang === 'tr' ? 'Tabla sıcaklığını artırın. İlk katman fanını kapatın. Brim ekleyin.' :
+           lang === 'en' ? 'Increase bed temperature. Turn off first layer fan. Add brim.' :
+           'Betttemperatur erhöhen. Ersten Schichtlüfter ausschalten. Brim hinzufügen.'
+    },
+    vfa: {
+      icon: '〰️',
+      title: lang === 'tr' ? 'Yüzeyde Dalgalanma (VFA)' : lang === 'en' ? 'Surface Rippling (VFA)' : 'Oberflächenwellen (VFA)',
+      cause: lang === 'tr' ? 'Mekanik titreşimler veya rezonans.' :
+             lang === 'en' ? 'Mechanical vibrations or resonance.' :
+             'Mechanische Vibrationen oder Resonanz.',
+      fix: lang === 'tr' ? 'Dış duvar hızını 40-60 mm/s yapın. Kayış gerginliğini kontrol edin.' :
+           lang === 'en' ? 'Set outer wall speed to 40-60 mm/s. Check belt tension.' :
+           'Außenwandgeschwindigkeit auf 40-60 mm/s setzen. Riemenspannung prüfen.'
+    },
+    scar: {
+      icon: '🔪',
+      title: lang === 'tr' ? 'Üst Yüzeyde Çizikler' : lang === 'en' ? 'Top Surface Scratches' : 'Kratzer auf Oberfläche',
+      cause: lang === 'tr' ? 'Nozül hareket ederken sürtüyor. Z-hop yetersiz.' :
+             lang === 'en' ? 'Nozzle rubbing while traveling. Z-hop insufficient.' :
+             'Düse reibt beim Fahren. Z-Hop unzureichend.',
+      fix: lang === 'tr' ? 'Z-hop özelliğini açın (0.2-0.4mm). Monotonic infill kullanın.' :
+           lang === 'en' ? 'Enable Z-hop (0.2-0.4mm). Use monotonic infill.' :
+           'Z-Hop aktivieren (0.2-0.4mm). Monotonic Füllung verwenden.'
+    },
+    layer: {
+      icon: '📚',
+      title: lang === 'tr' ? 'Katman Ayrılması' : lang === 'en' ? 'Layer Separation' : 'Schichtablösung',
+      cause: lang === 'tr' ? 'Katmanlar arası yapışma zayıf. Sıcaklık düşük.' :
+             lang === 'en' ? 'Poor inter-layer adhesion. Temperature too low.' :
+             'Schlechte Schichthaftung. Temperatur zu niedrig.',
+      fix: lang === 'tr' ? 'Sıcaklığı 5-10°C artırın. Fan hızını düşürün.' :
+           lang === 'en' ? 'Increase temperature by 5-10°C. Reduce fan speed.' :
+           'Temperatur um 5-10°C erhöhen. Lüftergeschwindigkeit reduzieren.'
+    },
+    blob: {
+      icon: '💧',
+      title: lang === 'tr' ? 'Blob / Zit (Kabarcık)' : lang === 'en' ? 'Blob / Zit' : 'Blob / Pickel',
+      cause: lang === 'tr' ? 'Dikiş noktalarında fazla malzeme birikimi.' :
+             lang === 'en' ? 'Material buildup at seam points.' :
+             'Materialansammlung an Nahtpunkten.',
+      fix: lang === 'tr' ? 'Wipe özelliğini açın. Seam konumunu değiştirin.' :
+           lang === 'en' ? 'Enable wipe feature. Change seam position.' :
+           'Wipe-Funktion aktivieren. Nahtposition ändern.'
+    }
+  },
+  // UI labels
+  howTo: lang === 'tr' ? 'Nasıl Yapılır?' : lang === 'en' ? 'How to do it?' : 'Wie macht man das?',
+  whyHappens: lang === 'tr' ? 'Neden Oluşur?' : lang === 'en' ? 'Why does it happen?' : 'Warum passiert das?',
+  solution: lang === 'tr' ? 'Çözüm' : lang === 'en' ? 'Solution' : 'Lösung',
+  selectProblem: lang === 'tr' ? 'Yukarıdan bir sorun seçin' : lang === 'en' ? 'Select a problem above' : 'Wählen Sie oben ein Problem'
+} }}>
+  window.orcaI18n = orcaI18n;
+</script>
+
 <script>
   // Tab switching
   document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -1037,74 +1292,8 @@ const description = "Orca Slicer için kapsamlı Türkçe rehber. Sıcaklık kul
     });
   });
 
-  // Calibration steps
-  const calData = [
-    {
-      icon: '🌡️',
-      title: 'Sıcaklık Kulesi (Temperature Tower)',
-      desc: 'Filamentin en iyi yapıştığı ve en pürüzsüz göründüğü sıcaklığı bulur.',
-      steps: [
-        'Orca Slicer\'da üst menüden <strong>Calibration → Temperature</strong> seçin',
-        'Filament türünüze göre sıcaklık aralığı seçin (PLA: 190-220°C)',
-        'Testi başlatın ve kulenin her katmanını inceleyin',
-        'En pürüzsüz, ipliklenme olmayan katmanın sıcaklığını not edin',
-        'Bu değeri filament profilinize kaydedin'
-      ],
-      tip: 'Farklı renkler farklı sıcaklıklar gerektirebilir. Her yeni filament rulosunda test yapın!'
-    },
-    {
-      icon: '🌊',
-      title: 'Akış Oranı (Flow Rate)',
-      desc: 'Boyutsal doğruluk ve üst yüzey kalitesi için en kritik ayardır.',
-      steps: [
-        '<strong>Calibration → Flow Rate</strong> seçin',
-        'Pass 1 (Kaba ayar) testini başlatın',
-        'En düzgün görünen karenin numarasını not edin',
-        'Pass 2 (Hassas ayar) testini yapın',
-        'Formül: Eski Akış × (100 + Değişim) / 100'
-      ],
-      tip: 'Üst yüzeyde boşluk = akış düşük, taşma = akış yüksek. Her filament için ayrı kalibre edin.'
-    },
-    {
-      icon: '⚡',
-      title: 'Pressure Advance (PA)',
-      desc: 'Köşelerin keskinliği ve dikiş izleri (seam) için gereklidir.',
-      steps: [
-        '<strong>Calibration → Pressure Advance</strong> seçin',
-        'PA Line veya PA Pattern testini başlatın',
-        'Çizgilerin kalınlığının en stabil olduğu değeri bulun',
-        'Köşelerde taşma veya eksik olmayan değeri seçin',
-        'Değeri filament profiline kaydedin (genellikle 0.02-0.06 arası)'
-      ],
-      tip: 'Bowden sistemlerde PA değeri daha yüksek (0.4-0.8), Direct Drive\'da düşük (0.01-0.05) olur.'
-    },
-    {
-      icon: '🚀',
-      title: 'Maksimum Hacimsel Hız (Max Volumetric Speed)',
-      desc: 'Hotend\'in eritebileceği maksimum plastik miktarını belirler.',
-      steps: [
-        '<strong>Calibration → Max Volumetric Speed</strong> seçin',
-        'Testi başlatın ve baskıyı izleyin',
-        'Baskının matlaştığı veya bozulduğu noktayı bulun',
-        'O noktadan önceki mm³/s değerini not edin',
-        'Bu değeri filament profilinde "Max Volumetric Speed" olarak girin'
-      ],
-      tip: 'Bu değer hız ayarlarını limitler. PLA için ~15 mm³/s, PETG için ~12 mm³/s tipik değerlerdir.'
-    },
-    {
-      icon: '↩️',
-      title: 'Retraction (Geri Çekme)',
-      desc: 'İpliklenme (stringing) sorununu çözmek için optimize eder.',
-      steps: [
-        '<strong>Calibration → Retraction Test</strong> seçin',
-        'Mesafe ve hız kombinasyonlarını test edin',
-        'İpliklenme olmayan en düşük değeri bulun',
-        'Direct Drive: 0.5-2mm, Bowden: 3-7mm tipik değerler',
-        'Hız genellikle 25-45 mm/s arası optimal'
-      ],
-      tip: 'Çok yüksek retraction tıkanmaya neden olabilir. Minimum gerekli değeri kullanın.'
-    }
-  ];
+  // Calibration steps - use i18n data
+  const calData = window.orcaI18n.calData;
 
   document.querySelectorAll('.cal-step-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1123,7 +1312,7 @@ const description = "Orca Slicer için kapsamlı Türkçe rehber. Sıcaklık kul
         </div>
         <p class="detail-desc">${step.desc}</p>
         <div class="detail-steps">
-          <h4>Nasıl Yapılır?</h4>
+          <h4>${window.orcaI18n.howTo}</h4>
           <ol>
             ${step.steps.map(s => `<li>${s}</li>`).join('')}
           </ol>
@@ -1136,45 +1325,8 @@ const description = "Orca Slicer için kapsamlı Türkçe rehber. Sıcaklık kul
     });
   });
 
-  // Troubleshooting solutions
-  const solutions = {
-    stringing: {
-      icon: '🕸️',
-      title: 'İpliklenme (Stringing)',
-      cause: 'Sıcaklık çok yüksek veya geri çekme (retraction) yetersiz. Filament nemli olabilir.',
-      fix: 'Sıcaklığı 5-10°C düşürün. Retraction mesafesini artırın (Direct Drive: 1-2mm, Bowden: 4-6mm). Filamentin nemli olmadığından emin olun - gerekirse kurutucu kullanın.'
-    },
-    warping: {
-      icon: '📐',
-      title: 'Köşe Kalkması (Warping)',
-      cause: 'Tabla soğuk, hava akımı var veya ilk katman yapışması zayıf.',
-      fix: 'Tabla sıcaklığını artırın (PLA: 60°C, PETG: 80°C). İlk katman fanını kapatın. Brim ekleyin. Enclosure kullanın. Tabla yüzeyini temizleyin (IPA).'
-    },
-    vfa: {
-      icon: '〰️',
-      title: 'Yüzeyde Dalgalanma (VFA)',
-      cause: 'Mekanik titreşimler, yanlış hız/ivme ayarları veya rezonans.',
-      fix: 'Dış duvar hızını (Outer Wall Speed) 40-60 mm/s arasına düşürün. Kayış gerginliklerini kontrol edin. Input Shaper kalibrasyonu yapın (Klipper).'
-    },
-    scar: {
-      icon: '🔪',
-      title: 'Üst Yüzeyde Çizikler',
-      cause: 'Nozül hareket ederken baskıya sürtüyor. Z-hop yetersiz.',
-      fix: '"Z-hop when retracting" özelliğini açın (0.2-0.4mm). Monotonic infill kullanın. Over-extrusion varsa akış oranını düşürün.'
-    },
-    layer: {
-      icon: '📚',
-      title: 'Katman Ayrılması (Delamination)',
-      cause: 'Katmanlar arası yapışma zayıf. Sıcaklık düşük veya fan çok yüksek.',
-      fix: 'Baskı sıcaklığını 5-10°C artırın. Fan hızını düşürün (özellikle ilk katmanlarda). Baskı hızını yavaşlatın. Enclosure kullanın (ABS/ASA için şart).'
-    },
-    blob: {
-      icon: '💧',
-      title: 'Blob / Zit (Kabarcık)',
-      cause: 'Dikiş noktalarında fazla malzeme birikimi. Wipe/coasting ayarları yanlış.',
-      fix: '"Wipe while retracting" özelliğini açın. Seam konumunu "Back" veya "Sharpest Corner" yapın. Retraction hızını artırın. Scarf Joint Seam özelliğini deneyin.'
-    }
-  };
+  // Troubleshooting solutions - use i18n data
+  const solutions = window.orcaI18n.solutions;
 
   document.querySelectorAll('.problem-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1194,11 +1346,11 @@ const description = "Orca Slicer için kapsamlı Türkçe rehber. Sıcaklık kul
           </div>
           <div class="solution-grid">
             <div class="cause-box">
-              <h4>Neden Oluşur?</h4>
+              <h4>${window.orcaI18n.whyHappens}</h4>
               <p>${sol.cause}</p>
             </div>
             <div class="fix-box">
-              <h4>Çözüm</h4>
+              <h4>${window.orcaI18n.solution}</h4>
               <p>${sol.fix}</p>
             </div>
           </div>
@@ -1224,15 +1376,15 @@ const description = "Orca Slicer için kapsamlı Türkçe rehber. Sıcaklık kul
       radarChart = new Chart(ctxRadar, {
         type: 'radar',
         data: {
-          labels: ['Kalibrasyon', 'Arayüz', 'Hız', 'Yüzey Kalitesi', 'Özellikler'],
+          labels: [window.orcaI18n.chartLabels.calibration, window.orcaI18n.chartLabels.interface, window.orcaI18n.chartLabels.speed, window.orcaI18n.chartLabels.surfaceQuality, window.orcaI18n.chartLabels.features],
           datasets: [{
-            label: 'Orca Slicer',
+            label: window.orcaI18n.chartLabels.orcaSlicer,
             data: [10, 8, 9, 10, 9],
             backgroundColor: 'rgba(16, 185, 129, 0.2)',
             borderColor: '#10b981',
             pointBackgroundColor: '#10b981'
           }, {
-            label: 'Diğer Dilimleyiciler',
+            label: window.orcaI18n.chartLabels.otherSlicers,
             data: [5, 7, 7, 7, 6],
             backgroundColor: 'rgba(148, 163, 184, 0.2)',
             borderColor: '#94a3b8',
@@ -1268,7 +1420,7 @@ const description = "Orca Slicer için kapsamlı Türkçe rehber. Sıcaklık kul
       timeChart = new Chart(ctxTime, {
         type: 'doughnut',
         data: {
-          labels: ['İç Duvarlar', 'Dış Duvar', 'Dolgu', 'Üst/Alt Katman', 'Hareket'],
+          labels: [window.orcaI18n.timeChartLabels.innerWalls, window.orcaI18n.timeChartLabels.outerWall, window.orcaI18n.timeChartLabels.infill, window.orcaI18n.timeChartLabels.topBottom, window.orcaI18n.timeChartLabels.travel],
           datasets: [{
             data: [35, 25, 20, 15, 5],
             backgroundColor: ['#059669', '#10b981', '#34d399', '#6ee7b7', '#94a3b8'],

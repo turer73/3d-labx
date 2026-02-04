@@ -144,6 +144,132 @@ export const translations: Record<Language, {
     slicerQuestion: string;
     other: string;
   };
+  // Article page
+  article: {
+    notFound: string;
+    notFoundDesc: string;
+    backToList: string;
+    backToGuides: string;
+    backToNews: string;
+    backToReviews: string;
+    minRead: string;
+    tableOfContents: string;
+    share: string;
+    relatedPosts: string;
+    comments: string;
+    loginToComment: string;
+    login: string;
+    writeComment: string;
+    send: string;
+    sending: string;
+    commentSent: string;
+    commentFailed: string;
+    connectionError: string;
+    commentsLoading: string;
+    commentsLoadFailed: string;
+    noComments: string;
+    beFirstComment: string;
+    copyLink: string;
+    shareOnX: string;
+    shareOnLinkedIn: string;
+    category3dPrinting: string;
+    categoryGuide: string;
+    categoryReview: string;
+    categoryTroubleshooting: string;
+    categoryArticle: string;
+  };
+  // Interactive Guides (Cura, Orca, Bambu, PrusaSlicer)
+  interactiveGuide: {
+    // Common
+    home: string;
+    guides: string;
+    backToGuides: string;
+    versionBadge: string;
+    // Tabs
+    tab1FlowQuality: string;
+    tab2StructuralMechanics: string;
+    tab3MaterialTroubleshooting: string;
+    // Tab 1: Flow & Quality
+    fluidDynamics: string;
+    fluidDynamicsDesc: string;
+    nozzleDiameter: string;
+    printSpeed: string;
+    layerHeight: string;
+    detail: string;
+    speed: string;
+    lineWidth: string;
+    volumetricFlow: string;
+    flowSafe: string;
+    flowHigh: string;
+    flowCritical: string;
+    zOffsetSimulation: string;
+    balanced: string;
+    highResolution: string;
+    fastCoarse: string;
+    far: string;
+    near: string;
+    offset: string;
+    // Tab 1 Tips
+    firstLayerTip: string;
+    firstLayerTipDesc: string;
+    goldenRuleTip: string;
+    goldenRuleTipDesc: string;
+    flowLimitTip: string;
+    flowLimitTipDesc: string;
+    // Tab 2: Structural Mechanics
+    structuralMechanics: string;
+    structuralMechanicsDesc: string;
+    wallCount: string;
+    wallNote: string;
+    infillDensity: string;
+    empty: string;
+    solid: string;
+    patternGeometry: string;
+    patternGrid: string;
+    patternTriangles: string;
+    patternGyroid: string;
+    estimatedLoadCapacity: string;
+    materialCost: string;
+    costLow: string;
+    costMedium: string;
+    costHigh: string;
+    crossSectionAnalysis: string;
+    // Tab 2 Tips
+    functionalPartsTip: string;
+    functionalPartsTipDesc: string;
+    decorativePartsTip: string;
+    decorativePartsTipDesc: string;
+    gyroidAdvantageTip: string;
+    gyroidAdvantageTipDesc: string;
+    // Tab 3: Material & Troubleshooting
+    thermalAdhesionAnalysis: string;
+    thermalAdhesionDesc: string;
+    fanSpeed: string;
+    fanSpeedPLA: string;
+    troubleshootingCenter: string;
+    troubleshootingCenterDesc: string;
+    selectProblem: string;
+    stringing: string;
+    blobs: string;
+    underExtrusion: string;
+    warping: string;
+    elephantFoot: string;
+    layerSeparation: string;
+    solutionPlaceholder: string;
+    // Tab 3 Tips
+    plaSettingsTip: string;
+    plaSettingsTipDesc: string;
+    petgSettingsTip: string;
+    petgSettingsTipDesc: string;
+    absSettingsTip: string;
+    absSettingsTipDesc: string;
+    // Slicer names
+    curaSlicer: string;
+    orcaSlicer: string;
+    bambuSlicer: string;
+    prusaSlicer: string;
+    masterClass: string;
+  };
 }> = {
   tr: {
     nav: {
@@ -277,6 +403,132 @@ export const translations: Record<Language, {
       printerBrandQuestion: "En çok kullandığınız 3D yazıcı markası?",
       slicerQuestion: "Hangi Slicer Kullanıyorsunuz?",
       other: "Diğer"
+    },
+    // Article page
+    article: {
+      notFound: "İçerik Bulunamadı",
+      notFoundDesc: "Aradığınız içerik bulunamadı veya kaldırılmış olabilir.",
+      backToList: "Tüm Sorun Çözümleri",
+      backToGuides: "Tüm Rehberler",
+      backToNews: "Tüm Haberler",
+      backToReviews: "Tüm İncelemeler",
+      minRead: "dk okuma",
+      tableOfContents: "İçindekiler",
+      share: "Paylaş",
+      relatedPosts: "İlgili Yazılar",
+      comments: "Yorumlar",
+      loginToComment: "Yorum yapmak için giriş yapmalısınız",
+      login: "Giriş Yap",
+      writeComment: "Düşüncelerinizi paylaşın...",
+      send: "Gönder",
+      sending: "Gönderiliyor...",
+      commentSent: "Yorumunuz gönderildi!",
+      commentFailed: "Yorum gönderilemedi",
+      connectionError: "Bağlantı hatası",
+      commentsLoading: "Yorumlar yükleniyor...",
+      commentsLoadFailed: "Yorumlar yüklenemedi",
+      noComments: "Henüz yorum yok",
+      beFirstComment: "İlk yorumu siz yazın!",
+      copyLink: "Linki Kopyala",
+      shareOnX: "X'te Paylaş",
+      shareOnLinkedIn: "LinkedIn'de Paylaş",
+      category3dPrinting: "3D Baskı",
+      categoryGuide: "Rehber",
+      categoryReview: "İnceleme",
+      categoryTroubleshooting: "Sorun Çözümü",
+      categoryArticle: "Makale"
+    },
+    // Interactive Guides
+    interactiveGuide: {
+      // Common
+      home: "Ana Sayfa",
+      guides: "Rehberler",
+      backToGuides: "← Rehberlere Dön",
+      versionBadge: "v5.x İnteraktif Rehber",
+      // Tabs
+      tab1FlowQuality: "1. Akış & Kalite",
+      tab2StructuralMechanics: "2. Yapısal Mekanik",
+      tab3MaterialTroubleshooting: "3. Malzeme & Hata",
+      // Tab 1: Flow & Quality
+      fluidDynamics: "Akışkan Dinamikleri",
+      fluidDynamicsDesc: "Nozul, hız ve katman yüksekliği nasıl etkileşir",
+      nozzleDiameter: "Nozul Çapı",
+      printSpeed: "Baskı Hızı",
+      layerHeight: "Katman Yüksekliği",
+      detail: "Detay",
+      speed: "Hız",
+      lineWidth: "Çizgi Genişliği",
+      volumetricFlow: "Hacimsel Akış",
+      flowSafe: "Güvenli",
+      flowHigh: "Yüksek",
+      flowCritical: "Kritik!",
+      zOffsetSimulation: "Z-Offset Simülasyonu",
+      balanced: "Dengeli",
+      highResolution: "Yüksek Çözünürlük",
+      fastCoarse: "Hızlı & Kaba",
+      far: "Uzak",
+      near: "Yakın",
+      offset: "Offset",
+      // Tab 1 Tips
+      firstLayerTip: "İlk Katman İpucu",
+      firstLayerTipDesc: "İlk katman yüksekliğini normal katmanın %120-150'si olarak ayarlayın",
+      goldenRuleTip: "Altın Kural",
+      goldenRuleTipDesc: "Katman yüksekliği nozul çapının %25-75'i arasında olmalı",
+      flowLimitTip: "Akış Limiti",
+      flowLimitTipDesc: "Çoğu hotend 15mm³/s üzerinde zorlanır",
+      // Tab 2: Structural Mechanics
+      structuralMechanics: "Yapısal Mekanik",
+      structuralMechanicsDesc: "Duvar sayısı ve dolgu parça dayanıklılığını nasıl etkiler",
+      wallCount: "Duvar Sayısı",
+      wallNote: "Not: 3+ duvar fonksiyonel parçalar için önerilir",
+      infillDensity: "Dolgu Yoğunluğu",
+      empty: "Boş",
+      solid: "Dolu",
+      patternGeometry: "Desen Geometrisi",
+      patternGrid: "Grid - Hızlı, iyi XY dayanıklılık",
+      patternTriangles: "Üçgenler - Çok yönlü dayanıklılık",
+      patternGyroid: "Gyroid - En iyi ağırlık/dayanım oranı",
+      estimatedLoadCapacity: "Tahmini Yük Kapasitesi",
+      materialCost: "Malzeme Maliyeti",
+      costLow: "Düşük",
+      costMedium: "Orta",
+      costHigh: "Yüksek",
+      crossSectionAnalysis: "Kesit Analizi",
+      // Tab 2 Tips
+      functionalPartsTip: "Fonksiyonel Parçalar",
+      functionalPartsTipDesc: "Mekanik parçalar için 3-4 duvar ve %40+ dolgu",
+      decorativePartsTip: "Dekoratif Parçalar",
+      decorativePartsTipDesc: "Vazo ve dekor için 2 duvar ve %10-20 dolgu yeterli",
+      gyroidAdvantageTip: "Gyroid Avantajı",
+      gyroidAdvantageTipDesc: "Gyroid eşit dayanıklılık için %15 daha az malzeme kullanır",
+      // Tab 3: Material & Troubleshooting
+      thermalAdhesionAnalysis: "Termal & Yapışma Analizi",
+      thermalAdhesionDesc: "Fan hızının baskı kalitesine etkisi",
+      fanSpeed: "Fan Hızı",
+      fanSpeedPLA: "PLA için ideal: %100",
+      troubleshootingCenter: "Sorun Giderme Merkezi",
+      troubleshootingCenterDesc: "Probleminizi seçin, çözümü öğrenin",
+      selectProblem: "Bir sorun seçin...",
+      stringing: "İpliklenme (Stringing)",
+      blobs: "Lekeler / Bloblar",
+      underExtrusion: "Yetersiz Ekstrüzyon",
+      warping: "Köşe Kalkması (Warping)",
+      elephantFoot: "Fil Ayağı",
+      layerSeparation: "Katman Ayrılması",
+      solutionPlaceholder: "Çözümü görmek için yukarıdan bir sorun seçin",
+      // Tab 3 Tips
+      plaSettingsTip: "PLA Ayarları",
+      plaSettingsTipDesc: "200-210°C nozul, 60°C tabla, %100 fan",
+      petgSettingsTip: "PETG Ayarları",
+      petgSettingsTipDesc: "230-250°C nozul, 80°C tabla, %50 fan",
+      absSettingsTip: "ABS Ayarları",
+      absSettingsTipDesc: "240-260°C nozul, 100°C tabla, kapalı ortam",
+      // Slicer names
+      curaSlicer: "Cura Slicer",
+      orcaSlicer: "Orca Slicer",
+      bambuSlicer: "Bambu Studio",
+      prusaSlicer: "PrusaSlicer",
+      masterClass: "Master Class"
     }
   },
   en: {
@@ -411,6 +663,132 @@ export const translations: Record<Language, {
       printerBrandQuestion: "Which 3D printer brand do you use the most?",
       slicerQuestion: "Which Slicer do you use?",
       other: "Other"
+    },
+    // Article page
+    article: {
+      notFound: "Content Not Found",
+      notFoundDesc: "The content you are looking for could not be found or may have been removed.",
+      backToList: "All Troubleshooting",
+      backToGuides: "All Guides",
+      backToNews: "All News",
+      backToReviews: "All Reviews",
+      minRead: "min read",
+      tableOfContents: "Table of Contents",
+      share: "Share",
+      relatedPosts: "Related Posts",
+      comments: "Comments",
+      loginToComment: "You must log in to comment",
+      login: "Log In",
+      writeComment: "Share your thoughts...",
+      send: "Send",
+      sending: "Sending...",
+      commentSent: "Your comment has been sent!",
+      commentFailed: "Failed to send comment",
+      connectionError: "Connection error",
+      commentsLoading: "Loading comments...",
+      commentsLoadFailed: "Failed to load comments",
+      noComments: "No comments yet",
+      beFirstComment: "Be the first to comment!",
+      copyLink: "Copy Link",
+      shareOnX: "Share on X",
+      shareOnLinkedIn: "Share on LinkedIn",
+      category3dPrinting: "3D Printing",
+      categoryGuide: "Guide",
+      categoryReview: "Review",
+      categoryTroubleshooting: "Troubleshooting",
+      categoryArticle: "Article"
+    },
+    // Interactive Guides
+    interactiveGuide: {
+      // Common
+      home: "Home",
+      guides: "Guides",
+      backToGuides: "← Back to Guides",
+      versionBadge: "v5.x Interactive Guide",
+      // Tabs
+      tab1FlowQuality: "1. Flow & Quality",
+      tab2StructuralMechanics: "2. Structural Mechanics",
+      tab3MaterialTroubleshooting: "3. Material & Troubleshooting",
+      // Tab 1: Flow & Quality
+      fluidDynamics: "Fluid Dynamics",
+      fluidDynamicsDesc: "How nozzle, speed and layer height interact",
+      nozzleDiameter: "Nozzle Diameter",
+      printSpeed: "Print Speed",
+      layerHeight: "Layer Height",
+      detail: "Detail",
+      speed: "Speed",
+      lineWidth: "Line Width",
+      volumetricFlow: "Volumetric Flow",
+      flowSafe: "Safe",
+      flowHigh: "High",
+      flowCritical: "Critical!",
+      zOffsetSimulation: "Z-Offset Simulation",
+      balanced: "Balanced",
+      highResolution: "High Resolution",
+      fastCoarse: "Fast & Coarse",
+      far: "Far",
+      near: "Near",
+      offset: "Offset",
+      // Tab 1 Tips
+      firstLayerTip: "First Layer Tip",
+      firstLayerTipDesc: "Set first layer height to 120-150% of normal layer height",
+      goldenRuleTip: "Golden Rule",
+      goldenRuleTipDesc: "Layer height should be 25-75% of nozzle diameter",
+      flowLimitTip: "Flow Limit",
+      flowLimitTipDesc: "Most hotends struggle above 15mm³/s",
+      // Tab 2: Structural Mechanics
+      structuralMechanics: "Structural Mechanics",
+      structuralMechanicsDesc: "How wall count and infill affect part strength",
+      wallCount: "Wall Count",
+      wallNote: "Note: 3+ walls recommended for functional parts",
+      infillDensity: "Infill Density",
+      empty: "Empty",
+      solid: "Solid",
+      patternGeometry: "Pattern Geometry",
+      patternGrid: "Grid - Fast, good XY strength",
+      patternTriangles: "Triangles - Multi-directional strength",
+      patternGyroid: "Gyroid - Best strength-to-weight ratio",
+      estimatedLoadCapacity: "Estimated Load Capacity",
+      materialCost: "Material Cost",
+      costLow: "Low",
+      costMedium: "Medium",
+      costHigh: "High",
+      crossSectionAnalysis: "Cross Section Analysis",
+      // Tab 2 Tips
+      functionalPartsTip: "Functional Parts",
+      functionalPartsTipDesc: "For mechanical parts use 3-4 walls and 40%+ infill",
+      decorativePartsTip: "Decorative Parts",
+      decorativePartsTipDesc: "For vases and decor, 2 walls and 10-20% infill is enough",
+      gyroidAdvantageTip: "Gyroid Advantage",
+      gyroidAdvantageTipDesc: "Gyroid uses 15% less material for equal strength",
+      // Tab 3: Material & Troubleshooting
+      thermalAdhesionAnalysis: "Thermal & Adhesion Analysis",
+      thermalAdhesionDesc: "How fan speed affects print quality",
+      fanSpeed: "Fan Speed",
+      fanSpeedPLA: "Ideal for PLA: 100%",
+      troubleshootingCenter: "Troubleshooting Center",
+      troubleshootingCenterDesc: "Select your problem, learn the solution",
+      selectProblem: "Select a problem...",
+      stringing: "Stringing",
+      blobs: "Blobs / Zits",
+      underExtrusion: "Under Extrusion",
+      warping: "Warping",
+      elephantFoot: "Elephant Foot",
+      layerSeparation: "Layer Separation",
+      solutionPlaceholder: "Select a problem above to see the solution",
+      // Tab 3 Tips
+      plaSettingsTip: "PLA Settings",
+      plaSettingsTipDesc: "200-210°C nozzle, 60°C bed, 100% fan",
+      petgSettingsTip: "PETG Settings",
+      petgSettingsTipDesc: "230-250°C nozzle, 80°C bed, 50% fan",
+      absSettingsTip: "ABS Settings",
+      absSettingsTipDesc: "240-260°C nozzle, 100°C bed, enclosed",
+      // Slicer names
+      curaSlicer: "Cura Slicer",
+      orcaSlicer: "Orca Slicer",
+      bambuSlicer: "Bambu Studio",
+      prusaSlicer: "PrusaSlicer",
+      masterClass: "Master Class"
     }
   },
   de: {
@@ -545,6 +923,132 @@ export const translations: Record<Language, {
       printerBrandQuestion: "Welche 3D-Drucker-Marke verwenden Sie am häufigsten?",
       slicerQuestion: "Welchen Slicer verwenden Sie?",
       other: "Andere"
+    },
+    // Article page
+    article: {
+      notFound: "Inhalt nicht gefunden",
+      notFoundDesc: "Der gesuchte Inhalt konnte nicht gefunden werden oder wurde möglicherweise entfernt.",
+      backToList: "Alle Fehlerbehebungen",
+      backToGuides: "Alle Anleitungen",
+      backToNews: "Alle Nachrichten",
+      backToReviews: "Alle Bewertungen",
+      minRead: "Min. Lesezeit",
+      tableOfContents: "Inhaltsverzeichnis",
+      share: "Teilen",
+      relatedPosts: "Verwandte Beiträge",
+      comments: "Kommentare",
+      loginToComment: "Sie müssen sich anmelden, um zu kommentieren",
+      login: "Anmelden",
+      writeComment: "Teilen Sie Ihre Gedanken...",
+      send: "Senden",
+      sending: "Wird gesendet...",
+      commentSent: "Ihr Kommentar wurde gesendet!",
+      commentFailed: "Kommentar konnte nicht gesendet werden",
+      connectionError: "Verbindungsfehler",
+      commentsLoading: "Kommentare werden geladen...",
+      commentsLoadFailed: "Kommentare konnten nicht geladen werden",
+      noComments: "Noch keine Kommentare",
+      beFirstComment: "Schreiben Sie den ersten Kommentar!",
+      copyLink: "Link kopieren",
+      shareOnX: "Auf X teilen",
+      shareOnLinkedIn: "Auf LinkedIn teilen",
+      category3dPrinting: "3D-Druck",
+      categoryGuide: "Anleitung",
+      categoryReview: "Bewertung",
+      categoryTroubleshooting: "Fehlerbehebung",
+      categoryArticle: "Artikel"
+    },
+    // Interactive Guides
+    interactiveGuide: {
+      // Common
+      home: "Startseite",
+      guides: "Anleitungen",
+      backToGuides: "← Zurück zu Anleitungen",
+      versionBadge: "v5.x Interaktive Anleitung",
+      // Tabs
+      tab1FlowQuality: "1. Fluss & Qualität",
+      tab2StructuralMechanics: "2. Strukturmechanik",
+      tab3MaterialTroubleshooting: "3. Material & Fehlerbehebung",
+      // Tab 1: Flow & Quality
+      fluidDynamics: "Strömungsdynamik",
+      fluidDynamicsDesc: "Wie Düse, Geschwindigkeit und Schichthöhe zusammenwirken",
+      nozzleDiameter: "Düsendurchmesser",
+      printSpeed: "Druckgeschwindigkeit",
+      layerHeight: "Schichthöhe",
+      detail: "Detail",
+      speed: "Geschwindigkeit",
+      lineWidth: "Linienbreite",
+      volumetricFlow: "Volumetrischer Fluss",
+      flowSafe: "Sicher",
+      flowHigh: "Hoch",
+      flowCritical: "Kritisch!",
+      zOffsetSimulation: "Z-Offset Simulation",
+      balanced: "Ausgewogen",
+      highResolution: "Hohe Auflösung",
+      fastCoarse: "Schnell & Grob",
+      far: "Fern",
+      near: "Nah",
+      offset: "Offset",
+      // Tab 1 Tips
+      firstLayerTip: "Erste-Schicht-Tipp",
+      firstLayerTipDesc: "Erste Schichthöhe auf 120-150% der normalen Schichthöhe einstellen",
+      goldenRuleTip: "Goldene Regel",
+      goldenRuleTipDesc: "Schichthöhe sollte 25-75% des Düsendurchmessers betragen",
+      flowLimitTip: "Flusslimit",
+      flowLimitTipDesc: "Die meisten Hotends haben Probleme über 15mm³/s",
+      // Tab 2: Structural Mechanics
+      structuralMechanics: "Strukturmechanik",
+      structuralMechanicsDesc: "Wie Wandanzahl und Füllung die Teilefestigkeit beeinflussen",
+      wallCount: "Wandanzahl",
+      wallNote: "Hinweis: 3+ Wände für funktionale Teile empfohlen",
+      infillDensity: "Füllungsdichte",
+      empty: "Leer",
+      solid: "Voll",
+      patternGeometry: "Mustergeometrie",
+      patternGrid: "Gitter - Schnell, gute XY-Festigkeit",
+      patternTriangles: "Dreiecke - Multidirektionale Festigkeit",
+      patternGyroid: "Gyroid - Bestes Festigkeit-Gewicht-Verhältnis",
+      estimatedLoadCapacity: "Geschätzte Tragfähigkeit",
+      materialCost: "Materialkosten",
+      costLow: "Niedrig",
+      costMedium: "Mittel",
+      costHigh: "Hoch",
+      crossSectionAnalysis: "Querschnittsanalyse",
+      // Tab 2 Tips
+      functionalPartsTip: "Funktionsteile",
+      functionalPartsTipDesc: "Für mechanische Teile 3-4 Wände und 40%+ Füllung",
+      decorativePartsTip: "Dekorative Teile",
+      decorativePartsTipDesc: "Für Vasen und Deko reichen 2 Wände und 10-20% Füllung",
+      gyroidAdvantageTip: "Gyroid Vorteil",
+      gyroidAdvantageTipDesc: "Gyroid verwendet 15% weniger Material bei gleicher Festigkeit",
+      // Tab 3: Material & Troubleshooting
+      thermalAdhesionAnalysis: "Thermische & Haftungsanalyse",
+      thermalAdhesionDesc: "Wie die Lüftergeschwindigkeit die Druckqualität beeinflusst",
+      fanSpeed: "Lüftergeschwindigkeit",
+      fanSpeedPLA: "Ideal für PLA: 100%",
+      troubleshootingCenter: "Fehlerbehebungszentrum",
+      troubleshootingCenterDesc: "Wählen Sie Ihr Problem, lernen Sie die Lösung",
+      selectProblem: "Problem auswählen...",
+      stringing: "Fädenziehen (Stringing)",
+      blobs: "Kleckse / Pickel",
+      underExtrusion: "Unterextrusion",
+      warping: "Verzug (Warping)",
+      elephantFoot: "Elefantenfuß",
+      layerSeparation: "Schichtablösung",
+      solutionPlaceholder: "Wählen Sie oben ein Problem, um die Lösung zu sehen",
+      // Tab 3 Tips
+      plaSettingsTip: "PLA Einstellungen",
+      plaSettingsTipDesc: "200-210°C Düse, 60°C Bett, 100% Lüfter",
+      petgSettingsTip: "PETG Einstellungen",
+      petgSettingsTipDesc: "230-250°C Düse, 80°C Bett, 50% Lüfter",
+      absSettingsTip: "ABS Einstellungen",
+      absSettingsTipDesc: "240-260°C Düse, 100°C Bett, geschlossener Raum",
+      // Slicer names
+      curaSlicer: "Cura Slicer",
+      orcaSlicer: "Orca Slicer",
+      bambuSlicer: "Bambu Studio",
+      prusaSlicer: "PrusaSlicer",
+      masterClass: "Master Class"
     }
   }
 };

@@ -1,11 +1,131 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
+import { getLanguage } from "../../lib/api";
+import { getTranslations, type Language } from "../../lib/translations";
 
-export const prerender = true;
+export const prerender = false;
 
-const title = "Bambu Lab Slicer Türkçe Rehber - Profesyonel Ayarlar | 3D-labX";
-const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S, A1 serisi için filament profilleri, kalibrasyon, volumetric flow ve sorun giderme.";
+const lang = Astro.locals?.lang || getLanguage(Astro.request);
+const t = getTranslations(lang);
+
+// Page titles and descriptions by language
+const pageMeta = {
+  tr: {
+    title: "Bambu Lab Slicer Türkçe Rehber - Profesyonel Ayarlar | 3D-labX",
+    description: "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S, A1 serisi için filament profilleri, kalibrasyon, volumetric flow ve sorun giderme."
+  },
+  en: {
+    title: "Bambu Lab Slicer Guide - Professional Settings | 3D-labX",
+    description: "Comprehensive Bambu Studio guide. Filament profiles, calibration, volumetric flow and troubleshooting for X1C, P1P, P1S, A1 series."
+  },
+  de: {
+    title: "Bambu Lab Slicer Anleitung - Professionelle Einstellungen | 3D-labX",
+    description: "Umfassende Bambu Studio Anleitung. Filament-Profile, Kalibrierung, volumetrischer Fluss und Fehlerbehebung für X1C, P1P, P1S, A1 Serie."
+  }
+};
+
+const title = pageMeta[lang].title;
+const description = pageMeta[lang].description;
+
+// UI Texts by language
+const ui = {
+  tr: {
+    home: "Ana Sayfa",
+    guides: "Rehberler",
+    current: "Bambu Lab",
+    badge1: "Studio 1.10",
+    badge2: "Pro Rehber",
+    headerTitle: "Bambu Lab",
+    headerGradient: "Türkçe Rehber",
+    headerDesc: "X1C, P1P, P1S ve A1 serisi yazıcılar için Bambu Studio ayarları, filament profilleri ve kalibrasyon süreçlerini keşfedin.",
+    tabDashboard: "Genel Bakış",
+    tabFilaments: "Filamentler",
+    tabCalibration: "Kalibrasyon",
+    tabTroubleshoot: "Sorun Giderme",
+    ecosystemTitle: "Bambu Ekosistemi Avantajları",
+    ecosystemDesc: "Diğer sistemlere göre performans karşılaştırması.",
+    printTimeTitle: "Baskı Süresi Dağılımı",
+    printTimeDesc: "Optimize etmek için nereye odaklanmalısınız?",
+    speedRecord: "Hız Rekoru",
+    speedRecordDesc: "Bambu Lab X1C, 500mm/s hıza ulaşabilen dünyanın en hızlı CoreXY FDM yazıcısıdır. Flow Dynamics kalibrasyonu ile maksimum verim alın.",
+    amsTip: "AMS İpucu",
+    amsTipDesc: "AMS ile TPU ve esnek filamentler KULLANILMAZ. Direkt olarak yazıcı kafasına takılmalıdır. PTFE tüp içinden geçirmeyin.",
+    printerComparison: "Bambu Lab Yazıcı Karşılaştırması",
+    feature: "Özellik",
+    maxSpeed: "Max Hız",
+    enclosure: "Kapalı Kabin",
+    hardenedNozzle: "Hardened Nozzle",
+    maxBedTemp: "Max Tabla Sıcaklığı",
+    filamentTypes: "Filament Türleri",
+    calibrationSteps: "Kalibrasyon Adımları",
+    selectProblem: "Yukarıdan bir sorun seçin"
+  },
+  en: {
+    home: "Home",
+    guides: "Guides",
+    current: "Bambu Lab",
+    badge1: "Studio 1.10",
+    badge2: "Pro Guide",
+    headerTitle: "Bambu Lab",
+    headerGradient: "Complete Guide",
+    headerDesc: "Discover Bambu Studio settings, filament profiles and calibration processes for X1C, P1P, P1S and A1 series printers.",
+    tabDashboard: "Overview",
+    tabFilaments: "Filaments",
+    tabCalibration: "Calibration",
+    tabTroubleshoot: "Troubleshooting",
+    ecosystemTitle: "Bambu Ecosystem Advantages",
+    ecosystemDesc: "Performance comparison with other systems.",
+    printTimeTitle: "Print Time Distribution",
+    printTimeDesc: "Where should you focus to optimize?",
+    speedRecord: "Speed Record",
+    speedRecordDesc: "Bambu Lab X1C is the world's fastest CoreXY FDM printer capable of 500mm/s. Get maximum efficiency with Flow Dynamics calibration.",
+    amsTip: "AMS Tip",
+    amsTipDesc: "TPU and flexible filaments should NOT be used with AMS. Must be loaded directly to the print head. Do not pass through PTFE tube.",
+    printerComparison: "Bambu Lab Printer Comparison",
+    feature: "Feature",
+    maxSpeed: "Max Speed",
+    enclosure: "Enclosure",
+    hardenedNozzle: "Hardened Nozzle",
+    maxBedTemp: "Max Bed Temp",
+    filamentTypes: "Filament Types",
+    calibrationSteps: "Calibration Steps",
+    selectProblem: "Select a problem above"
+  },
+  de: {
+    home: "Startseite",
+    guides: "Anleitungen",
+    current: "Bambu Lab",
+    badge1: "Studio 1.10",
+    badge2: "Pro Anleitung",
+    headerTitle: "Bambu Lab",
+    headerGradient: "Komplette Anleitung",
+    headerDesc: "Entdecken Sie Bambu Studio Einstellungen, Filament-Profile und Kalibrierungsprozesse für X1C, P1P, P1S und A1 Serie Drucker.",
+    tabDashboard: "Übersicht",
+    tabFilaments: "Filamente",
+    tabCalibration: "Kalibrierung",
+    tabTroubleshoot: "Fehlerbehebung",
+    ecosystemTitle: "Bambu Ökosystem Vorteile",
+    ecosystemDesc: "Leistungsvergleich mit anderen Systemen.",
+    printTimeTitle: "Druckzeit Verteilung",
+    printTimeDesc: "Worauf sollten Sie sich zur Optimierung konzentrieren?",
+    speedRecord: "Geschwindigkeitsrekord",
+    speedRecordDesc: "Bambu Lab X1C ist der schnellste CoreXY FDM-Drucker der Welt mit 500mm/s. Maximale Effizienz mit Flow Dynamics Kalibrierung.",
+    amsTip: "AMS Tipp",
+    amsTipDesc: "TPU und flexible Filamente sollten NICHT mit AMS verwendet werden. Muss direkt in den Druckkopf geladen werden. Nicht durch PTFE-Schlauch führen.",
+    printerComparison: "Bambu Lab Drucker Vergleich",
+    feature: "Eigenschaft",
+    maxSpeed: "Max Geschwindigkeit",
+    enclosure: "Gehäuse",
+    hardenedNozzle: "Gehärtete Düse",
+    maxBedTemp: "Max Betttemp",
+    filamentTypes: "Filament Typen",
+    calibrationSteps: "Kalibrierungsschritte",
+    selectProblem: "Wählen Sie oben ein Problem"
+  }
+};
+
+const u = ui[lang];
 ---
 
 <BaseLayout title={title} description={description}>
@@ -15,53 +135,54 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
   <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "TechArticle",
-    "headline": "Bambu Lab Slicer Türkçe Rehber",
+    "headline": title,
     "description": description,
     "author": { "@type": "Organization", "name": "3D-labX" },
     "publisher": { "@type": "Organization", "name": "3D-labX", "url": "https://3d-labx.com" },
     "datePublished": "2026-02-02",
-    "mainEntityOfPage": "https://3d-labx.com/rehberler/bambu-slicer-rehberi"
+    "mainEntityOfPage": "https://3d-labx.com/rehberler/bambu-slicer-rehberi",
+    "inLanguage": lang
   })} />
 
   <main class="bambu-guide">
     <div class="container">
       <!-- Breadcrumb -->
       <nav class="breadcrumb">
-        <a href="/">Ana Sayfa</a>
+        <a href="/">{u.home}</a>
         <span>/</span>
-        <a href="/rehberler">Rehberler</a>
+        <a href="/rehberler">{u.guides}</a>
         <span>/</span>
-        <span class="current">Bambu Lab</span>
+        <span class="current">{u.current}</span>
       </nav>
 
       <!-- Header -->
       <header class="guide-header">
         <div class="version-badge">
-          <span>Studio 1.10</span>
+          <span>{u.badge1}</span>
           <span class="dot">•</span>
-          <span>Pro Rehber</span>
+          <span>{u.badge2}</span>
         </div>
-        <h1>Bambu Lab <span class="gradient-text">Türkçe Rehber</span></h1>
-        <p class="header-desc">X1C, P1P, P1S ve A1 serisi yazıcılar için Bambu Studio ayarları, filament profilleri ve kalibrasyon süreçlerini keşfedin.</p>
+        <h1>{u.headerTitle} <span class="gradient-text">{u.headerGradient}</span></h1>
+        <p class="header-desc">{u.headerDesc}</p>
       </header>
 
       <!-- Navigation Tabs -->
       <nav class="guide-tabs">
         <button class="tab-btn active" data-tab="dashboard">
           <span class="tab-icon">📊</span>
-          <span>Genel Bakış</span>
+          <span>{u.tabDashboard}</span>
         </button>
         <button class="tab-btn" data-tab="filaments">
           <span class="tab-icon">🧬</span>
-          <span>Filamentler</span>
+          <span>{u.tabFilaments}</span>
         </button>
         <button class="tab-btn" data-tab="calibration">
           <span class="tab-icon">🎯</span>
-          <span>Kalibrasyon</span>
+          <span>{u.tabCalibration}</span>
         </button>
         <button class="tab-btn" data-tab="troubleshoot">
           <span class="tab-icon">🔧</span>
-          <span>Sorun Giderme</span>
+          <span>{u.tabTroubleshoot}</span>
         </button>
       </nav>
 
@@ -73,8 +194,8 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
           <div class="charts-grid">
             <!-- Feature Radar -->
             <div class="chart-card">
-              <h3>Bambu Ekosistemi Avantajları</h3>
-              <p class="chart-desc">Diğer sistemlere göre performans karşılaştırması.</p>
+              <h3>{u.ecosystemTitle}</h3>
+              <p class="chart-desc">{u.ecosystemDesc}</p>
               <div class="chart-container">
                 <canvas id="radarChart"></canvas>
               </div>
@@ -82,8 +203,8 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
 
             <!-- Time Distribution -->
             <div class="chart-card">
-              <h3>Baskı Süresi Dağılımı</h3>
-              <p class="chart-desc">Optimize etmek için nereye odaklanmalısınız?</p>
+              <h3>{u.printTimeTitle}</h3>
+              <p class="chart-desc">{u.printTimeDesc}</p>
               <div class="chart-container">
                 <canvas id="timeChart"></canvas>
               </div>
@@ -94,37 +215,37 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
             <div class="tip-card tip-speed">
               <span class="tip-icon">🚀</span>
               <div class="tip-content">
-                <h4>Hız Rekoru</h4>
-                <p>Bambu Lab X1C, 500mm/s hıza ulaşabilen dünyanın en hızlı CoreXY FDM yazıcısıdır. Flow Dynamics kalibrasyonu ile maksimum verim alın.</p>
+                <h4>{u.speedRecord}</h4>
+                <p>{u.speedRecordDesc}</p>
               </div>
             </div>
             <div class="tip-card tip-quality">
               <span class="tip-icon">⚠️</span>
               <div class="tip-content">
-                <h4>AMS İpucu</h4>
-                <p>AMS ile TPU ve esnek filamentler KULLANILMAZ. Direkt olarak yazıcı kafasına takılmalıdır. PTFE tüp içinden geçirmeyin.</p>
+                <h4>{u.amsTip}</h4>
+                <p>{u.amsTipDesc}</p>
               </div>
             </div>
           </div>
 
           <!-- Printer Comparison -->
           <div class="comparison-section">
-            <h3>🖨️ Bambu Lab Yazıcı Karşılaştırması</h3>
+            <h3>🖨️ {u.printerComparison}</h3>
             <div class="comparison-table">
               <div class="comp-header">
-                <span>Özellik</span>
+                <span>{u.feature}</span>
                 <span>X1C</span>
                 <span>P1S</span>
                 <span>A1</span>
               </div>
               <div class="comp-row">
-                <span>Max Hız</span>
+                <span>{u.maxSpeed}</span>
                 <span class="highlight">500 mm/s</span>
                 <span>500 mm/s</span>
                 <span>500 mm/s</span>
               </div>
               <div class="comp-row">
-                <span>Kapalı Kabin</span>
+                <span>{u.enclosure}</span>
                 <span class="check">✓</span>
                 <span class="check">✓</span>
                 <span class="cross">✗</span>
@@ -136,13 +257,13 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
                 <span class="cross">✗</span>
               </div>
               <div class="comp-row">
-                <span>Hardened Nozzle</span>
+                <span>{u.hardenedNozzle}</span>
                 <span class="check">✓</span>
                 <span class="cross">✗</span>
                 <span class="cross">✗</span>
               </div>
               <div class="comp-row">
-                <span>Max Tabla Sıcaklığı</span>
+                <span>{u.maxBedTemp}</span>
                 <span>110°C</span>
                 <span>100°C</span>
                 <span>100°C</span>
@@ -156,7 +277,7 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
           <div class="filament-layout">
             <!-- Filament List -->
             <div class="filament-list">
-              <h3 class="list-title">Filament Türleri</h3>
+              <h3 class="list-title">{u.filamentTypes}</h3>
 
               <button class="filament-btn active" data-filament="0">
                 <span class="fil-icon">🟢</span>
@@ -213,7 +334,7 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
           <div class="calibration-layout">
             <!-- Steps List -->
             <div class="cal-steps">
-              <h3 class="steps-title">Kalibrasyon Adımları</h3>
+              <h3 class="steps-title">{u.calibrationSteps}</h3>
 
               <button class="cal-step-btn active" data-step="0">
                 <span class="step-icon">🎯</span>
@@ -297,7 +418,7 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
           <div class="solution-panel" id="solutionPanel">
             <div class="solution-placeholder">
               <span>👆</span>
-              <p>Yukarıdan bir sorun seçin</p>
+              <p>{u.selectProblem}</p>
             </div>
           </div>
         </section>
@@ -1223,6 +1344,256 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script define:vars={{ lang }}>
+  // i18n data
+  window.bambuI18n = {
+    lang: lang,
+    // Filament data by language
+    filaments: {
+      tr: [
+        {
+          icon: '🟢', name: 'PLA / PLA+',
+          desc: 'En kolay baskı alınan, çevre dostu biyo-plastik. Prototipleme ve hobi projeleri için ideal.',
+          nozzle: '200-220', bed: '55-60', fan: '100', chamber: 'Açık (Kapağı Kaldırın)',
+          maxVol: '21', dry: 'Gerekmez (45°C - 4h)', plate: 'Textured PEI', warning: null,
+          tip: 'Heat Creep sorununu önlemek için kapalı kabinli yazıcılarda (X1C, P1S) kapağı açık bırakın. Aux fan AÇIK olmalı.'
+        },
+        {
+          icon: '🔵', name: 'PETG',
+          desc: 'PLA ve ABS arasında denge. Mukavemetli, hafif esnek ve kolay baskı alınır.',
+          nozzle: '240-260', bed: '70-80', fan: '30-50', chamber: 'Kapalı',
+          maxVol: '14', dry: 'Önerilir (65°C - 8h)', plate: 'Textured PEI',
+          warning: 'Smooth PEI plakaya çok yapışır ve yüzeyi bozabilir. Textured PEI kullanın.',
+          tip: 'Fan hızını %30-50 arasında tutun. Çok yüksek fan köşe kalkmasına neden olur.'
+        },
+        {
+          icon: '🟠', name: 'ABS / ASA',
+          desc: 'Isı ve UV dayanımı yüksek. Dış mekan parçaları ve fonksiyonel prototipler için.',
+          nozzle: '260-280', bed: '100-110', fan: '0-20', chamber: 'Tam Kapalı',
+          maxVol: '18', dry: 'Şart (80°C - 4h)', plate: 'High Temp / Eng. Plate',
+          warning: 'Aux Fan KAPALI olmalı! Aksi halde katman ayrılması ve köşe kalkması olur.',
+          tip: 'Kabin sıcaklığı minimum 35°C olmalı. X1C\'de aktif ısıtma özelliği kullanın. A1 ile ABS basılmaz.'
+        },
+        {
+          icon: '⚫', name: 'PA-CF / PA-GF',
+          desc: 'Karbon veya cam fiber takviyeli naylon. Mekanik parçalar için ultra mukavemet.',
+          nozzle: '280-300', bed: '100-110', fan: '0', chamber: 'Kapalı',
+          maxVol: '10', dry: 'Kritik (80°C - 12h)', plate: 'Eng. Plate + Yapıştırıcı',
+          warning: 'Hardened Steel veya CHT nozzle ŞART! Pirinç nozzle 1-2 baskıda aşınır.',
+          tip: 'Naylon çok hızlı nem çeker. Kurutucudan direkt AMS\'e aktarın. AMS kurutma özelliğini AÇIN.'
+        },
+        {
+          icon: '🟣', name: 'TPU (Esnek)',
+          desc: 'Esnek ve darbe emici. Koruyucu kılıflar, contalar ve tekerlekler için.',
+          nozzle: '220-240', bed: '30-40', fan: '80-100', chamber: 'Kapalı',
+          maxVol: '3.5', dry: 'Şart (55°C - 8h)', plate: 'Textured PEI',
+          warning: 'AMS ile KULLANILMAZ! Direkt olarak yazıcı kafasına takılmalı.',
+          tip: 'Baskı hızını 30-40 mm/s\'ye düşürün. Retraction mesafesini 0.5-1mm yapın veya kapatın.'
+        }
+      ],
+      en: [
+        {
+          icon: '🟢', name: 'PLA / PLA+',
+          desc: 'Easiest to print, eco-friendly bioplastic. Ideal for prototyping and hobby projects.',
+          nozzle: '200-220', bed: '55-60', fan: '100', chamber: 'Open (Remove Lid)',
+          maxVol: '21', dry: 'Not Required (45°C - 4h)', plate: 'Textured PEI', warning: null,
+          tip: 'Keep the lid open on enclosed printers (X1C, P1S) to prevent heat creep. Aux fan should be ON.'
+        },
+        {
+          icon: '🔵', name: 'PETG',
+          desc: 'Balance between PLA and ABS. Strong, slightly flexible and easy to print.',
+          nozzle: '240-260', bed: '70-80', fan: '30-50', chamber: 'Closed',
+          maxVol: '14', dry: 'Recommended (65°C - 8h)', plate: 'Textured PEI',
+          warning: 'Sticks too much to Smooth PEI and can damage the surface. Use Textured PEI.',
+          tip: 'Keep fan speed between 30-50%. Too high fan causes corner lifting.'
+        },
+        {
+          icon: '🟠', name: 'ABS / ASA',
+          desc: 'High heat and UV resistance. For outdoor parts and functional prototypes.',
+          nozzle: '260-280', bed: '100-110', fan: '0-20', chamber: 'Fully Enclosed',
+          maxVol: '18', dry: 'Required (80°C - 4h)', plate: 'High Temp / Eng. Plate',
+          warning: 'Aux Fan must be OFF! Otherwise layer separation and corner lifting occur.',
+          tip: 'Chamber temp should be minimum 35°C. Use active heating on X1C. ABS cannot be printed on A1.'
+        },
+        {
+          icon: '⚫', name: 'PA-CF / PA-GF',
+          desc: 'Carbon or glass fiber reinforced nylon. Ultra strength for mechanical parts.',
+          nozzle: '280-300', bed: '100-110', fan: '0', chamber: 'Closed',
+          maxVol: '10', dry: 'Critical (80°C - 12h)', plate: 'Eng. Plate + Glue Stick',
+          warning: 'Hardened Steel or CHT nozzle REQUIRED! Brass nozzle wears out in 1-2 prints.',
+          tip: 'Nylon absorbs moisture very quickly. Transfer directly from dryer to AMS. Turn ON AMS drying feature.'
+        },
+        {
+          icon: '🟣', name: 'TPU (Flexible)',
+          desc: 'Flexible and impact absorbing. For protective cases, gaskets and wheels.',
+          nozzle: '220-240', bed: '30-40', fan: '80-100', chamber: 'Closed',
+          maxVol: '3.5', dry: 'Required (55°C - 8h)', plate: 'Textured PEI',
+          warning: 'NOT compatible with AMS! Must be loaded directly to print head.',
+          tip: 'Reduce print speed to 30-40 mm/s. Set retraction distance to 0.5-1mm or disable it.'
+        }
+      ],
+      de: [
+        {
+          icon: '🟢', name: 'PLA / PLA+',
+          desc: 'Am einfachsten zu drucken, umweltfreundlicher Biokunststoff. Ideal für Prototypen und Hobbyprojekte.',
+          nozzle: '200-220', bed: '55-60', fan: '100', chamber: 'Offen (Deckel entfernen)',
+          maxVol: '21', dry: 'Nicht erforderlich (45°C - 4h)', plate: 'Textured PEI', warning: null,
+          tip: 'Deckel bei geschlossenen Druckern (X1C, P1S) offen lassen um Heat Creep zu vermeiden. Aux-Lüfter sollte AN sein.'
+        },
+        {
+          icon: '🔵', name: 'PETG',
+          desc: 'Balance zwischen PLA und ABS. Stark, leicht flexibel und einfach zu drucken.',
+          nozzle: '240-260', bed: '70-80', fan: '30-50', chamber: 'Geschlossen',
+          maxVol: '14', dry: 'Empfohlen (65°C - 8h)', plate: 'Textured PEI',
+          warning: 'Haftet zu stark auf Smooth PEI und kann die Oberfläche beschädigen. Textured PEI verwenden.',
+          tip: 'Lüftergeschwindigkeit zwischen 30-50% halten. Zu hohe Lüfterdrehzahl verursacht Eckenabhebung.'
+        },
+        {
+          icon: '🟠', name: 'ABS / ASA',
+          desc: 'Hohe Hitze- und UV-Beständigkeit. Für Außenteile und funktionale Prototypen.',
+          nozzle: '260-280', bed: '100-110', fan: '0-20', chamber: 'Vollständig geschlossen',
+          maxVol: '18', dry: 'Erforderlich (80°C - 4h)', plate: 'High Temp / Eng. Plate',
+          warning: 'Aux-Lüfter muss AUS sein! Sonst treten Schichtablösung und Eckenabhebung auf.',
+          tip: 'Kammertemperatur sollte mindestens 35°C sein. Aktive Heizung bei X1C verwenden. ABS kann nicht auf A1 gedruckt werden.'
+        },
+        {
+          icon: '⚫', name: 'PA-CF / PA-GF',
+          desc: 'Kohlefaser- oder glasfaserverstärktes Nylon. Ultra-Festigkeit für mechanische Teile.',
+          nozzle: '280-300', bed: '100-110', fan: '0', chamber: 'Geschlossen',
+          maxVol: '10', dry: 'Kritisch (80°C - 12h)', plate: 'Eng. Plate + Klebestift',
+          warning: 'Gehärtete Stahl- oder CHT-Düse ERFORDERLICH! Messingdüse verschleißt in 1-2 Drucken.',
+          tip: 'Nylon absorbiert sehr schnell Feuchtigkeit. Direkt vom Trockner zum AMS übertragen. AMS-Trocknungsfunktion EINSCHALTEN.'
+        },
+        {
+          icon: '🟣', name: 'TPU (Flexibel)',
+          desc: 'Flexibel und stoßabsorbierend. Für Schutzhüllen, Dichtungen und Räder.',
+          nozzle: '220-240', bed: '30-40', fan: '80-100', chamber: 'Geschlossen',
+          maxVol: '3.5', dry: 'Erforderlich (55°C - 8h)', plate: 'Textured PEI',
+          warning: 'NICHT kompatibel mit AMS! Muss direkt in den Druckkopf geladen werden.',
+          tip: 'Druckgeschwindigkeit auf 30-40 mm/s reduzieren. Rückzugsdistanz auf 0.5-1mm setzen oder deaktivieren.'
+        }
+      ]
+    },
+    // UI labels for filament detail
+    filamentLabels: {
+      tr: { nozzle: 'Nozzle', bed: 'Tabla', fan: 'Fan', maxVol: 'Max Vol', chamber: 'Kabin Durumu', plate: 'Tabla Tipi', dry: 'Kurutma Ayarları', warning: 'Dikkat!', tip: 'Pro İpucu' },
+      en: { nozzle: 'Nozzle', bed: 'Bed', fan: 'Fan', maxVol: 'Max Vol', chamber: 'Chamber Status', plate: 'Plate Type', dry: 'Drying Settings', warning: 'Warning!', tip: 'Pro Tip' },
+      de: { nozzle: 'Düse', bed: 'Bett', fan: 'Lüfter', maxVol: 'Max Vol', chamber: 'Kammerstatus', plate: 'Plattentyp', dry: 'Trocknungseinstellungen', warning: 'Achtung!', tip: 'Profi-Tipp' }
+    },
+    // Calibration steps
+    calibration: {
+      tr: [
+        { icon: '🎯', title: 'Flow Dynamics Kalibrasyon', desc: 'Bambu\'ya özel otomatik Pressure Advance ve akış kalibrasyonu.',
+          steps: ['Bambu Studio\'da <strong>Calibration → Flow Dynamics Calibration</strong> seçin', 'Kullanacağınız filamenti AMS\'e veya direkt kafaya takın', 'Yazıcı modelinizi ve nozzle çapını doğrulayın', '<strong>"Start"</strong> butonuna tıklayın', 'Kalibrasyon otomatik olarak PA ve akış değerlerini hesaplar', 'Sonuçlar filament profiline otomatik kaydedilir'],
+          tip: 'Her yeni filament markası veya türü için Flow Dynamics çalıştırın. Aynı marka farklı renkler için genellikle gerekli değil.' },
+        { icon: '🌊', title: 'Flow Rate Kalibrasyon (Manuel)', desc: 'Hassas akış ayarı için manuel kalibrasyon. Flow Dynamics\'ten sonra yapılabilir.',
+          steps: ['<strong>Calibration → Flow Rate</strong> seçin', 'İlk test (Pass 1) kaba ayar için bir kare ızgara basar', 'En düzgün görünen karenin numarasını seçin', 'İkinci test (Pass 2) hassas ayar için daha küçük aralıklarla test eder', 'Formül: <strong>Eski Akış × (100 + Değişim) / 100</strong>', 'Değeri filament profiline kaydedin'],
+          tip: 'Üst yüzeyde boşluk varsa akış düşük, taşma varsa akış yüksek demektir. Hedef: pürüzsüz, düz üst yüzey.' },
+        { icon: '🚀', title: 'Max Volumetric Speed Testi', desc: 'Hotend\'in eritebileceği maksimum plastik miktarını belirler.',
+          steps: ['<strong>Calibration → Max Volumetric Speed</strong> seçin', 'Başlangıç ve bitiş değerlerini ayarlayın (PLA: 5-25 mm³/s)', 'Test baskısını başlatın ve dikkatle izleyin', 'Baskının matlaştığı veya bozulduğu noktayı bulun', 'O noktadan <strong>2-3 mm³/s ÖNCE</strong>ki değeri kullanın', 'Bu değeri filament profilinde "Max Volumetric Speed" olarak girin'],
+          tip: 'Bu değer TÜM hız ayarlarını limitler. 500 mm/s ayarlasanız bile bu limit aşılamaz. PLA: ~21, PETG: ~14, ABS: ~18 tipik değerler.' },
+        { icon: '📐', title: 'Vibration Compensation (Motor Noise)', desc: 'Input Shaper benzeri titreşim azaltma. Ghosting sorununu çözer.',
+          steps: ['<strong>Calibration → Vibration Compensation</strong> seçin', 'Yazıcı otomatik olarak X ve Y eksenlerini test eder', 'Her eksen için farklı frekanslarda titreşim oluşturur', 'En az titreşim olan frekansları otomatik bulur', 'Sonuçlar makine profiline kaydedilir', 'Ghosting ciddi şekilde azalır'],
+          tip: 'Bu kalibrasyon sadece Bambu Lab yazıcılarda çalışır. LiDAR sensörü ile titreşimi ölçer (X1C). P1S/A1\'de ivmeölçer kullanır.' },
+        { icon: '↩️', title: 'Retraction Kalibrasyon', desc: 'İpliklenme (stringing) sorununu çözmek için geri çekme optimizasyonu.',
+          steps: ['<strong>Calibration → Retraction Test</strong> seçin', 'Mesafe aralığı belirleyin (Direct Drive: 0.5-2mm)', 'Hız aralığı belirleyin (25-45 mm/s)', 'Test baskısını yapın - İğne kuleler veya ızgara', 'İpliklenme olmayan en DÜŞÜK değeri bulun', 'Bu değerleri filament profiline kaydedin'],
+          tip: 'Bambu yazıcılar Direct Drive olduğu için retraction mesafesi 0.5-2mm yeterli. Çok yüksek değer hotend\'de tıkanmaya neden olur.' }
+      ],
+      en: [
+        { icon: '🎯', title: 'Flow Dynamics Calibration', desc: 'Bambu-specific automatic Pressure Advance and flow calibration.',
+          steps: ['In Bambu Studio, select <strong>Calibration → Flow Dynamics Calibration</strong>', 'Load your filament into AMS or directly to the head', 'Verify your printer model and nozzle diameter', 'Click the <strong>"Start"</strong> button', 'Calibration automatically calculates PA and flow values', 'Results are automatically saved to the filament profile'],
+          tip: 'Run Flow Dynamics for every new filament brand or type. Usually not needed for different colors of the same brand.' },
+        { icon: '🌊', title: 'Flow Rate Calibration (Manual)', desc: 'Manual calibration for precise flow adjustment. Can be done after Flow Dynamics.',
+          steps: ['Select <strong>Calibration → Flow Rate</strong>', 'First test (Pass 1) prints a grid of squares for coarse adjustment', 'Select the number of the smoothest looking square', 'Second test (Pass 2) tests with smaller intervals for fine adjustment', 'Formula: <strong>Old Flow × (100 + Change) / 100</strong>', 'Save the value to the filament profile'],
+          tip: 'If there are gaps on the top surface, flow is too low; if overflow, flow is too high. Goal: smooth, flat top surface.' },
+        { icon: '🚀', title: 'Max Volumetric Speed Test', desc: 'Determines the maximum amount of plastic the hotend can melt.',
+          steps: ['Select <strong>Calibration → Max Volumetric Speed</strong>', 'Set start and end values (PLA: 5-25 mm³/s)', 'Start the test print and watch carefully', 'Find the point where the print becomes matte or degrades', 'Use the value <strong>2-3 mm³/s BEFORE</strong> that point', 'Enter this value as "Max Volumetric Speed" in the filament profile'],
+          tip: 'This value limits ALL speed settings. Even if you set 500 mm/s, this limit cannot be exceeded. PLA: ~21, PETG: ~14, ABS: ~18 are typical values.' },
+        { icon: '📐', title: 'Vibration Compensation (Motor Noise)', desc: 'Input Shaper-like vibration reduction. Solves ghosting problems.',
+          steps: ['Select <strong>Calibration → Vibration Compensation</strong>', 'Printer automatically tests X and Y axes', 'Creates vibrations at different frequencies for each axis', 'Automatically finds frequencies with least vibration', 'Results are saved to the machine profile', 'Ghosting is significantly reduced'],
+          tip: 'This calibration only works on Bambu Lab printers. Uses LiDAR sensor to measure vibration (X1C). Uses accelerometer on P1S/A1.' },
+        { icon: '↩️', title: 'Retraction Calibration', desc: 'Retraction optimization to solve stringing problems.',
+          steps: ['Select <strong>Calibration → Retraction Test</strong>', 'Set distance range (Direct Drive: 0.5-2mm)', 'Set speed range (25-45 mm/s)', 'Do the test print - Needle towers or grid', 'Find the LOWEST value without stringing', 'Save these values to the filament profile'],
+          tip: 'Since Bambu printers are Direct Drive, retraction distance of 0.5-2mm is sufficient. Too high value causes clogging in the hotend.' }
+      ],
+      de: [
+        { icon: '🎯', title: 'Flow Dynamics Kalibrierung', desc: 'Bambu-spezifische automatische Pressure Advance und Fluss-Kalibrierung.',
+          steps: ['In Bambu Studio <strong>Calibration → Flow Dynamics Calibration</strong> wählen', 'Filament in AMS oder direkt in den Kopf laden', 'Druckermodell und Düsendurchmesser überprüfen', 'Auf <strong>"Start"</strong>-Schaltfläche klicken', 'Kalibrierung berechnet automatisch PA- und Flusswerte', 'Ergebnisse werden automatisch im Filamentprofil gespeichert'],
+          tip: 'Flow Dynamics für jede neue Filamentmarke oder -art ausführen. Normalerweise nicht nötig für verschiedene Farben derselben Marke.' },
+        { icon: '🌊', title: 'Flow Rate Kalibrierung (Manuell)', desc: 'Manuelle Kalibrierung für präzise Flusseinstellung. Kann nach Flow Dynamics durchgeführt werden.',
+          steps: ['<strong>Calibration → Flow Rate</strong> wählen', 'Erster Test (Pass 1) druckt ein Raster von Quadraten für Grobeinstellung', 'Die Nummer des glattesten Quadrats wählen', 'Zweiter Test (Pass 2) testet mit kleineren Intervallen für Feineinstellung', 'Formel: <strong>Alter Fluss × (100 + Änderung) / 100</strong>', 'Wert im Filamentprofil speichern'],
+          tip: 'Bei Lücken auf der Oberfläche ist der Fluss zu niedrig; bei Überlauf zu hoch. Ziel: glatte, flache Oberfläche.' },
+        { icon: '🚀', title: 'Max Volumetric Speed Test', desc: 'Bestimmt die maximale Kunststoffmenge, die das Hotend schmelzen kann.',
+          steps: ['<strong>Calibration → Max Volumetric Speed</strong> wählen', 'Start- und Endwerte einstellen (PLA: 5-25 mm³/s)', 'Testdruck starten und sorgfältig beobachten', 'Punkt finden, an dem der Druck matt wird oder degradiert', 'Wert <strong>2-3 mm³/s VOR</strong> diesem Punkt verwenden', 'Diesen Wert als "Max Volumetric Speed" im Filamentprofil eingeben'],
+          tip: 'Dieser Wert begrenzt ALLE Geschwindigkeitseinstellungen. Selbst bei 500 mm/s kann dieses Limit nicht überschritten werden. PLA: ~21, PETG: ~14, ABS: ~18 sind typische Werte.' },
+        { icon: '📐', title: 'Vibration Compensation (Motor Noise)', desc: 'Input Shaper-ähnliche Vibrationsreduzierung. Löst Ghosting-Probleme.',
+          steps: ['<strong>Calibration → Vibration Compensation</strong> wählen', 'Drucker testet automatisch X- und Y-Achsen', 'Erzeugt Vibrationen bei verschiedenen Frequenzen für jede Achse', 'Findet automatisch Frequenzen mit geringster Vibration', 'Ergebnisse werden im Maschinenprofil gespeichert', 'Ghosting wird deutlich reduziert'],
+          tip: 'Diese Kalibrierung funktioniert nur bei Bambu Lab Druckern. Verwendet LiDAR-Sensor zur Vibrationsmessung (X1C). Verwendet Beschleunigungsmesser bei P1S/A1.' },
+        { icon: '↩️', title: 'Retraction Kalibrierung', desc: 'Rückzugsoptimierung zur Lösung von Stringing-Problemen.',
+          steps: ['<strong>Calibration → Retraction Test</strong> wählen', 'Entfernungsbereich einstellen (Direct Drive: 0.5-2mm)', 'Geschwindigkeitsbereich einstellen (25-45 mm/s)', 'Testdruck durchführen - Nadeltürme oder Raster', 'NIEDRIGSTEN Wert ohne Stringing finden', 'Diese Werte im Filamentprofil speichern'],
+          tip: 'Da Bambu Drucker Direct Drive sind, reicht eine Rückzugsdistanz von 0.5-2mm. Zu hoher Wert verursacht Verstopfung im Hotend.' }
+      ]
+    },
+    calLabels: {
+      tr: { howTo: 'Nasıl Yapılır?' },
+      en: { howTo: 'How to Do It?' },
+      de: { howTo: 'Wie macht man es?' }
+    },
+    // Troubleshooting
+    troubleshooting: {
+      tr: {
+        adhesion: { icon: '📋', title: 'Tablaya Yapışmama', cause: 'Tabla kirli, Z-offset yanlış veya ilk katman çok hızlı. Tabla sıcaklığı yetersiz olabilir.', fix: 'Tablayı sabunlu suyla yıkayın ve kurutun. Z-Offset\'i Bambu Studio\'dan kalibre edin (Calibration → First Layer). İlk katman hızını 20-30 mm/s\'ye düşürün. Brim ekleyin (5-10mm).' },
+        stringing: { icon: '🕸️', title: 'İpliklenme (Stringing)', cause: 'Sıcaklık çok yüksek, retraction yetersiz veya filament nemli.', fix: 'Nozzle sıcaklığını 5-10°C düşürün. Retraction mesafesini 1-1.5mm yapın. Filamentin nemli olmadığından emin olun - AMS kurutma özelliğini açın veya harici kurutucu kullanın.' },
+        ghosting: { icon: '👻', title: 'Ghosting / Ringing', cause: 'Mekanik titreşimler, gevşek kayışlar veya yanlış ivme ayarları.', fix: 'Vibration Compensation kalibrasyonu çalıştırın. Kayış gerginliklerini kontrol edin. Yazıcıyı sağlam, titreşimsiz bir zemine yerleştirin. Baskı hızını düşürün.' },
+        clog: { icon: '🔥', title: 'Nozzle Tıkanması', cause: 'Heat creep, yanmış filament birikimi veya nemli/kirli filament.', fix: 'Soğuk çekme (Cold Pull) yapın: Nozzle\'ı 250°C\'ye ısıtın, filamentin ucunu kaldırın, 90°C\'ye soğutun ve sert çekin. PLA için kapağı açık bırakın. Hardened nozzle için 280-300°C arası temizleme yapın.' },
+        ams: { icon: '🎨', title: 'AMS Besleme Hatası', cause: 'Filament dolanması, PTFE tüp tıkanması veya dişli aşınması.', fix: 'Filament makara dolanmasını kontrol edin. PTFE tüpleri çıkarıp temizleyin. AMS dişlilerini fırçalayın. Filament uçlarını düz kesin. Nemli filament AMS\'de kaymaya neden olur - kurutun.' },
+        layer: { icon: '📚', title: 'Katman Ayrılması', cause: 'Katmanlar arası yapışma zayıf. Sıcaklık düşük veya fan çok yüksek veya nemli filament.', fix: 'Nozzle sıcaklığını 5-10°C artırın. Fan hızını düşürün (ABS/ASA için %0-20). Kabin kapısını kapatın. Aux fan\'ı kapatın (ABS için). Filamentin kuru olduğundan emin olun.' }
+      },
+      en: {
+        adhesion: { icon: '📋', title: 'Bed Adhesion Issue', cause: 'Dirty bed, wrong Z-offset or first layer too fast. Bed temperature may be insufficient.', fix: 'Wash the bed with soapy water and dry it. Calibrate Z-Offset in Bambu Studio (Calibration → First Layer). Reduce first layer speed to 20-30 mm/s. Add brim (5-10mm).' },
+        stringing: { icon: '🕸️', title: 'Stringing', cause: 'Temperature too high, insufficient retraction or wet filament.', fix: 'Reduce nozzle temperature by 5-10°C. Set retraction distance to 1-1.5mm. Make sure filament is not wet - enable AMS drying feature or use external dryer.' },
+        ghosting: { icon: '👻', title: 'Ghosting / Ringing', cause: 'Mechanical vibrations, loose belts or wrong acceleration settings.', fix: 'Run Vibration Compensation calibration. Check belt tensions. Place printer on a solid, vibration-free surface. Reduce print speed.' },
+        clog: { icon: '🔥', title: 'Nozzle Clog', cause: 'Heat creep, burnt filament buildup or wet/dirty filament.', fix: 'Do a cold pull: Heat nozzle to 250°C, lift filament tip, cool to 90°C and pull hard. Keep lid open for PLA. For hardened nozzle, clean at 280-300°C.' },
+        ams: { icon: '🎨', title: 'AMS Feeding Error', cause: 'Filament tangle, PTFE tube clog or gear wear.', fix: 'Check filament spool tangle. Remove and clean PTFE tubes. Brush AMS gears. Cut filament ends straight. Wet filament causes slipping in AMS - dry it.' },
+        layer: { icon: '📚', title: 'Layer Separation', cause: 'Weak inter-layer adhesion. Temperature too low or fan too high or wet filament.', fix: 'Increase nozzle temperature by 5-10°C. Reduce fan speed (0-20% for ABS/ASA). Close chamber door. Turn off aux fan (for ABS). Make sure filament is dry.' }
+      },
+      de: {
+        adhesion: { icon: '📋', title: 'Bett-Haftungsproblem', cause: 'Schmutziges Bett, falscher Z-Offset oder erste Schicht zu schnell. Betttemperatur kann unzureichend sein.', fix: 'Bett mit Seifenwasser waschen und trocknen. Z-Offset in Bambu Studio kalibrieren (Calibration → First Layer). Erste Schichtgeschwindigkeit auf 20-30 mm/s reduzieren. Brim hinzufügen (5-10mm).' },
+        stringing: { icon: '🕸️', title: 'Fädenziehen (Stringing)', cause: 'Temperatur zu hoch, unzureichender Rückzug oder feuchtes Filament.', fix: 'Düsentemperatur um 5-10°C senken. Rückzugsdistanz auf 1-1.5mm einstellen. Sicherstellen, dass Filament nicht feucht ist - AMS-Trocknungsfunktion aktivieren oder externen Trockner verwenden.' },
+        ghosting: { icon: '👻', title: 'Ghosting / Ringing', cause: 'Mechanische Vibrationen, lockere Riemen oder falsche Beschleunigungseinstellungen.', fix: 'Vibration Compensation Kalibrierung ausführen. Riemenspannung prüfen. Drucker auf stabiler, vibrationsfreier Oberfläche platzieren. Druckgeschwindigkeit reduzieren.' },
+        clog: { icon: '🔥', title: 'Düsenverstopfung', cause: 'Heat Creep, verbranntes Filament oder feuchtes/schmutziges Filament.', fix: 'Cold Pull durchführen: Düse auf 250°C erhitzen, Filamentspitze anheben, auf 90°C abkühlen und fest ziehen. Deckel für PLA offen lassen. Für gehärtete Düse bei 280-300°C reinigen.' },
+        ams: { icon: '🎨', title: 'AMS Zuführungsfehler', cause: 'Filamentverwicklung, PTFE-Schlauch-Verstopfung oder Zahnradverschleiß.', fix: 'Filamentspulenverwicklung prüfen. PTFE-Schläuche entfernen und reinigen. AMS-Zahnräder bürsten. Filamentenden gerade schneiden. Feuchtes Filament verursacht Rutschen im AMS - trocknen.' },
+        layer: { icon: '📚', title: 'Schichtablösung', cause: 'Schwache Zwischenschicht-Haftung. Temperatur zu niedrig oder Lüfter zu hoch oder feuchtes Filament.', fix: 'Düsentemperatur um 5-10°C erhöhen. Lüftergeschwindigkeit reduzieren (0-20% für ABS/ASA). Kammertür schließen. Aux-Lüfter ausschalten (für ABS). Sicherstellen, dass Filament trocken ist.' }
+      }
+    },
+    troubleLabels: {
+      tr: { cause: 'Neden Oluşur?', fix: 'Çözüm' },
+      en: { cause: 'Why Does It Occur?', fix: 'Solution' },
+      de: { cause: 'Warum tritt es auf?', fix: 'Lösung' }
+    },
+    // Chart labels
+    chartLabels: {
+      tr: {
+        radar: ['Hız', 'Kalibrasyon', 'Çoklu Renk', 'Yazılım', 'Güvenilirlik'],
+        radarBambu: 'Bambu Lab',
+        radarOthers: 'Diğer Markalar',
+        time: ['Duvarlar', 'Dolgu', 'Hareket', 'Destek', 'İlk Katman']
+      },
+      en: {
+        radar: ['Speed', 'Calibration', 'Multi-Color', 'Software', 'Reliability'],
+        radarBambu: 'Bambu Lab',
+        radarOthers: 'Other Brands',
+        time: ['Walls', 'Infill', 'Travel', 'Support', 'First Layer']
+      },
+      de: {
+        radar: ['Geschwindigkeit', 'Kalibrierung', 'Mehrfarbig', 'Software', 'Zuverlässigkeit'],
+        radarBambu: 'Bambu Lab',
+        radarOthers: 'Andere Marken',
+        time: ['Wände', 'Füllung', 'Bewegung', 'Stützen', 'Erste Schicht']
+      }
+    }
+  };
+</script>
 <script>
   // Tab switching
   document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -1246,79 +1617,10 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
     });
   });
 
-  // Filament Data
-  const filamentData = [
-    {
-      icon: '🟢',
-      name: 'PLA / PLA+',
-      desc: 'En kolay baskı alınan, çevre dostu biyo-plastik. Prototipleme ve hobi projeleri için ideal.',
-      nozzle: '200-220',
-      bed: '55-60',
-      fan: '100',
-      chamber: 'Açık (Kapağı Kaldırın)',
-      maxVol: '21',
-      dry: 'Gerekmez (45°C - 4h)',
-      plate: 'Textured PEI',
-      warning: null,
-      tip: 'Heat Creep sorununu önlemek için kapalı kabinli yazıcılarda (X1C, P1S) kapağı açık bırakın. Aux fan AÇIK olmalı.'
-    },
-    {
-      icon: '🔵',
-      name: 'PETG',
-      desc: 'PLA ve ABS arasında denge. Mukavemetli, hafif esnek ve kolay baskı alınır.',
-      nozzle: '240-260',
-      bed: '70-80',
-      fan: '30-50',
-      chamber: 'Kapalı',
-      maxVol: '14',
-      dry: 'Önerilir (65°C - 8h)',
-      plate: 'Textured PEI',
-      warning: 'Smooth PEI plakaya çok yapışır ve yüzeyi bozabilir. Textured PEI kullanın.',
-      tip: 'Fan hızını %30-50 arasında tutun. Çok yüksek fan köşe kalkmasına neden olur.'
-    },
-    {
-      icon: '🟠',
-      name: 'ABS / ASA',
-      desc: 'Isı ve UV dayanımı yüksek. Dış mekan parçaları ve fonksiyonel prototipler için.',
-      nozzle: '260-280',
-      bed: '100-110',
-      fan: '0-20',
-      chamber: 'Tam Kapalı',
-      maxVol: '18',
-      dry: 'Şart (80°C - 4h)',
-      plate: 'High Temp / Eng. Plate',
-      warning: 'Aux Fan KAPALI olmalı! Aksi halde katman ayrılması ve köşe kalkması olur.',
-      tip: 'Kabin sıcaklığı minimum 35°C olmalı. X1C\'de aktif ısıtma özelliği kullanın. A1 ile ABS basılmaz.'
-    },
-    {
-      icon: '⚫',
-      name: 'PA-CF / PA-GF',
-      desc: 'Karbon veya cam fiber takviyeli naylon. Mekanik parçalar için ultra mukavemet.',
-      nozzle: '280-300',
-      bed: '100-110',
-      fan: '0',
-      chamber: 'Kapalı',
-      maxVol: '10',
-      dry: 'Kritik (80°C - 12h)',
-      plate: 'Eng. Plate + Yapıştırıcı',
-      warning: 'Hardened Steel veya CHT nozzle ŞART! Pirinç nozzle 1-2 baskıda aşınır.',
-      tip: 'Naylon çok hızlı nem çeker. Kurutucudan direkt AMS\'e aktarın. AMS kurutma özelliğini AÇIN.'
-    },
-    {
-      icon: '🟣',
-      name: 'TPU (Esnek)',
-      desc: 'Esnek ve darbe emici. Koruyucu kılıflar, contalar ve tekerlekler için.',
-      nozzle: '220-240',
-      bed: '30-40',
-      fan: '80-100',
-      chamber: 'Kapalı',
-      maxVol: '3.5',
-      dry: 'Şart (55°C - 8h)',
-      plate: 'Textured PEI',
-      warning: 'AMS ile KULLANILMAZ! Direkt olarak yazıcı kafasına takılmalı.',
-      tip: 'Baskı hızını 30-40 mm/s\'ye düşürün. Retraction mesafesini 0.5-1mm yapın veya kapatın.'
-    }
-  ];
+  // Get current language from i18n data
+  const currentLang = window.bambuI18n.lang;
+  const filamentData = window.bambuI18n.filaments[currentLang];
+  const filamentLabels = window.bambuI18n.filamentLabels[currentLang];
 
   function initFilament() {
     updateFilamentDetail(0);
@@ -1326,6 +1628,7 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
 
   function updateFilamentDetail(index) {
     const f = filamentData[index];
+    const labels = filamentLabels;
     document.getElementById('filamentDetailContent').innerHTML = `
       <div class="detail-header">
         <span class="detail-icon">${f.icon}</span>
@@ -1341,7 +1644,7 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
             </svg>
           </div>
           <div class="param-info">
-            <span class="param-label">Nozzle</span>
+            <span class="param-label">${labels.nozzle}</span>
             <span class="param-value">${f.nozzle}<span class="param-unit">°C</span></span>
           </div>
         </div>
@@ -1355,7 +1658,7 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
             </svg>
           </div>
           <div class="param-info">
-            <span class="param-label">Tabla</span>
+            <span class="param-label">${labels.bed}</span>
             <span class="param-value">${f.bed}<span class="param-unit">°C</span></span>
           </div>
         </div>
@@ -1368,7 +1671,7 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
             </svg>
           </div>
           <div class="param-info">
-            <span class="param-label">Fan</span>
+            <span class="param-label">${labels.fan}</span>
             <span class="param-value">${f.fan}<span class="param-unit">%</span></span>
           </div>
         </div>
@@ -1380,7 +1683,7 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
             </svg>
           </div>
           <div class="param-info">
-            <span class="param-label">Max Vol</span>
+            <span class="param-label">${labels.maxVol}</span>
             <span class="param-value">${f.maxVol}<span class="param-unit">mm³/s</span></span>
           </div>
         </div>
@@ -1395,7 +1698,7 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
             </svg>
           </div>
           <div class="info-content">
-            <span class="info-label">Kabin Durumu</span>
+            <span class="info-label">${labels.chamber}</span>
             <span class="info-value">${f.chamber}</span>
           </div>
         </div>
@@ -1408,7 +1711,7 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
             </svg>
           </div>
           <div class="info-content">
-            <span class="info-label">Tabla Tipi</span>
+            <span class="info-label">${labels.plate}</span>
             <span class="info-value">${f.plate}</span>
           </div>
         </div>
@@ -1421,7 +1724,7 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
             </svg>
           </div>
           <div class="info-content">
-            <span class="info-label">Kurutma Ayarları</span>
+            <span class="info-label">${labels.dry}</span>
             <span class="info-value mono">${f.dry}</span>
           </div>
         </div>
@@ -1436,7 +1739,7 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
             </svg>
           </div>
           <div class="alert-content">
-            <h4>Dikkat!</h4>
+            <h4>${labels.warning}</h4>
             <p>${f.warning}</p>
           </div>
         </div>
@@ -1451,7 +1754,7 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
           </svg>
         </div>
         <div class="alert-content">
-          <h4>Pro İpucu</h4>
+          <h4>${labels.tip}</h4>
           <p>${f.tip}</p>
         </div>
       </div>
@@ -1469,79 +1772,9 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
     });
   });
 
-  // Calibration Data
-  const calData = [
-    {
-      icon: '🎯',
-      title: 'Flow Dynamics Kalibrasyon',
-      desc: 'Bambu\'ya özel otomatik Pressure Advance ve akış kalibrasyonu.',
-      steps: [
-        'Bambu Studio\'da <strong>Calibration → Flow Dynamics Calibration</strong> seçin',
-        'Kullanacağınız filamenti AMS\'e veya direkt kafaya takın',
-        'Yazıcı modelinizi ve nozzle çapını doğrulayın',
-        '<strong>"Start"</strong> butonuna tıklayın',
-        'Kalibrasyon otomatik olarak PA ve akış değerlerini hesaplar',
-        'Sonuçlar filament profiline otomatik kaydedilir'
-      ],
-      tip: 'Her yeni filament markası veya türü için Flow Dynamics çalıştırın. Aynı marka farklı renkler için genellikle gerekli değil.'
-    },
-    {
-      icon: '🌊',
-      title: 'Flow Rate Kalibrasyon (Manuel)',
-      desc: 'Hassas akış ayarı için manuel kalibrasyon. Flow Dynamics\'ten sonra yapılabilir.',
-      steps: [
-        '<strong>Calibration → Flow Rate</strong> seçin',
-        'İlk test (Pass 1) kaba ayar için bir kare ızgara basar',
-        'En düzgün görünen karenin numarasını seçin',
-        'İkinci test (Pass 2) hassas ayar için daha küçük aralıklarla test eder',
-        'Formül: <strong>Eski Akış × (100 + Değişim) / 100</strong>',
-        'Değeri filament profiline kaydedin'
-      ],
-      tip: 'Üst yüzeyde boşluk varsa akış düşük, taşma varsa akış yüksek demektir. Hedef: pürüzsüz, düz üst yüzey.'
-    },
-    {
-      icon: '🚀',
-      title: 'Max Volumetric Speed Testi',
-      desc: 'Hotend\'in eritebileceği maksimum plastik miktarını belirler.',
-      steps: [
-        '<strong>Calibration → Max Volumetric Speed</strong> seçin',
-        'Başlangıç ve bitiş değerlerini ayarlayın (PLA: 5-25 mm³/s)',
-        'Test baskısını başlatın ve dikkatle izleyin',
-        'Baskının matlaştığı veya bozulduğu noktayı bulun',
-        'O noktadan <strong>2-3 mm³/s ÖNCE</strong>ki değeri kullanın',
-        'Bu değeri filament profilinde "Max Volumetric Speed" olarak girin'
-      ],
-      tip: 'Bu değer TÜM hız ayarlarını limitler. 500 mm/s ayarlasanız bile bu limit aşılamaz. PLA: ~21, PETG: ~14, ABS: ~18 tipik değerler.'
-    },
-    {
-      icon: '📐',
-      title: 'Vibration Compensation (Motor Noise)',
-      desc: 'Input Shaper benzeri titreşim azaltma. Ghosting sorununu çözer.',
-      steps: [
-        '<strong>Calibration → Vibration Compensation</strong> seçin',
-        'Yazıcı otomatik olarak X ve Y eksenlerini test eder',
-        'Her eksen için farklı frekanslarda titreşim oluşturur',
-        'En az titreşim olan frekansları otomatik bulur',
-        'Sonuçlar makine profiline kaydedilir',
-        'Ghosting ciddi şekilde azalır'
-      ],
-      tip: 'Bu kalibrasyon sadece Bambu Lab yazıcılarda çalışır. LiDAR sensörü ile titreşimi ölçer (X1C). P1S/A1\'de ivmeölçer kullanır.'
-    },
-    {
-      icon: '↩️',
-      title: 'Retraction Kalibrasyon',
-      desc: 'İpliklenme (stringing) sorununu çözmek için geri çekme optimizasyonu.',
-      steps: [
-        '<strong>Calibration → Retraction Test</strong> seçin',
-        'Mesafe aralığı belirleyin (Direct Drive: 0.5-2mm)',
-        'Hız aralığı belirleyin (25-45 mm/s)',
-        'Test baskısını yapın - İğne kuleler veya ızgara',
-        'İpliklenme olmayan en DÜŞÜK değeri bulun',
-        'Bu değerleri filament profiline kaydedin'
-      ],
-      tip: 'Bambu yazıcılar Direct Drive olduğu için retraction mesafesi 0.5-2mm yeterli. Çok yüksek değer hotend\'de tıkanmaya neden olur.'
-    }
-  ];
+  // Calibration Data from i18n
+  const calData = window.bambuI18n.calibration[currentLang];
+  const calLabels = window.bambuI18n.calLabels[currentLang];
 
   function initCalibration() {
     updateCalDetail(0);
@@ -1556,7 +1789,7 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
       </div>
       <p class="detail-desc">${step.desc}</p>
       <div class="detail-steps">
-        <h4>Nasıl Yapılır?</h4>
+        <h4>${calLabels.howTo}</h4>
         <ol>
           ${step.steps.map(s => `<li>${s}</li>`).join('')}
         </ol>
@@ -1579,45 +1812,9 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
     });
   });
 
-  // Troubleshooting solutions
-  const solutions = {
-    adhesion: {
-      icon: '📋',
-      title: 'Tablaya Yapışmama',
-      cause: 'Tabla kirli, Z-offset yanlış veya ilk katman çok hızlı. Tabla sıcaklığı yetersiz olabilir.',
-      fix: 'Tablayı sabunlu suyla yıkayın ve kurutun. Z-Offset\'i Bambu Studio\'dan kalibre edin (Calibration → First Layer). İlk katman hızını 20-30 mm/s\'ye düşürün. Brim ekleyin (5-10mm).'
-    },
-    stringing: {
-      icon: '🕸️',
-      title: 'İpliklenme (Stringing)',
-      cause: 'Sıcaklık çok yüksek, retraction yetersiz veya filament nemli.',
-      fix: 'Nozzle sıcaklığını 5-10°C düşürün. Retraction mesafesini 1-1.5mm yapın. Filamentin nemli olmadığından emin olun - AMS kurutma özelliğini açın veya harici kurutucu kullanın.'
-    },
-    ghosting: {
-      icon: '👻',
-      title: 'Ghosting / Ringing',
-      cause: 'Mekanik titreşimler, gevşek kayışlar veya yanlış ivme ayarları.',
-      fix: 'Vibration Compensation kalibrasyonu çalıştırın. Kayış gerginliklerini kontrol edin. Yazıcıyı sağlam, titreşimsiz bir zemine yerleştirin. Baskı hızını düşürün.'
-    },
-    clog: {
-      icon: '🔥',
-      title: 'Nozzle Tıkanması',
-      cause: 'Heat creep, yanmış filament birikimi veya nemli/kirli filament.',
-      fix: 'Soğuk çekme (Cold Pull) yapın: Nozzle\'ı 250°C\'ye ısıtın, filamentin ucunu kaldırın, 90°C\'ye soğutun ve sert çekin. PLA için kapağı açık bırakın. Hardened nozzle için 280-300°C arası temizleme yapın.'
-    },
-    ams: {
-      icon: '🎨',
-      title: 'AMS Besleme Hatası',
-      cause: 'Filament dolanması, PTFE tüp tıkanması veya dişli aşınması.',
-      fix: 'Filament makara dolanmasını kontrol edin. PTFE tüpleri çıkarıp temizleyin. AMS dişlilerini fırçalayın. Filament uçlarını düz kesin. Nemli filament AMS\'de kaymaya neden olur - kurutun.'
-    },
-    layer: {
-      icon: '📚',
-      title: 'Katman Ayrılması',
-      cause: 'Katmanlar arası yapışma zayıf. Sıcaklık düşük veya fan çok yüksek veya nemli filament.',
-      fix: 'Nozzle sıcaklığını 5-10°C artırın. Fan hızını düşürün (ABS/ASA için %0-20). Kabin kapısını kapatın. Aux fan\'ı kapatın (ABS için). Filamentin kuru olduğundan emin olun.'
-    }
-  };
+  // Troubleshooting solutions from i18n
+  const solutions = window.bambuI18n.troubleshooting[currentLang];
+  const troubleLabels = window.bambuI18n.troubleLabels[currentLang];
 
   document.querySelectorAll('.problem-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1635,11 +1832,11 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
           </div>
           <div class="solution-grid">
             <div class="cause-box">
-              <h4>Neden Oluşur?</h4>
+              <h4>${troubleLabels.cause}</h4>
               <p>${sol.cause}</p>
             </div>
             <div class="fix-box">
-              <h4>Çözüm</h4>
+              <h4>${troubleLabels.fix}</h4>
               <p>${sol.fix}</p>
             </div>
           </div>
@@ -1651,6 +1848,7 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
   // Charts
   let radarChart = null;
   let timeChart = null;
+  const chartLabels = window.bambuI18n.chartLabels[currentLang];
 
   function initCharts() {
     if (radarChart) return;
@@ -1665,15 +1863,15 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
       radarChart = new Chart(ctxRadar, {
         type: 'radar',
         data: {
-          labels: ['Hız', 'Kalibrasyon', 'Çoklu Renk', 'Yazılım', 'Güvenilirlik'],
+          labels: chartLabels.radar,
           datasets: [{
-            label: 'Bambu Lab',
+            label: chartLabels.radarBambu,
             data: [10, 10, 10, 9, 9],
             backgroundColor: 'rgba(0, 174, 66, 0.2)',
             borderColor: '#00AE42',
             pointBackgroundColor: '#00AE42'
           }, {
-            label: 'Diğer Markalar',
+            label: chartLabels.radarOthers,
             data: [6, 5, 4, 6, 7],
             backgroundColor: 'rgba(148, 163, 184, 0.2)',
             borderColor: '#94a3b8',
@@ -1709,7 +1907,7 @@ const description = "Bambu Studio için kapsamlı Türkçe rehber. X1C, P1P, P1S
       timeChart = new Chart(ctxTime, {
         type: 'doughnut',
         data: {
-          labels: ['Duvarlar', 'Dolgu', 'Hareket', 'Destek', 'İlk Katman'],
+          labels: chartLabels.time,
           datasets: [{
             data: [40, 25, 15, 12, 8],
             backgroundColor: ['#059669', '#00AE42', '#34d399', '#6ee7b7', '#94a3b8'],

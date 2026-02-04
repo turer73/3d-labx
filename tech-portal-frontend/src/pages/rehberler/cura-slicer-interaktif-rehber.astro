@@ -1,19 +1,37 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
+import { getLanguage, getBaseUrl } from "../../lib/api";
+import { getTranslations, type Language } from "../../lib/translations";
 
-const title = "Cura Slicer İnteraktif Rehber | 3D-labX";
-const description = "Cura Slicer ayarlarını interaktif simülasyonlarla öğrenin. Katman yüksekliği, infill, sıcaklık ve hata çözümleri için kapsamlı rehber.";
-const canonicalUrl = "https://3d-labx.com/rehberler/cura-slicer-interaktif-rehber";
+const lang = getLanguage(Astro.request) as Language;
+const t = getTranslations(lang);
+const baseUrl = getBaseUrl(lang);
+
+// Title & description based on language
+const titles: Record<Language, string> = {
+  tr: "Cura Slicer İnteraktif Rehber | 3D-labX",
+  en: "Cura Slicer Interactive Guide | 3D-labX",
+  de: "Cura Slicer Interaktive Anleitung | 3D-labX"
+};
+const descriptions: Record<Language, string> = {
+  tr: "Cura Slicer ayarlarını interaktif simülasyonlarla öğrenin. Katman yüksekliği, infill, sıcaklık ve hata çözümleri için kapsamlı rehber.",
+  en: "Learn Cura Slicer settings with interactive simulations. Comprehensive guide for layer height, infill, temperature and troubleshooting.",
+  de: "Lernen Sie Cura Slicer Einstellungen mit interaktiven Simulationen. Umfassende Anleitung für Schichthöhe, Füllung, Temperatur und Fehlerbehebung."
+};
+
+const title = titles[lang];
+const description = descriptions[lang];
+const canonicalUrl = `${baseUrl}/rehberler/cura-slicer-interaktif-rehber`;
 
 // Breadcrumb Schema
 const breadcrumbSchema = {
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Ana Sayfa", "item": "https://3d-labx.com" },
-    { "@type": "ListItem", "position": 2, "name": "Rehberler", "item": "https://3d-labx.com/rehberler" },
-    { "@type": "ListItem", "position": 3, "name": "Cura Slicer İnteraktif Rehber", "item": canonicalUrl }
+    { "@type": "ListItem", "position": 1, "name": t.interactiveGuide.home, "item": baseUrl },
+    { "@type": "ListItem", "position": 2, "name": t.interactiveGuide.guides, "item": `${baseUrl}/rehberler` },
+    { "@type": "ListItem", "position": 3, "name": `${t.interactiveGuide.curaSlicer} ${t.interactiveGuide.masterClass}`, "item": canonicalUrl }
   ]
 };
 
@@ -21,13 +39,20 @@ const breadcrumbSchema = {
 const articleSchema = {
   "@context": "https://schema.org",
   "@type": "TechArticle",
-  "headline": "Cura Slicer İnteraktif Öğrenme Rehberi",
+  "headline": `${t.interactiveGuide.curaSlicer} ${t.interactiveGuide.masterClass}`,
   "description": description,
   "url": canonicalUrl,
   "datePublished": "2024-06-01",
   "dateModified": new Date().toISOString().split('T')[0],
-  "author": { "@type": "Organization", "name": "3D-labX", "url": "https://3d-labx.com" },
-  "publisher": { "@type": "Organization", "name": "3D-labX", "url": "https://3d-labx.com" }
+  "author": { "@type": "Organization", "name": "3D-labX", "url": baseUrl },
+  "publisher": { "@type": "Organization", "name": "3D-labX", "url": baseUrl }
+};
+
+// Descriptions for interactive guide page (localized)
+const pageDescriptions: Record<Language, string> = {
+  tr: "Volümetrik akış limitlerinden termal dinamiklere; 3D baskının bilimsel temellerini interaktif simülasyonlarla öğrenin.",
+  en: "From volumetric flow limits to thermal dynamics; learn the scientific fundamentals of 3D printing with interactive simulations.",
+  de: "Von volumetrischen Flussgrenzen bis zu thermischen Dynamiken; lernen Sie die wissenschaftlichen Grundlagen des 3D-Drucks mit interaktiven Simulationen."
 };
 ---
 
@@ -44,32 +69,32 @@ const articleSchema = {
     <div class="container">
       <!-- Breadcrumb -->
       <nav class="breadcrumb">
-        <a href="/">Ana Sayfa</a>
+        <a href="/">{t.interactiveGuide.home}</a>
         <span>/</span>
-        <a href="/rehberler">Rehberler</a>
+        <a href="/rehberler">{t.interactiveGuide.guides}</a>
         <span>/</span>
-        <span>Cura Slicer</span>
+        <span>{t.interactiveGuide.curaSlicer}</span>
       </nav>
 
       <!-- Header -->
       <header class="page-header">
-        <div class="version-badge">İnteraktif Rehber v3.0</div>
-        <h1 class="page-title">Cura Slicer <span>Master Class</span></h1>
+        <div class="version-badge">{t.interactiveGuide.versionBadge}</div>
+        <h1 class="page-title">{t.interactiveGuide.curaSlicer} <span>{t.interactiveGuide.masterClass}</span></h1>
         <p class="page-desc">
-          Volümetrik akış limitlerinden termal dinamiklere; 3D baskının bilimsel temellerini interaktif simülasyonlarla öğrenin.
+          {pageDescriptions[lang]}
         </p>
       </header>
 
       <!-- Navigation Tabs -->
       <nav class="nav-tabs">
         <button class="nav-tab active" onclick="switchTab('quality')" id="btn-quality">
-          1. Akış & Kalite
+          {t.interactiveGuide.tab1FlowQuality}
         </button>
         <button class="nav-tab" onclick="switchTab('strength')" id="btn-strength">
-          2. Yapısal Mekanik
+          {t.interactiveGuide.tab2StructuralMechanics}
         </button>
         <button class="nav-tab" onclick="switchTab('material')" id="btn-material">
-          3. Malzeme & Hata
+          {t.interactiveGuide.tab3MaterialTroubleshooting}
         </button>
       </nav>
 
@@ -83,16 +108,16 @@ const articleSchema = {
             <div class="controls-column">
               <h2 class="section-title">
                 <span class="icon">⚙️</span>
-                Akışkanlar Dinamiği
+                {t.interactiveGuide.fluidDynamics}
               </h2>
               <p class="section-desc">
-                Hotend erime kapasitesi ve nozzle basıncı dengesini anlayın. Volümetrik akış, baskınızın hız limitini belirler.
+                {t.interactiveGuide.fluidDynamicsDesc}
               </p>
 
               <!-- Nozzle Selection -->
               <div class="control-panel">
                 <div class="control-label">
-                  <span class="label-text">Nozzle Çapı</span>
+                  <span class="label-text">{t.interactiveGuide.nozzleDiameter}</span>
                 </div>
                 <div class="btn-group">
                   <button class="btn-option" onclick="setNozzle(0.2)" data-nozzle="0.2">0.2mm</button>
@@ -105,7 +130,7 @@ const articleSchema = {
               <!-- Print Speed -->
               <div class="control-panel">
                 <div class="control-label">
-                  <span class="label-text">Baskı Hızı</span>
+                  <span class="label-text">{t.interactiveGuide.printSpeed}</span>
                   <span class="control-value" id="speedDisplay">60 mm/s</span>
                 </div>
                 <input type="range" id="speedInput" min="20" max="150" step="5" value="60">
@@ -118,34 +143,34 @@ const articleSchema = {
               <!-- Layer Height -->
               <div class="control-panel">
                 <div class="control-label">
-                  <span class="label-text">Katman Yüksekliği</span>
+                  <span class="label-text">{t.interactiveGuide.layerHeight}</span>
                   <span class="control-value" id="layerDisplay">0.20 mm</span>
                 </div>
                 <input type="range" id="layerInput" min="0.08" max="0.32" step="0.04" value="0.20">
                 <div class="range-labels">
-                  <span id="minLayerLabel">0.08mm (Detay)</span>
-                  <span id="maxLayerLabel">0.32mm (Hız)</span>
+                  <span id="minLayerLabel">0.08mm ({t.interactiveGuide.detail})</span>
+                  <span id="maxLayerLabel">0.32mm ({t.interactiveGuide.speed})</span>
                 </div>
               </div>
 
               <!-- Calculated Metrics -->
               <div class="control-panel">
                 <div class="control-label">
-                  <span class="label-text">Çizgi Genişliği</span>
+                  <span class="label-text">{t.interactiveGuide.lineWidth}</span>
                   <span class="control-value" id="lineWidthDisplay">0.44 mm</span>
                 </div>
               </div>
 
               <div class="control-panel">
                 <div class="control-label">
-                  <span class="label-text">Volümetrik Akış</span>
+                  <span class="label-text">{t.interactiveGuide.volumetricFlow}</span>
                   <span class="control-value" id="flowRateDisplay">5.28 mm³/s</span>
                 </div>
                 <div class="flow-bar-container">
                   <div class="flow-bar-bg">
                     <div class="flow-bar" id="flowBar" style="width: 35%"></div>
                   </div>
-                  <p class="flow-status" id="flowStatus">Güvenli akış aralığı. Standart hotend için idealdir.</p>
+                  <p class="flow-status" id="flowStatus" data-safe={t.interactiveGuide.flowSafe} data-high={t.interactiveGuide.flowHigh} data-critical={t.interactiveGuide.flowCritical}>{t.interactiveGuide.flowSafe}</p>
                 </div>
               </div>
             </div>
@@ -154,18 +179,18 @@ const articleSchema = {
             <div class="visualizer-column">
               <div class="visualizer-panel">
                 <div class="visualizer-header">
-                  <span class="visualizer-title">Z-Offset Simülasyonu</span>
-                  <span class="visualizer-badge" id="resolutionBadge">Dengeli</span>
+                  <span class="visualizer-title">{t.interactiveGuide.zOffsetSimulation}</span>
+                  <span class="visualizer-badge" id="resolutionBadge" data-balanced={t.interactiveGuide.balanced} data-highres={t.interactiveGuide.highResolution} data-fast={t.interactiveGuide.fastCoarse}>{t.interactiveGuide.balanced}</span>
                 </div>
                 <div class="visualizer-body">
                   <canvas id="layerCanvas"></canvas>
                   <div class="z-offset-control">
                     <div class="z-offset-labels">
-                      <span>Uzak (+)</span>
-                      <span>Yakın (-)</span>
+                      <span>{t.interactiveGuide.far} (+)</span>
+                      <span>{t.interactiveGuide.near} (-)</span>
                     </div>
                     <input type="range" id="zOffsetInput" min="-0.15" max="0.15" step="0.01" value="0">
-                    <div class="z-offset-value" id="zOffsetDisplay">Offset: 0.00mm</div>
+                    <div class="z-offset-value" id="zOffsetDisplay">{t.interactiveGuide.offset}: 0.00mm</div>
                   </div>
                 </div>
               </div>
@@ -175,16 +200,16 @@ const articleSchema = {
           <!-- Tips -->
           <div class="tips-grid">
             <div class="tip-card">
-              <h4>İlk Katman</h4>
-              <p>Yapışma için ilk katmanı %10-20 daha yavaş yazdırın ve katman yüksekliğini artırın (örneğin 0.24mm).</p>
+              <h4>{t.interactiveGuide.firstLayerTip}</h4>
+              <p>{t.interactiveGuide.firstLayerTipDesc}</p>
             </div>
             <div class="tip-card">
-              <h4>Altın Kural</h4>
-              <p>Maksimum katman yüksekliği = Nozzle çapı × 0.75. Örneğin 0.4mm nozzle için max 0.3mm.</p>
+              <h4>{t.interactiveGuide.goldenRuleTip}</h4>
+              <p>{t.interactiveGuide.goldenRuleTipDesc}</p>
             </div>
             <div class="tip-card">
-              <h4>Akış Limiti</h4>
-              <p>Standart hotend'ler 10-12 mm³/s akışı destekler. Yüksek hızda sıcaklığı 5-10°C artırın.</p>
+              <h4>{t.interactiveGuide.flowLimitTip}</h4>
+              <p>{t.interactiveGuide.flowLimitTipDesc}</p>
             </div>
           </div>
         </section>
@@ -196,16 +221,16 @@ const articleSchema = {
             <div class="controls-column">
               <h2 class="section-title">
                 <span class="icon">🏗️</span>
-                Yapısal Mekanik
+                {t.interactiveGuide.structuralMechanics}
               </h2>
               <p class="section-desc">
-                Yük dağılımı ve malzeme verimliliği. Duvar sayısı, iç doluluktan daha fazla mukavemet sağlar.
+                {t.interactiveGuide.structuralMechanicsDesc}
               </p>
 
               <!-- Wall Count -->
               <div class="control-panel">
                 <div class="control-label">
-                  <span class="label-text">Duvar Sayısı (Walls)</span>
+                  <span class="label-text">{t.interactiveGuide.wallCount}</span>
                   <span class="control-value" id="wallThicknessDisplay">1.2 mm</span>
                 </div>
                 <div class="btn-group">
@@ -214,32 +239,32 @@ const articleSchema = {
                   <button class="btn-option" onclick="setWalls(4)">4</button>
                   <button class="btn-option" onclick="setWalls(5)">5+</button>
                 </div>
-                <p class="control-note">* 3 duvar, %50 doluluktan daha fazla mukavemet sağlar</p>
+                <p class="control-note">* {t.interactiveGuide.wallNote}</p>
               </div>
 
               <!-- Infill Density -->
               <div class="control-panel">
                 <div class="control-label">
-                  <span class="label-text">İç Doluluk (%)</span>
+                  <span class="label-text">{t.interactiveGuide.infillDensity}</span>
                   <span class="control-value" id="infillDisplay">20%</span>
                 </div>
                 <input type="range" id="infillInput" min="0" max="100" step="5" value="20">
                 <div class="range-labels">
-                  <span>0% (Boş)</span>
-                  <span>100% (Dolu)</span>
+                  <span>0% ({t.interactiveGuide.empty})</span>
+                  <span>100% ({t.interactiveGuide.solid})</span>
                 </div>
               </div>
 
               <!-- Pattern Selection -->
               <div class="control-panel">
                 <div class="control-label">
-                  <span class="label-text">Desen Geometrisi</span>
+                  <span class="label-text">{t.interactiveGuide.patternGeometry}</span>
                 </div>
                 <div class="select-wrapper">
                   <select class="select-dropdown" id="patternSelect" onchange="updatePattern()">
-                    <option value="grid">Izgara (Grid) - Dikey yüklerde güçlü</option>
-                    <option value="triangles">Üçgenler (Triangles) - Dengeli mukavemet</option>
-                    <option value="gyroid">Gyroid - İzotropik, esnek</option>
+                    <option value="grid">{t.interactiveGuide.patternGrid}</option>
+                    <option value="triangles">{t.interactiveGuide.patternTriangles}</option>
+                    <option value="gyroid">{t.interactiveGuide.patternGyroid}</option>
                   </select>
                 </div>
               </div>
@@ -247,12 +272,12 @@ const articleSchema = {
               <!-- Metrics -->
               <div class="metrics-grid">
                 <div class="metric-card">
-                  <div class="metric-label">Tahmini Yük Kapasitesi</div>
+                  <div class="metric-label">{t.interactiveGuide.estimatedLoadCapacity}</div>
                   <div class="metric-value" id="strengthDisplay">~25 kg</div>
                 </div>
                 <div class="metric-card">
-                  <div class="metric-label">Malzeme Maliyeti</div>
-                  <div class="metric-value success" id="costDisplay">Düşük</div>
+                  <div class="metric-label">{t.interactiveGuide.materialCost}</div>
+                  <div class="metric-value success" id="costDisplay" data-low={t.interactiveGuide.costLow} data-medium={t.interactiveGuide.costMedium} data-high={t.interactiveGuide.costHigh}>{t.interactiveGuide.costLow}</div>
                 </div>
               </div>
             </div>
@@ -261,7 +286,7 @@ const articleSchema = {
             <div class="visualizer-column">
               <div class="visualizer-panel">
                 <div class="visualizer-header">
-                  <span class="visualizer-title">Kesit Analizi</span>
+                  <span class="visualizer-title">{t.interactiveGuide.crossSectionAnalysis}</span>
                   <span class="visualizer-badge" id="patternBadge">GRID</span>
                 </div>
                 <div class="visualizer-body">
@@ -274,16 +299,16 @@ const articleSchema = {
           <!-- Tips -->
           <div class="tips-grid">
             <div class="tip-card">
-              <h4>Fonksiyonel Parçalar</h4>
-              <p>Mekanik parçalar için 4+ duvar ve %30-50 infill kullanın. Desen olarak Gyroid veya Triangles seçin.</p>
+              <h4>{t.interactiveGuide.functionalPartsTip}</h4>
+              <p>{t.interactiveGuide.functionalPartsTipDesc}</p>
             </div>
             <div class="tip-card">
-              <h4>Dekoratif Parçalar</h4>
-              <p>Sadece görüntüsü önemli parçalar için 2 duvar ve %10-15 infill yeterlidir. Filament tasarrufu sağlar.</p>
+              <h4>{t.interactiveGuide.decorativePartsTip}</h4>
+              <p>{t.interactiveGuide.decorativePartsTipDesc}</p>
             </div>
             <div class="tip-card">
-              <h4>Gyroid Avantajı</h4>
-              <p>Gyroid deseni tüm yönlerde eşit mukavemet sağlar ve sıvı/hava geçirgendir. Vazolar için idealdir.</p>
+              <h4>{t.interactiveGuide.gyroidAdvantageTip}</h4>
+              <p>{t.interactiveGuide.gyroidAdvantageTipDesc}</p>
             </div>
           </div>
         </section>
@@ -295,10 +320,10 @@ const articleSchema = {
             <div class="controls-column">
               <h2 class="section-title">
                 <span class="icon">🔥</span>
-                Termal Yapışma Analizi
+                {t.interactiveGuide.thermalAdhesionAnalysis}
               </h2>
               <p class="section-desc">
-                Her filamentin ideal bir "tatlı nokta" (sweet spot) sıcaklığı vardır. Çok soğuk: zayıf yapışma, çok sıcak: stringing.
+                {t.interactiveGuide.thermalAdhesionDesc}
               </p>
 
               <div class="control-panel chart-panel">
@@ -309,12 +334,12 @@ const articleSchema = {
 
               <div class="fan-physics-box">
                 <div class="control-label">
-                  <span class="label-text">Fan Hızı</span>
+                  <span class="label-text">{t.interactiveGuide.fanSpeed}</span>
                   <span class="control-value" id="fanDisplay">100%</span>
                 </div>
                 <input type="range" id="fanInput" min="0" max="100" step="5" value="100">
                 <p class="fan-physics-text" id="fanText">
-                  PLA için %100: Köprüleme ve detaylar mükemmel. Katman yapışması yeterli.
+                  {t.interactiveGuide.fanSpeedPLA}
                 </p>
               </div>
             </div>
@@ -323,22 +348,22 @@ const articleSchema = {
             <div class="controls-column">
               <h2 class="section-title">
                 <span class="icon">🛠️</span>
-                Hata Çözüm Merkezi
+                {t.interactiveGuide.troubleshootingCenter}
               </h2>
               <p class="section-desc">
-                Yaşadığınız sorunu seçin, çözüm önerilerini görün.
+                {t.interactiveGuide.troubleshootingCenterDesc}
               </p>
 
               <div class="control-panel">
                 <div class="select-wrapper">
                   <select class="select-dropdown" id="troubleSelect" onchange="solveTrouble()">
-                    <option value="" selected disabled>Bir sorun seçin...</option>
-                    <option value="stringing">🕷️ İpliklenme (Stringing)</option>
-                    <option value="blobs">🫧 Topaklar (Blobs/Zits)</option>
-                    <option value="gaps">🌑 Eksik Ekstrüzyon (Under-extrusion)</option>
-                    <option value="warp">📐 Köşe Kalkması (Warping)</option>
-                    <option value="elephant">🐘 Fil Ayağı (Elephant Foot)</option>
-                    <option value="layer">═ Katman Ayrılması (Layer Separation)</option>
+                    <option value="" selected disabled>{t.interactiveGuide.selectProblem}</option>
+                    <option value="stringing">🕷️ {t.interactiveGuide.stringing}</option>
+                    <option value="blobs">🫧 {t.interactiveGuide.blobs}</option>
+                    <option value="gaps">🌑 {t.interactiveGuide.underExtrusion}</option>
+                    <option value="warp">📐 {t.interactiveGuide.warping}</option>
+                    <option value="elephant">🐘 {t.interactiveGuide.elephantFoot}</option>
+                    <option value="layer">═ {t.interactiveGuide.layerSeparation}</option>
                   </select>
                 </div>
               </div>
@@ -351,7 +376,7 @@ const articleSchema = {
               </div>
 
               <div class="solution-placeholder" id="solutionPlaceholder">
-                Yukarıdaki listeden bir sorun seçin, detaylı çözüm önerileri burada görünecek.
+                {t.interactiveGuide.solutionPlaceholder}
               </div>
             </div>
           </div>
@@ -359,16 +384,16 @@ const articleSchema = {
           <!-- Tips -->
           <div class="tips-grid">
             <div class="tip-card">
-              <h4>PLA Ayarları</h4>
-              <p>Nozzle: 190-215°C, Tabla: 50-60°C, Fan: %100. En kolay yazdırılabilen filament.</p>
+              <h4>{t.interactiveGuide.plaSettingsTip}</h4>
+              <p>{t.interactiveGuide.plaSettingsTipDesc}</p>
             </div>
             <div class="tip-card">
-              <h4>PETG Ayarları</h4>
-              <p>Nozzle: 230-250°C, Tabla: 70-80°C, Fan: %30-50. Stringing'e dikkat, retraction artırın.</p>
+              <h4>{t.interactiveGuide.petgSettingsTip}</h4>
+              <p>{t.interactiveGuide.petgSettingsTipDesc}</p>
             </div>
             <div class="tip-card">
-              <h4>ABS/ASA Ayarları</h4>
-              <p>Nozzle: 240-260°C, Tabla: 90-110°C, Fan: %0-20. Kapalı ortam ve hava akımı gerektirir.</p>
+              <h4>{t.interactiveGuide.absSettingsTip}</h4>
+              <p>{t.interactiveGuide.absSettingsTipDesc}</p>
             </div>
           </div>
         </section>
@@ -376,9 +401,9 @@ const articleSchema = {
 
       <!-- Footer -->
       <footer class="page-footer">
-        <p>Cura Slicer İnteraktif Rehber | v3.0</p>
+        <p>{t.interactiveGuide.curaSlicer} | {t.interactiveGuide.versionBadge}</p>
         <a href="/rehberler" class="back-link">
-          ← Tüm Rehberlere Dön
+          {t.interactiveGuide.backToGuides}
         </a>
       </footer>
     </div>
@@ -388,7 +413,134 @@ const articleSchema = {
 <!-- Chart.js CDN -->
 <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<!-- Language data for JavaScript -->
+<script define:vars={{ lang }}>
+  window.curaI18n = {
+    lang: lang,
+    // UI Labels (from translations)
+    labels: {
+      tr: {
+        highResolution: "Yüksek Çözünürlük",
+        balanced: "Dengeli",
+        fastCoarse: "Hızlı & Kaba",
+        flowSafe: "Güvenli",
+        flowHigh: "Yüksek",
+        flowCritical: "Kritik!",
+        costLow: "Düşük",
+        costMedium: "Orta",
+        costHigh: "Yüksek",
+        detail: "Detay",
+        speed: "Hız",
+        offset: "Offset"
+      },
+      en: {
+        highResolution: "High Resolution",
+        balanced: "Balanced",
+        fastCoarse: "Fast & Coarse",
+        flowSafe: "Safe",
+        flowHigh: "High",
+        flowCritical: "Critical!",
+        costLow: "Low",
+        costMedium: "Medium",
+        costHigh: "High",
+        detail: "Detail",
+        speed: "Speed",
+        offset: "Offset"
+      },
+      de: {
+        highResolution: "Hohe Auflösung",
+        balanced: "Ausgewogen",
+        fastCoarse: "Schnell & Grob",
+        flowSafe: "Sicher",
+        flowHigh: "Hoch",
+        flowCritical: "Kritisch!",
+        costLow: "Niedrig",
+        costMedium: "Mittel",
+        costHigh: "Hoch",
+        detail: "Detail",
+        speed: "Geschwindigkeit",
+        offset: "Offset"
+      }
+    },
+    // Fan text
+    fanText: {
+      tr: {
+        abs: "ABS/ASA için ideal. Katmanlar mükemmel yapışır, ancak köprüleme (bridging) zorlaşır.",
+        petg: "PETG için önerilir. Katman yapışması korunur, stringing azalır.",
+        medium: "Orta soğutma. Çoğu filament için dengeli bir seçim.",
+        pla: "PLA için ideal. Mükemmel detay, köprüleme ve overhang performansı."
+      },
+      en: {
+        abs: "Ideal for ABS/ASA. Layers adhere perfectly, but bridging becomes difficult.",
+        petg: "Recommended for PETG. Layer adhesion is maintained, stringing reduced.",
+        medium: "Medium cooling. A balanced choice for most filaments.",
+        pla: "Ideal for PLA. Excellent detail, bridging and overhang performance."
+      },
+      de: {
+        abs: "Ideal für ABS/ASA. Schichten haften perfekt, aber Bridging wird schwierig.",
+        petg: "Empfohlen für PETG. Schichthaftung bleibt erhalten, Stringing wird reduziert.",
+        medium: "Mittlere Kühlung. Eine ausgewogene Wahl für die meisten Filamente.",
+        pla: "Ideal für PLA. Ausgezeichnete Details, Bridging und Überhang-Leistung."
+      }
+    },
+    // Chart labels
+    chartLabels: {
+      tr: { label: "Katman Yapışması", axis: "PLA Nozzle Sıcaklığı", excellent: "Mükemmel yapışma", good: "İyi yapışma", medium: "Orta yapışma", weak: "Zayıf yapışma" },
+      en: { label: "Layer Adhesion", axis: "PLA Nozzle Temperature", excellent: "Excellent adhesion", good: "Good adhesion", medium: "Medium adhesion", weak: "Weak adhesion" },
+      de: { label: "Schichthaftung", axis: "PLA Düsentemperatur", excellent: "Ausgezeichnete Haftung", good: "Gute Haftung", medium: "Mittlere Haftung", weak: "Schwache Haftung" }
+    },
+    // Flow messages
+    flowMessages: {
+      tr: { safe: "Güvenli akış aralığı. Standart hotend için idealdir.", high: "Yüksek akış. Sıcaklığı +5-10°C artırmayı deneyin.", critical: "Kritik! Standart hotend bu akışı eritebilir. Sıcaklığı artırın veya hızı azaltın." },
+      en: { safe: "Safe flow range. Ideal for standard hotend.", high: "High flow. Try increasing temperature +5-10°C.", critical: "Critical! Standard hotend may struggle. Increase temp or reduce speed." },
+      de: { safe: "Sicherer Flussbereich. Ideal für Standard-Hotend.", high: "Hoher Fluss. Versuchen Sie die Temperatur um +5-10°C zu erhöhen.", critical: "Kritisch! Standard-Hotend könnte Probleme haben. Temperatur erhöhen oder Geschwindigkeit reduzieren." }
+    },
+    // Troubleshooting data
+    troubleData: {
+      tr: {
+        stringing: { title: "İpliklenme (Stringing)", desc: "Nozzle hareket ederken erimiş filament sızıyor ve ince iplikler bırakıyor.", settings: [{ name: "Retraction Distance", value: "+1-2mm artırın" }, { name: "Retraction Speed", value: "40-50 mm/s" }, { name: "Nozzle Sıcaklığı", value: "-5 ile -10°C azaltın" }, { name: "Travel Speed", value: "150+ mm/s" }], tip: "Pro tip: Filament nemli olabilir. Kurutma işlemine tabi tutun." },
+        blobs: { title: "Topaklar / Zits (Blobs)", desc: "Yüzey üzerinde küçük kabarcıklar veya topaklar.", settings: [{ name: "Coasting", value: "Aktif edin (0.2-0.5mm)" }, { name: "Wipe", value: "Aktif edin" }, { name: "Z-Seam", value: "Sharpest Corner / Hide" }, { name: "Outer Wall Wipe", value: "0.2mm" }], tip: "Pro tip: Power Loss Recovery aktifse kapatmayı deneyin." },
+        gaps: { title: "Eksik Ekstrüzyon (Under-extrusion)", desc: "Katmanlar arasında boşluklar, zayıf dolgu veya ince duvarlar.", settings: [{ name: "Flow Rate", value: "%105-110 artırın" }, { name: "Nozzle Sıcaklığı", value: "+5-10°C artırın" }, { name: "Print Speed", value: "Azaltın" }, { name: "Nozzle", value: "Temizleyin veya değiştirin" }], tip: "Pro tip: Extruder dişlilerini kontrol edin, E-steps kalibrasyonu yapın." },
+        warp: { title: "Köşe Kalkması (Warping)", desc: "Baskı tabladan kalkıyor, özellikle köşelerde.", settings: [{ name: "Bed Sıcaklığı", value: "+5-10°C artırın" }, { name: "Brim", value: "Aktif edin (5-10mm)" }, { name: "Enclosure", value: "Kapalı ortam kullanın" }, { name: "Draft Shield", value: "Aktif edin (ABS için)" }], tip: "Pro tip: Tabla temizliği kritik. IPA ile silin." },
+        elephant: { title: "Fil Ayağı (Elephant Foot)", desc: "İlk katmanlar dışarıya doğru yayılmış, taban normalden geniş.", settings: [{ name: "Initial Layer Exp.", value: "-0.1 to -0.2mm" }, { name: "Bed Sıcaklığı", value: "-5°C azaltın" }, { name: "Z-Offset", value: "Hafifçe artırın" }, { name: "Initial Layer Speed", value: "Azaltın" }], tip: "Pro tip: Z-offset çok yakın ayarlanmış olabilir." },
+        layer: { title: "Katman Ayrılması (Layer Separation)", desc: "Katmanlar birbirine yapışmıyor, parçalar zayıf ve kolay kırılıyor.", settings: [{ name: "Nozzle Sıcaklığı", value: "+10-15°C artırın" }, { name: "Print Speed", value: "Azaltın" }, { name: "Fan Hızı", value: "Azaltın (%50-70)" }, { name: "Layer Height", value: "Azaltın" }], tip: "Pro tip: Soğuk ortamda basıyorsanız enclosure kullanın." }
+      },
+      en: {
+        stringing: { title: "Stringing", desc: "Molten filament leaks and leaves thin strings as the nozzle moves.", settings: [{ name: "Retraction Distance", value: "Increase +1-2mm" }, { name: "Retraction Speed", value: "40-50 mm/s" }, { name: "Nozzle Temp", value: "Reduce -5 to -10°C" }, { name: "Travel Speed", value: "150+ mm/s" }], tip: "Pro tip: Filament may be wet. Try drying it." },
+        blobs: { title: "Blobs / Zits", desc: "Small bubbles or blobs on the surface.", settings: [{ name: "Coasting", value: "Enable (0.2-0.5mm)" }, { name: "Wipe", value: "Enable" }, { name: "Z-Seam", value: "Sharpest Corner / Hide" }, { name: "Outer Wall Wipe", value: "0.2mm" }], tip: "Pro tip: Try disabling Power Loss Recovery if enabled." },
+        gaps: { title: "Under Extrusion", desc: "Gaps between layers, weak infill or thin walls.", settings: [{ name: "Flow Rate", value: "Increase to 105-110%" }, { name: "Nozzle Temp", value: "Increase +5-10°C" }, { name: "Print Speed", value: "Reduce" }, { name: "Nozzle", value: "Clean or replace" }], tip: "Pro tip: Check extruder gears, calibrate E-steps." },
+        warp: { title: "Warping", desc: "Print lifts from bed, especially at corners.", settings: [{ name: "Bed Temp", value: "Increase +5-10°C" }, { name: "Brim", value: "Enable (5-10mm)" }, { name: "Enclosure", value: "Use enclosed chamber" }, { name: "Draft Shield", value: "Enable (for ABS)" }], tip: "Pro tip: Bed cleanliness is critical. Wipe with IPA." },
+        elephant: { title: "Elephant Foot", desc: "First layers spread outward, base wider than normal.", settings: [{ name: "Initial Layer Exp.", value: "-0.1 to -0.2mm" }, { name: "Bed Temp", value: "Reduce -5°C" }, { name: "Z-Offset", value: "Slightly increase" }, { name: "Initial Layer Speed", value: "Reduce" }], tip: "Pro tip: Z-offset may be set too close." },
+        layer: { title: "Layer Separation", desc: "Layers don't stick together, parts are weak and break easily.", settings: [{ name: "Nozzle Temp", value: "Increase +10-15°C" }, { name: "Print Speed", value: "Reduce" }, { name: "Fan Speed", value: "Reduce (50-70%)" }, { name: "Layer Height", value: "Reduce" }], tip: "Pro tip: Use enclosure if printing in cold environment." }
+      },
+      de: {
+        stringing: { title: "Fädenziehen (Stringing)", desc: "Geschmolzenes Filament tritt aus und hinterlässt dünne Fäden bei Düsenbewegung.", settings: [{ name: "Retraction Distance", value: "+1-2mm erhöhen" }, { name: "Retraction Speed", value: "40-50 mm/s" }, { name: "Düsentemperatur", value: "-5 bis -10°C reduzieren" }, { name: "Travel Speed", value: "150+ mm/s" }], tip: "Pro-Tipp: Filament könnte feucht sein. Versuchen Sie es zu trocknen." },
+        blobs: { title: "Kleckse / Pickel (Blobs)", desc: "Kleine Blasen oder Kleckse auf der Oberfläche.", settings: [{ name: "Coasting", value: "Aktivieren (0.2-0.5mm)" }, { name: "Wipe", value: "Aktivieren" }, { name: "Z-Seam", value: "Sharpest Corner / Hide" }, { name: "Outer Wall Wipe", value: "0.2mm" }], tip: "Pro-Tipp: Versuchen Sie Power Loss Recovery zu deaktivieren." },
+        gaps: { title: "Unterextrusion", desc: "Lücken zwischen Schichten, schwache Füllung oder dünne Wände.", settings: [{ name: "Flow Rate", value: "Auf 105-110% erhöhen" }, { name: "Düsentemperatur", value: "+5-10°C erhöhen" }, { name: "Print Speed", value: "Reduzieren" }, { name: "Nozzle", value: "Reinigen oder ersetzen" }], tip: "Pro-Tipp: Prüfen Sie Extruder-Zahnräder, kalibrieren Sie E-Steps." },
+        warp: { title: "Verzug (Warping)", desc: "Druck löst sich vom Bett, besonders an Ecken.", settings: [{ name: "Betttemperatur", value: "+5-10°C erhöhen" }, { name: "Brim", value: "Aktivieren (5-10mm)" }, { name: "Enclosure", value: "Geschlossenen Raum verwenden" }, { name: "Draft Shield", value: "Aktivieren (für ABS)" }], tip: "Pro-Tipp: Bettreinigung ist kritisch. Mit IPA abwischen." },
+        elephant: { title: "Elefantenfuß", desc: "Erste Schichten breiten sich aus, Basis breiter als normal.", settings: [{ name: "Initial Layer Exp.", value: "-0.1 to -0.2mm" }, { name: "Betttemperatur", value: "-5°C reduzieren" }, { name: "Z-Offset", value: "Leicht erhöhen" }, { name: "Initial Layer Speed", value: "Reduzieren" }], tip: "Pro-Tipp: Z-Offset könnte zu nah eingestellt sein." },
+        layer: { title: "Schichtablösung", desc: "Schichten haften nicht zusammen, Teile sind schwach und brechen leicht.", settings: [{ name: "Düsentemperatur", value: "+10-15°C erhöhen" }, { name: "Print Speed", value: "Reduzieren" }, { name: "Lüftergeschwindigkeit", value: "Reduzieren (50-70%)" }, { name: "Layer Height", value: "Reduzieren" }], tip: "Pro-Tipp: Verwenden Sie ein Gehäuse bei kalter Umgebung." }
+      }
+    }
+  };
+</script>
+
 <script is:inline>
+  // ================================
+  // I18N HELPER
+  // ================================
+  function getI18n() {
+    const data = window.curaI18n;
+    const lang = data.lang;
+    return {
+      ...data.labels[lang],
+      fanText: data.fanText[lang],
+      chartLabels: data.chartLabels[lang],
+      flowMessages: data.flowMessages[lang],
+      troubleData: data.troubleData[lang]
+    };
+  }
+
   // ================================
   // GLOBAL STATE
   // ================================
@@ -400,6 +552,7 @@ const articleSchema = {
   let currentPattern = 'grid';
   let zOffset = 0;
   let tempChart = null;
+  let i18n = null;
 
   // ================================
   // TAB NAVIGATION
@@ -442,8 +595,8 @@ const articleSchema = {
       layerInput.value = currentLayerHeight;
     }
 
-    document.getElementById('minLayerLabel').textContent = minLayer + 'mm (Detay)';
-    document.getElementById('maxLayerLabel').textContent = maxLayer + 'mm (Hız)';
+    document.getElementById('minLayerLabel').textContent = minLayer + 'mm (' + i18n.detail + ')';
+    document.getElementById('maxLayerLabel').textContent = maxLayer + 'mm (' + i18n.speed + ')';
 
     updateQualityMetrics();
     updateWallThickness();
@@ -464,25 +617,25 @@ const articleSchema = {
     const flowStatus = document.getElementById('flowStatus');
     if (flow > 12) {
       flowBar.className = 'flow-bar danger';
-      flowStatus.innerHTML = '<strong class="error">Kritik!</strong> Standart hotend bu akışı eritebilir. Sıcaklığı artırın veya hızı azaltın.';
+      flowStatus.innerHTML = '<strong class="error">' + i18n.flowCritical + '</strong> ' + i18n.flowMessages.critical;
     } else if (flow > 9) {
       flowBar.className = 'flow-bar warning';
-      flowStatus.innerHTML = '<strong class="warn">Yüksek akış.</strong> Sıcaklığı +5-10°C artırmayı deneyin.';
+      flowStatus.innerHTML = '<strong class="warn">' + i18n.flowHigh + '</strong> ' + i18n.flowMessages.high;
     } else {
       flowBar.className = 'flow-bar';
-      flowStatus.textContent = 'Güvenli akış aralığı. Standart hotend için idealdir.';
+      flowStatus.textContent = i18n.flowMessages.safe;
     }
 
     const ratio = currentLayerHeight / currentNozzle;
     const badge = document.getElementById('resolutionBadge');
     if (ratio <= 0.35) {
-      badge.textContent = 'Yüksek Çözünürlük';
+      badge.textContent = i18n.highResolution;
       badge.className = 'visualizer-badge success';
     } else if (ratio <= 0.6) {
-      badge.textContent = 'Dengeli';
+      badge.textContent = i18n.balanced;
       badge.className = 'visualizer-badge';
     } else {
-      badge.textContent = 'Hızlı/Kaba';
+      badge.textContent = i18n.fastCoarse;
       badge.className = 'visualizer-badge warning';
     }
 
@@ -600,13 +753,13 @@ const articleSchema = {
     const cost = (currentWalls * 5 * nozzleFactor) + (currentInfill * 0.7);
     const costDisplay = document.getElementById('costDisplay');
     if (cost < 35) {
-      costDisplay.textContent = 'Düşük';
+      costDisplay.textContent = i18n.costLow;
       costDisplay.className = 'metric-value success';
     } else if (cost < 70) {
-      costDisplay.textContent = 'Orta';
+      costDisplay.textContent = i18n.costMedium;
       costDisplay.className = 'metric-value warning';
     } else {
-      costDisplay.textContent = 'Yüksek';
+      costDisplay.textContent = i18n.costHigh;
       costDisplay.className = 'metric-value error';
     }
 
@@ -701,7 +854,7 @@ const articleSchema = {
       data: {
         labels: ['185', '195', '200', '205', '210', '215', '220'],
         datasets: [{
-          label: 'Katman Yapışması',
+          label: i18n.chartLabel,
           data: [30, 70, 90, 95, 85, 65, 40],
           borderColor: '#F97316',
           backgroundColor: gradient,
@@ -722,10 +875,10 @@ const articleSchema = {
             callbacks: {
               label: function(context) {
                 const val = context.raw;
-                if (val >= 90) return 'Mükemmel yapışma';
-                if (val >= 70) return 'İyi yapışma';
-                if (val >= 50) return 'Orta yapışma';
-                return 'Zayıf yapışma';
+                if (val >= 90) return i18n.chartTooltips.excellent;
+                if (val >= 70) return i18n.chartTooltips.good;
+                if (val >= 50) return i18n.chartTooltips.medium;
+                return i18n.chartTooltips.weak;
               }
             }
           }
@@ -742,7 +895,7 @@ const articleSchema = {
             },
             title: {
               display: true,
-              text: 'PLA Nozzle Sıcaklığı',
+              text: i18n.chartAxisLabel,
               color: isDark ? '#94A3B8' : '#64748B'
             }
           }
@@ -757,89 +910,21 @@ const articleSchema = {
 
     const text = document.getElementById('fanText');
     if (value == 0) {
-      text.textContent = 'ABS/ASA için ideal. Katmanlar mükemmel yapışır, ancak köprüleme (bridging) zorlaşır.';
+      text.textContent = i18n.fanText.abs;
     } else if (value < 30) {
-      text.textContent = 'PETG için önerilir. Katman yapışması korunur, stringing azalır.';
+      text.textContent = i18n.fanText.petg;
     } else if (value < 70) {
-      text.textContent = 'Orta soğutma. Çoğu filament için dengeli bir seçim.';
+      text.textContent = i18n.fanText.medium;
     } else {
-      text.textContent = 'PLA için ideal. Mükemmel detay, köprüleme ve overhang performansı.';
+      text.textContent = i18n.fanText.pla;
     }
   }
 
   // ================================
-  // TROUBLESHOOTING
+  // TROUBLESHOOTING (using i18n data)
   // ================================
-  const troubleData = {
-    stringing: {
-      title: 'İpliklenme (Stringing)',
-      desc: 'Nozzle hareket ederken erimiş filament sızıyor ve ince iplikler bırakıyor. Genellikle retraction ayarları veya sıcaklık sorunlarından kaynaklanır.',
-      settings: [
-        { name: 'Retraction Distance', value: '+1-2mm artırın' },
-        { name: 'Retraction Speed', value: '40-50 mm/s' },
-        { name: 'Nozzle Sıcaklığı', value: '-5 ile -10°C azaltın' },
-        { name: 'Travel Speed', value: '150+ mm/s' }
-      ],
-      tip: 'Pro tip: Filament nemli olabilir. Kurutma işlemine tabi tutun veya yeni filament deneyin.'
-    },
-    blobs: {
-      title: 'Topaklar / Zits (Blobs)',
-      desc: 'Yüzey üzerinde küçük kabarcıklar veya topaklar. Genellikle katman değişim noktalarında veya fazla ekstrüzyondan kaynaklanır.',
-      settings: [
-        { name: 'Coasting', value: 'Aktif edin (0.2-0.5mm)' },
-        { name: 'Wipe', value: 'Aktif edin' },
-        { name: 'Z-Seam', value: 'Sharpest Corner veya Hide' },
-        { name: 'Outer Wall Wipe', value: '0.2mm' }
-      ],
-      tip: 'Pro tip: Power Loss Recovery aktifse kapatmayı deneyin, fazla duraksama yapar.'
-    },
-    gaps: {
-      title: 'Eksik Ekstrüzyon (Under-extrusion)',
-      desc: 'Katmanlar arasında boşluklar, zayıf dolgu veya ince duvarlar. Yetersiz filament akışından kaynaklanır.',
-      settings: [
-        { name: 'Flow Rate', value: '%105-110 artırın' },
-        { name: 'Nozzle Sıcaklığı', value: '+5-10°C artırın' },
-        { name: 'Print Speed', value: 'Azaltın' },
-        { name: 'Nozzle', value: 'Temizleyin veya değiştirin' }
-      ],
-      tip: 'Pro tip: Extruder dişlilerini kontrol edin, aşınmış olabilir. E-steps kalibrasyonu yapın.'
-    },
-    warp: {
-      title: 'Köşe Kalkması (Warping)',
-      desc: 'Baskı tabladan kalkıyor, özellikle köşelerde. Eşit olmayan soğuma ve büzülmeden kaynaklanır.',
-      settings: [
-        { name: 'Bed Sıcaklığı', value: '+5-10°C artırın' },
-        { name: 'Brim', value: 'Aktif edin (5-10mm)' },
-        { name: 'Enclosure', value: 'Kapalı ortam kullanın' },
-        { name: 'Draft Shield', value: 'Aktif edin (ABS için)' }
-      ],
-      tip: 'Pro tip: Tabla temizliği kritik. IPA ile silin ve yapışma spreyi/tutkal kullanın.'
-    },
-    elephant: {
-      title: 'Fil Ayağı (Elephant Foot)',
-      desc: 'İlk katmanlar dışarıya doğru yayılmış, taban normalden geniş. Fazla ezilme veya yüksek tabla sıcaklığından kaynaklanır.',
-      settings: [
-        { name: 'Initial Layer Exp.', value: '-0.1 ile -0.2mm' },
-        { name: 'Bed Sıcaklığı', value: '-5°C azaltın' },
-        { name: 'Z-Offset', value: 'Hafifçe artırın' },
-        { name: 'Initial Layer Speed', value: 'Azaltın' }
-      ],
-      tip: 'Pro tip: Z-offset çok yakın ayarlanmış olabilir. Kağıt testi yapın ve hafifçe yükseltin.'
-    },
-    layer: {
-      title: 'Katman Ayrılması (Layer Separation)',
-      desc: 'Katmanlar birbirine yapışmıyor, parçalar zayıf ve kolay kırılıyor. Yetersiz katman yapışması.',
-      settings: [
-        { name: 'Nozzle Sıcaklığı', value: '+10-15°C artırın' },
-        { name: 'Print Speed', value: 'Azaltın' },
-        { name: 'Fan Hızı', value: 'Azaltın (%50-70)' },
-        { name: 'Layer Height', value: 'Azaltın' }
-      ],
-      tip: 'Pro tip: Soğuk ortamda basıyorsanız enclosure kullanın. Hava akımını engelleyin.'
-    }
-  };
-
   function solveTrouble() {
+    const troubleData = i18n.troubleData;
     const value = document.getElementById('troubleSelect').value;
     const box = document.getElementById('solutionBox');
     const placeholder = document.getElementById('solutionPlaceholder');
@@ -871,6 +956,9 @@ const articleSchema = {
   // EVENT LISTENERS
   // ================================
   document.addEventListener('DOMContentLoaded', function() {
+    // Initialize i18n
+    i18n = getI18n();
+
     // Speed slider
     document.getElementById('speedInput').addEventListener('input', function() {
       currentSpeed = parseInt(this.value);
@@ -889,7 +977,7 @@ const articleSchema = {
     document.getElementById('zOffsetInput').addEventListener('input', function() {
       zOffset = parseFloat(this.value);
       const sign = zOffset > 0 ? '+' : '';
-      document.getElementById('zOffsetDisplay').textContent = 'Offset: ' + sign + zOffset.toFixed(2) + 'mm';
+      document.getElementById('zOffsetDisplay').textContent = i18n.offset + ': ' + sign + zOffset.toFixed(2) + 'mm';
       drawLayerSim();
     });
 

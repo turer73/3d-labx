@@ -1,20 +1,137 @@
 ---
-export const prerender = true;
+export const prerender = false;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
+import { getLanguage } from "../../lib/api";
+import { getTranslations, type Language } from "../../lib/translations";
 
-const title = "PrusaSlicer Türkçe Rehber - Ayarlar ve Sorun Giderme | 3D-labX";
-const description = "PrusaSlicer için kapsamlı Türkçe rehber. Katman yüksekliği, dolgu ayarları, destek malzemesi ve filament özellikleri. İnteraktif sorun giderme.";
+const lang = Astro.locals?.lang || getLanguage(Astro.request);
+const t = getTranslations(lang);
+
+// Page meta by language
+const pageMeta = {
+  tr: {
+    title: "PrusaSlicer Türkçe Rehber - Ayarlar ve Sorun Giderme | 3D-labX",
+    description: "PrusaSlicer için kapsamlı Türkçe rehber. Katman yüksekliği, dolgu ayarları, destek malzemesi ve filament özellikleri. İnteraktif sorun giderme.",
+    headline: "PrusaSlicer Türkçe Rehber"
+  },
+  en: {
+    title: "PrusaSlicer Guide - Settings and Troubleshooting | 3D-labX",
+    description: "Comprehensive PrusaSlicer guide. Layer height, infill settings, support material and filament properties. Interactive troubleshooting.",
+    headline: "PrusaSlicer Guide"
+  },
+  de: {
+    title: "PrusaSlicer Anleitung - Einstellungen und Fehlerbehebung | 3D-labX",
+    description: "Umfassende PrusaSlicer Anleitung. Schichthöhe, Füllungseinstellungen, Stützmaterial und Filamenteigenschaften. Interaktive Fehlerbehebung.",
+    headline: "PrusaSlicer Anleitung"
+  }
+};
+
+const title = pageMeta[lang].title;
+const description = pageMeta[lang].description;
 const canonicalUrl = "https://3d-labx.com/rehberler/prusaslicer-rehberi";
+
+// UI texts by language
+const ui = {
+  tr: {
+    home: "Ana Sayfa", guides: "Rehberler", current: "PrusaSlicer",
+    badge1: "İnteraktif Rehber", badge2: "v2.0",
+    headerTitle: "PrusaSlicer", headerGradient: "Türkçe Kılavuz",
+    headerDesc: "3D modellerinizi G-code'a çeviren bu güçlü açık kaynaklı dilimleyicinin tüm ayarlarını, filament özelliklerini ve sorun giderme yöntemlerini keşfedin.",
+    tabDashboard: "Genel Bakış", tabSettings: "Baskı Ayarları", tabMaterials: "Filament Rehberi", tabTroubleshoot: "Sorun Giderme",
+    welcomeTitle: "PrusaSlicer'a Hoş Geldiniz",
+    welcomeDesc: "PrusaSlicer, STL ve OBJ formatındaki 3D modellerinizi yazıcınızın anlayacağı G-code dosyasına dönüştüren güçlü ve tamamen ücretsiz bir dilimleyicidir. Bu rehber, karmaşık ayarları görselleştirerek baskı kalitenizi artırmanıza yardımcı olacaktır.",
+    materialComparison: "Malzeme Karşılaştırması", materialComparisonDesc: "Popüler filament tiplerinin temel özelliklerini karşılaştırın.",
+    tipLayers: "Katmanlar", tipLayersDesc: "Baskı çözünürlüğünü ve süresini belirleyen ana faktör.",
+    tipInfill: "Dolgu (Infill)", tipInfillDesc: "Modelin iç sağlamlığı ve malzeme kullanım oranı.",
+    tipTemp: "Isı Yönetimi", tipTempDesc: "Her malzemenin doğru erime ve tabla sıcaklığı farklıdır.",
+    featuresTitle: "Öne Çıkan Özellikler",
+    featOrganicSupports: "Organik Destekler", featOrganicSupportsDesc: "Ağaç yapısında destekler ile daha az malzeme kullanımı ve kolay söküm.",
+    featPaintSupports: "Paint-on Supports", featPaintSupportsDesc: "Destekleri tam olarak istediğiniz yere fırça ile boyayın.",
+    featSeamPaint: "Seam Painting", featSeamPaintDesc: "Dikiş noktalarını görünmez alanlara yerleştirin.",
+    featMultiMaterial: "Multi-material", featMultiMaterialDesc: "MMU/AMS ile çok renkli baskı desteği.",
+    categories: "Kategoriler", speedVsQuality: "Hız vs Kalite", settingsImpact: "Ayarların baskıya etkisi",
+    filamentGuide: "Filament Rehberi", filamentGuideDesc: "Farklı projeler için doğru malzemeyi seçmek başarının anahtarıdır.",
+    easy: "Kolay", medium: "Orta", hard: "Zor", special: "Özel",
+    nozzle: "Nozul", bed: "Tabla",
+    tempComparison: "Sıcaklık Aralıkları Karşılaştırması", tempComparisonDesc: "Daha yüksek nozul sıcaklığı genellikle daha güçlü katman yapışması sağlar.",
+    troubleshootTitle: "İnteraktif Sorun Giderme", troubleshootDesc: "Yaşadığınız sorunu tespit etmek için aşağıdaki adımları takip edin.",
+    resetBtn: "Başa Dön", backToGuides: "← Tüm Rehberler",
+    plaDesc: "Biyobozunur, kokusuz ve basılması en kolay malzeme. Görsel modeller için ideal.",
+    petgDesc: "PLA kadar kolay, ABS kadar dayanıklı. Mekanik parçalar için standart seçim.",
+    absDesc: "Yüksek ısı dayanımı ve UV direnci (ASA). Kapalı kasa yazıcı gerektirir.",
+    tpuDesc: "Lastik benzeri esnek malzeme. Yavaş baskı hızı gerektirir."
+  },
+  en: {
+    home: "Home", guides: "Guides", current: "PrusaSlicer",
+    badge1: "Interactive Guide", badge2: "v2.0",
+    headerTitle: "PrusaSlicer", headerGradient: "Complete Guide",
+    headerDesc: "Discover all settings, filament properties and troubleshooting methods for this powerful open-source slicer that converts your 3D models to G-code.",
+    tabDashboard: "Overview", tabSettings: "Print Settings", tabMaterials: "Filament Guide", tabTroubleshoot: "Troubleshooting",
+    welcomeTitle: "Welcome to PrusaSlicer",
+    welcomeDesc: "PrusaSlicer is a powerful and completely free slicer that converts your 3D models in STL and OBJ format into G-code files your printer can understand. This guide will help you improve print quality by visualizing complex settings.",
+    materialComparison: "Material Comparison", materialComparisonDesc: "Compare basic properties of popular filament types.",
+    tipLayers: "Layers", tipLayersDesc: "The main factor determining print resolution and time.",
+    tipInfill: "Infill", tipInfillDesc: "Internal strength and material usage ratio of the model.",
+    tipTemp: "Heat Management", tipTempDesc: "Each material has different optimal melting and bed temperatures.",
+    featuresTitle: "Key Features",
+    featOrganicSupports: "Organic Supports", featOrganicSupportsDesc: "Tree-like supports with less material usage and easy removal.",
+    featPaintSupports: "Paint-on Supports", featPaintSupportsDesc: "Paint supports exactly where you want them with a brush.",
+    featSeamPaint: "Seam Painting", featSeamPaintDesc: "Place seam points in invisible areas.",
+    featMultiMaterial: "Multi-material", featMultiMaterialDesc: "Multi-color printing support with MMU/AMS.",
+    categories: "Categories", speedVsQuality: "Speed vs Quality", settingsImpact: "Effect of settings on print",
+    filamentGuide: "Filament Guide", filamentGuideDesc: "Choosing the right material for different projects is the key to success.",
+    easy: "Easy", medium: "Medium", hard: "Hard", special: "Special",
+    nozzle: "Nozzle", bed: "Bed",
+    tempComparison: "Temperature Range Comparison", tempComparisonDesc: "Higher nozzle temperature generally provides stronger layer adhesion.",
+    troubleshootTitle: "Interactive Troubleshooting", troubleshootDesc: "Follow the steps below to identify your problem.",
+    resetBtn: "Start Over", backToGuides: "← All Guides",
+    plaDesc: "Biodegradable, odorless and easiest to print material. Ideal for visual models.",
+    petgDesc: "As easy as PLA, as durable as ABS. Standard choice for mechanical parts.",
+    absDesc: "High heat resistance and UV resistance (ASA). Requires enclosed printer.",
+    tpuDesc: "Rubber-like flexible material. Requires slow print speed."
+  },
+  de: {
+    home: "Startseite", guides: "Anleitungen", current: "PrusaSlicer",
+    badge1: "Interaktive Anleitung", badge2: "v2.0",
+    headerTitle: "PrusaSlicer", headerGradient: "Komplette Anleitung",
+    headerDesc: "Entdecken Sie alle Einstellungen, Filamenteigenschaften und Fehlerbehebungsmethoden für diesen leistungsstarken Open-Source-Slicer, der Ihre 3D-Modelle in G-Code umwandelt.",
+    tabDashboard: "Übersicht", tabSettings: "Druckeinstellungen", tabMaterials: "Filament-Leitfaden", tabTroubleshoot: "Fehlerbehebung",
+    welcomeTitle: "Willkommen bei PrusaSlicer",
+    welcomeDesc: "PrusaSlicer ist ein leistungsstarker und völlig kostenloser Slicer, der Ihre 3D-Modelle im STL- und OBJ-Format in G-Code-Dateien umwandelt, die Ihr Drucker verstehen kann. Diese Anleitung hilft Ihnen, die Druckqualität durch Visualisierung komplexer Einstellungen zu verbessern.",
+    materialComparison: "Materialvergleich", materialComparisonDesc: "Vergleichen Sie die grundlegenden Eigenschaften beliebter Filamenttypen.",
+    tipLayers: "Schichten", tipLayersDesc: "Der Hauptfaktor für Druckauflösung und -zeit.",
+    tipInfill: "Füllung", tipInfillDesc: "Innere Festigkeit und Materialverbrauchsrate des Modells.",
+    tipTemp: "Wärmemanagement", tipTempDesc: "Jedes Material hat unterschiedliche optimale Schmelz- und Betttemperaturen.",
+    featuresTitle: "Hauptfunktionen",
+    featOrganicSupports: "Organische Stützen", featOrganicSupportsDesc: "Baumförmige Stützen mit weniger Materialverbrauch und einfacher Entfernung.",
+    featPaintSupports: "Paint-on Supports", featPaintSupportsDesc: "Malen Sie Stützen genau dort, wo Sie sie brauchen.",
+    featSeamPaint: "Naht-Anpassung", featSeamPaintDesc: "Platzieren Sie Nahtpunkte in unsichtbaren Bereichen.",
+    featMultiMaterial: "Multi-Material", featMultiMaterialDesc: "Mehrfarbiger Druck mit MMU/AMS.",
+    categories: "Kategorien", speedVsQuality: "Geschwindigkeit vs Qualität", settingsImpact: "Auswirkung der Einstellungen auf den Druck",
+    filamentGuide: "Filament-Leitfaden", filamentGuideDesc: "Die richtige Materialwahl für verschiedene Projekte ist der Schlüssel zum Erfolg.",
+    easy: "Einfach", medium: "Mittel", hard: "Schwer", special: "Spezial",
+    nozzle: "Düse", bed: "Bett",
+    tempComparison: "Temperaturbereichsvergleich", tempComparisonDesc: "Höhere Düsentemperatur sorgt in der Regel für bessere Schichthaftung.",
+    troubleshootTitle: "Interaktive Fehlerbehebung", troubleshootDesc: "Folgen Sie den Schritten unten, um Ihr Problem zu identifizieren.",
+    resetBtn: "Neustart", backToGuides: "← Alle Anleitungen",
+    plaDesc: "Biologisch abbaubar, geruchlos und am einfachsten zu drucken. Ideal für visuelle Modelle.",
+    petgDesc: "So einfach wie PLA, so langlebig wie ABS. Standardwahl für mechanische Teile.",
+    absDesc: "Hohe Hitze- und UV-Beständigkeit (ASA). Erfordert geschlossenen Drucker.",
+    tpuDesc: "Gummiartiges flexibles Material. Erfordert niedrige Druckgeschwindigkeit."
+  }
+};
+
+const u = ui[lang];
 
 // Breadcrumb Schema
 const breadcrumbSchema = {
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Ana Sayfa", "item": "https://3d-labx.com" },
-    { "@type": "ListItem", "position": 2, "name": "Rehberler", "item": "https://3d-labx.com/rehberler" },
-    { "@type": "ListItem", "position": 3, "name": "PrusaSlicer Rehberi", "item": canonicalUrl }
+    { "@type": "ListItem", "position": 1, "name": u.home, "item": "https://3d-labx.com" },
+    { "@type": "ListItem", "position": 2, "name": u.guides, "item": "https://3d-labx.com/rehberler" },
+    { "@type": "ListItem", "position": 3, "name": "PrusaSlicer", "item": canonicalUrl }
   ]
 };
 
@@ -22,13 +139,14 @@ const breadcrumbSchema = {
 const articleSchema = {
   "@context": "https://schema.org",
   "@type": "TechArticle",
-  "headline": "PrusaSlicer Türkçe Rehber",
+  "headline": pageMeta[lang].headline,
   "description": description,
   "url": canonicalUrl,
   "datePublished": "2024-06-01",
   "dateModified": new Date().toISOString().split('T')[0],
   "author": { "@type": "Organization", "name": "3D-labX", "url": "https://3d-labx.com" },
-  "publisher": { "@type": "Organization", "name": "3D-labX", "url": "https://3d-labx.com" }
+  "publisher": { "@type": "Organization", "name": "3D-labX", "url": "https://3d-labx.com" },
+  "inLanguage": lang
 };
 ---
 
@@ -42,40 +160,37 @@ const articleSchema = {
     <div class="container">
       <!-- Breadcrumb -->
       <nav class="breadcrumb">
-        <a href="/">Ana Sayfa</a>
+        <a href="/">{u.home}</a>
         <span>/</span>
-        <a href="/rehberler">Rehberler</a>
+        <a href="/rehberler">{u.guides}</a>
         <span>/</span>
-        <span>PrusaSlicer</span>
+        <span>{u.current}</span>
       </nav>
 
       <!-- Header -->
       <header class="page-header">
         <div class="version-badge">
-          <span>İnteraktif Rehber</span>
+          <span>{u.badge1}</span>
           <span class="dot">•</span>
-          <span>v2.0</span>
+          <span>{u.badge2}</span>
         </div>
-        <h1 class="page-title">PrusaSlicer <span class="accent">Türkçe Kılavuz</span></h1>
-        <p class="page-desc">
-          3D modellerinizi G-code'a çeviren bu güçlü açık kaynaklı dilimleyicinin tüm ayarlarını,
-          filament özelliklerini ve sorun giderme yöntemlerini keşfedin.
-        </p>
+        <h1 class="page-title">{u.headerTitle} <span class="accent">{u.headerGradient}</span></h1>
+        <p class="page-desc">{u.headerDesc}</p>
       </header>
 
       <!-- Navigation Tabs -->
       <nav class="nav-tabs">
         <button class="nav-tab active" onclick="switchTab('dashboard')" id="btn-dashboard">
-          📊 Genel Bakış
+          📊 {u.tabDashboard}
         </button>
         <button class="nav-tab" onclick="switchTab('settings')" id="btn-settings">
-          ⚙️ Baskı Ayarları
+          ⚙️ {u.tabSettings}
         </button>
         <button class="nav-tab" onclick="switchTab('materials')" id="btn-materials">
-          🧱 Filament Rehberi
+          🧱 {u.tabMaterials}
         </button>
         <button class="nav-tab" onclick="switchTab('troubleshoot')" id="btn-troubleshoot">
-          🔧 Sorun Giderme
+          🔧 {u.tabTroubleshoot}
         </button>
       </nav>
 
@@ -85,19 +200,15 @@ const articleSchema = {
         <!-- TAB 1: DASHBOARD -->
         <section id="tab-dashboard" class="tab-content active">
           <div class="welcome-section">
-            <h2>PrusaSlicer'a Hoş Geldiniz</h2>
-            <p>
-              PrusaSlicer, STL ve OBJ formatındaki 3D modellerinizi yazıcınızın anlayacağı G-code dosyasına dönüştüren
-              güçlü ve tamamen ücretsiz bir dilimleyicidir. Bu rehber, karmaşık ayarları görselleştirerek baskı
-              kalitenizi artırmanıza yardımcı olacaktır.
-            </p>
+            <h2>{u.welcomeTitle}</h2>
+            <p>{u.welcomeDesc}</p>
           </div>
 
           <div class="dashboard-grid">
             <!-- Radar Chart -->
             <div class="chart-card">
-              <h3>Malzeme Karşılaştırması</h3>
-              <p class="chart-desc">Popüler filament tiplerinin temel özelliklerini karşılaştırın.</p>
+              <h3>{u.materialComparison}</h3>
+              <p class="chart-desc">{u.materialComparisonDesc}</p>
               <div class="chart-container">
                 <canvas id="materialRadarChart"></canvas>
               </div>
@@ -108,22 +219,22 @@ const articleSchema = {
               <div class="tip-card tip-layers">
                 <span class="tip-icon">📐</span>
                 <div>
-                  <h4>Katmanlar</h4>
-                  <p>Baskı çözünürlüğünü ve süresini belirleyen ana faktör.</p>
+                  <h4>{u.tipLayers}</h4>
+                  <p>{u.tipLayersDesc}</p>
                 </div>
               </div>
               <div class="tip-card tip-infill">
                 <span class="tip-icon">🔳</span>
                 <div>
-                  <h4>Dolgu (Infill)</h4>
-                  <p>Modelin iç sağlamlığı ve malzeme kullanım oranı.</p>
+                  <h4>{u.tipInfill}</h4>
+                  <p>{u.tipInfillDesc}</p>
                 </div>
               </div>
               <div class="tip-card tip-temp">
                 <span class="tip-icon">🌡️</span>
                 <div>
-                  <h4>Isı Yönetimi</h4>
-                  <p>Her malzemenin doğru erime ve tabla sıcaklığı farklıdır.</p>
+                  <h4>{u.tipTemp}</h4>
+                  <p>{u.tipTempDesc}</p>
                 </div>
               </div>
             </div>
@@ -131,27 +242,27 @@ const articleSchema = {
 
           <!-- Key Features -->
           <div class="features-section">
-            <h3>Öne Çıkan Özellikler</h3>
+            <h3>{u.featuresTitle}</h3>
             <div class="features-grid">
               <div class="feature-card">
                 <span class="feature-icon">🎨</span>
-                <h4>Organik Destekler</h4>
-                <p>Ağaç yapısında destekler ile daha az malzeme kullanımı ve kolay söküm.</p>
+                <h4>{u.featOrganicSupports}</h4>
+                <p>{u.featOrganicSupportsDesc}</p>
               </div>
               <div class="feature-card">
                 <span class="feature-icon">🖌️</span>
-                <h4>Paint-on Supports</h4>
-                <p>Destekleri tam olarak istediğiniz yere fırça ile boyayın.</p>
+                <h4>{u.featPaintSupports}</h4>
+                <p>{u.featPaintSupportsDesc}</p>
               </div>
               <div class="feature-card">
                 <span class="feature-icon">🎯</span>
-                <h4>Seam Painting</h4>
-                <p>Dikiş noktalarını görünmez alanlara yerleştirin.</p>
+                <h4>{u.featSeamPaint}</h4>
+                <p>{u.featSeamPaintDesc}</p>
               </div>
               <div class="feature-card">
                 <span class="feature-icon">⚡</span>
-                <h4>Multi-material</h4>
-                <p>MMU/AMS ile çok renkli baskı desteği.</p>
+                <h4>{u.featMultiMaterial}</h4>
+                <p>{u.featMultiMaterialDesc}</p>
               </div>
             </div>
           </div>
@@ -162,23 +273,15 @@ const articleSchema = {
           <div class="settings-layout">
             <!-- Categories Sidebar -->
             <div class="settings-sidebar">
-              <h3 class="sidebar-title">Kategoriler</h3>
-              <div class="category-list">
-                <button class="category-btn active" onclick="showCategory('layers')" data-cat="layers">
-                  Katmanlar ve Çevreler
-                </button>
-                <button class="category-btn" onclick="showCategory('infill')" data-cat="infill">
-                  Dolgu (Infill)
-                </button>
-                <button class="category-btn" onclick="showCategory('support')" data-cat="support">
-                  Destek Malzemesi
-                </button>
+              <h3 class="sidebar-title">{u.categories}</h3>
+              <div class="category-list" id="categoryList">
+                <!-- JS ile doldurulacak -->
               </div>
 
               <!-- Impact Chart -->
               <div class="impact-chart-section">
-                <h4>Hız vs Kalite</h4>
-                <p>Ayarların baskıya etkisi</p>
+                <h4>{u.speedVsQuality}</h4>
+                <p>{u.settingsImpact}</p>
                 <div class="chart-container-small">
                   <canvas id="impactChart"></canvas>
                 </div>
@@ -197,8 +300,8 @@ const articleSchema = {
         <!-- TAB 3: MATERIALS -->
         <section id="tab-materials" class="tab-content">
           <div class="materials-intro">
-            <h2>Filament Rehberi</h2>
-            <p>Farklı projeler için doğru malzemeyi seçmek başarının anahtarıdır.</p>
+            <h2>{u.filamentGuide}</h2>
+            <p>{u.filamentGuideDesc}</p>
           </div>
 
           <div class="filament-cards">
@@ -206,16 +309,16 @@ const articleSchema = {
             <div class="filament-card pla">
               <div class="filament-header">
                 <h3>PLA</h3>
-                <span class="difficulty easy">Kolay</span>
+                <span class="difficulty easy">{u.easy}</span>
               </div>
-              <p class="filament-desc">Biyobozunur, kokusuz ve basılması en kolay malzeme. Görsel modeller için ideal.</p>
+              <p class="filament-desc">{u.plaDesc}</p>
               <div class="temp-specs">
                 <div class="spec">
-                  <span class="spec-label">Nozul</span>
+                  <span class="spec-label">{u.nozzle}</span>
                   <span class="spec-value">205-225°C</span>
                 </div>
                 <div class="spec">
-                  <span class="spec-label">Tabla</span>
+                  <span class="spec-label">{u.bed}</span>
                   <span class="spec-value">50-60°C</span>
                 </div>
               </div>
@@ -225,16 +328,16 @@ const articleSchema = {
             <div class="filament-card petg">
               <div class="filament-header">
                 <h3>PETG</h3>
-                <span class="difficulty medium">Orta</span>
+                <span class="difficulty medium">{u.medium}</span>
               </div>
-              <p class="filament-desc">PLA kadar kolay, ABS kadar dayanıklı. Mekanik parçalar için standart seçim.</p>
+              <p class="filament-desc">{u.petgDesc}</p>
               <div class="temp-specs">
                 <div class="spec">
-                  <span class="spec-label">Nozul</span>
+                  <span class="spec-label">{u.nozzle}</span>
                   <span class="spec-value">230-250°C</span>
                 </div>
                 <div class="spec">
-                  <span class="spec-label">Tabla</span>
+                  <span class="spec-label">{u.bed}</span>
                   <span class="spec-value">80-90°C</span>
                 </div>
               </div>
@@ -244,16 +347,16 @@ const articleSchema = {
             <div class="filament-card abs">
               <div class="filament-header">
                 <h3>ASA / ABS</h3>
-                <span class="difficulty hard">Zor</span>
+                <span class="difficulty hard">{u.hard}</span>
               </div>
-              <p class="filament-desc">Yüksek ısı dayanımı ve UV direnci (ASA). Kapalı kasa yazıcı gerektirir.</p>
+              <p class="filament-desc">{u.absDesc}</p>
               <div class="temp-specs">
                 <div class="spec">
-                  <span class="spec-label">Nozul</span>
+                  <span class="spec-label">{u.nozzle}</span>
                   <span class="spec-value">240-260°C</span>
                 </div>
                 <div class="spec">
-                  <span class="spec-label">Tabla</span>
+                  <span class="spec-label">{u.bed}</span>
                   <span class="spec-value">100-110°C</span>
                 </div>
               </div>
@@ -262,17 +365,17 @@ const articleSchema = {
             <!-- TPU -->
             <div class="filament-card tpu">
               <div class="filament-header">
-                <h3>TPU (Esnek)</h3>
-                <span class="difficulty special">Özel</span>
+                <h3>TPU</h3>
+                <span class="difficulty special">{u.special}</span>
               </div>
-              <p class="filament-desc">Lastik benzeri esnek malzeme. Yavaş baskı hızı gerektirir.</p>
+              <p class="filament-desc">{u.tpuDesc}</p>
               <div class="temp-specs">
                 <div class="spec">
-                  <span class="spec-label">Nozul</span>
+                  <span class="spec-label">{u.nozzle}</span>
                   <span class="spec-value">220-240°C</span>
                 </div>
                 <div class="spec">
-                  <span class="spec-label">Tabla</span>
+                  <span class="spec-label">{u.bed}</span>
                   <span class="spec-value">50-60°C</span>
                 </div>
               </div>
@@ -281,8 +384,8 @@ const articleSchema = {
 
           <!-- Temperature Comparison Chart -->
           <div class="temp-chart-section">
-            <h3>Sıcaklık Aralıkları Karşılaştırması</h3>
-            <p>Daha yüksek nozul sıcaklığı genellikle daha güçlü katman yapışması sağlar.</p>
+            <h3>{u.tempComparison}</h3>
+            <p>{u.tempComparisonDesc}</p>
             <div class="chart-container-wide">
               <canvas id="tempChart"></canvas>
             </div>
@@ -292,8 +395,8 @@ const articleSchema = {
         <!-- TAB 4: TROUBLESHOOT -->
         <section id="tab-troubleshoot" class="tab-content">
           <div class="troubleshoot-intro">
-            <h2>İnteraktif Sorun Giderme</h2>
-            <p>Yaşadığınız sorunu tespit etmek için aşağıdaki adımları takip edin.</p>
+            <h2>{u.troubleshootTitle}</h2>
+            <p>{u.troubleshootDesc}</p>
           </div>
 
           <div class="troubleshoot-card" id="troubleshootCard">
@@ -301,20 +404,155 @@ const articleSchema = {
           </div>
 
           <button class="reset-btn" onclick="resetTroubleshoot()">
-            🔄 Başa Dön
+            🔄 {u.resetBtn}
           </button>
         </section>
 
       </div>
 
       <!-- Back Link -->
-      <a href="/rehberler" class="back-link">← Tüm Rehberler</a>
+      <a href="/rehberler" class="back-link">{u.backToGuides}</a>
     </div>
   </main>
 </BaseLayout>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<script define:vars={{ lang }}>
+  // i18n data
+  window.prusaI18n = {
+    lang: lang,
+    chartLabels: {
+      tr: { ease: 'Kolaylık', heatRes: 'Isı Dayanımı', impact: 'Darbe Dayanımı', hardness: 'Sertlik', flex: 'Esneklik', nozzleTemp: 'Nozul Sıcaklığı (°C)', bedTemp: 'Tabla Sıcaklığı (°C)', speed: 'Hız', quality: 'Kalite', printProfiles: 'Baskı Profilleri' },
+      en: { ease: 'Ease of Use', heatRes: 'Heat Resistance', impact: 'Impact Resistance', hardness: 'Hardness', flex: 'Flexibility', nozzleTemp: 'Nozzle Temp (°C)', bedTemp: 'Bed Temp (°C)', speed: 'Speed', quality: 'Quality', printProfiles: 'Print Profiles' },
+      de: { ease: 'Benutzerfreundlichkeit', heatRes: 'Hitzebeständigkeit', impact: 'Schlagfestigkeit', hardness: 'Härte', flex: 'Flexibilität', nozzleTemp: 'Düsentemp. (°C)', bedTemp: 'Betttemp. (°C)', speed: 'Geschwindigkeit', quality: 'Qualität', printProfiles: 'Druckprofile' }
+    },
+    settingsData: {
+      tr: {
+        layers: {
+          title: "Katmanlar ve Çevreler", buttonText: "Katmanlar ve Çevreler",
+          description: "Modelin yapısal bütünlüğünü ve yüzey kalitesini belirleyen en temel ayarlardır.",
+          items: [
+            { name: "Katman Yüksekliği (Layer Height)", val: "0.10mm - 0.30mm", desc: "Her bir baskı katmanının kalınlığıdır. Düşük değerler daha pürüzsüz yüzey sağlar ancak baskı süresini uzatır.", impact: "Kalite: Yüksek, Süre: Çok Yüksek", tips: ["Detaylı modeller için 0.10mm veya 0.15mm kullanın.", "Hızlı prototipler için 0.20mm veya 0.30mm idealdir."] },
+            { name: "Dikey Kabuklar (Perimeters)", val: "Standart: 2-3", desc: "Modelin dış duvarlarının sayısıdır. Dayanıklılık için en önemli faktörlerden biridir.", impact: "Mukavemet: Çok Yüksek", tips: ["Mekanik parçalar için en az 3-4 duvar önerilir.", "Görsel parçalar için 2 yeterlidir."] },
+            { name: "Vazo Modu (Spiral Vase Mode)", val: "Açık/Kapalı", desc: "Modeli tek, kesintisiz bir dış duvar olarak basar. Z ekseni sürekli yükselir.", impact: "Hız: Çok Yüksek", tips: ["Sadece içi boş, estetik modeller için uygundur.", "Üst katman 0 olmalıdır."] }
+          ]
+        },
+        infill: {
+          title: "Dolgu (Infill)", buttonText: "Dolgu (Infill)",
+          description: "Parçanın iç yapısını belirler. Malzeme tasarrufu ve baskı süresi için optimize edilmelidir.",
+          items: [
+            { name: "Dolgu Yoğunluğu (Fill Density)", val: "%5 - %100", desc: "Modelin içinin ne kadar dolu olacağını belirler. %100 tamamen dolu demektir.", impact: "Malzeme Kullanımı: Yüksek", tips: ["Standart modeller için %15-%20 yeterlidir.", "Mukavemet gereken yerlerde %40 üzeri."] },
+            { name: "Dolgu Deseni (Fill Pattern)", val: "Gyroid, Rectilinear, Grid", desc: "İç yapının geometrisidir. Gyroid her yöne eşit mukavemet sağlar.", impact: "Baskı Hızı ve Mukavemet", tips: ["En iyi genel amaçlı: Gyroid.", "En hızlı: Rectilinear.", "Esnek filamentler için: Gyroid."] }
+          ]
+        },
+        support: {
+          title: "Destek Malzemesi (Supports)", buttonText: "Destek Malzemesi",
+          description: "Havada kalan kısımların basılabilmesi için gerekli geçici yapılardır.",
+          items: [
+            { name: "Destek Tipi", val: "Grid, Snug, Organic", desc: "'Organic' destekler ağaç yapısındadır, çıkarması kolaydır ve yüzeyde az iz bırakır.", impact: "Yüzey Kalitesi", tips: ["Karmaşık figürler için 'Organic' kullanın.", "Düz yüzeyler için 'Snug' iyidir."] },
+            { name: "Z Temas Mesafesi", val: "0.1mm - 0.25mm", desc: "Destek ile model arasındaki dikey boşluktur. Azaltmak yapışmayı artırır.", impact: "Sökülebilirlik", tips: ["Zor sökülüyorsa 0.05mm artırın.", "Katman yüksekliği ile orantılı olmalı."] }
+          ]
+        }
+      },
+      en: {
+        layers: {
+          title: "Layers and Perimeters", buttonText: "Layers and Perimeters",
+          description: "The most fundamental settings that determine the structural integrity and surface quality of the model.",
+          items: [
+            { name: "Layer Height", val: "0.10mm - 0.30mm", desc: "The thickness of each print layer. Lower values provide smoother surface but increase print time.", impact: "Quality: High, Time: Very High", tips: ["Use 0.10mm or 0.15mm for detailed models.", "0.20mm or 0.30mm is ideal for quick prototypes."] },
+            { name: "Perimeters", val: "Standard: 2-3", desc: "The number of outer walls of the model. One of the most important factors for durability.", impact: "Strength: Very High", tips: ["At least 3-4 walls recommended for mechanical parts.", "2 is enough for visual parts."] },
+            { name: "Spiral Vase Mode", val: "On/Off", desc: "Prints the model as a single, continuous outer wall. Z axis rises continuously.", impact: "Speed: Very High", tips: ["Only suitable for hollow, aesthetic models.", "Top layer must be 0."] }
+          ]
+        },
+        infill: {
+          title: "Infill", buttonText: "Infill",
+          description: "Determines the internal structure of the part. Should be optimized for material savings and print time.",
+          items: [
+            { name: "Fill Density", val: "5% - 100%", desc: "Determines how full the inside of the model will be. 100% means completely solid.", impact: "Material Usage: High", tips: ["15%-20% is sufficient for standard models.", "40%+ where strength is needed."] },
+            { name: "Fill Pattern", val: "Gyroid, Rectilinear, Grid", desc: "The geometry of the internal structure. Gyroid provides equal strength in all directions.", impact: "Print Speed and Strength", tips: ["Best all-purpose: Gyroid.", "Fastest: Rectilinear.", "For flexible filaments: Gyroid."] }
+          ]
+        },
+        support: {
+          title: "Support Material", buttonText: "Support Material",
+          description: "Temporary structures required for printing overhanging parts.",
+          items: [
+            { name: "Support Type", val: "Grid, Snug, Organic", desc: "'Organic' supports are tree-like, easy to remove and leave minimal marks on the surface.", impact: "Surface Quality", tips: ["Use 'Organic' for complex figures.", "'Snug' is good for flat surfaces."] },
+            { name: "Z Contact Distance", val: "0.1mm - 0.25mm", desc: "The vertical gap between support and model. Reducing increases adhesion.", impact: "Removability", tips: ["Increase by 0.05mm if hard to remove.", "Should be proportional to layer height."] }
+          ]
+        }
+      },
+      de: {
+        layers: {
+          title: "Schichten und Perimeter", buttonText: "Schichten und Perimeter",
+          description: "Die grundlegendsten Einstellungen, die die strukturelle Integrität und Oberflächenqualität des Modells bestimmen.",
+          items: [
+            { name: "Schichthöhe", val: "0.10mm - 0.30mm", desc: "Die Dicke jeder Druckschicht. Niedrigere Werte bieten glattere Oberfläche, erhöhen aber die Druckzeit.", impact: "Qualität: Hoch, Zeit: Sehr Hoch", tips: ["Verwenden Sie 0.10mm oder 0.15mm für detaillierte Modelle.", "0.20mm oder 0.30mm ideal für schnelle Prototypen."] },
+            { name: "Perimeter", val: "Standard: 2-3", desc: "Die Anzahl der Außenwände des Modells. Einer der wichtigsten Faktoren für die Haltbarkeit.", impact: "Festigkeit: Sehr Hoch", tips: ["Mindestens 3-4 Wände für mechanische Teile empfohlen.", "2 reicht für visuelle Teile."] },
+            { name: "Spiralvasen-Modus", val: "Ein/Aus", desc: "Druckt das Modell als eine einzelne, kontinuierliche Außenwand. Z-Achse steigt kontinuierlich.", impact: "Geschwindigkeit: Sehr Hoch", tips: ["Nur für hohle, ästhetische Modelle geeignet.", "Obere Schicht muss 0 sein."] }
+          ]
+        },
+        infill: {
+          title: "Füllung", buttonText: "Füllung",
+          description: "Bestimmt die innere Struktur des Teils. Sollte für Materialeinsparung und Druckzeit optimiert werden.",
+          items: [
+            { name: "Füllungsdichte", val: "5% - 100%", desc: "Bestimmt, wie voll das Innere des Modells sein wird. 100% bedeutet vollständig massiv.", impact: "Materialverbrauch: Hoch", tips: ["15%-20% reicht für Standardmodelle.", "40%+ wo Festigkeit benötigt wird."] },
+            { name: "Füllmuster", val: "Gyroid, Rectilinear, Grid", desc: "Die Geometrie der inneren Struktur. Gyroid bietet in alle Richtungen gleiche Festigkeit.", impact: "Druckgeschwindigkeit und Festigkeit", tips: ["Bester Allzweck: Gyroid.", "Schnellster: Rectilinear.", "Für flexible Filamente: Gyroid."] }
+          ]
+        },
+        support: {
+          title: "Stützmaterial", buttonText: "Stützmaterial",
+          description: "Temporäre Strukturen, die zum Drucken von überhängenden Teilen erforderlich sind.",
+          items: [
+            { name: "Stütztyp", val: "Grid, Snug, Organic", desc: "'Organic' Stützen sind baumartig, leicht zu entfernen und hinterlassen minimale Spuren.", impact: "Oberflächenqualität", tips: ["Verwenden Sie 'Organic' für komplexe Figuren.", "'Snug' ist gut für flache Oberflächen."] },
+            { name: "Z-Kontaktabstand", val: "0.1mm - 0.25mm", desc: "Der vertikale Abstand zwischen Stütze und Modell. Verringern erhöht die Haftung.", impact: "Entfernbarkeit", tips: ["Um 0.05mm erhöhen, wenn schwer zu entfernen.", "Sollte proportional zur Schichthöhe sein."] }
+          ]
+        }
+      }
+    },
+    troubleshootTree: {
+      tr: {
+        start: { question: "Hangi aşamada sorun yaşıyorsunuz?", options: [{ text: "Baskı Başlangıcı / İlk Katman", next: "first_layer" }, { text: "Baskı Ortasında / Genel Kalite", next: "mid_print" }, { text: "Baskı Bitimi / Boyutlar", next: "finished" }] },
+        first_layer: { question: "İlk katman tablaya yapışıyor mu?", options: [{ text: "Hayır, hiç yapışmıyor veya kalkıyor", next: "adhesion" }, { text: "Evet, ama yüzey pürüzlü/bozuk", next: "z_offset" }] },
+        mid_print: { question: "Sorun nasıl görünüyor?", options: [{ text: "İpliklenme (Stringing)", next: "stringing" }, { text: "Katmanlar kaymış (Layer Shift)", next: "shifting" }, { text: "Eksik ekstrüzyon", next: "extrusion" }] },
+        finished: { question: "Bitmiş parçada ne sorun var?", options: [{ text: "Boyutlar yanlış", next: "dimensions" }, { text: "Yüzey kalitesi kötü", next: "surface" }] },
+        adhesion: { solution: true, title: "Tabla Yapışma Sorunu", icon: "🖐️", text: "<ol><li>Tablanızı <strong>İzopropil Alkol (IPA)</strong> ile temizleyin.</li><li>Tabla sıcaklığını kontrol edin (PLA: 60°C, PETG: 80-85°C).</li><li><strong>First Layer Calibration</strong> yaparak nozulu tablaya yaklaştırın.</li><li>Glue stick veya hair spray kullanmayı deneyin.</li></ol>" },
+        z_offset: { solution: true, title: "Z Offset Ayarı Hatası", icon: "📏", text: "<ol><li>Nozul çok yakınsa yüzeyde <strong>dalgalanma</strong> olur.</li><li>Çok uzaksa çizgiler arasında <strong>boşluk</strong> kalır.</li><li>İdeal ilk katman tek parça <strong>kağıt gibi</strong> görünmelidir.</li><li>Canlı Z ayarını küçük adımlarla değiştirin.</li></ol>" },
+        stringing: { solution: true, title: "İpliklenme (Stringing)", icon: "🕸️", text: "<ol><li><strong>Retraction</strong> mesafesini artırın (Direct: 1-2mm, Bowden: 4-6mm).</li><li>Baskı sıcaklığını <strong>5-10°C düşürün</strong>.</li><li>'Z-hop' ayarını kapatmayı deneyin.</li><li>Filamentiniz nem almış olabilir, <strong>kurutun</strong>.</li></ol>" },
+        shifting: { solution: true, title: "Katman Kayması", icon: "📐", text: "<ol><li><strong>Kayış gerginliğini</strong> kontrol edin.</li><li>Motor sürücü akımını kontrol edin.</li><li>Baskı hızını <strong>düşürün</strong>.</li><li>Çarpışma olup olmadığını kontrol edin.</li></ol>" },
+        extrusion: { solution: true, title: "Eksik Ekstrüzyon", icon: "🔧", text: "<ol><li>Nozul <strong>tıkanmış</strong> olabilir, temizleyin.</li><li>Ekstruder gear'ı kontrol edin.</li><li>Sıcaklığı <strong>5-10°C artırın</strong>.</li><li>Akış oranını (Flow Rate) %105-110 yapın.</li></ol>" },
+        dimensions: { solution: true, title: "Boyut Hataları", icon: "📐", text: "<ol><li><strong>E-steps kalibrasyonu</strong> yapın.</li><li>XYZ adım sayısını kontrol edin.</li><li>Horizontal expansion ayarını kullanın.</li><li>Filament çapını doğru girdiğinizden emin olun.</li></ol>" },
+        surface: { solution: true, title: "Yüzey Kalitesi", icon: "✨", text: "<ol><li><strong>Dış duvar hızını</strong> düşürün (25-40mm/s).</li><li>Katman yüksekliğini azaltın.</li><li>Sıcaklık kulesi ile optimal sıcaklığı bulun.</li><li>Ringing/Ghosting için <strong>Input Shaper</strong> kullanın.</li></ol>" }
+      },
+      en: {
+        start: { question: "At which stage are you experiencing problems?", options: [{ text: "Print Start / First Layer", next: "first_layer" }, { text: "Mid-Print / General Quality", next: "mid_print" }, { text: "Print Finish / Dimensions", next: "finished" }] },
+        first_layer: { question: "Is the first layer sticking to the bed?", options: [{ text: "No, not sticking at all or lifting", next: "adhesion" }, { text: "Yes, but surface is rough/damaged", next: "z_offset" }] },
+        mid_print: { question: "What does the problem look like?", options: [{ text: "Stringing", next: "stringing" }, { text: "Layer Shift", next: "shifting" }, { text: "Under-extrusion", next: "extrusion" }] },
+        finished: { question: "What's wrong with the finished part?", options: [{ text: "Dimensions are wrong", next: "dimensions" }, { text: "Surface quality is poor", next: "surface" }] },
+        adhesion: { solution: true, title: "Bed Adhesion Issue", icon: "🖐️", text: "<ol><li>Clean your bed with <strong>Isopropyl Alcohol (IPA)</strong>.</li><li>Check bed temperature (PLA: 60°C, PETG: 80-85°C).</li><li>Do <strong>First Layer Calibration</strong> to bring nozzle closer to bed.</li><li>Try using glue stick or hair spray.</li></ol>" },
+        z_offset: { solution: true, title: "Z Offset Error", icon: "📏", text: "<ol><li>If nozzle is too close, <strong>rippling</strong> occurs on surface.</li><li>If too far, <strong>gaps</strong> remain between lines.</li><li>Ideal first layer should look like a single piece of <strong>paper</strong>.</li><li>Change Live Z in small steps.</li></ol>" },
+        stringing: { solution: true, title: "Stringing", icon: "🕸️", text: "<ol><li>Increase <strong>Retraction</strong> distance (Direct: 1-2mm, Bowden: 4-6mm).</li><li><strong>Lower print temperature by 5-10°C</strong>.</li><li>Try disabling 'Z-hop'.</li><li>Your filament may be wet, <strong>dry it</strong>.</li></ol>" },
+        shifting: { solution: true, title: "Layer Shifting", icon: "📐", text: "<ol><li>Check <strong>belt tension</strong>.</li><li>Check motor driver current.</li><li><strong>Reduce</strong> print speed.</li><li>Check for collisions.</li></ol>" },
+        extrusion: { solution: true, title: "Under-extrusion", icon: "🔧", text: "<ol><li>Nozzle may be <strong>clogged</strong>, clean it.</li><li>Check extruder gear.</li><li><strong>Increase temperature by 5-10°C</strong>.</li><li>Set Flow Rate to 105-110%.</li></ol>" },
+        dimensions: { solution: true, title: "Dimension Errors", icon: "📐", text: "<ol><li>Do <strong>E-steps calibration</strong>.</li><li>Check XYZ step count.</li><li>Use Horizontal expansion setting.</li><li>Make sure filament diameter is correct.</li></ol>" },
+        surface: { solution: true, title: "Surface Quality", icon: "✨", text: "<ol><li><strong>Reduce outer wall speed</strong> (25-40mm/s).</li><li>Reduce layer height.</li><li>Find optimal temperature with temperature tower.</li><li>Use <strong>Input Shaper</strong> for ringing/ghosting.</li></ol>" }
+      },
+      de: {
+        start: { question: "In welcher Phase haben Sie Probleme?", options: [{ text: "Druckstart / Erste Schicht", next: "first_layer" }, { text: "Während des Drucks / Allgemeine Qualität", next: "mid_print" }, { text: "Druckende / Abmessungen", next: "finished" }] },
+        first_layer: { question: "Haftet die erste Schicht am Bett?", options: [{ text: "Nein, haftet gar nicht oder hebt ab", next: "adhesion" }, { text: "Ja, aber Oberfläche ist rau/beschädigt", next: "z_offset" }] },
+        mid_print: { question: "Wie sieht das Problem aus?", options: [{ text: "Fädenziehen (Stringing)", next: "stringing" }, { text: "Schichtverschiebung", next: "shifting" }, { text: "Unterextrusion", next: "extrusion" }] },
+        finished: { question: "Was stimmt mit dem fertigen Teil nicht?", options: [{ text: "Abmessungen sind falsch", next: "dimensions" }, { text: "Oberflächenqualität ist schlecht", next: "surface" }] },
+        adhesion: { solution: true, title: "Bett-Haftungsproblem", icon: "🖐️", text: "<ol><li>Reinigen Sie Ihr Bett mit <strong>Isopropylalkohol (IPA)</strong>.</li><li>Prüfen Sie die Betttemperatur (PLA: 60°C, PETG: 80-85°C).</li><li>Führen Sie die <strong>Erste-Schicht-Kalibrierung</strong> durch.</li><li>Versuchen Sie Klebestift oder Haarspray.</li></ol>" },
+        z_offset: { solution: true, title: "Z-Offset Fehler", icon: "📏", text: "<ol><li>Wenn die Düse zu nah ist, entsteht <strong>Wellung</strong> auf der Oberfläche.</li><li>Wenn zu weit, bleiben <strong>Lücken</strong> zwischen den Linien.</li><li>Die ideale erste Schicht sollte wie ein einzelnes Stück <strong>Papier</strong> aussehen.</li><li>Ändern Sie Live Z in kleinen Schritten.</li></ol>" },
+        stringing: { solution: true, title: "Fädenziehen (Stringing)", icon: "🕸️", text: "<ol><li>Erhöhen Sie die <strong>Rückzugs</strong>-Distanz (Direct: 1-2mm, Bowden: 4-6mm).</li><li><strong>Senken Sie die Drucktemperatur um 5-10°C</strong>.</li><li>Versuchen Sie 'Z-hop' zu deaktivieren.</li><li>Ihr Filament könnte feucht sein, <strong>trocknen Sie es</strong>.</li></ol>" },
+        shifting: { solution: true, title: "Schichtverschiebung", icon: "📐", text: "<ol><li>Prüfen Sie die <strong>Riemenspannung</strong>.</li><li>Prüfen Sie den Motortreiberstrom.</li><li><strong>Reduzieren</strong> Sie die Druckgeschwindigkeit.</li><li>Prüfen Sie auf Kollisionen.</li></ol>" },
+        extrusion: { solution: true, title: "Unterextrusion", icon: "🔧", text: "<ol><li>Düse könnte <strong>verstopft</strong> sein, reinigen Sie sie.</li><li>Prüfen Sie das Extruder-Zahnrad.</li><li><strong>Erhöhen Sie die Temperatur um 5-10°C</strong>.</li><li>Setzen Sie Flow Rate auf 105-110%.</li></ol>" },
+        dimensions: { solution: true, title: "Maßfehler", icon: "📐", text: "<ol><li>Führen Sie <strong>E-Steps-Kalibrierung</strong> durch.</li><li>Prüfen Sie die XYZ-Schrittanzahl.</li><li>Verwenden Sie die Horizontal-Expansion-Einstellung.</li><li>Stellen Sie sicher, dass der Filamentdurchmesser korrekt ist.</li></ol>" },
+        surface: { solution: true, title: "Oberflächenqualität", icon: "✨", text: "<ol><li><strong>Reduzieren Sie die Außenwandgeschwindigkeit</strong> (25-40mm/s).</li><li>Reduzieren Sie die Schichthöhe.</li><li>Finden Sie die optimale Temperatur mit dem Temperaturturm.</li><li>Verwenden Sie <strong>Input Shaper</strong> für Ringing/Ghosting.</li></ol>" }
+      }
+    }
+  };
+</script>
 <script is:inline>
   // Tab Switching
   function switchTab(tabId) {
@@ -340,78 +578,24 @@ const articleSchema = {
     if (tabId === 'troubleshoot') renderTroubleshootNode();
   }
 
-  // Settings Data
-  const settingsData = {
-    layers: {
-      title: "Katmanlar ve Çevreler",
-      description: "Modelin yapısal bütünlüğünü ve yüzey kalitesini belirleyen en temel ayarlardır.",
-      items: [
-        {
-          name: "Katman Yüksekliği (Layer Height)",
-          val: "0.10mm - 0.30mm",
-          desc: "Her bir baskı katmanının kalınlığıdır. Düşük değerler daha pürüzsüz yüzey sağlar ancak baskı süresini uzatır.",
-          impact: "Kalite: Yüksek, Süre: Çok Yüksek",
-          tips: ["Detaylı modeller için 0.10mm veya 0.15mm kullanın.", "Hızlı prototipler için 0.20mm veya 0.30mm idealdir."]
-        },
-        {
-          name: "Dikey Kabuklar (Perimeters)",
-          val: "Standart: 2-3",
-          desc: "Modelin dış duvarlarının sayısıdır. Dayanıklılık için en önemli faktörlerden biridir.",
-          impact: "Mukavemet: Çok Yüksek",
-          tips: ["Mekanik parçalar için en az 3-4 duvar önerilir.", "Görsel parçalar için 2 yeterlidir."]
-        },
-        {
-          name: "Vazo Modu (Spiral Vase Mode)",
-          val: "Açık/Kapalı",
-          desc: "Modeli tek, kesintisiz bir dış duvar olarak basar. Z ekseni sürekli yükselir.",
-          impact: "Hız: Çok Yüksek",
-          tips: ["Sadece içi boş, estetik modeller için uygundur.", "Üst katman 0 olmalıdır."]
-        }
-      ]
-    },
-    infill: {
-      title: "Dolgu (Infill)",
-      description: "Parçanın iç yapısını belirler. Malzeme tasarrufu ve baskı süresi için optimize edilmelidir.",
-      items: [
-        {
-          name: "Dolgu Yoğunluğu (Fill Density)",
-          val: "%5 - %100",
-          desc: "Modelin içinin ne kadar dolu olacağını belirler. %100 tamamen dolu demektir.",
-          impact: "Malzeme Kullanımı: Yüksek",
-          tips: ["Standart modeller için %15-%20 yeterlidir.", "Mukavemet gereken yerlerde %40 üzeri."]
-        },
-        {
-          name: "Dolgu Deseni (Fill Pattern)",
-          val: "Gyroid, Rectilinear, Grid",
-          desc: "İç yapının geometrisidir. Gyroid her yöne eşit mukavemet sağlar.",
-          impact: "Baskı Hızı ve Mukavemet",
-          tips: ["En iyi genel amaçlı: Gyroid.", "En hızlı: Rectilinear.", "Esnek filamentler için: Gyroid."]
-        }
-      ]
-    },
-    support: {
-      title: "Destek Malzemesi (Supports)",
-      description: "Havada kalan kısımların basılabilmesi için gerekli geçici yapılardır.",
-      items: [
-        {
-          name: "Destek Tipi",
-          val: "Grid, Snug, Organic",
-          desc: "'Organic' destekler ağaç yapısındadır, çıkarması kolaydır ve yüzeyde az iz bırakır.",
-          impact: "Yüzey Kalitesi",
-          tips: ["Karmaşık figürler için 'Organic' kullanın.", "Düz yüzeyler için 'Snug' iyidir."]
-        },
-        {
-          name: "Z Temas Mesafesi",
-          val: "0.1mm - 0.25mm",
-          desc: "Destek ile model arasındaki dikey boşluktur. Azaltmak yapışmayı artırır.",
-          impact: "Sökülebilirlik",
-          tips: ["Zor sökülüyorsa 0.05mm artırın.", "Katman yüksekliği ile orantılı olmalı."]
-        }
-      ]
-    }
-  };
+  // Get current language from i18n
+  const currentLang = window.prusaI18n.lang;
+  const settingsData = window.prusaI18n.settingsData[currentLang];
+  const chartLabels = window.prusaI18n.chartLabels[currentLang];
+  const troubleshootTree = window.prusaI18n.troubleshootTree[currentLang];
 
   let currentCategory = 'layers';
+
+  function initCategoryButtons() {
+    const container = document.getElementById('categoryList');
+    if (!container) return;
+
+    container.innerHTML = ['layers', 'infill', 'support'].map((cat, idx) => `
+      <button class="category-btn ${idx === 0 ? 'active' : ''}" onclick="showCategory('${cat}')" data-cat="${cat}">
+        ${settingsData[cat].buttonText}
+      </button>
+    `).join('');
+  }
 
   function showCategory(cat) {
     currentCategory = cat;
@@ -453,131 +637,6 @@ const articleSchema = {
       </div>
     `;
   }
-
-  // Troubleshooting Tree
-  const troubleshootTree = {
-    start: {
-      question: "Hangi aşamada sorun yaşıyorsunuz?",
-      options: [
-        { text: "Baskı Başlangıcı / İlk Katman", next: "first_layer" },
-        { text: "Baskı Ortasında / Genel Kalite", next: "mid_print" },
-        { text: "Baskı Bitimi / Boyutlar", next: "finished" }
-      ]
-    },
-    first_layer: {
-      question: "İlk katman tablaya yapışıyor mu?",
-      options: [
-        { text: "Hayır, hiç yapışmıyor veya kalkıyor", next: "adhesion" },
-        { text: "Evet, ama yüzey pürüzlü/bozuk", next: "z_offset" }
-      ]
-    },
-    mid_print: {
-      question: "Sorun nasıl görünüyor?",
-      options: [
-        { text: "İpliklenme (Stringing)", next: "stringing" },
-        { text: "Katmanlar kaymış (Layer Shift)", next: "shifting" },
-        { text: "Eksik ekstrüzyon", next: "extrusion" }
-      ]
-    },
-    finished: {
-      question: "Bitmiş parçada ne sorun var?",
-      options: [
-        { text: "Boyutlar yanlış", next: "dimensions" },
-        { text: "Yüzey kalitesi kötü", next: "surface" }
-      ]
-    },
-    adhesion: {
-      solution: true,
-      title: "Tabla Yapışma Sorunu",
-      icon: "🖐️",
-      text: `
-        <ol>
-          <li>Tablanızı <strong>İzopropil Alkol (IPA)</strong> ile temizleyin.</li>
-          <li>Tabla sıcaklığını kontrol edin (PLA: 60°C, PETG: 80-85°C).</li>
-          <li><strong>First Layer Calibration</strong> yaparak nozulu tablaya yaklaştırın.</li>
-          <li>Glue stick veya hair spray kullanmayı deneyin.</li>
-        </ol>
-      `
-    },
-    z_offset: {
-      solution: true,
-      title: "Z Offset Ayarı Hatası",
-      icon: "📏",
-      text: `
-        <ol>
-          <li>Nozul çok yakınsa yüzeyde <strong>dalgalanma</strong> olur.</li>
-          <li>Çok uzaksa çizgiler arasında <strong>boşluk</strong> kalır.</li>
-          <li>İdeal ilk katman tek parça <strong>kağıt gibi</strong> görünmelidir.</li>
-          <li>Canlı Z ayarını küçük adımlarla değiştirin.</li>
-        </ol>
-      `
-    },
-    stringing: {
-      solution: true,
-      title: "İpliklenme (Stringing)",
-      icon: "🕸️",
-      text: `
-        <ol>
-          <li><strong>Retraction</strong> mesafesini artırın (Direct: 1-2mm, Bowden: 4-6mm).</li>
-          <li>Baskı sıcaklığını <strong>5-10°C düşürün</strong>.</li>
-          <li>'Z-hop' ayarını kapatmayı deneyin.</li>
-          <li>Filamentiniz nem almış olabilir, <strong>kurutun</strong>.</li>
-        </ol>
-      `
-    },
-    shifting: {
-      solution: true,
-      title: "Katman Kayması",
-      icon: "📐",
-      text: `
-        <ol>
-          <li><strong>Kayış gerginliğini</strong> kontrol edin.</li>
-          <li>Motor sürücü akımını kontrol edin.</li>
-          <li>Baskı hızını <strong>düşürün</strong>.</li>
-          <li>Çarpışma olup olmadığını kontrol edin.</li>
-        </ol>
-      `
-    },
-    extrusion: {
-      solution: true,
-      title: "Eksik Ekstrüzyon",
-      icon: "🔧",
-      text: `
-        <ol>
-          <li>Nozul <strong>tıkanmış</strong> olabilir, temizleyin.</li>
-          <li>Ekstruder gear'ı kontrol edin.</li>
-          <li>Sıcaklığı <strong>5-10°C artırın</strong>.</li>
-          <li>Akış oranını (Flow Rate) %105-110 yapın.</li>
-        </ol>
-      `
-    },
-    dimensions: {
-      solution: true,
-      title: "Boyut Hataları",
-      icon: "📐",
-      text: `
-        <ol>
-          <li><strong>E-steps kalibrasyonu</strong> yapın.</li>
-          <li>XYZ adım sayısını kontrol edin.</li>
-          <li>Horizontal expansion ayarını kullanın.</li>
-          <li>Filament çapını doğru girdiğinizden emin olun.</li>
-        </ol>
-      `
-    },
-    surface: {
-      solution: true,
-      title: "Yüzey Kalitesi",
-      icon: "✨",
-      text: `
-        <ol>
-          <li><strong>Dış duvar hızını</strong> düşürün (25-40mm/s).</li>
-          <li>Katman yüksekliğini azaltın.</li>
-          <li>Sıcaklık kulesi ile optimal sıcaklığı bulun.</li>
-          <li>Ringing/Ghosting için <strong>Input Shaper</strong> kullanın.</li>
-        </ol>
-      `
-    }
-  };
 
   let currentTsNode = 'start';
 
@@ -636,7 +695,7 @@ const articleSchema = {
     radarChart = new Chart(ctx.getContext('2d'), {
       type: 'radar',
       data: {
-        labels: ['Kolaylık', 'Isı Dayanımı', 'Darbe Dayanımı', 'Sertlik', 'Esneklik'],
+        labels: [chartLabels.ease, chartLabels.heatRes, chartLabels.impact, chartLabels.hardness, chartLabels.flex],
         datasets: [
           {
             label: 'PLA',
@@ -700,7 +759,7 @@ const articleSchema = {
       type: 'bubble',
       data: {
         datasets: [{
-          label: 'Baskı Profilleri',
+          label: chartLabels.printProfiles,
           data: [
             { x: 10, y: 9, r: 8 },
             { x: 50, y: 7, r: 10 },
@@ -714,13 +773,13 @@ const articleSchema = {
         maintainAspectRatio: false,
         scales: {
           x: {
-            title: { display: true, text: 'Hız', color: '#9ca3af' },
+            title: { display: true, text: chartLabels.speed, color: '#9ca3af' },
             min: 0, max: 100,
             grid: { color: 'rgba(255,255,255,0.05)' },
             ticks: { color: '#9ca3af' }
           },
           y: {
-            title: { display: true, text: 'Kalite', color: '#9ca3af' },
+            title: { display: true, text: chartLabels.quality, color: '#9ca3af' },
             min: 0, max: 10,
             grid: { color: 'rgba(255,255,255,0.05)' },
             ticks: { color: '#9ca3af' }
@@ -745,13 +804,13 @@ const articleSchema = {
         labels: ['PLA', 'PETG', 'ABS', 'TPU'],
         datasets: [
           {
-            label: 'Nozul Sıcaklığı (°C)',
+            label: chartLabels.nozzleTemp,
             data: [215, 240, 250, 230],
             backgroundColor: '#ea580c',
             borderRadius: 4
           },
           {
-            label: 'Tabla Sıcaklığı (°C)',
+            label: chartLabels.bedTemp,
             data: [55, 85, 105, 55],
             backgroundColor: '#4b5563',
             borderRadius: 4
@@ -787,6 +846,7 @@ const articleSchema = {
   document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       initRadarChart();
+      initCategoryButtons();
     }, 100);
   });
 </script>

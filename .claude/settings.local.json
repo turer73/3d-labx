@@ -87,7 +87,13 @@
       "Bash(nslookup:*)",
       "Bash(./scripts/deploy-frontend.sh:*)",
       "WebFetch(domain:www.filamentmarket.com.tr)",
-      "mcp__Claude_in_Chrome__computer"
+      "mcp__Claude_in_Chrome__computer",
+      "Bash(findstr:*)",
+      "Bash(for slug in \"3d-yazici-nozzle-tikanikligi-kabustan-kurtulmanin-kesin-yollari-2026-rehberi-mkyiw0om\" \"esnaf-muafiyeti-rehberi-3d-baski-ile-vergi-odemeden-kazanc-ml24sr4o\")",
+      "Bash(do)",
+      "Bash(gh run list:*)",
+      "Bash(sort:*)",
+      "WebFetch(domain:en.3d-labx.com)"
     ],
     "deny": []
   }
