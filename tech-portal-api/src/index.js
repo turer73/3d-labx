@@ -5090,12 +5090,7 @@ Content: ${post.content_tr?.substring(0, 3000) || ''}`;
           });
         }
 
-        // Gemini API ile çeviri yap
-        const GEMINI_API_KEY = env.GEMINI_API_KEY;
-        if (!GEMINI_API_KEY) {
-          return errorResponse("Çeviri servisi yapılandırılmamış", 500, "SERVICE_UNAVAILABLE");
-        }
-
+        // Cloudflare Workers AI ile çeviri yap (harici API key gerekmez)
         const langNames = {
           tr: "Turkish",
           en: "English",
@@ -5111,31 +5106,23 @@ Text to translate:
 ${text}`;
 
         try {
-          const geminiResponse = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                contents: [{
-                  parts: [{ text: prompt }]
-                }],
-                generationConfig: {
-                  temperature: 0.1,
-                  maxOutputTokens: 8000
-                }
-              })
-            }
-          );
+          // Cloudflare Workers AI kullan
+          const aiResponse = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
+            messages: [
+              {
+                role: "system",
+                content: "You are a professional translator. Translate text accurately while preserving formatting. Only output the translation, nothing else."
+              },
+              {
+                role: "user",
+                content: prompt
+              }
+            ],
+            max_tokens: 4000,
+            temperature: 0.1
+          });
 
-          if (!geminiResponse.ok) {
-            const errorData = await geminiResponse.text();
-            console.error("Gemini API error:", errorData);
-            return errorResponse("Çeviri servisi şu an kullanılamıyor", 500, "TRANSLATION_ERROR");
-          }
-
-          const geminiData = await geminiResponse.json();
-          const translatedText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
+          const translatedText = aiResponse?.response;
 
           if (!translatedText) {
             return errorResponse("Çeviri başarısız", 500, "TRANSLATION_FAILED");
@@ -5155,12 +5142,13 @@ ${text}`;
           return jsonResponse({
             success: true,
             translatedText: translatedText.trim(),
-            cached: false
+            cached: false,
+            provider: "cloudflare-ai"
           });
 
         } catch (error) {
           console.error("Translation error:", error);
-          return errorResponse("Çeviri sırasında hata oluştu", 500, "TRANSLATION_ERROR");
+          return errorResponse("Çeviri sırasında hata oluştu: " + error.message, 500, "TRANSLATION_ERROR");
         }
       }
 
