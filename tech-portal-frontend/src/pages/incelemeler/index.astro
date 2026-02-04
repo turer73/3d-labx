@@ -1,12 +1,20 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
-import { getApiBase } from "../../lib/api";
+import { getApiBase, getLanguage, type Language } from "../../lib/api";
+
+export const prerender = false;
 
 type Post = {
   id: number;
+  title: string;
   title_tr: string;
+  title_en?: string;
+  title_de?: string;
+  summary: string;
   summary_tr: string;
+  summary_en?: string;
+  summary_de?: string;
   slug: string;
   category: string;
   image_url?: string;
@@ -28,7 +36,90 @@ type ApiResponse = {
   pagination: Pagination;
 };
 
+const lang = getLanguage(Astro.request);
 const API_BASE = getApiBase(Astro.request);
+
+// Çeviriler
+const translations: Record<Language, {
+  pageTitle: string;
+  pageTitlePaged: string;
+  pageDesc: string;
+  defaultDesc: string;
+  heroTitle: string;
+  heroDesc: string;
+  reviewCount: string;
+  detailedReview: string;
+  errorLoading: string;
+  noReviewsTitle: string;
+  noReviewsDesc: string;
+  backToHome: string;
+  prev: string;
+  next: string;
+}> = {
+  tr: {
+    pageTitle: "İncelemeler - 3D-labX",
+    pageTitlePaged: "İncelemeler - Sayfa",
+    pageDesc: "3D yazıcı ve ekipman incelemeleri:",
+    defaultDesc: "3D yazıcı, filament ve ekipman incelemeleri. Detaylı test sonuçları ve karşılaştırmalar.",
+    heroTitle: "İncelemeler",
+    heroDesc: "3D yazıcı, filament ve ekipman incelemeleri",
+    reviewCount: "inceleme",
+    detailedReview: "Detaylı İnceleme",
+    errorLoading: "İçerikler yüklenirken bir hata oluştu.",
+    noReviewsTitle: "Henüz İnceleme Yok",
+    noReviewsDesc: "Bu kategoride henüz içerik bulunmuyor. Yakında detaylı incelemeler eklenecek!",
+    backToHome: "Ana Sayfaya Dön",
+    prev: "Önceki",
+    next: "Sonraki"
+  },
+  en: {
+    pageTitle: "Reviews - 3D-labX",
+    pageTitlePaged: "Reviews - Page",
+    pageDesc: "3D printer and equipment reviews:",
+    defaultDesc: "3D printer, filament and equipment reviews. Detailed test results and comparisons.",
+    heroTitle: "Reviews",
+    heroDesc: "3D printer, filament and equipment reviews",
+    reviewCount: "reviews",
+    detailedReview: "Detailed Review",
+    errorLoading: "An error occurred while loading content.",
+    noReviewsTitle: "No Reviews Yet",
+    noReviewsDesc: "No content in this category yet. Detailed reviews coming soon!",
+    backToHome: "Back to Home",
+    prev: "Previous",
+    next: "Next"
+  },
+  de: {
+    pageTitle: "Bewertungen - 3D-labX",
+    pageTitlePaged: "Bewertungen - Seite",
+    pageDesc: "3D-Drucker und Ausrüstungsbewertungen:",
+    defaultDesc: "3D-Drucker, Filament und Ausrüstungsbewertungen. Detaillierte Testergebnisse und Vergleiche.",
+    heroTitle: "Bewertungen",
+    heroDesc: "3D-Drucker, Filament und Ausrüstungsbewertungen",
+    reviewCount: "Bewertungen",
+    detailedReview: "Detaillierte Bewertung",
+    errorLoading: "Beim Laden des Inhalts ist ein Fehler aufgetreten.",
+    noReviewsTitle: "Noch keine Bewertungen",
+    noReviewsDesc: "In dieser Kategorie gibt es noch keine Inhalte. Detaillierte Bewertungen kommen bald!",
+    backToHome: "Zurück zur Startseite",
+    prev: "Vorherige",
+    next: "Nächste"
+  }
+};
+
+const t = translations[lang];
+
+// Helper: Dile göre başlık ve özet al
+function getTitle(post: Post): string {
+  if (lang === 'en' && post.title_en) return post.title_en;
+  if (lang === 'de' && post.title_de) return post.title_de;
+  return post.title_tr || post.title;
+}
+
+function getSummary(post: Post): string {
+  if (lang === 'en' && post.summary_en) return post.summary_en;
+  if (lang === 'de' && post.summary_de) return post.summary_de;
+  return post.summary_tr || post.summary;
+}
 
 const url = new URL(Astro.request.url);
 const currentPage = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
@@ -39,33 +130,37 @@ let pagination: Pagination | null = null;
 let error: string | null = null;
 
 try {
-  const res = await fetch(
-    `${API_BASE}/api/posts?category=incelemeler&page=${currentPage}&limit=${POSTS_PER_PAGE}`,
-    { headers: { "Accept": "application/json" } }
-  );
+  const apiUrl = lang === 'tr'
+    ? `${API_BASE}/api/posts?category=incelemeler&page=${currentPage}&limit=${POSTS_PER_PAGE}`
+    : `${API_BASE}/api/posts?category=incelemeler&page=${currentPage}&limit=${POSTS_PER_PAGE}&lang=${lang}`;
+
+  const res = await fetch(apiUrl, { headers: { "Accept": "application/json" } });
 
   if (!res.ok) {
-    throw new Error(`API hatası: ${res.status}`);
+    throw new Error(`API error: ${res.status}`);
   }
 
   const data: ApiResponse = await res.json();
   posts = data.posts;
   pagination = data.pagination;
 } catch (e) {
-  error = e instanceof Error ? e.message : "Bilinmeyen hata";
-  console.error("İncelemeler sayfası hatası:", error);
+  error = e instanceof Error ? e.message : "Unknown error";
+  console.error("Reviews page error:", error);
 }
 
 const title = currentPage > 1
-  ? `İncelemeler - Sayfa ${currentPage} - 3D-labX`
-  : "İncelemeler - 3D-labX";
+  ? `${t.pageTitlePaged} ${currentPage} - 3D-labX`
+  : t.pageTitle;
 
 const description = posts.length > 0
-  ? `3D yazıcı ve ekipman incelemeleri: ${posts.slice(0, 3).map((p) => p.title_tr).join(", ")}`
-  : "3D yazıcı, filament ve ekipman incelemeleri. Detaylı test sonuçları ve karşılaştırmalar.";
+  ? `${t.pageDesc} ${posts.slice(0, 3).map((p) => getTitle(p)).join(", ")}`
+  : t.defaultDesc;
 
 const prevUrl = pagination?.hasPrev ? `/incelemeler?page=${currentPage - 1}` : null;
 const nextUrl = pagination?.hasNext ? `/incelemeler?page=${currentPage + 1}` : null;
+
+// Tarih formatı
+const dateLocale = lang === 'tr' ? 'tr-TR' : lang === 'de' ? 'de-DE' : 'en-US';
 ---
 
 <BaseLayout title={title} description={description}>
@@ -75,17 +170,17 @@ const nextUrl = pagination?.hasNext ? `/incelemeler?page=${currentPage + 1}` : n
     <div class="container">
       <div class="page-header">
         <div class="page-title-group">
-          <h1>İncelemeler</h1>
-          <p class="page-desc">3D yazıcı, filament ve ekipman incelemeleri</p>
+          <h1>{t.heroTitle}</h1>
+          <p class="page-desc">{t.heroDesc}</p>
         </div>
         {pagination && (
-          <span class="post-count">{pagination.total} inceleme</span>
+          <span class="post-count">{pagination.total} {t.reviewCount}</span>
         )}
       </div>
 
       {error && (
         <div class="message message-error">
-          <p><strong>İçerikler yüklenirken bir hata oluştu.</strong></p>
+          <p><strong>{t.errorLoading}</strong></p>
           <p class="text-sm">{error}</p>
         </div>
       )}
@@ -95,9 +190,9 @@ const nextUrl = pagination?.hasNext ? `/incelemeler?page=${currentPage + 1}` : n
           <div class="empty-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h.01M15 12h.01M12 3c7.2 0 9 1.8 9 9s-1.8 9-9 9-9-1.8-9-9 1.8-9 9-9z"/><path d="M8 15c0 0 1.5 2 4 2s4-2 4-2"/></svg>
           </div>
-          <h2>Henüz İnceleme Yok</h2>
-          <p>Bu kategoride henüz içerik bulunmuyor. Yakında detaylı incelemeler eklenecek!</p>
-          <a href="/" class="btn btn-primary">Ana Sayfaya Dön</a>
+          <h2>{t.noReviewsTitle}</h2>
+          <p>{t.noReviewsDesc}</p>
+          <a href="/" class="btn btn-primary">{t.backToHome}</a>
         </div>
       )}
 
@@ -107,20 +202,20 @@ const nextUrl = pagination?.hasNext ? `/incelemeler?page=${currentPage + 1}` : n
             <article class={`post-card ${post.is_featured ? 'featured' : ''}`}>
               {post.image_url && (
                 <a href={`/incelemeler/${post.slug}`} class="post-image">
-                  <img src={post.image_url} alt={post.title_tr} loading="lazy" />
+                  <img src={post.image_url} alt={getTitle(post)} loading="lazy" />
                 </a>
               )}
               <div class="post-content">
                 {post.is_featured === 1 && (
-                  <span class="badge badge-review">Detaylı İnceleme</span>
+                  <span class="badge badge-review">{t.detailedReview}</span>
                 )}
                 <h2>
-                  <a href={`/incelemeler/${post.slug}`}>{post.title_tr}</a>
+                  <a href={`/incelemeler/${post.slug}`}>{getTitle(post)}</a>
                 </h2>
-                <p>{post.summary_tr}</p>
+                <p>{getSummary(post)}</p>
                 {post.created_at && (
                   <time class="post-date" datetime={post.created_at}>
-                    {new Date(post.created_at).toLocaleDateString("tr-TR", {
+                    {new Date(post.created_at).toLocaleDateString(dateLocale, {
                       year: "numeric",
                       month: "long",
                       day: "numeric"
@@ -134,7 +229,7 @@ const nextUrl = pagination?.hasNext ? `/incelemeler?page=${currentPage + 1}` : n
       )}
 
       {pagination && pagination.totalPages > 1 && (
-        <nav class="pagination" aria-label="Sayfa navigasyonu">
+        <nav class="pagination" aria-label="Page navigation">
           <div class="pagination-wrapper">
             <a
               href={prevUrl || "#"}
@@ -142,7 +237,7 @@ const nextUrl = pagination?.hasNext ? `/incelemeler?page=${currentPage + 1}` : n
               aria-disabled={!prevUrl}
             >
               <svg class="arrow-left" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-              <span class="btn-text">Önceki</span>
+              <span class="btn-text">{t.prev}</span>
             </a>
 
             <div class="pagination-info">
@@ -156,7 +251,7 @@ const nextUrl = pagination?.hasNext ? `/incelemeler?page=${currentPage + 1}` : n
               class={`pagination-btn ${!nextUrl ? 'disabled' : ''}`}
               aria-disabled={!nextUrl}
             >
-              <span class="btn-text">Sonraki</span>
+              <span class="btn-text">{t.next}</span>
               <svg class="arrow-right" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
             </a>
           </div>
