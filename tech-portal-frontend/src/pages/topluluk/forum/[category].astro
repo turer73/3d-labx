@@ -1,13 +1,102 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import Header from "../../../components/Header.astro";
-import { getApiBase, getLanguage } from "../../../lib/api";
+import { getApiBase, getLanguage, type Language } from "../../../lib/api";
 
 export const prerender = false;
 
 const { category: categorySlug } = Astro.params;
 const API_BASE = getApiBase(Astro.request);
 const lang = getLanguage(Astro.request);
+
+// Çeviriler
+const translations: Record<Language, {
+  community: string;
+  forum: string;
+  newTopic: string;
+  sortLabel: string;
+  sortLatest: string;
+  sortPopular: string;
+  sortUnsolved: string;
+  pinned: string;
+  solved: string;
+  lastReply: string;
+  noTopics: string;
+  noTopicsDesc: string;
+  createTopic: string;
+  prev: string;
+  next: string;
+  justNow: string;
+  minutesAgo: string;
+  hoursAgo: string;
+  daysAgo: string;
+}> = {
+  tr: {
+    community: "Topluluk",
+    forum: "Forum",
+    newTopic: "Yeni Konu",
+    sortLabel: "Sırala:",
+    sortLatest: "Son Cevaplanan",
+    sortPopular: "Popüler",
+    sortUnsolved: "Çözülmemiş",
+    pinned: "📌 Sabit",
+    solved: "✓ Çözüldü",
+    lastReply: "Son:",
+    noTopics: "Henüz konu yok",
+    noTopicsDesc: "Bu kategoride henüz konu açılmamış. İlk konuyu sen aç!",
+    createTopic: "Konu Aç",
+    prev: "← Önceki",
+    next: "Sonraki →",
+    justNow: "Az önce",
+    minutesAgo: "dk önce",
+    hoursAgo: "saat önce",
+    daysAgo: "gün önce"
+  },
+  en: {
+    community: "Community",
+    forum: "Forum",
+    newTopic: "New Topic",
+    sortLabel: "Sort:",
+    sortLatest: "Latest",
+    sortPopular: "Popular",
+    sortUnsolved: "Unsolved",
+    pinned: "📌 Pinned",
+    solved: "✓ Solved",
+    lastReply: "Last:",
+    noTopics: "No topics yet",
+    noTopicsDesc: "No topics in this category yet. Be the first to create one!",
+    createTopic: "Create Topic",
+    prev: "← Previous",
+    next: "Next →",
+    justNow: "Just now",
+    minutesAgo: "min ago",
+    hoursAgo: "hr ago",
+    daysAgo: "d ago"
+  },
+  de: {
+    community: "Community",
+    forum: "Forum",
+    newTopic: "Neues Thema",
+    sortLabel: "Sortieren:",
+    sortLatest: "Neueste",
+    sortPopular: "Beliebt",
+    sortUnsolved: "Ungelöst",
+    pinned: "📌 Angepinnt",
+    solved: "✓ Gelöst",
+    lastReply: "Letzter:",
+    noTopics: "Noch keine Themen",
+    noTopicsDesc: "In dieser Kategorie gibt es noch keine Themen. Erstellen Sie das erste!",
+    createTopic: "Thema erstellen",
+    prev: "← Zurück",
+    next: "Weiter →",
+    justNow: "Gerade eben",
+    minutesAgo: "Min. her",
+    hoursAgo: "Std. her",
+    daysAgo: "T. her"
+  }
+};
+
+const t = translations[lang];
 
 const url = new URL(Astro.request.url);
 const currentPage = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
@@ -33,16 +122,18 @@ if (!category) {
   return Astro.redirect("/topluluk/forum");
 }
 
+const dateLocale = lang === 'tr' ? 'tr-TR' : lang === 'de' ? 'de-DE' : 'en-US';
+
 function timeAgo(dateStr: string) {
   const date = new Date(dateStr);
   const now = new Date();
   const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
-  
-  if (diff < 60) return "Az önce";
-  if (diff < 3600) return `${Math.floor(diff / 60)} dk önce`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} saat önce`;
-  if (diff < 604800) return `${Math.floor(diff / 86400)} gün önce`;
-  return date.toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
+
+  if (diff < 60) return t.justNow;
+  if (diff < 3600) return `${Math.floor(diff / 60)} ${t.minutesAgo}`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} ${t.hoursAgo}`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)} ${t.daysAgo}`;
+  return date.toLocaleDateString(dateLocale, { day: "numeric", month: "short" });
 }
 ---
 
@@ -57,9 +148,9 @@ function timeAgo(dateStr: string) {
       <div class="page-header">
         <div class="header-left">
           <nav class="breadcrumb">
-            <a href="/topluluk">Topluluk</a>
+            <a href="/topluluk">{t.community}</a>
             <span>/</span>
-            <a href="/topluluk/forum">Forum</a>
+            <a href="/topluluk/forum">{t.forum}</a>
             <span>/</span>
             <span>{category.name}</span>
           </nav>
@@ -72,18 +163,18 @@ function timeAgo(dateStr: string) {
         <div class="header-right">
           <a href={`/topluluk/forum/yeni?category=${categorySlug}`} class="btn btn-primary">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-            Yeni Konu
+            {t.newTopic}
           </a>
         </div>
       </div>
 
       <!-- Sıralama -->
       <div class="sort-bar">
-        <span class="sort-label">Sırala:</span>
+        <span class="sort-label">{t.sortLabel}</span>
         <div class="sort-options">
-          <a href={`?sort=latest`} class={sort === "latest" ? "active" : ""}>Son Cevaplanan</a>
-          <a href={`?sort=popular`} class={sort === "popular" ? "active" : ""}>Popüler</a>
-          <a href={`?sort=unsolved`} class={sort === "unsolved" ? "active" : ""}>Çözülmemiş</a>
+          <a href={`?sort=latest`} class={sort === "latest" ? "active" : ""}>{t.sortLatest}</a>
+          <a href={`?sort=popular`} class={sort === "popular" ? "active" : ""}>{t.sortPopular}</a>
+          <a href={`?sort=unsolved`} class={sort === "unsolved" ? "active" : ""}>{t.sortUnsolved}</a>
         </div>
       </div>
 
@@ -100,8 +191,8 @@ function timeAgo(dateStr: string) {
             </div>
             <div class="thread-main">
               <div class="thread-title">
-                {thread.is_pinned === 1 && <span class="badge pinned">📌 Sabit</span>}
-                {thread.is_solved === 1 && <span class="badge solved">✓ Çözüldü</span>}
+                {thread.is_pinned === 1 && <span class="badge pinned">{t.pinned}</span>}
+                {thread.is_solved === 1 && <span class="badge solved">{t.solved}</span>}
                 {thread.is_locked === 1 && <span class="badge locked">🔒</span>}
                 <h3>{thread.title}</h3>
               </div>
@@ -112,7 +203,7 @@ function timeAgo(dateStr: string) {
                 {thread.last_reply_at && (
                   <>
                     <span class="dot">•</span>
-                    <span class="last-reply">Son: @{thread.last_reply_username || 'anonim'}</span>
+                    <span class="last-reply">{t.lastReply} @{thread.last_reply_username || 'anonim'}</span>
                   </>
                 )}
               </div>
@@ -131,9 +222,9 @@ function timeAgo(dateStr: string) {
         )) : (
           <div class="empty-state">
             <div class="empty-icon">💬</div>
-            <h3>Henüz konu yok</h3>
-            <p>Bu kategoride henüz konu açılmamış. İlk konuyu sen aç!</p>
-            <a href={`/topluluk/forum/yeni?category=${categorySlug}`} class="btn btn-primary">Konu Aç</a>
+            <h3>{t.noTopics}</h3>
+            <p>{t.noTopicsDesc}</p>
+            <a href={`/topluluk/forum/yeni?category=${categorySlug}`} class="btn btn-primary">{t.createTopic}</a>
           </div>
         )}
       </div>
@@ -142,11 +233,11 @@ function timeAgo(dateStr: string) {
       {pagination && pagination.totalPages > 1 && (
         <nav class="pagination">
           <a href={`?page=${currentPage - 1}&sort=${sort}`} class={`page-btn ${!pagination.hasPrev ? 'disabled' : ''}`}>
-            ← Önceki
+            {t.prev}
           </a>
           <span class="page-info">{pagination.page} / {pagination.totalPages}</span>
           <a href={`?page=${currentPage + 1}&sort=${sort}`} class={`page-btn ${!pagination.hasNext ? 'disabled' : ''}`}>
-            Sonraki →
+            {t.next}
           </a>
         </nav>
       )}
