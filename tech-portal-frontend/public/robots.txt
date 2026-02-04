@@ -1,0 +1,24 @@
+# 3D-labX Robots.txt
+# https://3d-labx.com
+
+User-agent: *
+Allow: /
+
+# Sitemap locations for all languages
+Sitemap: https://3d-labx.com/sitemap.xml
+Sitemap: https://en.3d-labx.com/sitemap.xml
+Sitemap: https://de.3d-labx.com/sitemap.xml
+
+# Crawl-delay for politeness
+Crawl-delay: 1
+
+# Block admin and auth pages from indexing
+Disallow: /api/
+Disallow: /auth/
+Disallow: /_astro/
+
+# Allow important static assets
+Allow: /favicon.svg
+Allow: /og.png
+Allow: /brand-logos/
+Allow: /slicer-logos/
