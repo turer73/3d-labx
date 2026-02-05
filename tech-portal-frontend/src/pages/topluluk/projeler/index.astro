@@ -1,11 +1,117 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import Header from "../../../components/Header.astro";
-import { getApiBase } from "../../../lib/api";
+import { getApiBase, getLanguage, type Language } from "../../../lib/api";
 
 export const prerender = false;
 
+const lang = getLanguage(Astro.request);
 const API_BASE = getApiBase(Astro.request);
+
+// Çeviriler
+const translations: Record<Language, {
+  pageTitle: string;
+  pageDesc: string;
+  breadcrumbCommunity: string;
+  breadcrumbProjects: string;
+  title: string;
+  subtitle: string;
+  shareProject: string;
+  sortLabel: string;
+  sortLatest: string;
+  sortPopular: string;
+  filamentLabel: string;
+  filamentAll: string;
+  filamentResin: string;
+  projectCount: string;
+  featured: string;
+  model: string;
+  viewProject: string;
+  likes: string;
+  views: string;
+  noProjects: string;
+  noProjectsDesc: string;
+  prev: string;
+  next: string;
+}> = {
+  tr: {
+    pageTitle: "Ben de Bastım - 3D Baskı Projeleri - 3D-labX",
+    pageDesc: "Topluluk tarafından paylaşılan 3D baskı projeleri. İlham alın, projelerinizi paylaşın.",
+    breadcrumbCommunity: "Topluluk",
+    breadcrumbProjects: "Ben de Bastım",
+    title: "🎨 Ben de Bastım",
+    subtitle: "Topluluk tarafından paylaşılan 3D baskı projeleri",
+    shareProject: "Proje Paylaş",
+    sortLabel: "Sırala:",
+    sortLatest: "En Yeni",
+    sortPopular: "Popüler",
+    filamentLabel: "Filament:",
+    filamentAll: "Tümü",
+    filamentResin: "Reçine",
+    projectCount: "proje",
+    featured: "Öne Çıkan",
+    model: "Model",
+    viewProject: "Projeyi Gör",
+    likes: "Beğeni",
+    views: "Görüntüleme",
+    noProjects: "Henüz proje yok",
+    noProjectsDesc: "İlk projeyi paylaşan sen ol!",
+    prev: "Önceki",
+    next: "Sonraki"
+  },
+  en: {
+    pageTitle: "I Printed It - 3D Print Projects - 3D-labX",
+    pageDesc: "3D printing projects shared by the community. Get inspired, share your projects.",
+    breadcrumbCommunity: "Community",
+    breadcrumbProjects: "I Printed It",
+    title: "🎨 I Printed It",
+    subtitle: "3D printing projects shared by the community",
+    shareProject: "Share Project",
+    sortLabel: "Sort:",
+    sortLatest: "Latest",
+    sortPopular: "Popular",
+    filamentLabel: "Filament:",
+    filamentAll: "All",
+    filamentResin: "Resin",
+    projectCount: "projects",
+    featured: "Featured",
+    model: "Model",
+    viewProject: "View Project",
+    likes: "Likes",
+    views: "Views",
+    noProjects: "No projects yet",
+    noProjectsDesc: "Be the first to share a project!",
+    prev: "Previous",
+    next: "Next"
+  },
+  de: {
+    pageTitle: "Ich habe gedruckt - 3D-Druckprojekte - 3D-labX",
+    pageDesc: "3D-Druckprojekte, die von der Community geteilt wurden. Lassen Sie sich inspirieren, teilen Sie Ihre Projekte.",
+    breadcrumbCommunity: "Community",
+    breadcrumbProjects: "Ich habe gedruckt",
+    title: "🎨 Ich habe gedruckt",
+    subtitle: "3D-Druckprojekte der Community",
+    shareProject: "Projekt teilen",
+    sortLabel: "Sortieren:",
+    sortLatest: "Neueste",
+    sortPopular: "Beliebt",
+    filamentLabel: "Filament:",
+    filamentAll: "Alle",
+    filamentResin: "Harz",
+    projectCount: "Projekte",
+    featured: "Empfohlen",
+    model: "Modell",
+    viewProject: "Projekt ansehen",
+    likes: "Gefällt mir",
+    views: "Aufrufe",
+    noProjects: "Noch keine Projekte",
+    noProjectsDesc: "Sei der Erste, der ein Projekt teilt!",
+    prev: "Zurück",
+    next: "Weiter"
+  }
+};
+
+const t = translations[lang];
 
 const url = new URL(Astro.request.url);
 const currentPage = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
@@ -59,8 +165,8 @@ function truncate(text: string, length: number = 100): string {
 ---
 
 <BaseLayout
-  title="Ben de Bastım - 3D Baskı Projeleri - 3D-labX"
-  description="Topluluk tarafından paylaşılan 3D baskı projeleri. İlham alın, projelerinizi paylaşın."
+  title={t.pageTitle}
+  description={t.pageDesc}
 >
   <Header />
 
@@ -69,17 +175,17 @@ function truncate(text: string, length: number = 100): string {
       <div class="page-header">
         <div class="header-left">
           <nav class="breadcrumb">
-            <a href="/topluluk">Topluluk</a>
+            <a href="/topluluk">{t.breadcrumbCommunity}</a>
             <span>/</span>
-            <span>Ben de Bastım</span>
+            <span>{t.breadcrumbProjects}</span>
           </nav>
-          <h1>🎨 Ben de Bastım</h1>
-          <p>Topluluk tarafından paylaşılan 3D baskı projeleri</p>
+          <h1>{t.title}</h1>
+          <p>{t.subtitle}</p>
         </div>
         <div class="header-right">
           <a href="/topluluk/projeler/paylas" class="btn btn-primary" id="newProjectBtn">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-            Proje Paylaş
+            {t.shareProject}
           </a>
         </div>
       </div>
@@ -87,26 +193,26 @@ function truncate(text: string, length: number = 100): string {
       <!-- Filtreler -->
       <div class="filters-bar">
         <div class="filter-group">
-          <span class="filter-label">Sırala:</span>
+          <span class="filter-label">{t.sortLabel}</span>
           <div class="filter-options">
-            <a href={`?sort=latest${filament ? `&filament=${filament}` : ''}`} class={sort === "latest" ? "active" : ""}>En Yeni</a>
-            <a href={`?sort=popular${filament ? `&filament=${filament}` : ''}`} class={sort === "popular" ? "active" : ""}>Popüler</a>
+            <a href={`?sort=latest${filament ? `&filament=${filament}` : ''}`} class={sort === "latest" ? "active" : ""}>{t.sortLatest}</a>
+            <a href={`?sort=popular${filament ? `&filament=${filament}` : ''}`} class={sort === "popular" ? "active" : ""}>{t.sortPopular}</a>
           </div>
         </div>
 
         <div class="filter-group">
-          <span class="filter-label">Filament:</span>
+          <span class="filter-label">{t.filamentLabel}</span>
           <div class="filter-options">
-            <a href={`?sort=${sort}`} class={!filament ? "active" : ""}>Tümü</a>
+            <a href={`?sort=${sort}`} class={!filament ? "active" : ""}>{t.filamentAll}</a>
             <a href={`?sort=${sort}&filament=PLA`} class={filament === "PLA" ? "active" : ""}>PLA</a>
             <a href={`?sort=${sort}&filament=PETG`} class={filament === "PETG" ? "active" : ""}>PETG</a>
             <a href={`?sort=${sort}&filament=ABS`} class={filament === "ABS" ? "active" : ""}>ABS</a>
             <a href={`?sort=${sort}&filament=TPU`} class={filament === "TPU" ? "active" : ""}>TPU</a>
-            <a href={`?sort=${sort}&filament=Resin`} class={filament === "Resin" ? "active" : ""}>Reçine</a>
+            <a href={`?sort=${sort}&filament=Resin`} class={filament === "Resin" ? "active" : ""}>{t.filamentResin}</a>
           </div>
         </div>
 
-        {pagination && <span class="total-count">{pagination.total} proje</span>}
+        {pagination && <span class="total-count">{pagination.total} {t.projectCount}</span>}
       </div>
 
       <!-- Projeler Grid -->
@@ -123,10 +229,10 @@ function truncate(text: string, length: number = 100): string {
                     <span class="project-emoji">🎨</span>
                   </div>
                 )}
-                {project.is_featured === 1 && <span class="featured-badge">⭐ Öne Çıkan</span>}
-                {project.model_url && <span class="model-badge">📥 Model</span>}
+                {project.is_featured === 1 && <span class="featured-badge">⭐ {t.featured}</span>}
+                {project.model_url && <span class="model-badge">📥 {t.model}</span>}
                 <div class="image-overlay">
-                  <span class="view-btn">Projeyi Gör</span>
+                  <span class="view-btn">{t.viewProject}</span>
                 </div>
               </div>
               <div class="project-info">
@@ -148,8 +254,8 @@ function truncate(text: string, length: number = 100): string {
                     <span>@{project.username}</span>
                   </div>
                   <div class="stats">
-                    <span title="Beğeni">❤️ {project.like_count || 0}</span>
-                    <span title="Görüntüleme">👁️ {project.view_count || 0}</span>
+                    <span title={t.likes}>❤️ {project.like_count || 0}</span>
+                    <span title={t.views}>👁️ {project.view_count || 0}</span>
                   </div>
                 </div>
               </div>
@@ -158,9 +264,9 @@ function truncate(text: string, length: number = 100): string {
         }) : (
           <div class="empty-state">
             <div class="empty-icon">🎨</div>
-            <h3>Henüz proje yok</h3>
-            <p>İlk projeyi paylaşan sen ol!</p>
-            <a href="/topluluk/projeler/paylas" class="btn btn-primary">Proje Paylaş</a>
+            <h3>{t.noProjects}</h3>
+            <p>{t.noProjectsDesc}</p>
+            <a href="/topluluk/projeler/paylas" class="btn btn-primary">{t.shareProject}</a>
           </div>
         )}
       </div>
@@ -169,11 +275,11 @@ function truncate(text: string, length: number = 100): string {
       {pagination && pagination.totalPages > 1 && (
         <nav class="pagination">
           <a href={`?page=${currentPage - 1}&sort=${sort}${filament ? `&filament=${filament}` : ''}`} class={`page-btn ${!pagination.hasPrev ? 'disabled' : ''}`}>
-            ← Önceki
+            ← {t.prev}
           </a>
           <span class="page-info">{pagination.page} / {pagination.totalPages}</span>
           <a href={`?page=${currentPage + 1}&sort=${sort}${filament ? `&filament=${filament}` : ''}`} class={`page-btn ${!pagination.hasNext ? 'disabled' : ''}`}>
-            Sonraki →
+            {t.next} →
           </a>
         </nav>
       )}

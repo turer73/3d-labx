@@ -93,7 +93,8 @@
       "Bash(do)",
       "Bash(gh run list:*)",
       "Bash(sort:*)",
-      "WebFetch(domain:en.3d-labx.com)"
+      "WebFetch(domain:en.3d-labx.com)",
+      "WebFetch(domain:unsplash.com)"
     ],
     "deny": []
   }

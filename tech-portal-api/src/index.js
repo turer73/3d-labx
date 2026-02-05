@@ -1463,7 +1463,7 @@ export default {
         `).first();
 
         if (!poll) {
-          return jsonResponse({ poll: null });
+          return jsonResponse({ poll: null }, 200, 0, request);
         }
 
         const options = await env.DB.prepare(`
@@ -1494,7 +1494,7 @@ export default {
             hasVoted: !!existingVote,
             votedOptionId: existingVote?.option_id || null
           }
-        }, 200, 60);
+        }, 200, 60, request);
       }
 
       // Slicer anketi (ID: 7)
@@ -1506,7 +1506,7 @@ export default {
         `).first();
 
         if (!poll) {
-          return jsonResponse({ poll: null });
+          return jsonResponse({ poll: null }, 200, 0, request);
         }
 
         const options = await env.DB.prepare(`
@@ -1537,7 +1537,7 @@ export default {
             hasVoted: !!existingVote,
             votedOptionId: existingVote?.option_id || null
           }
-        }, 200, 60);
+        }, 200, 60, request);
       }
 
       // ========================================
@@ -1703,7 +1703,7 @@ export default {
         const { pollId, optionId } = await request.json();
 
         if (!pollId || !optionId) {
-          return errorResponse("Poll ID ve Option ID gerekli", 400, "MISSING_DATA");
+          return errorResponse("Poll ID ve Option ID gerekli", 400, "MISSING_DATA", request);
         }
 
         // Anketin aktif olup olmadığını kontrol et
@@ -1712,7 +1712,7 @@ export default {
         `).bind(pollId).first();
 
         if (!poll) {
-          return errorResponse("Anket bulunamadı veya aktif değil", 404, "POLL_NOT_FOUND");
+          return errorResponse("Anket bulunamadı veya aktif değil", 404, "POLL_NOT_FOUND", request);
         }
 
         // Option'ın geçerli olup olmadığını kontrol et
@@ -1721,7 +1721,7 @@ export default {
         `).bind(optionId, pollId).first();
 
         if (!option) {
-          return errorResponse("Geçersiz seçenek", 400, "INVALID_OPTION");
+          return errorResponse("Geçersiz seçenek", 400, "INVALID_OPTION", request);
         }
 
         // IP hash ile daha önce oy verilmiş mi kontrol et
@@ -1731,7 +1731,7 @@ export default {
         `).bind(pollId, ipHash).first();
 
         if (existingVote) {
-          return errorResponse("Bu ankete zaten oy verdiniz", 400, "ALREADY_VOTED");
+          return errorResponse("Bu ankete zaten oy verdiniz", 400, "ALREADY_VOTED", request);
         }
 
         // Session'dan user ID al (varsa)
@@ -1778,7 +1778,7 @@ export default {
           })),
           totalVotes,
           votedOptionId: optionId
-        });
+        }, 200, 0, request);
       }
 
       // ================================
@@ -5325,7 +5325,7 @@ async function runCron(env) {
             continue;
           }
 
-          // AI translation
+          // AI translation: İngilizce → Türkçe
           const prompt = `Aşağıdaki İngilizce haber özetini Türkçe'ye çevir ve genişlet.
 Sadece JSON döndür:
 
@@ -5346,7 +5346,12 @@ Başlık: ${item.title}
 
           let parsed;
           try {
-            const cleanJson = aiText.replace(/```json\n?|\n?```/g, "").trim();
+            let cleanJson = aiText.replace(/```json\n?|\n?```/g, "").trim();
+            const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
+            if (jsonMatch) cleanJson = jsonMatch[0];
+            if (!cleanJson.endsWith('}')) {
+              cleanJson = cleanJson.replace(/,?\s*"[^"]*$/, '') + '}';
+            }
             parsed = JSON.parse(cleanJson);
           } catch {
             totalErrors++;
@@ -5355,14 +5360,20 @@ Başlık: ${item.title}
 
           const slug = createSlug(parsed.title_tr);
 
+          // Orijinal İngilizce içeriği title_en/summary_en olarak sakla
+          const title_en = (item.title || '').substring(0, 500);
+          const summary_en = (item.description || '').substring(0, 500);
+
           try {
             await env.DB.prepare(`
-              INSERT INTO posts (title_tr, summary_tr, content_tr, slug, category, post_type, source_url, image_url, ai_generated, status, published)
-              VALUES (?, ?, ?, ?, ?, 'haber', ?, ?, 1, 'published', 1)
+              INSERT INTO posts (title_tr, summary_tr, content_tr, title_en, summary_en, slug, category, post_type, source_url, image_url, ai_generated, status, published)
+              VALUES (?, ?, ?, ?, ?, ?, ?, 'haber', ?, ?, 1, 'published', 1)
             `).bind(
               parsed.title_tr,
               parsed.summary_tr,
               parsed.content_tr,
+              title_en,
+              summary_en,
               slug,
               category,
               item.link,
@@ -5371,6 +5382,40 @@ Başlık: ${item.title}
 
             totalAdded++;
             console.log("Added:", parsed.title_tr.substring(0, 50));
+
+            // Otomatik DE çevirisi
+            try {
+              const dePrompt = `Translate to German. Return ONLY a JSON object with these 3 fields:
+{"title":"translated title","summary":"translated summary max 200 chars","content":"translated content max 500 chars, plain text only"}
+
+Title: ${title_en}
+Summary: ${summary_en}`;
+
+              const deText = await generateWithAI(env, dePrompt);
+              if (deText) {
+                let deJson = deText.replace(/```json\n?|\n?```/g, "").trim();
+                const deMatch = deJson.match(/\{[\s\S]*\}/);
+                if (deMatch) deJson = deMatch[0];
+                if (!deJson.endsWith('}')) {
+                  deJson = deJson.replace(/,?\s*"[^"]*$/, '') + '}';
+                }
+                const deParsed = JSON.parse(deJson);
+                if (deParsed.title) {
+                  // Yeni eklenen postun ID'sini al
+                  const newPost = await env.DB.prepare(
+                    `SELECT id FROM posts WHERE source_url = ?`
+                  ).bind(item.link).first();
+                  if (newPost) {
+                    await env.DB.prepare(`
+                      UPDATE posts SET title_de = ?, summary_de = ?, content_de = ? WHERE id = ?
+                    `).bind(deParsed.title, deParsed.summary || '', deParsed.content || '', newPost.id).run();
+                    console.log("DE translated:", deParsed.title.substring(0, 40));
+                  }
+                }
+              }
+            } catch (deErr) {
+              console.error("DE auto-translate error:", deErr.message);
+            }
           } catch (dbError) {
             console.error("DB error:", dbError.message);
             totalErrors++;

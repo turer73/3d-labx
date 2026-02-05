@@ -1,11 +1,176 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import Header from "../../../components/Header.astro";
-import { getApiBase } from "../../../lib/api";
+import { getApiBase, getLanguage, type Language } from "../../../lib/api";
 
 export const prerender = false;
 
+const lang = getLanguage(Astro.request);
 const API_BASE = getApiBase(Astro.request);
+
+// Çeviriler
+const translations: Record<Language, {
+  pageTitle: string;
+  pageDesc: string;
+  breadcrumbCommunity: string;
+  breadcrumbFails: string;
+  title: string;
+  subtitle: string;
+  shareFail: string;
+  motivationTitle: string;
+  motivationDesc: string;
+  sortLabel: string;
+  sortLatest: string;
+  sortPopular: string;
+  typeLabel: string;
+  typeAll: string;
+  typeSpaghetti: string;
+  typeLayerShift: string;
+  typeWarping: string;
+  typeStringing: string;
+  typeAdhesion: string;
+  typeClog: string;
+  typeOther: string;
+  failCount: string;
+  solved: string;
+  viewDetails: string;
+  meTooBadge: string;
+  comments: string;
+  noFails: string;
+  noFailsDesc: string;
+  prev: string;
+  next: string;
+}> = {
+  tr: {
+    pageTitle: "Başarısızlık Galerisi - 3D Baskı Hataları - 3D-labX",
+    pageDesc: "3D baskı başarısızlıklarını paylaş, çözüm önerilerini keşfet. Hatalardan öğren, topluluktan destek al.",
+    breadcrumbCommunity: "Topluluk",
+    breadcrumbFails: "Başarısızlık Galerisi",
+    title: "🔥 Başarısızlık Galerisi",
+    subtitle: "Hatalardan öğrenmek, en büyük ustalıktır!",
+    shareFail: "Başarısızlık Paylaş",
+    motivationTitle: "Hata yapmak utanılacak bir şey değil!",
+    motivationDesc: "Her usta bir zamanlar çıraktı. Başarısızlıklarını paylaşarak hem kendin öğren, hem başkalarına yardımcı ol.",
+    sortLabel: "Sırala:",
+    sortLatest: "En Yeni",
+    sortPopular: "Popüler",
+    typeLabel: "Hata Tipi:",
+    typeAll: "Tümü",
+    typeSpaghetti: "Spagetti",
+    typeLayerShift: "Katman Kayması",
+    typeWarping: "Warping",
+    typeStringing: "Stringing",
+    typeAdhesion: "Yapışma",
+    typeClog: "Tıkanma",
+    typeOther: "Diğer",
+    failCount: "başarısızlık",
+    solved: "Çözüldü",
+    viewDetails: "Detayları Gör",
+    meTooBadge: "Bu bana da oldu",
+    comments: "Yorum",
+    noFails: "Henüz başarısızlık paylaşılmamış",
+    noFailsDesc: "İlk cesur paylaşımcı sen ol!",
+    prev: "Önceki",
+    next: "Sonraki"
+  },
+  en: {
+    pageTitle: "Fail Gallery - 3D Printing Fails - 3D-labX",
+    pageDesc: "Share your 3D printing fails, discover solutions. Learn from mistakes, get support from the community.",
+    breadcrumbCommunity: "Community",
+    breadcrumbFails: "Fail Gallery",
+    title: "🔥 Fail Gallery",
+    subtitle: "Learning from mistakes is the greatest mastery!",
+    shareFail: "Share Fail",
+    motivationTitle: "Making mistakes is nothing to be ashamed of!",
+    motivationDesc: "Every master was once a beginner. Share your fails to learn and help others.",
+    sortLabel: "Sort:",
+    sortLatest: "Latest",
+    sortPopular: "Popular",
+    typeLabel: "Fail Type:",
+    typeAll: "All",
+    typeSpaghetti: "Spaghetti",
+    typeLayerShift: "Layer Shift",
+    typeWarping: "Warping",
+    typeStringing: "Stringing",
+    typeAdhesion: "Adhesion",
+    typeClog: "Clog",
+    typeOther: "Other",
+    failCount: "fails",
+    solved: "Solved",
+    viewDetails: "View Details",
+    meTooBadge: "Me too",
+    comments: "Comments",
+    noFails: "No fails shared yet",
+    noFailsDesc: "Be the first brave one to share!",
+    prev: "Previous",
+    next: "Next"
+  },
+  de: {
+    pageTitle: "Fehlergalerie - 3D-Druckfehler - 3D-labX",
+    pageDesc: "Teilen Sie Ihre 3D-Druckfehler, entdecken Sie Lösungen. Lernen Sie aus Fehlern, erhalten Sie Unterstützung von der Community.",
+    breadcrumbCommunity: "Community",
+    breadcrumbFails: "Fehlergalerie",
+    title: "🔥 Fehlergalerie",
+    subtitle: "Aus Fehlern zu lernen ist die größte Meisterschaft!",
+    shareFail: "Fehler teilen",
+    motivationTitle: "Fehler zu machen ist nichts Beschämendes!",
+    motivationDesc: "Jeder Meister war einmal ein Anfänger. Teilen Sie Ihre Fehler, um zu lernen und anderen zu helfen.",
+    sortLabel: "Sortieren:",
+    sortLatest: "Neueste",
+    sortPopular: "Beliebt",
+    typeLabel: "Fehlertyp:",
+    typeAll: "Alle",
+    typeSpaghetti: "Spaghetti",
+    typeLayerShift: "Schichtversatz",
+    typeWarping: "Warping",
+    typeStringing: "Stringing",
+    typeAdhesion: "Haftung",
+    typeClog: "Verstopfung",
+    typeOther: "Andere",
+    failCount: "Fehler",
+    solved: "Gelöst",
+    viewDetails: "Details ansehen",
+    meTooBadge: "Mir auch",
+    comments: "Kommentare",
+    noFails: "Noch keine Fehler geteilt",
+    noFailsDesc: "Sei der Erste, der mutig teilt!",
+    prev: "Zurück",
+    next: "Weiter"
+  }
+};
+
+const t = translations[lang];
+
+// Fail type labels based on language
+const failTypeLabels: Record<Language, Record<string, string>> = {
+  tr: {
+    'spaghetti': 'Spagetti',
+    'layer_shift': 'Katman Kayması',
+    'warping': 'Warping',
+    'stringing': 'Stringing',
+    'adhesion': 'Yapışma Sorunu',
+    'clog': 'Tıkanma',
+    'other': 'Diğer'
+  },
+  en: {
+    'spaghetti': 'Spaghetti',
+    'layer_shift': 'Layer Shift',
+    'warping': 'Warping',
+    'stringing': 'Stringing',
+    'adhesion': 'Adhesion Issue',
+    'clog': 'Clog',
+    'other': 'Other'
+  },
+  de: {
+    'spaghetti': 'Spaghetti',
+    'layer_shift': 'Schichtversatz',
+    'warping': 'Warping',
+    'stringing': 'Stringing',
+    'adhesion': 'Haftungsproblem',
+    'clog': 'Verstopfung',
+    'other': 'Andere'
+  }
+};
 
 const url = new URL(Astro.request.url);
 const currentPage = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
@@ -75,22 +240,13 @@ function getFailEmoji(type: string): string {
 
 // Fail type label
 function getFailLabel(type: string): string {
-  const labels: Record<string, string> = {
-    'spaghetti': 'Spagetti',
-    'layer_shift': 'Katman Kayması',
-    'warping': 'Warping',
-    'stringing': 'Stringing',
-    'adhesion': 'Yapışma Sorunu',
-    'clog': 'Tıkanma',
-    'other': 'Diğer'
-  };
-  return labels[type] || type;
+  return failTypeLabels[lang][type] || type;
 }
 ---
 
 <BaseLayout
-  title="Başarısızlık Galerisi - 3D Baskı Hataları - 3D-labX"
-  description="3D baskı başarısızlıklarını paylaş, çözüm önerilerini keşfet. Hatalardan öğren, topluluktan destek al."
+  title={t.pageTitle}
+  description={t.pageDesc}
 >
   <Header />
 
@@ -99,17 +255,17 @@ function getFailLabel(type: string): string {
       <div class="page-header">
         <div class="header-left">
           <nav class="breadcrumb">
-            <a href="/topluluk">Topluluk</a>
+            <a href="/topluluk">{t.breadcrumbCommunity}</a>
             <span>/</span>
-            <span>Başarısızlık Galerisi</span>
+            <span>{t.breadcrumbFails}</span>
           </nav>
-          <h1>🔥 Başarısızlık Galerisi</h1>
-          <p>Hatalardan öğrenmek, en büyük ustalıktır!</p>
+          <h1>{t.title}</h1>
+          <p>{t.subtitle}</p>
         </div>
         <div class="header-right">
           <a href="/topluluk/basarisizliklar/paylas" class="btn btn-primary" id="newFailBtn">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-            Başarısızlık Paylaş
+            {t.shareFail}
           </a>
         </div>
       </div>
@@ -118,35 +274,35 @@ function getFailLabel(type: string): string {
       <div class="motivation-box">
         <div class="motivation-icon">💪</div>
         <div class="motivation-content">
-          <h3>Hata yapmak utanılacak bir şey değil!</h3>
-          <p>Her usta bir zamanlar çıraktı. Başarısızlıklarını paylaşarak hem kendin öğren, hem başkalarına yardımcı ol.</p>
+          <h3>{t.motivationTitle}</h3>
+          <p>{t.motivationDesc}</p>
         </div>
       </div>
 
       <!-- Filtreler -->
       <div class="filters-bar">
         <div class="filter-group">
-          <span class="filter-label">Sırala:</span>
+          <span class="filter-label">{t.sortLabel}</span>
           <div class="filter-options">
-            <a href={`?sort=latest${failType ? `&type=${failType}` : ''}`} class={sort === "latest" ? "active" : ""}>En Yeni</a>
-            <a href={`?sort=popular${failType ? `&type=${failType}` : ''}`} class={sort === "popular" ? "active" : ""}>Popüler</a>
+            <a href={`?sort=latest${failType ? `&type=${failType}` : ''}`} class={sort === "latest" ? "active" : ""}>{t.sortLatest}</a>
+            <a href={`?sort=popular${failType ? `&type=${failType}` : ''}`} class={sort === "popular" ? "active" : ""}>{t.sortPopular}</a>
           </div>
         </div>
 
         <div class="filter-group">
-          <span class="filter-label">Hata Tipi:</span>
+          <span class="filter-label">{t.typeLabel}</span>
           <div class="filter-options">
-            <a href={`?sort=${sort}`} class={!failType ? "active" : ""}>Tümü</a>
-            <a href={`?sort=${sort}&type=spaghetti`} class={failType === "spaghetti" ? "active" : ""}>🍝 Spagetti</a>
-            <a href={`?sort=${sort}&type=layer_shift`} class={failType === "layer_shift" ? "active" : ""}>📊 Katman Kayması</a>
-            <a href={`?sort=${sort}&type=warping`} class={failType === "warping" ? "active" : ""}>🌊 Warping</a>
-            <a href={`?sort=${sort}&type=stringing`} class={failType === "stringing" ? "active" : ""}>🕸️ Stringing</a>
-            <a href={`?sort=${sort}&type=adhesion`} class={failType === "adhesion" ? "active" : ""}>💨 Yapışma</a>
-            <a href={`?sort=${sort}&type=clog`} class={failType === "clog" ? "active" : ""}>🔧 Tıkanma</a>
+            <a href={`?sort=${sort}`} class={!failType ? "active" : ""}>{t.typeAll}</a>
+            <a href={`?sort=${sort}&type=spaghetti`} class={failType === "spaghetti" ? "active" : ""}>🍝 {t.typeSpaghetti}</a>
+            <a href={`?sort=${sort}&type=layer_shift`} class={failType === "layer_shift" ? "active" : ""}>📊 {t.typeLayerShift}</a>
+            <a href={`?sort=${sort}&type=warping`} class={failType === "warping" ? "active" : ""}>🌊 {t.typeWarping}</a>
+            <a href={`?sort=${sort}&type=stringing`} class={failType === "stringing" ? "active" : ""}>🕸️ {t.typeStringing}</a>
+            <a href={`?sort=${sort}&type=adhesion`} class={failType === "adhesion" ? "active" : ""}>💨 {t.typeAdhesion}</a>
+            <a href={`?sort=${sort}&type=clog`} class={failType === "clog" ? "active" : ""}>🔧 {t.typeClog}</a>
           </div>
         </div>
 
-        {pagination && <span class="total-count">{pagination.total} başarısızlık</span>}
+        {pagination && <span class="total-count">{pagination.total} {t.failCount}</span>}
       </div>
 
       <!-- Başarısızlıklar Grid -->
@@ -164,9 +320,9 @@ function getFailLabel(type: string): string {
                   </div>
                 )}
                 <span class="type-badge">{getFailEmoji(fail.fail_type)} {getFailLabel(fail.fail_type)}</span>
-                {fail.is_solved === 1 && <span class="solved-badge">✅ Çözüldü</span>}
+                {fail.is_solved === 1 && <span class="solved-badge">✅ {t.solved}</span>}
                 <div class="image-overlay">
-                  <span class="view-btn">Detayları Gör</span>
+                  <span class="view-btn">{t.viewDetails}</span>
                 </div>
               </div>
               <div class="fail-info">
@@ -188,8 +344,8 @@ function getFailLabel(type: string): string {
                     <span>@{fail.username}</span>
                   </div>
                   <div class="stats">
-                    <span title="Bu bana da oldu">🙋 {fail.helpful_count || 0}</span>
-                    <span title="Yorum">💬 {fail.comment_count || 0}</span>
+                    <span title={t.meTooBadge}>🙋 {fail.helpful_count || 0}</span>
+                    <span title={t.comments}>💬 {fail.comment_count || 0}</span>
                   </div>
                 </div>
               </div>
@@ -198,9 +354,9 @@ function getFailLabel(type: string): string {
         }) : (
           <div class="empty-state">
             <div class="empty-icon">🔥</div>
-            <h3>Henüz başarısızlık paylaşılmamış</h3>
-            <p>İlk cesur paylaşımcı sen ol!</p>
-            <a href="/topluluk/basarisizliklar/paylas" class="btn btn-primary">Başarısızlık Paylaş</a>
+            <h3>{t.noFails}</h3>
+            <p>{t.noFailsDesc}</p>
+            <a href="/topluluk/basarisizliklar/paylas" class="btn btn-primary">{t.shareFail}</a>
           </div>
         )}
       </div>
@@ -209,11 +365,11 @@ function getFailLabel(type: string): string {
       {pagination && pagination.totalPages > 1 && (
         <nav class="pagination">
           <a href={`?page=${currentPage - 1}&sort=${sort}${failType ? `&type=${failType}` : ''}`} class={`page-btn ${!pagination.hasPrev ? 'disabled' : ''}`}>
-            ← Önceki
+            ← {t.prev}
           </a>
           <span class="page-info">{pagination.page} / {pagination.totalPages}</span>
           <a href={`?page=${currentPage + 1}&sort=${sort}${failType ? `&type=${failType}` : ''}`} class={`page-btn ${!pagination.hasNext ? 'disabled' : ''}`}>
-            Sonraki →
+            {t.next} →
           </a>
         </nav>
       )}

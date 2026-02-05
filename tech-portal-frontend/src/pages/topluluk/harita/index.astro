@@ -1,11 +1,209 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import Header from "../../../components/Header.astro";
-import { getApiBase } from "../../../lib/api";
+import { getApiBase, getLanguage, type Language } from "../../../lib/api";
 
 export const prerender = false;
 
+const lang = getLanguage(Astro.request);
 const API_BASE = getApiBase(Astro.request);
+
+// Çeviriler
+const translations: Record<Language, {
+  pageTitle: string;
+  pageDesc: string;
+  heroTitle: string;
+  heroSubtitle: string;
+  heroMakers: string;
+  heroActiveCities: string;
+  heroAllCountry: string;
+  breadcrumbCommunity: string;
+  breadcrumbMap: string;
+  title: string;
+  subtitle: string;
+  joinMap: string;
+  totalMakers: string;
+  activeCities: string;
+  printingService: string;
+  infoBannerTitle: string;
+  infoBannerDesc: string;
+  infoBannerNote: string;
+  citiesSidebar: string;
+  allCountry: string;
+  emptyCitiesNote: string;
+  makersInCity: string;
+  allMakers: string;
+  filterPrintingService: string;
+  verified: string;
+  apprentice: string;
+  journeyman: string;
+  master: string;
+  grandmaster: string;
+  printService: string;
+  helpAvailable: string;
+  contact: string;
+  noMakersInCity: string;
+  noMakersYet: string;
+  beFirstOnMap: string;
+  disclaimerTitle: string;
+  disclaimerText: string;
+  contactInfo: string;
+  copy: string;
+  copied: string;
+  open: string;
+  send: string;
+  noContactInfo: string;
+  sampleProfile: string;
+  sampleProfileNote: string;
+  contactNote: string;
+}> = {
+  tr: {
+    pageTitle: "Maker Haritası - Türkiye'deki 3D Baskıcılar - 3D-labX",
+    pageDesc: "Türkiye'deki 3D baskı meraklılarını keşfet. Şehrindeki maker'larla tanış, yardım al veya ver.",
+    heroTitle: "🗺️ Maker Haritası",
+    heroSubtitle: "Türkiye'nin dört bir yanındaki 3D baskı meraklılarını keşfet, tanış, birlikte üret!",
+    heroMakers: "Maker",
+    heroActiveCities: "Aktif İl",
+    heroAllCountry: "Türkiye'nin Tamamı",
+    breadcrumbCommunity: "Topluluk",
+    breadcrumbMap: "Maker Haritası",
+    title: "🗺️ Maker Haritası",
+    subtitle: "Türkiye'deki 3D baskı tutkunlarını keşfet",
+    joinMap: "Haritaya Katıl",
+    totalMakers: "Toplam Maker",
+    activeCities: "Aktif İl",
+    printingService: "Baskı Hizmeti",
+    infoBannerTitle: "Maker Haritası Nedir?",
+    infoBannerDesc: "Şehrindeki 3D baskı meraklılarını bul, tanış, fikir al. İster yardıma ihtiyacın olsun, ister tecrübeni paylaşmak iste - Maker Haritası seni doğru kişilerle buluşturur.",
+    infoBannerNote: "⚠️ Platform sadece tanıştırma amaçlıdır. Ticari işlemler kullanıcıların sorumluluğundadır.",
+    citiesSidebar: "📍 İller",
+    allCountry: "Tüm Türkiye",
+    emptyCitiesNote: "il henüz boş",
+    makersInCity: "'deki Maker'lar",
+    allMakers: "Tüm Maker'lar",
+    filterPrintingService: "🖨️ Baskı hizmeti verenler",
+    verified: "Doğrulanmış",
+    apprentice: "Çırak",
+    journeyman: "Kalfa",
+    master: "Usta",
+    grandmaster: "Büyükusta",
+    printService: "🖨️ Baskı Hizmeti",
+    helpAvailable: "🤝 Yardıma Açık",
+    contact: "💬 İletişim",
+    noMakersInCity: "'de henüz maker yok",
+    noMakersYet: "Henüz haritada maker yok",
+    beFirstOnMap: "İlk haritaya eklenen sen ol!",
+    disclaimerTitle: "⚠️ Önemli Uyarı",
+    disclaimerText: "3D-labX, kullanıcılar arasında sadece tanışma ortamı sağlar. Platform üzerinden gerçekleşen iletişim, anlaşma veya ticari işlemlerden doğacak sorunlardan 3D-labX sorumlu değildir. Lütfen tanışmadan önce Sorumluluk Reddi metnini okuyun.",
+    contactInfo: "📬 İletişim Bilgileri",
+    copy: "Kopyala",
+    copied: "Kopyalandı!",
+    open: "Aç",
+    send: "Gönder",
+    noContactInfo: "Bu kullanıcı henüz iletişim bilgisi eklememiş.",
+    sampleProfile: "Örnek Profil",
+    sampleProfileNote: "🧪 Bu örnek bir profildir. Gerçek kullanıcılar için iletişim bilgileri görünecektir.",
+    contactNote: "⚠️ İletişim kurmadan önce sorumluluk reddi metnini okuyun."
+  },
+  en: {
+    pageTitle: "Maker Map - 3D Printers Community - 3D-labX",
+    pageDesc: "Discover 3D printing enthusiasts. Meet makers in your city, get or give help.",
+    heroTitle: "🗺️ Maker Map",
+    heroSubtitle: "Discover, meet, and create together with 3D printing enthusiasts from all around!",
+    heroMakers: "Makers",
+    heroActiveCities: "Active Cities",
+    heroAllCountry: "Entire Country",
+    breadcrumbCommunity: "Community",
+    breadcrumbMap: "Maker Map",
+    title: "🗺️ Maker Map",
+    subtitle: "Discover 3D printing enthusiasts",
+    joinMap: "Join Map",
+    totalMakers: "Total Makers",
+    activeCities: "Active Cities",
+    printingService: "Printing Service",
+    infoBannerTitle: "What is Maker Map?",
+    infoBannerDesc: "Find 3D printing enthusiasts in your city, meet them, get advice. Whether you need help or want to share your experience - Maker Map connects you with the right people.",
+    infoBannerNote: "⚠️ Platform is for introductions only. Commercial transactions are users' responsibility.",
+    citiesSidebar: "📍 Cities",
+    allCountry: "All Cities",
+    emptyCitiesNote: "cities are empty",
+    makersInCity: " Makers",
+    allMakers: "All Makers",
+    filterPrintingService: "🖨️ Offering printing service",
+    verified: "Verified",
+    apprentice: "Apprentice",
+    journeyman: "Journeyman",
+    master: "Master",
+    grandmaster: "Grandmaster",
+    printService: "🖨️ Printing Service",
+    helpAvailable: "🤝 Available to Help",
+    contact: "💬 Contact",
+    noMakersInCity: " has no makers yet",
+    noMakersYet: "No makers on the map yet",
+    beFirstOnMap: "Be the first to join the map!",
+    disclaimerTitle: "⚠️ Important Notice",
+    disclaimerText: "3D-labX only provides a platform for introductions. 3D-labX is not responsible for any communication, agreements or commercial transactions between users. Please read the Disclaimer before connecting.",
+    contactInfo: "📬 Contact Information",
+    copy: "Copy",
+    copied: "Copied!",
+    open: "Open",
+    send: "Send",
+    noContactInfo: "This user hasn't added contact information yet.",
+    sampleProfile: "Sample Profile",
+    sampleProfileNote: "🧪 This is a sample profile. Real users will show contact information.",
+    contactNote: "⚠️ Read the disclaimer before contacting."
+  },
+  de: {
+    pageTitle: "Maker-Karte - 3D-Drucker-Community - 3D-labX",
+    pageDesc: "Entdecken Sie 3D-Druck-Enthusiasten. Treffen Sie Maker in Ihrer Stadt, holen oder geben Sie Hilfe.",
+    heroTitle: "🗺️ Maker-Karte",
+    heroSubtitle: "Entdecken, treffen und gemeinsam mit 3D-Druck-Enthusiasten aus aller Welt kreieren!",
+    heroMakers: "Makers",
+    heroActiveCities: "Aktive Städte",
+    heroAllCountry: "Ganzes Land",
+    breadcrumbCommunity: "Community",
+    breadcrumbMap: "Maker-Karte",
+    title: "🗺️ Maker-Karte",
+    subtitle: "Entdecken Sie 3D-Druck-Enthusiasten",
+    joinMap: "Karte beitreten",
+    totalMakers: "Gesamte Makers",
+    activeCities: "Aktive Städte",
+    printingService: "Druckservice",
+    infoBannerTitle: "Was ist die Maker-Karte?",
+    infoBannerDesc: "Finden Sie 3D-Druck-Enthusiasten in Ihrer Stadt, treffen Sie sie, holen Sie sich Rat. Ob Sie Hilfe brauchen oder Ihre Erfahrung teilen möchten - Maker-Karte verbindet Sie mit den richtigen Menschen.",
+    infoBannerNote: "⚠️ Plattform dient nur zur Vermittlung. Kommerzielle Transaktionen liegen in der Verantwortung der Benutzer.",
+    citiesSidebar: "📍 Städte",
+    allCountry: "Alle Städte",
+    emptyCitiesNote: "Städte sind leer",
+    makersInCity: " Makers",
+    allMakers: "Alle Makers",
+    filterPrintingService: "🖨️ Bietet Druckservice",
+    verified: "Verifiziert",
+    apprentice: "Lehrling",
+    journeyman: "Geselle",
+    master: "Meister",
+    grandmaster: "Großmeister",
+    printService: "🖨️ Druckservice",
+    helpAvailable: "🤝 Hilfsbereit",
+    contact: "💬 Kontakt",
+    noMakersInCity: " hat noch keine Makers",
+    noMakersYet: "Noch keine Makers auf der Karte",
+    beFirstOnMap: "Sei der Erste auf der Karte!",
+    disclaimerTitle: "⚠️ Wichtiger Hinweis",
+    disclaimerText: "3D-labX bietet nur eine Plattform für Vermittlungen. 3D-labX ist nicht verantwortlich für Kommunikation, Vereinbarungen oder kommerzielle Transaktionen zwischen Benutzern. Bitte lesen Sie den Haftungsausschluss vor der Kontaktaufnahme.",
+    contactInfo: "📬 Kontaktinformationen",
+    copy: "Kopieren",
+    copied: "Kopiert!",
+    open: "Öffnen",
+    send: "Senden",
+    noContactInfo: "Dieser Benutzer hat noch keine Kontaktinformationen hinzugefügt.",
+    sampleProfile: "Beispielprofil",
+    sampleProfileNote: "🧪 Dies ist ein Beispielprofil. Echte Benutzer zeigen Kontaktinformationen.",
+    contactNote: "⚠️ Lesen Sie den Haftungsausschluss vor der Kontaktaufnahme."
+  }
+};
+
+const t = translations[lang];
 
 const url = new URL(Astro.request.url);
 const selectedCity = url.searchParams.get("city") || "";
@@ -60,10 +258,10 @@ function parseSpecialties(specialties: string): string[] {
 
 // Level badge
 function getLevelBadge(points: number): { emoji: string; label: string; color: string } {
-  if (points >= 2000) return { emoji: '👑', label: 'Büyükusta', color: '#FFD700' };
-  if (points >= 501) return { emoji: '⚙️', label: 'Usta', color: '#8B5CF6' };
-  if (points >= 101) return { emoji: '🔧', label: 'Kalfa', color: '#3B82F6' };
-  return { emoji: '🌱', label: 'Çırak', color: '#10B981' };
+  if (points >= 2000) return { emoji: '👑', label: t.grandmaster, color: '#FFD700' };
+  if (points >= 501) return { emoji: '⚙️', label: t.master, color: '#8B5CF6' };
+  if (points >= 101) return { emoji: '🔧', label: t.journeyman, color: '#3B82F6' };
+  return { emoji: '🌱', label: t.apprentice, color: '#10B981' };
 }
 
 // Toplam maker sayısı
@@ -71,8 +269,8 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
 ---
 
 <BaseLayout
-  title="Maker Haritası - Türkiye'deki 3D Baskıcılar - 3D-labX"
-  description="Türkiye'deki 3D baskı meraklılarını keşfet. Şehrindeki maker'larla tanış, yardım al veya ver."
+  title={t.pageTitle}
+  description={t.pageDesc}
 >
   <Header />
 
@@ -81,26 +279,26 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
     <div class="hero-image">
       <img
         src="https://tech-portal-api.turgut-d01.workers.dev/r2/maker-haritasi-hero.jpg"
-        alt="Maker Haritası - Türkiye'deki 3D Baskı Topluluğu"
+        alt={t.heroTitle}
         loading="eager"
       />
       <div class="hero-overlay"></div>
     </div>
     <div class="hero-content">
-      <h1>🗺️ Maker Haritası</h1>
-      <p>Türkiye'nin dört bir yanındaki 3D baskı meraklılarını keşfet, tanış, birlikte üret!</p>
+      <h1>{t.heroTitle}</h1>
+      <p>{t.heroSubtitle}</p>
       <div class="hero-stats">
         <div class="hero-stat">
           <span class="number">{totalMakers}</span>
-          <span class="label">Maker</span>
+          <span class="label">{t.heroMakers}</span>
         </div>
         <div class="hero-stat">
           <span class="number">{cities.filter(c => c.maker_count > 0).length}</span>
-          <span class="label">Aktif İl</span>
+          <span class="label">{t.heroActiveCities}</span>
         </div>
         <div class="hero-stat">
           <span class="number">81</span>
-          <span class="label">Türkiye'nin Tamamı</span>
+          <span class="label">{t.heroAllCountry}</span>
         </div>
       </div>
     </div>
@@ -111,17 +309,17 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
       <div class="page-header">
         <div class="header-left">
           <nav class="breadcrumb">
-            <a href="/topluluk">Topluluk</a>
+            <a href="/topluluk">{t.breadcrumbCommunity}</a>
             <span>/</span>
-            <span>Maker Haritası</span>
+            <span>{t.breadcrumbMap}</span>
           </nav>
-          <h1>🗺️ Maker Haritası</h1>
-          <p>Türkiye'deki 3D baskı tutkunlarını keşfet</p>
+          <h1>{t.title}</h1>
+          <p>{t.subtitle}</p>
         </div>
         <div class="header-right">
           <a href="/topluluk/harita/profil" class="btn btn-primary" id="joinMapBtn">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-            Haritaya Katıl
+            {t.joinMap}
           </a>
         </div>
       </div>
@@ -130,15 +328,15 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
       <div class="stats-overview">
         <div class="stat-card">
           <span class="stat-number">{totalMakers}</span>
-          <span class="stat-label">Toplam Maker</span>
+          <span class="stat-label">{t.totalMakers}</span>
         </div>
         <div class="stat-card">
           <span class="stat-number">{cities.filter(c => c.maker_count > 0).length}</span>
-          <span class="stat-label">Aktif İl</span>
+          <span class="stat-label">{t.activeCities}</span>
         </div>
         <div class="stat-card">
           <span class="stat-number">{makers.filter(m => m.offers_printing).length}</span>
-          <span class="stat-label">Baskı Hizmeti</span>
+          <span class="stat-label">{t.printingService}</span>
         </div>
       </div>
 
@@ -146,25 +344,22 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
       <div class="info-banner">
         <div class="info-icon">🤝</div>
         <div class="info-content">
-          <h3>Maker Haritası Nedir?</h3>
-          <p>
-            Şehrindeki 3D baskı meraklılarını bul, tanış, fikir al. İster yardıma ihtiyacın olsun,
-            ister tecrübeni paylaşmak iste - Maker Haritası seni doğru kişilerle buluşturur.
-          </p>
-          <small>⚠️ Platform sadece tanıştırma amaçlıdır. Ticari işlemler kullanıcıların sorumluluğundadır.</small>
+          <h3>{t.infoBannerTitle}</h3>
+          <p>{t.infoBannerDesc}</p>
+          <small>{t.infoBannerNote}</small>
         </div>
       </div>
 
       <div class="content-grid">
         <!-- Sol: İl Listesi -->
         <aside class="cities-sidebar">
-          <h3>📍 İller</h3>
+          <h3>{t.citiesSidebar}</h3>
           <div class="cities-list">
             <a
               href="/topluluk/harita"
               class={`city-item ${!selectedCity ? 'active' : ''}`}
             >
-              <span class="city-name">Tüm Türkiye</span>
+              <span class="city-name">{t.allCountry}</span>
               <span class="city-count">{totalMakers}</span>
             </a>
             {cities.filter(c => c.maker_count > 0).map(city => (
@@ -178,7 +373,7 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
             ))}
             {cities.filter(c => c.maker_count === 0).length > 0 && (
               <div class="empty-cities-note">
-                <small>+ {cities.filter(c => c.maker_count === 0).length} il henüz boş</small>
+                <small>+ {cities.filter(c => c.maker_count === 0).length} {t.emptyCitiesNote}</small>
               </div>
             )}
           </div>
@@ -188,7 +383,7 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
         <div class="makers-section">
           <div class="section-header">
             <h2>
-              {selectedCity ? `${selectedCity}'deki Maker'lar` : "Tüm Maker'lar"}
+              {selectedCity ? `${selectedCity}${t.makersInCity}` : t.allMakers}
               <span class="count">({makers.length})</span>
             </h2>
             <div class="filters">
@@ -198,7 +393,7 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
                   id="filterPrinting"
                   checked={filterPrinting}
                 />
-                <span>🖨️ Baskı hizmeti verenler</span>
+                <span>{t.filterPrintingService}</span>
               </label>
             </div>
           </div>
@@ -229,7 +424,7 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
                   data-reputation={maker.reputation_points || 0}
                   data-is-sample={isSample ? '1' : '0'}
                 >
-                  {isSample && <span class="sample-badge">Örnek Profil</span>}
+                  {isSample && <span class="sample-badge">{t.sampleProfile}</span>}
                   <div class="maker-header">
                     <div class="maker-avatar">
                       {maker.avatar_url ? (
@@ -237,7 +432,7 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
                       ) : (
                         <div class="avatar-placeholder">{maker.username?.charAt(0).toUpperCase()}</div>
                       )}
-                      {maker.is_verified === 1 && <span class="verified-badge" title="Doğrulanmış">✓</span>}
+                      {maker.is_verified === 1 && <span class="verified-badge" title={t.verified}>✓</span>}
                     </div>
                     <div class="maker-info">
                       <span class="maker-name">@{maker.username}</span>
@@ -273,10 +468,10 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
                   <div class="maker-footer">
                     <div class="maker-services">
                       {maker.offers_printing === 1 && (
-                        <span class="service-badge printing">🖨️ Baskı Hizmeti</span>
+                        <span class="service-badge printing">{t.printService}</span>
                       )}
                       {maker.offers_help === 1 && (
-                        <span class="service-badge help">🤝 Yardıma Açık</span>
+                        <span class="service-badge help">{t.helpAvailable}</span>
                       )}
                     </div>
                     <button
@@ -290,7 +485,7 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
                       data-instagram={maker.contact_instagram || ''}
                       data-email={maker.contact_email || ''}
                     >
-                      💬 İletişim
+                      {t.contact}
                     </button>
                   </div>
                 </div>
@@ -298,9 +493,9 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
             }) : (
               <div class="empty-state">
                 <div class="empty-icon">🗺️</div>
-                <h3>{selectedCity ? `${selectedCity}'de henüz maker yok` : 'Henüz haritada maker yok'}</h3>
-                <p>İlk haritaya eklenen sen ol!</p>
-                <a href="/topluluk/harita/profil" class="btn btn-primary">Haritaya Katıl</a>
+                <h3>{selectedCity ? `${selectedCity}${t.noMakersInCity}` : t.noMakersYet}</h3>
+                <p>{t.beFirstOnMap}</p>
+                <a href="/topluluk/harita/profil" class="btn btn-primary">{t.joinMap}</a>
               </div>
             )}
           </div>
@@ -309,12 +504,8 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
 
       <!-- Sorumluluk Reddi -->
       <div class="disclaimer">
-        <h4>⚠️ Önemli Uyarı</h4>
-        <p>
-          3D-labX, kullanıcılar arasında sadece tanışma ortamı sağlar. Platform üzerinden gerçekleşen
-          iletişim, anlaşma veya ticari işlemlerden doğacak sorunlardan 3D-labX sorumlu değildir.
-          Lütfen tanışmadan önce <a href="/yasal/sorumluluk-reddi">Sorumluluk Reddi</a> metnini okuyun.
-        </p>
+        <h4>{t.disclaimerTitle}</h4>
+        <p>{t.disclaimerText}</p>
       </div>
     </div>
   </main>
@@ -332,12 +523,12 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
         </div>
       </div>
       <div class="modal-body">
-        <h4>📬 İletişim Bilgileri</h4>
+        <h4>{t.contactInfo}</h4>
         <div class="contact-list" id="contactList">
           <!-- JS ile doldurulacak -->
         </div>
         <div class="contact-note">
-          <small>⚠️ İletişim kurmadan önce <a href="/yasal/sorumluluk-reddi">sorumluluk reddi</a> metnini okuyun.</small>
+          <small>{t.contactNote}</small>
         </div>
       </div>
     </div>
@@ -1180,8 +1371,10 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
   }
 </style>
 
-<script>
-  const filterCheckbox = document.getElementById('filterPrinting') as HTMLInputElement;
+<script define:vars={{ jsTranslations: { copy: t.copy, copied: t.copied, open: t.open, send: t.send, sampleProfile: t.sampleProfile, sampleProfileNote: t.sampleProfileNote, noContactInfo: t.noContactInfo } }}>
+  const t = jsTranslations;
+
+  const filterCheckbox = document.getElementById('filterPrinting');
 
   filterCheckbox?.addEventListener('change', () => {
     const url = new URL(window.location.href);
@@ -1214,10 +1407,10 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
   });
 
   // Kopyalama fonksiyonu
-  function copyToClipboard(text: string, btn: HTMLButtonElement) {
+  function copyToClipboard(text, btn) {
     navigator.clipboard.writeText(text).then(() => {
       const original = btn.textContent;
-      btn.textContent = 'Kopyalandı!';
+      btn.textContent = t.copied;
       btn.style.background = '#10B981';
       setTimeout(() => {
         btn.textContent = original;
@@ -1227,7 +1420,7 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
   }
 
   // Modal'ı aç fonksiyonu
-  function openModal(element: Element) {
+  function openModal(element) {
     const username = element.getAttribute('data-username') || '';
     const displayName = element.getAttribute('data-display-name') || username;
     const city = element.getAttribute('data-city') || '';
@@ -1241,7 +1434,7 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
     // Modal bilgilerini doldur
     if (modalAvatar) modalAvatar.textContent = displayName.charAt(0).toUpperCase();
     if (modalUsername) {
-      modalUsername.innerHTML = `@${username}${isSample ? ' <span style="font-size:0.7rem;color:#F59E0B;background:rgba(245,158,11,0.15);padding:2px 6px;border-radius:4px;margin-left:6px;">Örnek</span>' : ''}`;
+      modalUsername.innerHTML = `@${username}${isSample ? ` <span style="font-size:0.7rem;color:#F59E0B;background:rgba(245,158,11,0.15);padding:2px 6px;border-radius:4px;margin-left:6px;">${t.sampleProfile}</span>` : ''}`;
     }
     if (modalLocation) modalLocation.textContent = district ? `${city}, ${district}` : city;
 
@@ -1256,7 +1449,7 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
             <span class="contact-label">Discord</span>
             <span class="contact-value">${discord}</span>
           </div>
-          <button class="contact-copy" onclick="copyToClipboard('${discord}', this)">Kopyala</button>
+          <button class="contact-copy" onclick="copyToClipboard('${discord}', this)">${t.copy}</button>
         </div>
       `;
     }
@@ -1269,7 +1462,7 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
             <span class="contact-label">Telegram</span>
             <span class="contact-value">${telegram}</span>
           </div>
-          <span class="contact-copy">Aç</span>
+          <span class="contact-copy">${t.open}</span>
         </a>
       `;
     }
@@ -1282,7 +1475,7 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
             <span class="contact-label">Instagram</span>
             <span class="contact-value">${instagram}</span>
           </div>
-          <span class="contact-copy">Aç</span>
+          <span class="contact-copy">${t.open}</span>
         </a>
       `;
     }
@@ -1292,18 +1485,18 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
         <a href="mailto:${email}" class="contact-item">
           <span class="contact-icon">📧</span>
           <div class="contact-info">
-            <span class="contact-label">E-posta</span>
+            <span class="contact-label">E-mail</span>
             <span class="contact-value">${email}</span>
           </div>
-          <span class="contact-copy">Gönder</span>
+          <span class="contact-copy">${t.send}</span>
         </a>
       `;
     }
 
     if (!contactHTML) {
       contactHTML = isSample
-        ? '<div class="no-contact">🧪 Bu örnek bir profildir. Gerçek kullanıcılar için iletişim bilgileri görünecektir.</div>'
-        : '<div class="no-contact">Bu kullanıcı henüz iletişim bilgisi eklememiş.</div>';
+        ? `<div class="no-contact">${t.sampleProfileNote}</div>`
+        : `<div class="no-contact">${t.noContactInfo}</div>`;
     }
 
     if (contactList) contactList.innerHTML = contactHTML;
@@ -1317,7 +1510,7 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
   makerCards.forEach(card => {
     card.addEventListener('click', (e) => {
       // İletişim butonuna tıklandıysa kart tıklamasını engelle
-      if ((e.target as Element).closest('.contact-btn')) return;
+      if (e.target.closest('.contact-btn')) return;
       openModal(card);
     });
   });
@@ -1333,5 +1526,5 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
   });
 
   // Global fonksiyon olarak tanımla
-  (window as any).copyToClipboard = copyToClipboard;
+  window.copyToClipboard = copyToClipboard;
 </script>

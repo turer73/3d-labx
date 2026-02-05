@@ -1,25 +1,135 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
+import { getLanguage, type Language } from "../../lib/api";
 
-const title = "Kayıt Ol – 3D-labX";
-const description = "3D-labX topluluğuna katılın.";
+export const prerender = false;
+
+const lang = getLanguage(Astro.request);
+
+const translations: Record<Language, {
+  pageTitle: string;
+  pageDesc: string;
+  title: string;
+  subtitle: string;
+  usernameLabel: string;
+  usernamePlaceholder: string;
+  usernameHint: string;
+  emailLabel: string;
+  emailPlaceholder: string;
+  passwordLabel: string;
+  passwordPlaceholder: string;
+  passwordConfirmLabel: string;
+  passwordConfirmPlaceholder: string;
+  showPassword: string;
+  privacyPolicy: string;
+  privacyAccept: string;
+  registerButton: string;
+  hasAccount: string;
+  login: string;
+  passwordMismatch: string;
+  accountCreated: string;
+  verifyEmail: string;
+  errorOccurred: string;
+  connectionError: string;
+}> = {
+  tr: {
+    pageTitle: "Kayıt Ol – 3D-labX",
+    pageDesc: "3D-labX topluluğuna katılın.",
+    title: "Hesap Oluştur",
+    subtitle: "3D-labX topluluğuna katılın",
+    usernameLabel: "Kullanıcı Adı",
+    usernamePlaceholder: "ornek_kullanici",
+    usernameHint: "3-20 karakter, harf, rakam ve alt çizgi",
+    emailLabel: "E-posta",
+    emailPlaceholder: "ornek@email.com",
+    passwordLabel: "Şifre",
+    passwordPlaceholder: "En az 8 karakter",
+    passwordConfirmLabel: "Şifre Tekrar",
+    passwordConfirmPlaceholder: "Şifrenizi tekrar girin",
+    showPassword: "Şifreyi göster",
+    privacyPolicy: "Gizlilik Politikası",
+    privacyAccept: "'nı okudum ve kabul ediyorum",
+    registerButton: "Kayıt Ol",
+    hasAccount: "Zaten hesabınız var mı?",
+    login: "Giriş Yap",
+    passwordMismatch: "Şifreler eşleşmiyor",
+    accountCreated: "Hesabınız oluşturuldu!",
+    verifyEmail: "Lütfen adresine gönderilen doğrulama linkine tıklayın.",
+    errorOccurred: "Bir hata oluştu",
+    connectionError: "Bağlantı hatası. Lütfen tekrar deneyin."
+  },
+  en: {
+    pageTitle: "Sign Up – 3D-labX",
+    pageDesc: "Join the 3D-labX community.",
+    title: "Create Account",
+    subtitle: "Join the 3D-labX community",
+    usernameLabel: "Username",
+    usernamePlaceholder: "example_user",
+    usernameHint: "3-20 characters, letters, numbers and underscore",
+    emailLabel: "Email",
+    emailPlaceholder: "example@email.com",
+    passwordLabel: "Password",
+    passwordPlaceholder: "At least 8 characters",
+    passwordConfirmLabel: "Confirm Password",
+    passwordConfirmPlaceholder: "Enter your password again",
+    showPassword: "Show password",
+    privacyPolicy: "Privacy Policy",
+    privacyAccept: " and accept it",
+    registerButton: "Sign Up",
+    hasAccount: "Already have an account?",
+    login: "Login",
+    passwordMismatch: "Passwords do not match",
+    accountCreated: "Your account has been created!",
+    verifyEmail: "Please click the verification link sent to your email.",
+    errorOccurred: "An error occurred",
+    connectionError: "Connection error. Please try again."
+  },
+  de: {
+    pageTitle: "Registrieren – 3D-labX",
+    pageDesc: "Treten Sie der 3D-labX-Community bei.",
+    title: "Konto erstellen",
+    subtitle: "Treten Sie der 3D-labX-Community bei",
+    usernameLabel: "Benutzername",
+    usernamePlaceholder: "beispiel_benutzer",
+    usernameHint: "3-20 Zeichen, Buchstaben, Zahlen und Unterstrich",
+    emailLabel: "E-Mail",
+    emailPlaceholder: "beispiel@email.com",
+    passwordLabel: "Passwort",
+    passwordPlaceholder: "Mindestens 8 Zeichen",
+    passwordConfirmLabel: "Passwort bestätigen",
+    passwordConfirmPlaceholder: "Geben Sie Ihr Passwort erneut ein",
+    showPassword: "Passwort anzeigen",
+    privacyPolicy: "Datenschutzrichtlinie",
+    privacyAccept: " gelesen und akzeptiert",
+    registerButton: "Registrieren",
+    hasAccount: "Haben Sie bereits ein Konto?",
+    login: "Anmelden",
+    passwordMismatch: "Passwörter stimmen nicht überein",
+    accountCreated: "Ihr Konto wurde erstellt!",
+    verifyEmail: "Bitte klicken Sie auf den Bestätigungslink, der an Ihre E-Mail gesendet wurde.",
+    errorOccurred: "Ein Fehler ist aufgetreten",
+    connectionError: "Verbindungsfehler. Bitte versuchen Sie es erneut."
+  }
+};
+
+const t = translations[lang];
 ---
 
-<BaseLayout title={title} description={description} noIndex={true}>
+<BaseLayout title={t.pageTitle} description={t.pageDesc} noIndex={true}>
   <Header />
 
   <main class="auth-page">
     <div class="auth-container">
       <div class="auth-card">
         <div class="auth-header">
-          <h1>Hesap Oluştur</h1>
-          <p>3D-labX topluluğuna katılın</p>
+          <h1>{t.title}</h1>
+          <p>{t.subtitle}</p>
         </div>
 
         <form id="registerForm" class="auth-form">
           <div class="form-group">
-            <label for="username">Kullanıcı Adı</label>
+            <label for="username">{t.usernameLabel}</label>
             <input
               type="text"
               id="username"
@@ -28,26 +138,26 @@ const description = "3D-labX topluluğuna katılın.";
               minlength="3"
               maxlength="20"
               pattern="[a-zA-Z0-9_]+"
-              placeholder="ornek_kullanici"
+              placeholder={t.usernamePlaceholder}
               autocomplete="username"
             />
-            <span class="form-hint">3-20 karakter, harf, rakam ve alt çizgi</span>
+            <span class="form-hint">{t.usernameHint}</span>
           </div>
 
           <div class="form-group">
-            <label for="email">E-posta</label>
+            <label for="email">{t.emailLabel}</label>
             <input
               type="email"
               id="email"
               name="email"
               required
-              placeholder="ornek@email.com"
+              placeholder={t.emailPlaceholder}
               autocomplete="email"
             />
           </div>
 
           <div class="form-group">
-            <label for="password">Şifre</label>
+            <label for="password">{t.passwordLabel}</label>
             <div class="password-input">
               <input
                 type="password"
@@ -55,10 +165,10 @@ const description = "3D-labX topluluğuna katılın.";
                 name="password"
                 required
                 minlength="8"
-                placeholder="En az 8 karakter"
+                placeholder={t.passwordPlaceholder}
                 autocomplete="new-password"
               />
-              <button type="button" class="toggle-password" aria-label="Şifreyi göster">
+              <button type="button" class="toggle-password" aria-label={t.showPassword}>
                 <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                 <svg class="icon-eye-off" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
               </button>
@@ -66,14 +176,14 @@ const description = "3D-labX topluluğuna katılın.";
           </div>
 
           <div class="form-group">
-            <label for="passwordConfirm">Şifre Tekrar</label>
+            <label for="passwordConfirm">{t.passwordConfirmLabel}</label>
             <input
               type="password"
               id="passwordConfirm"
               name="passwordConfirm"
               required
               minlength="8"
-              placeholder="Şifrenizi tekrar girin"
+              placeholder={t.passwordConfirmPlaceholder}
               autocomplete="new-password"
             />
           </div>
@@ -81,14 +191,14 @@ const description = "3D-labX topluluğuna katılın.";
           <div class="form-group checkbox-group">
             <label class="checkbox-label">
               <input type="checkbox" id="terms" name="terms" required />
-              <span><a href="/gizlilik" target="_blank">Gizlilik Politikası</a>'nı okudum ve kabul ediyorum</span>
+              <span><a href="/gizlilik" target="_blank">{t.privacyPolicy}</a>{t.privacyAccept}</span>
             </label>
           </div>
 
           <div class="form-message" id="formMessage"></div>
 
           <button type="submit" class="btn btn-primary btn-full" id="submitBtn">
-            <span class="btn-text">Kayıt Ol</span>
+            <span class="btn-text">{t.registerButton}</span>
             <span class="btn-loading" style="display:none">
               <svg class="spinner" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="32" stroke-linecap="round"/></svg>
             </span>
@@ -96,26 +206,27 @@ const description = "3D-labX topluluğuna katılın.";
         </form>
 
         <div class="auth-footer">
-          <p>Zaten hesabınız var mı? <a href="/auth/giris">Giriş Yap</a></p>
+          <p>{t.hasAccount} <a href="/auth/giris">{t.login}</a></p>
         </div>
       </div>
     </div>
   </main>
 </BaseLayout>
 
-<script>
-  const form = document.getElementById('registerForm') as HTMLFormElement;
-  const message = document.getElementById('formMessage')!;
-  const submitBtn = document.getElementById('submitBtn')!;
-  const btnText = submitBtn.querySelector('.btn-text')!;
-  const btnLoading = submitBtn.querySelector('.btn-loading')!;
+<script define:vars={{ jsT: { passwordMismatch: t.passwordMismatch, accountCreated: t.accountCreated, verifyEmail: t.verifyEmail, errorOccurred: t.errorOccurred, connectionError: t.connectionError } }}>
+  const t = jsT;
+  const form = document.getElementById('registerForm');
+  const message = document.getElementById('formMessage');
+  const submitBtn = document.getElementById('submitBtn');
+  const btnText = submitBtn.querySelector('.btn-text');
+  const btnLoading = submitBtn.querySelector('.btn-loading');
 
   // Toggle password visibility
   document.querySelectorAll('.toggle-password').forEach(btn => {
     btn.addEventListener('click', () => {
-      const input = btn.previousElementSibling as HTMLInputElement;
-      const eyeIcon = btn.querySelector('.icon-eye') as HTMLElement;
-      const eyeOffIcon = btn.querySelector('.icon-eye-off') as HTMLElement;
+      const input = btn.previousElementSibling;
+      const eyeIcon = btn.querySelector('.icon-eye');
+      const eyeOffIcon = btn.querySelector('.icon-eye-off');
 
       if (input.type === 'password') {
         input.type = 'text';
@@ -132,22 +243,22 @@ const description = "3D-labX topluluğuna katılın.";
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const username = (document.getElementById('username') as HTMLInputElement).value;
-    const email = (document.getElementById('email') as HTMLInputElement).value;
-    const password = (document.getElementById('password') as HTMLInputElement).value;
-    const passwordConfirm = (document.getElementById('passwordConfirm') as HTMLInputElement).value;
+    const username = document.getElementById('username').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const passwordConfirm = document.getElementById('passwordConfirm').value;
 
     // Client-side validation
     if (password !== passwordConfirm) {
       message.className = 'form-message error';
-      message.textContent = 'Şifreler eşleşmiyor';
+      message.textContent = t.passwordMismatch;
       return;
     }
 
     // Loading state
     btnText.style.display = 'none';
-    (btnLoading as HTMLElement).style.display = 'flex';
-    (submitBtn as HTMLButtonElement).disabled = true;
+    btnLoading.style.display = 'flex';
+    submitBtn.disabled = true;
     message.className = 'form-message';
     message.textContent = '';
 
@@ -163,21 +274,21 @@ const description = "3D-labX topluluğuna katılın.";
       if (res.ok) {
         message.className = 'form-message success';
         message.innerHTML = `
-          <strong>Hesabınız oluşturuldu!</strong>
-          <p>Lütfen <strong>${email}</strong> adresine gönderilen doğrulama linkine tıklayın.</p>
+          <strong>${t.accountCreated}</strong>
+          <p>${t.verifyEmail.replace('adresine', `<strong>${email}</strong> adresine`)}</p>
         `;
         form.reset();
       } else {
         message.className = 'form-message error';
-        message.textContent = data.error || 'Bir hata oluştu';
+        message.textContent = data.error || t.errorOccurred;
       }
     } catch (err) {
       message.className = 'form-message error';
-      message.textContent = 'Bağlantı hatası. Lütfen tekrar deneyin.';
+      message.textContent = t.connectionError;
     } finally {
       btnText.style.display = 'inline';
-      (btnLoading as HTMLElement).style.display = 'none';
-      (submitBtn as HTMLButtonElement).disabled = false;
+      btnLoading.style.display = 'none';
+      submitBtn.disabled = false;
     }
   });
 </script>

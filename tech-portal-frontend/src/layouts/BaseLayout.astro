@@ -82,9 +82,11 @@ const categoryNames: Record<string, string> = {
 };
 
 const pathParts = Astro.url.pathname.split("/").filter(Boolean);
-const autoBreadcrumbs: BreadcrumbItem[] = [{ name: "Ana Sayfa", url: "https://3d-labx.com/" }];
+const baseUrl = langBaseUrls[lang];
+const homeNames: Record<Language, string> = { tr: "Ana Sayfa", en: "Home", de: "Startseite" };
+const autoBreadcrumbs: BreadcrumbItem[] = [{ name: homeNames[lang], url: `${baseUrl}/` }];
 if (pathParts.length > 0 && categoryNames[pathParts[0]]) {
-  autoBreadcrumbs.push({ name: categoryNames[pathParts[0]], url: `https://3d-labx.com/${pathParts[0]}` });
+  autoBreadcrumbs.push({ name: categoryNames[pathParts[0]], url: `${baseUrl}/${pathParts[0]}` });
 }
 if (pathParts.length > 1 && article) {
   autoBreadcrumbs.push({ name: title.replace(" – 3D-labX", "").replace(" - 3D-labX", ""), url: canonicalURL.href });
@@ -149,8 +151,11 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
     <meta property="og:image" content={ogImage} />
     <meta property="og:site_name" content="3D-labX" />
     <meta property="og:locale" content={ogLocales[lang]} />
-    <meta property="og:locale:alternate" content={lang !== "tr" ? "tr_TR" : "en_US"} />
-    <meta property="og:locale:alternate" content={lang !== "de" ? "de_DE" : "en_US"} />
+    {lang !== "tr" && <meta property="og:locale:alternate" content="tr_TR" />}
+    {lang !== "en" && <meta property="og:locale:alternate" content="en_US" />}
+    {lang !== "de" && <meta property="og:locale:alternate" content="de_DE" />}
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
 
     {article && publishedTime && (
       <meta property="article:published_time" content={publishedTime} />
@@ -158,6 +163,7 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@3DLabX" />
     <meta name="twitter:title" content={metaTitle} />
     <meta name="twitter:description" content={metaDescription} />
     <meta name="twitter:image" content={ogImage} />
@@ -166,9 +172,12 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
     <meta name="theme-color" content="#2563EB" />
     <meta name="msapplication-TileColor" content="#2563EB" />
 
-    <!-- Preconnect -->
+    <!-- Preconnect & Resource Hints -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://tech-portal-api.turgut-d01.workers.dev" />
     <link rel="dns-prefetch" href="https://tech-portal-api.turgut-d01.workers.dev" />
+    <link rel="dns-prefetch" href="https://pub-9142f11355e84e1da1dd96a4c14e4afb.r2.dev" />
 
     <!-- JSON-LD Organization Schema (always present) -->
     <script type="application/ld+json" set:html={JSON.stringify({
