@@ -1083,19 +1083,14 @@ const schemaData = {
 
   /* Filament Category Cards */
   .filament-category-card {
-    background: #1e293b;
-    border: 2px solid #334155;
+    background: var(--bg-card, #1e293b);
+    border: 2px solid var(--border-soft, #334155);
     border-radius: 14px;
     padding: 16px;
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
     overflow: hidden;
-  }
-
-  [data-theme="light"] .filament-category-card {
-    background: #f8fafc;
-    border-color: #e2e8f0;
   }
 
   .filament-category-card:hover {
@@ -1106,11 +1101,7 @@ const schemaData = {
 
   .filament-category-card.expanded {
     border-color: var(--card-color, #EAB308);
-    background: #0f172a;
-  }
-
-  [data-theme="light"] .filament-category-card.expanded {
-    background: #ffffff;
+    background: var(--bg-main, #0f172a);
   }
 
   .filament-category-header {
@@ -1130,15 +1121,10 @@ const schemaData = {
 
   .filament-category-count {
     font-size: 0.65rem;
-    color: #94a3b8;
-    background: rgba(255,255,255,0.1);
+    color: var(--text-muted, #94a3b8);
+    background: var(--bg-main, rgba(255,255,255,0.1));
     padding: 4px 8px;
     border-radius: 8px;
-  }
-
-  [data-theme="light"] .filament-category-count {
-    color: #64748b;
-    background: rgba(0,0,0,0.05);
   }
 
   .filament-best-price {
@@ -1195,17 +1181,12 @@ const schemaData = {
   /* Alternatives Panel */
   .filament-alternatives {
     grid-column: 1 / -1;
-    background: #1e293b;
-    border: 2px solid #334155;
+    background: var(--bg-card, #1e293b);
+    border: 2px solid var(--border-soft, #334155);
     border-radius: 14px;
     padding: 20px;
     display: none;
     animation: slideDown 0.2s ease;
-  }
-
-  [data-theme="light"] .filament-alternatives {
-    background: #f8fafc;
-    border-color: #e2e8f0;
   }
 
   .filament-alternatives.visible {
@@ -1251,16 +1232,11 @@ const schemaData = {
     justify-content: space-between;
     align-items: center;
     padding: 14px;
-    background: #0f172a;
-    border: 1px solid #334155;
+    background: var(--bg-main, #0f172a);
+    border: 1px solid var(--border-soft, #334155);
     border-radius: 12px;
     text-decoration: none;
     transition: all 0.2s;
-  }
-
-  [data-theme="light"] .filament-alt-item {
-    background: #ffffff;
-    border-color: #e2e8f0;
   }
 
   .filament-alt-item:hover {
