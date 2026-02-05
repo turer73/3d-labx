@@ -254,6 +254,20 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
 
     <slot />
 
+    <!-- Join Banner (shown for non-logged-in users) -->
+    <div class="join-banner" id="joinBanner" style="display: none;">
+      <div class="join-banner-content">
+        <div class="join-banner-text">
+          <span class="join-emoji">🎉</span>
+          <span><strong>Topluluğa Katıl!</strong> Forum, proje paylaşımı ve daha fazlası için ücretsiz üye ol.</span>
+        </div>
+        <div class="join-banner-actions">
+          <a href="/auth/kayit" class="join-btn">Üye Ol</a>
+          <button class="join-dismiss" id="joinDismiss" title="Kapat">✕</button>
+        </div>
+      </div>
+    </div>
+
     <footer class="site-footer">
       <div class="container">
         <div class="footer-content">
@@ -606,6 +620,44 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
         });
       })();
     </script>
+
+    <!-- Join Banner Logic -->
+    <script is:inline>
+      (function() {
+        const joinBanner = document.getElementById('joinBanner');
+        const joinDismiss = document.getElementById('joinDismiss');
+        const footer = document.querySelector('.site-footer');
+
+        function checkJoinBanner() {
+          const token = localStorage.getItem('authToken');
+          const dismissed = sessionStorage.getItem('joinBannerDismissed');
+
+          if (!token && !dismissed && joinBanner) {
+            joinBanner.style.display = 'block';
+            if (footer) footer.style.paddingBottom = '80px';
+          } else if (joinBanner) {
+            joinBanner.style.display = 'none';
+            if (footer) footer.style.paddingBottom = '24px';
+          }
+        }
+
+        joinDismiss?.addEventListener('click', () => {
+          sessionStorage.setItem('joinBannerDismissed', 'true');
+          if (joinBanner) joinBanner.style.display = 'none';
+          if (footer) footer.style.paddingBottom = '24px';
+        });
+
+        // Check on load
+        checkJoinBanner();
+
+        // Re-check on auth changes
+        window.addEventListener('storage', (e) => {
+          if (e.key === 'authToken') {
+            checkJoinBanner();
+          }
+        });
+      })();
+    </script>
   </body>
 </html>
 
@@ -721,9 +773,93 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
     }
   }
 
+  /* Join Banner */
+  .join-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
+    padding: 12px 20px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .join-banner-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .join-banner-text {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+    font-size: 0.95rem;
+  }
+
+  .join-emoji {
+    font-size: 1.5rem;
+  }
+
+  .join-banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .join-btn {
+    padding: 10px 24px;
+    background: white;
+    color: #2563EB;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .join-btn:hover {
+    background: #f1f5f9;
+    transform: scale(1.03);
+  }
+
+  .join-dismiss {
+    background: transparent;
+    border: none;
+    color: white;
+    opacity: 0.7;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 4px 8px;
+    transition: opacity 0.2s;
+  }
+
+  .join-dismiss:hover {
+    opacity: 1;
+  }
+
+  @media (max-width: 640px) {
+    .join-banner-content {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .join-banner-text {
+      flex-direction: column;
+      gap: 8px;
+    }
+  }
+
   .site-footer {
     margin-top: 64px;
     padding: 48px 0 24px;
+    padding-bottom: 80px; /* Space for join banner */
     border-top: none;
     background: var(--bg-card);
     color: var(--text-muted);

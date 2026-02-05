@@ -487,6 +487,68 @@ function getExcerpt(content: string, length: number = 120): string {
       </section>
     )}
 
+    <!-- MEMBERSHIP CTA SECTION -->
+    <section class="membership-cta-section">
+      <div class="membership-cta-box">
+        <div class="membership-glow"></div>
+        <div class="membership-content">
+          <div class="membership-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <div class="membership-text">
+            <h2>Türkiye'nin En Büyük 3D Baskı Topluluğuna Katıl! 🚀</h2>
+            <p>Ücretsiz üye ol, deneyimlerini paylaş, sorularını sor ve binlerce maker ile tanış.</p>
+          </div>
+          <div class="membership-benefits">
+            <div class="benefit-item">
+              <span class="benefit-icon">💬</span>
+              <span>Forum & Yorum</span>
+            </div>
+            <div class="benefit-item">
+              <span class="benefit-icon">🎨</span>
+              <span>Proje Paylaş</span>
+            </div>
+            <div class="benefit-item">
+              <span class="benefit-icon">🧪</span>
+              <span>Filament Test</span>
+            </div>
+            <div class="benefit-item">
+              <span class="benefit-icon">📍</span>
+              <span>Maker Harita</span>
+            </div>
+          </div>
+          <div class="membership-actions">
+            <a href="/auth/kayit" class="membership-btn primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+              Hemen Üye Ol
+            </a>
+            <a href="/auth/giris" class="membership-btn secondary">
+              Zaten üyeyim
+            </a>
+          </div>
+        </div>
+        <div class="membership-stats">
+          <div class="stat-item">
+            <span class="stat-number">1,200+</span>
+            <span class="stat-label">Üye</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">500+</span>
+            <span class="stat-label">Proje</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">2,000+</span>
+            <span class="stat-label">Yorum</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- 6. POLLS - Engagement at bottom -->
     <section class="polls-section">
       <div class="category-header">
@@ -1087,6 +1149,200 @@ function getExcerpt(content: string, length: number = 120): string {
     .bento-card h3 { font-size: 0.95rem; margin-bottom: 6px; }
     .bento-large h3 { font-size: 1rem; }
     .bento-card p { font-size: 0.8rem; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  }
+
+  /* MEMBERSHIP CTA SECTION */
+  .membership-cta-section {
+    margin-bottom: 48px;
+  }
+
+  .membership-cta-box {
+    position: relative;
+    padding: 40px;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(139, 92, 246, 0.1) 50%, rgba(236, 72, 153, 0.1) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 24px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: center;
+  }
+
+  .membership-glow {
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .membership-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .membership-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
+    border-radius: 20px;
+    color: white;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+  }
+
+  .membership-text h2 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .membership-text p {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  .membership-benefits {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+    transition: all 0.2s ease;
+  }
+
+  .benefit-item:hover {
+    border-color: rgba(99, 102, 241, 0.5);
+    transform: translateY(-2px);
+  }
+
+  .benefit-icon {
+    font-size: 1.2rem;
+  }
+
+  .membership-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .membership-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .membership-btn.primary {
+    background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
+    color: white;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+  }
+
+  .membership-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(99, 102, 241, 0.5);
+  }
+
+  .membership-btn.secondary {
+    background: var(--bg-card);
+    color: var(--text-main);
+    border: 1px solid var(--border-soft);
+  }
+
+  .membership-btn.secondary:hover {
+    border-color: rgba(99, 102, 241, 0.5);
+    background: rgba(99, 102, 241, 0.1);
+  }
+
+  .membership-stats {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  @media (max-width: 768px) {
+    .membership-cta-box {
+      grid-template-columns: 1fr;
+      padding: 28px 20px;
+      text-align: center;
+    }
+
+    .membership-icon {
+      margin: 0 auto 20px;
+    }
+
+    .membership-text h2 {
+      font-size: 1.4rem;
+    }
+
+    .membership-benefits {
+      justify-content: center;
+    }
+
+    .membership-actions {
+      justify-content: center;
+    }
+
+    .membership-stats {
+      flex-direction: row;
+      justify-content: center;
+      gap: 32px;
+    }
   }
 
   /* POLLS SECTION */
