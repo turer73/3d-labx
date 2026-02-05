@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 72" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 80" fill="none">
   <defs>
     <!-- Ana gradient - Mavi → Mor -->
     <linearGradient id="mainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -20,95 +20,88 @@
 
     <!-- Glow efekti -->
     <filter id="glow">
-      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
       <feMerge>
         <feMergeNode in="coloredBlur"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
 
-    <!-- Shadow -->
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
-      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#2563EB" flood-opacity="0.3"/>
+    <!-- Text shadow -->
+    <filter id="textShadow">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#2563EB" flood-opacity="0.3"/>
     </filter>
-
-    <!-- İkon içi pattern - 3D katman çizgileri -->
-    <clipPath id="cubeClip">
-      <path d="M6 18 L30 4 L54 18 L54 46 L30 60 L6 46 Z"/>
-    </clipPath>
   </defs>
 
-  <!-- === LOGO İKON GRUBU === -->
-  <g transform="translate(4, 3)">
+  <!-- === XYZ KALİBRASYON KÜPÜ === -->
+  <g transform="translate(8, 6)">
     <!-- Arka plan glow -->
-    <ellipse cx="30" cy="33" rx="28" ry="28" fill="#2563EB" opacity="0.08"/>
+    <ellipse cx="32" cy="36" rx="30" ry="30" fill="#2563EB" opacity="0.06"/>
 
-    <!-- 3D Küp Ana Gövde -->
-    <!-- Üst yüzey -->
-    <path d="M30 8 L52 20 L30 32 L8 20 Z" fill="url(#innerGlow)" opacity="0.95"/>
-    <!-- Sol yüzey -->
-    <path d="M8 20 L30 32 L30 56 L8 44 Z" fill="#2563EB" opacity="0.85"/>
-    <!-- Sağ yüzey -->
-    <path d="M52 20 L30 32 L30 56 L52 44 Z" fill="#4F46E5" opacity="0.9"/>
+    <!-- 3D XYZ Küp Ana Gövde -->
+    <!-- Üst yüzey (X harfi burada) -->
+    <path d="M32 8 L56 20 L32 32 L8 20 Z" fill="url(#innerGlow)" opacity="0.95"/>
 
-    <!-- Küp kenar çizgileri -->
-    <path d="M30 8 L52 20 L30 32 L8 20 Z" fill="none" stroke="white" stroke-width="0.5" opacity="0.3"/>
-    <path d="M8 20 L30 32 L30 56 L8 44 Z" fill="none" stroke="white" stroke-width="0.5" opacity="0.2"/>
-    <path d="M52 20 L30 32 L30 56 L52 44 Z" fill="none" stroke="white" stroke-width="0.5" opacity="0.2"/>
+    <!-- Sol yüzey (Y harfi burada) -->
+    <path d="M8 20 L32 32 L32 58 L8 46 Z" fill="#2563EB" opacity="0.9"/>
 
-    <!-- 3D Baskı Katman çizgileri (küpün içinde) -->
-    <g opacity="0.25" stroke="white" stroke-width="0.6">
-      <!-- Sol yüz katmanlar -->
-      <line x1="10" y1="24" x2="29" y2="35.5"/>
-      <line x1="10" y1="28" x2="29" y2="39.5"/>
-      <line x1="10" y1="32" x2="29" y2="43.5"/>
-      <line x1="10" y1="36" x2="29" y2="47.5"/>
-      <line x1="10" y1="40" x2="29" y2="51.5"/>
-      <!-- Sağ yüz katmanlar -->
-      <line x1="50" y1="24" x2="31" y2="35.5"/>
-      <line x1="50" y1="28" x2="31" y2="39.5"/>
-      <line x1="50" y1="32" x2="31" y2="43.5"/>
-      <line x1="50" y1="36" x2="31" y2="47.5"/>
-      <line x1="50" y1="40" x2="31" y2="51.5"/>
+    <!-- Sağ yüzey (Z harfi burada) -->
+    <path d="M56 20 L32 32 L32 58 L56 46 Z" fill="#4F46E5" opacity="0.9"/>
+
+    <!-- Küp kenar çizgileri (daha belirgin) -->
+    <path d="M32 8 L56 20 L32 32 L8 20 Z" fill="none" stroke="white" stroke-width="0.8" opacity="0.4"/>
+    <path d="M8 20 L32 32 L32 58 L8 46 Z" fill="none" stroke="white" stroke-width="0.6" opacity="0.25"/>
+    <path d="M56 20 L32 32 L32 58 L56 46 Z" fill="none" stroke="white" stroke-width="0.6" opacity="0.25"/>
+    <line x1="32" y1="32" x2="32" y2="58" stroke="white" stroke-width="0.6" opacity="0.3"/>
+
+    <!-- X harfi - Üst yüzeyde -->
+    <g transform="translate(32, 18)" fill="white" opacity="0.85">
+      <text x="0" y="5" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="800" text-anchor="middle" letter-spacing="-0.5">X</text>
     </g>
 
-    <!-- Nozzle (3D baskı kafası) üstte -->
-    <g transform="translate(30, 2)">
-      <!-- Nozzle gövde -->
-      <rect x="-4" y="-4" width="8" height="6" rx="1.5" fill="#334155" opacity="0.9"/>
-      <!-- Nozzle uç -->
-      <polygon points="-3,2 3,2 1.5,6 -1.5,6" fill="#475569" opacity="0.9"/>
-      <!-- Filament damlası - turuncu -->
-      <circle cx="0" cy="7.5" r="1.8" fill="url(#orangeGrad)" filter="url(#glow)"/>
+    <!-- Y harfi - Sol yüzeyde (perspektifli) -->
+    <g transform="translate(18, 42) skewY(25)" fill="white" opacity="0.7">
+      <text x="0" y="0" font-family="Inter, Arial, sans-serif" font-size="10" font-weight="800" text-anchor="middle">Y</text>
     </g>
+
+    <!-- Z harfi - Sağ yüzeyde (perspektifli) -->
+    <g transform="translate(46, 42) skewY(-25)" fill="white" opacity="0.7">
+      <text x="0" y="0" font-family="Inter, Arial, sans-serif" font-size="10" font-weight="800" text-anchor="middle">Z</text>
+    </g>
+
+    <!-- Köşe delikleri (XYZ küpünün karakteristiği) -->
+    <!-- Üst yüzey delik -->
+    <circle cx="32" cy="14" r="2" fill="#1E40AF" opacity="0.5"/>
+    <circle cx="32" cy="14" r="1.2" fill="#0F172A" opacity="0.6"/>
 
     <!-- Işık yansıması - üst yüzeyde -->
-    <path d="M20 14 L30 20 L40 14 L30 8 Z" fill="white" opacity="0.15"/>
+    <path d="M22 14 L32 20 L42 14 L32 8 Z" fill="white" opacity="0.12"/>
 
     <!-- Küçük parıltı noktaları -->
-    <circle cx="18" cy="15" r="1" fill="white" opacity="0.4"/>
-    <circle cx="42" cy="15" r="0.7" fill="white" opacity="0.25"/>
+    <circle cx="20" cy="14" r="1" fill="white" opacity="0.45"/>
+    <circle cx="44" cy="14" r="0.7" fill="white" opacity="0.3"/>
+    <circle cx="32" cy="7" r="0.6" fill="white" opacity="0.5"/>
   </g>
 
   <!-- === YAZI GRUBU === -->
-  <g transform="translate(76, 0)">
-    <!-- "3D" kısmı -->
-    <text x="0" y="47" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="38" font-weight="900" letter-spacing="-1.5" fill="url(#mainGrad)">3D</text>
+  <g transform="translate(78, 8)">
+    <!-- "3D" kısmı - gradient -->
+    <text x="0" y="44" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="40" font-weight="900" letter-spacing="-2" fill="url(#mainGrad)" filter="url(#textShadow)">3D</text>
 
     <!-- "-" tire -->
-    <text x="52" y="45" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="34" font-weight="300" fill="#94A3B8">-</text>
+    <text x="56" y="42" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="36" font-weight="300" fill="#94A3B8">-</text>
 
-    <!-- "LAB" kısmı -->
-    <text x="65" y="47" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="38" font-weight="900" letter-spacing="-1.5" fill="#0F172A">LAB</text>
+    <!-- "Lab" kısmı -->
+    <text x="72" y="44" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="40" font-weight="900" letter-spacing="-2" fill="#0F172A">Lab</text>
 
-    <!-- "X" turuncu vurgulu -->
-    <text x="142" y="47" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="40" font-weight="900" letter-spacing="-1" fill="url(#orangeGrad)">X</text>
+    <!-- "X" turuncu vurgulu, biraz daha büyük -->
+    <text x="148" y="44" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="44" font-weight="900" letter-spacing="-1" fill="url(#orangeGrad)">X</text>
 
     <!-- Alt çizgi - ince gradient bar -->
-    <rect x="0" y="54" width="50" height="2.5" rx="1.25" fill="url(#mainGrad)" opacity="0.7"/>
-    <rect x="54" y="54" width="20" height="2.5" rx="1.25" fill="url(#orangeGrad)" opacity="0.5"/>
+    <rect x="2" y="52" width="45" height="2.5" rx="1.25" fill="url(#mainGrad)" opacity="0.6"/>
+    <rect x="50" y="52" width="25" height="2.5" rx="1.25" fill="url(#orangeGrad)" opacity="0.5"/>
 
     <!-- Tagline -->
-    <text x="1" y="68" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="9" font-weight="500" letter-spacing="3" fill="#94A3B8" text-transform="uppercase">TÜRKİYE'NİN 3D BASKI REHBERİ</text>
+    <text x="2" y="67" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="8.5" font-weight="500" letter-spacing="2.5" fill="#94A3B8">TÜRKİYE'NİN 3D BASKI REHBERİ</text>
   </g>
 </svg>
