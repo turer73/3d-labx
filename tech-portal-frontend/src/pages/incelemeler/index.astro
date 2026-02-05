@@ -42,7 +42,6 @@ const API_BASE = getApiBase(Astro.request);
 // Çeviriler
 const translations: Record<Language, {
   pageTitle: string;
-  pageTitlePaged: string;
   pageDesc: string;
   defaultDesc: string;
   heroTitle: string;
@@ -53,12 +52,11 @@ const translations: Record<Language, {
   noReviewsTitle: string;
   noReviewsDesc: string;
   backToHome: string;
-  prev: string;
-  next: string;
+  loading: string;
+  noMorePosts: string;
 }> = {
   tr: {
     pageTitle: "İncelemeler - 3D-labX",
-    pageTitlePaged: "İncelemeler - Sayfa",
     pageDesc: "3D yazıcı ve ekipman incelemeleri:",
     defaultDesc: "3D yazıcı, filament ve ekipman incelemeleri. Detaylı test sonuçları ve karşılaştırmalar.",
     heroTitle: "İncelemeler",
@@ -69,12 +67,11 @@ const translations: Record<Language, {
     noReviewsTitle: "Henüz İnceleme Yok",
     noReviewsDesc: "Bu kategoride henüz içerik bulunmuyor. Yakında detaylı incelemeler eklenecek!",
     backToHome: "Ana Sayfaya Dön",
-    prev: "Önceki",
-    next: "Sonraki"
+    loading: "Yükleniyor...",
+    noMorePosts: "Tüm incelemeler yüklendi"
   },
   en: {
     pageTitle: "Reviews - 3D-labX",
-    pageTitlePaged: "Reviews - Page",
     pageDesc: "3D printer and equipment reviews:",
     defaultDesc: "3D printer, filament and equipment reviews. Detailed test results and comparisons.",
     heroTitle: "Reviews",
@@ -85,12 +82,11 @@ const translations: Record<Language, {
     noReviewsTitle: "No Reviews Yet",
     noReviewsDesc: "No content in this category yet. Detailed reviews coming soon!",
     backToHome: "Back to Home",
-    prev: "Previous",
-    next: "Next"
+    loading: "Loading...",
+    noMorePosts: "All reviews loaded"
   },
   de: {
     pageTitle: "Bewertungen - 3D-labX",
-    pageTitlePaged: "Bewertungen - Seite",
     pageDesc: "3D-Drucker und Ausrüstungsbewertungen:",
     defaultDesc: "3D-Drucker, Filament und Ausrüstungsbewertungen. Detaillierte Testergebnisse und Vergleiche.",
     heroTitle: "Bewertungen",
@@ -101,8 +97,8 @@ const translations: Record<Language, {
     noReviewsTitle: "Noch keine Bewertungen",
     noReviewsDesc: "In dieser Kategorie gibt es noch keine Inhalte. Detaillierte Bewertungen kommen bald!",
     backToHome: "Zurück zur Startseite",
-    prev: "Vorherige",
-    next: "Nächste"
+    loading: "Laden...",
+    noMorePosts: "Alle Bewertungen geladen"
   }
 };
 
@@ -121,8 +117,6 @@ function getSummary(post: Post): string {
   return post.summary_tr || post.summary;
 }
 
-const url = new URL(Astro.request.url);
-const currentPage = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
 const POSTS_PER_PAGE = 12;
 
 let posts: Post[] = [];
@@ -131,8 +125,8 @@ let error: string | null = null;
 
 try {
   const apiUrl = lang === 'tr'
-    ? `${API_BASE}/api/posts?category=incelemeler&page=${currentPage}&limit=${POSTS_PER_PAGE}`
-    : `${API_BASE}/api/posts?category=incelemeler&page=${currentPage}&limit=${POSTS_PER_PAGE}&lang=${lang}`;
+    ? `${API_BASE}/api/posts?category=incelemeler&page=1&limit=${POSTS_PER_PAGE}`
+    : `${API_BASE}/api/posts?category=incelemeler&page=1&limit=${POSTS_PER_PAGE}&lang=${lang}`;
 
   const res = await fetch(apiUrl, { headers: { "Accept": "application/json" } });
 
@@ -148,22 +142,16 @@ try {
   console.error("Reviews page error:", error);
 }
 
-const title = currentPage > 1
-  ? `${t.pageTitlePaged} ${currentPage} - 3D-labX`
-  : t.pageTitle;
-
+const pageTitle = t.pageTitle;
 const description = posts.length > 0
   ? `${t.pageDesc} ${posts.slice(0, 3).map((p) => getTitle(p)).join(", ")}`
   : t.defaultDesc;
-
-const prevUrl = pagination?.hasPrev ? `/incelemeler?page=${currentPage - 1}` : null;
-const nextUrl = pagination?.hasNext ? `/incelemeler?page=${currentPage + 1}` : null;
 
 // Tarih formatı
 const dateLocale = lang === 'tr' ? 'tr-TR' : lang === 'de' ? 'de-DE' : 'en-US';
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={pageTitle} description={description}>
   <Header />
 
   <main class="category-page">
@@ -197,7 +185,7 @@ const dateLocale = lang === 'tr' ? 'tr-TR' : lang === 'de' ? 'de-DE' : 'en-US';
       )}
 
       {posts.length > 0 && (
-        <div class="posts-grid">
+        <div class="posts-grid" id="posts-grid">
           {posts.map((post) => (
             <article class={`post-card ${post.is_featured ? 'featured' : ''}`}>
               {post.image_url && (
@@ -228,38 +216,126 @@ const dateLocale = lang === 'tr' ? 'tr-TR' : lang === 'de' ? 'de-DE' : 'en-US';
         </div>
       )}
 
-      {pagination && pagination.totalPages > 1 && (
-        <nav class="pagination" aria-label="Page navigation">
-          <div class="pagination-wrapper">
-            <a
-              href={prevUrl || "#"}
-              class={`pagination-btn ${!prevUrl ? 'disabled' : ''}`}
-              aria-disabled={!prevUrl}
-            >
-              <svg class="arrow-left" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-              <span class="btn-text">{t.prev}</span>
-            </a>
+      <!-- Infinite Scroll Loading Indicator -->
+      <div id="scroll-loader" class="scroll-loader" style="display: none;">
+        <div class="loader-spinner"></div>
+        <span>{t.loading}</span>
+      </div>
 
-            <div class="pagination-info">
-              <span class="current-page">{pagination.page}</span>
-              <span class="separator">/</span>
-              <span class="total-pages">{pagination.totalPages}</span>
-            </div>
-
-            <a
-              href={nextUrl || "#"}
-              class={`pagination-btn ${!nextUrl ? 'disabled' : ''}`}
-              aria-disabled={!nextUrl}
-            >
-              <span class="btn-text">{t.next}</span>
-              <svg class="arrow-right" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-            </a>
-          </div>
-        </nav>
-      )}
+      <div id="scroll-end" class="scroll-end" style="display: none;">
+        <span>✅ {t.noMorePosts}</span>
+      </div>
     </div>
   </main>
 </BaseLayout>
+
+<!-- Infinite Scroll Script -->
+<script define:vars={{ API_BASE, POSTS_PER_PAGE, lang, totalPages: pagination?.totalPages || 1, detailedReviewText: t.detailedReview }}>
+  let currentPage = 1;
+  let isLoading = false;
+  let allLoaded = currentPage >= totalPages;
+
+  const grid = document.getElementById('posts-grid');
+  const loader = document.getElementById('scroll-loader');
+  const endMsg = document.getElementById('scroll-end');
+
+  function getLocalizedField(post, field) {
+    if (lang === 'en' && post[field + '_en']) return post[field + '_en'];
+    if (lang === 'de' && post[field + '_de']) return post[field + '_de'];
+    return post[field + '_tr'] || post[field];
+  }
+
+  function formatDate(dateStr) {
+    const localeMap = { tr: 'tr-TR', en: 'en-US', de: 'de-DE' };
+    return new Date(dateStr).toLocaleDateString(localeMap[lang] || 'tr-TR', {
+      year: 'numeric', month: 'long', day: 'numeric'
+    });
+  }
+
+  function createPostCard(post) {
+    const title = getLocalizedField(post, 'title');
+    const summary = getLocalizedField(post, 'summary');
+    const article = document.createElement('article');
+    article.className = 'post-card' + (post.is_featured ? ' featured' : '');
+
+    const imgHtml = post.image_url
+      ? `<a href="/incelemeler/${post.slug}" class="post-image"><img src="${post.image_url}" alt="${title}" loading="lazy" /></a>`
+      : '';
+
+    const badgeHtml = post.is_featured
+      ? `<span class="badge badge-review">${detailedReviewText}</span>`
+      : '';
+
+    const dateHtml = post.created_at
+      ? `<time class="post-date" datetime="${post.created_at}">${formatDate(post.created_at)}</time>`
+      : '';
+
+    article.innerHTML = `
+      ${imgHtml}
+      <div class="post-content">
+        ${badgeHtml}
+        <h2><a href="/incelemeler/${post.slug}">${title}</a></h2>
+        <p>${summary || ''}</p>
+        ${dateHtml}
+      </div>
+    `;
+
+    return article;
+  }
+
+  async function loadMorePosts() {
+    if (isLoading || allLoaded) return;
+    isLoading = true;
+    loader.style.display = 'flex';
+
+    try {
+      currentPage++;
+      const langParam = lang === 'tr' ? '' : `&lang=${lang}`;
+      const res = await fetch(`${API_BASE}/api/posts?category=incelemeler&page=${currentPage}&limit=${POSTS_PER_PAGE}${langParam}`, {
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (!res.ok) throw new Error('API error');
+
+      const data = await res.json();
+
+      if (data.posts && data.posts.length > 0) {
+        data.posts.forEach(post => {
+          grid.appendChild(createPostCard(post));
+        });
+      }
+
+      if (!data.pagination.hasNext) {
+        allLoaded = true;
+        endMsg.style.display = 'flex';
+      }
+    } catch (e) {
+      console.error('Load more error:', e);
+      currentPage--;
+    } finally {
+      isLoading = false;
+      loader.style.display = 'none';
+    }
+  }
+
+  // Intersection Observer for infinite scroll
+  if (!allLoaded && grid) {
+    const sentinel = document.createElement('div');
+    sentinel.id = 'scroll-sentinel';
+    sentinel.style.height = '1px';
+    grid.parentElement.insertBefore(sentinel, loader);
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !isLoading && !allLoaded) {
+        loadMorePosts();
+      }
+    }, { rootMargin: '400px' });
+
+    observer.observe(sentinel);
+  } else if (allLoaded && endMsg) {
+    endMsg.style.display = 'flex';
+  }
+</script>
 
 <style>
   .category-page {
@@ -306,7 +382,7 @@ const dateLocale = lang === 'tr' ? 'tr-TR' : lang === 'de' ? 'de-DE' : 'en-US';
 
   .post-card {
     background: var(--bg-card);
-    border: 1px solid var(--border-soft);
+    border: 2px solid #f59e0b;
     border-radius: var(--radius-lg);
     overflow: hidden;
     transition: transform var(--transition-base), box-shadow var(--transition-base);
@@ -314,7 +390,7 @@ const dateLocale = lang === 'tr' ? 'tr-TR' : lang === 'de' ? 'de-DE' : 'en-US';
 
   .post-card:hover {
     transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 12px 32px rgba(245, 158, 11, 0.15);
   }
 
   .post-card.featured {
@@ -364,7 +440,7 @@ const dateLocale = lang === 'tr' ? 'tr-TR' : lang === 'de' ? 'de-DE' : 'en-US';
   }
 
   .post-content h2 a:hover {
-    color: var(--accent);
+    color: #f59e0b;
   }
 
   .post-content p {
@@ -403,6 +479,45 @@ const dateLocale = lang === 'tr' ? 'tr-TR' : lang === 'de' ? 'de-DE' : 'en-US';
   .empty-state p {
     color: var(--text-muted);
     margin-bottom: var(--spacing-lg);
+  }
+
+  /* Infinite Scroll Indicators */
+  .scroll-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 32px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .loader-spinner {
+    width: 24px; height: 24px;
+    border: 3px solid var(--border-soft);
+    border-top-color: #f59e0b;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .scroll-end {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .message-error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 48px;
   }
 
   @media (max-width: 640px) {
