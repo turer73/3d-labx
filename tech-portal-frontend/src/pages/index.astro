@@ -245,7 +245,7 @@ function getExcerpt(content: string, length: number = 120): string {
       </div>
     )}
 
-    <!-- 1. TROUBLESHOOTING - Most searched content -->
+    <!-- 1. TROUBLESHOOTING - Most searched content (6 cards) -->
     {sorunPosts.length > 0 && (
       <section class="category-section priority-section">
         <div class="category-header">
@@ -256,8 +256,8 @@ function getExcerpt(content: string, length: number = 120): string {
           </div>
           <a href="/sorun-cozumleri" class="category-link">{t.homepage.viewAll} →</a>
         </div>
-        <div class="category-grid">
-          {sorunPosts.slice(0, 4).map((post, i) => (
+        <div class="category-grid six-cols">
+          {sorunPosts.slice(0, 6).map((post, i) => (
             <a href={`/sorun-cozumleri/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} green`}>
               {post.image_url && (
                 <div class="cat-image">
