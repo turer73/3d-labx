@@ -4496,9 +4496,10 @@ Content: ${(post.content_tr || '').substring(0, 1500)}`;
         }
 
         const makers = await env.DB.prepare(`
-          SELECT mp.id, mp.city, mp.district, mp.latitude, mp.longitude, mp.printers, mp.specialties,
+          SELECT mp.id, mp.user_id, mp.city, mp.district, mp.latitude, mp.longitude, mp.printers, mp.specialties,
                  mp.offers_printing, mp.offers_help, mp.bio, mp.contact_preference,
                  mp.contact_discord, mp.contact_telegram, mp.contact_instagram, mp.contact_email,
+                 mp.contact_phone, mp.show_email, mp.show_phone, mp.allow_messages,
                  mp.is_verified, mp.is_sample,
                  u.username, u.display_name, u.avatar_url,
                  us.reputation_points
@@ -4559,6 +4560,17 @@ Content: ${(post.content_tr || '').substring(0, 1500)}`;
         const isVisible = body.is_visible !== false ? 1 : 0;
         const termsAccepted = body.terms_accepted ? 1 : 0;
 
+        // İletişim bilgileri
+        const contactDiscord = sanitizeString(body.contact_discord, 100) || '';
+        const contactTelegram = sanitizeString(body.contact_telegram, 100) || '';
+        const contactInstagram = sanitizeString(body.contact_instagram, 100) || '';
+        const contactEmail = sanitizeString(body.contact_email, 200) || '';
+        const contactPhone = sanitizeString(body.contact_phone, 20) || '';
+        const contactPreference = ['message', 'email', 'both', 'discord', 'telegram', 'instagram', 'phone'].includes(body.contact_preference) ? body.contact_preference : 'message';
+        const showEmail = body.show_email ? 1 : 0;
+        const showPhone = body.show_phone ? 1 : 0;
+        const allowMessages = body.allow_messages !== false ? 1 : 0;
+
         if (!city) return errorResponse("Şehir gerekli", 400, "CITY_REQUIRED");
         if (!termsAccepted) return errorResponse("Kullanım koşullarını kabul etmelisiniz", 400, "TERMS_REQUIRED");
 
@@ -4581,15 +4593,23 @@ Content: ${(post.content_tr || '').substring(0, 1500)}`;
               printers = ?, specialties = ?,
               offers_printing = ?, offers_help = ?,
               bio = ?, is_visible = ?,
+              contact_discord = ?, contact_telegram = ?, contact_instagram = ?,
+              contact_email = ?, contact_phone = ?, contact_preference = ?,
+              show_email = ?, show_phone = ?, allow_messages = ?,
               terms_accepted = ?, terms_accepted_at = CURRENT_TIMESTAMP,
               updated_at = CURRENT_TIMESTAMP
             WHERE user_id = ?
-          `).bind(city, district, latitude, longitude, printers, specialties, offersPrinting, offersHelp, bio, isVisible, termsAccepted, session.user_id).run();
+          `).bind(city, district, latitude, longitude, printers, specialties, offersPrinting, offersHelp, bio, isVisible,
+            contactDiscord, contactTelegram, contactInstagram, contactEmail, contactPhone, contactPreference,
+            showEmail, showPhone, allowMessages, termsAccepted, session.user_id).run();
         } else {
           await env.DB.prepare(`
-            INSERT INTO maker_profiles (user_id, city, district, latitude, longitude, printers, specialties, offers_printing, offers_help, bio, is_visible, terms_accepted, terms_accepted_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-          `).bind(session.user_id, city, district, latitude, longitude, printers, specialties, offersPrinting, offersHelp, bio, isVisible, termsAccepted).run();
+            INSERT INTO maker_profiles (user_id, city, district, latitude, longitude, printers, specialties, offers_printing, offers_help, bio, is_visible,
+              contact_discord, contact_telegram, contact_instagram, contact_email, contact_phone, contact_preference, show_email, show_phone, allow_messages,
+              terms_accepted, terms_accepted_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+          `).bind(session.user_id, city, district, latitude, longitude, printers, specialties, offersPrinting, offersHelp, bio, isVisible,
+            contactDiscord, contactTelegram, contactInstagram, contactEmail, contactPhone, contactPreference, showEmail, showPhone, allowMessages, termsAccepted).run();
 
           // İlk kez haritaya eklenen için puan
           await env.DB.prepare(`
@@ -4724,6 +4744,178 @@ Content: ${(post.content_tr || '').substring(0, 1500)}`;
         }
 
         return jsonResponse({ success: true });
+      }
+
+      // ================================
+      // 💬 MESAJLAŞMA SİSTEMİ API
+      // ================================
+
+      // Mesaj gönder (site içi)
+      if (path === "/api/messages" && method === "POST") {
+        const session = await getSessionUser(env, request);
+        if (!session) return errorResponse("Giriş yapmalısınız", 401, "UNAUTHORIZED", request);
+
+        const body = await request.json();
+        const toUserId = parseInt(body.to_user_id);
+        const content = sanitizeString(body.content, 1000);
+
+        if (!toUserId || !content || content.length < 2) {
+          return errorResponse("Geçerli bir mesaj yazın", 400, "INVALID_MESSAGE", request);
+        }
+
+        if (toUserId === session.user_id) {
+          return errorResponse("Kendinize mesaj gönderemezsiniz", 400, "SELF_MESSAGE", request);
+        }
+
+        // Alıcının mesaj kabul edip etmediğini kontrol et
+        const receiver = await env.DB.prepare(`
+          SELECT u.id, u.username, mp.allow_messages
+          FROM users u
+          LEFT JOIN maker_profiles mp ON u.id = mp.user_id
+          WHERE u.id = ? AND u.is_active = 1
+        `).bind(toUserId).first();
+
+        if (!receiver) return errorResponse("Kullanıcı bulunamadı", 404, "USER_NOT_FOUND", request);
+        if (receiver.allow_messages === 0) return errorResponse("Bu kullanıcı mesaj kabul etmiyor", 403, "MESSAGES_DISABLED", request);
+
+        // Spam koruması: Son 1 dakikada aynı kişiye max 3 mesaj
+        const recentCount = await env.DB.prepare(`
+          SELECT COUNT(*) as cnt FROM messages
+          WHERE sender_id = ? AND receiver_id = ?
+          AND created_at > datetime('now', '-1 minute')
+        `).bind(session.user_id, toUserId).first();
+
+        if (recentCount && recentCount.cnt >= 3) {
+          return errorResponse("Çok hızlı mesaj gönderiyorsunuz, lütfen bekleyin", 429, "RATE_LIMIT", request);
+        }
+
+        // Mesajı kaydet
+        await env.DB.prepare(`
+          INSERT INTO messages (sender_id, receiver_id, content)
+          VALUES (?, ?, ?)
+        `).bind(session.user_id, toUserId, content).run();
+
+        // Bildirim oluştur
+        const senderUser = await env.DB.prepare(`SELECT username, display_name FROM users WHERE id = ?`).bind(session.user_id).first();
+        const senderName = senderUser?.display_name || senderUser?.username || 'Birisi';
+
+        await env.DB.prepare(`
+          INSERT INTO notifications (user_id, type, reference_type, reference_id, title, message, url)
+          VALUES (?, 'message', 'user', ?, ?, ?, ?)
+        `).bind(toUserId, session.user_id,
+          `💬 ${senderName} size mesaj gönderdi`,
+          content.substring(0, 100),
+          `/topluluk/mesajlar`
+        ).run();
+
+        return jsonResponse({ success: true, message: "Mesaj gönderildi" }, 200, 0, request);
+      }
+
+      // Mesajlarımı getir (inbox)
+      if (path === "/api/messages" && method === "GET") {
+        const session = await getSessionUser(env, request);
+        if (!session) return errorResponse("Giriş yapmalısınız", 401, "UNAUTHORIZED", request);
+
+        const type = url.searchParams.get("type") || "inbox"; // inbox | sent
+        const page = Math.max(1, parseInt(url.searchParams.get("page") || "1"));
+        const limit = 20;
+        const offset = (page - 1) * limit;
+
+        let messages;
+        if (type === "sent") {
+          messages = await env.DB.prepare(`
+            SELECT m.*, u.username as other_username, u.display_name as other_display_name, u.avatar_url as other_avatar
+            FROM messages m
+            JOIN users u ON m.receiver_id = u.id
+            WHERE m.sender_id = ? AND m.sender_deleted = 0
+            ORDER BY m.created_at DESC LIMIT ? OFFSET ?
+          `).bind(session.user_id, limit, offset).all();
+        } else {
+          messages = await env.DB.prepare(`
+            SELECT m.*, u.username as other_username, u.display_name as other_display_name, u.avatar_url as other_avatar
+            FROM messages m
+            JOIN users u ON m.sender_id = u.id
+            WHERE m.receiver_id = ? AND m.receiver_deleted = 0
+            ORDER BY m.created_at DESC LIMIT ? OFFSET ?
+          `).bind(session.user_id, limit, offset).all();
+        }
+
+        // Okunmamış sayısı
+        const unread = await env.DB.prepare(`
+          SELECT COUNT(*) as cnt FROM messages
+          WHERE receiver_id = ? AND is_read = 0 AND receiver_deleted = 0
+        `).bind(session.user_id).first();
+
+        return jsonResponse({
+          messages: messages.results || [],
+          unread_count: unread?.cnt || 0,
+          page,
+          limit
+        }, 200, 0, request);
+      }
+
+      // Mesajı okundu olarak işaretle
+      if (path === "/api/messages/read" && method === "POST") {
+        const session = await getSessionUser(env, request);
+        if (!session) return errorResponse("Giriş yapmalısınız", 401, "UNAUTHORIZED", request);
+
+        const body = await request.json();
+        const messageId = parseInt(body.message_id);
+
+        if (messageId) {
+          await env.DB.prepare(`
+            UPDATE messages SET is_read = 1 WHERE id = ? AND receiver_id = ?
+          `).bind(messageId, session.user_id).run();
+        } else {
+          // Tümünü okundu yap
+          await env.DB.prepare(`
+            UPDATE messages SET is_read = 1 WHERE receiver_id = ? AND is_read = 0
+          `).bind(session.user_id).run();
+        }
+
+        return jsonResponse({ success: true }, 200, 0, request);
+      }
+
+      // Konuşma geçmişi (belirli kullanıcıyla)
+      if (pathParts[1] === "api" && pathParts[2] === "messages" && pathParts[3] === "conversation" && pathParts[4] && method === "GET") {
+        const session = await getSessionUser(env, request);
+        if (!session) return errorResponse("Giriş yapmalısınız", 401, "UNAUTHORIZED", request);
+
+        const otherUserId = parseInt(pathParts[4]);
+        const page = Math.max(1, parseInt(url.searchParams.get("page") || "1"));
+        const limit = 30;
+        const offset = (page - 1) * limit;
+
+        const messages = await env.DB.prepare(`
+          SELECT m.*,
+            CASE WHEN m.sender_id = ? THEN 'sent' ELSE 'received' END as direction,
+            su.username as sender_username, su.display_name as sender_display_name,
+            ru.username as receiver_username, ru.display_name as receiver_display_name
+          FROM messages m
+          JOIN users su ON m.sender_id = su.id
+          JOIN users ru ON m.receiver_id = ru.id
+          WHERE ((m.sender_id = ? AND m.receiver_id = ? AND m.sender_deleted = 0)
+             OR (m.sender_id = ? AND m.receiver_id = ? AND m.receiver_deleted = 0))
+          ORDER BY m.created_at DESC LIMIT ? OFFSET ?
+        `).bind(session.user_id, session.user_id, otherUserId, otherUserId, session.user_id, limit, offset).all();
+
+        // Karşı taraftan gelen okunmamışları okundu yap
+        await env.DB.prepare(`
+          UPDATE messages SET is_read = 1
+          WHERE sender_id = ? AND receiver_id = ? AND is_read = 0
+        `).bind(otherUserId, session.user_id).run();
+
+        // Diğer kullanıcı bilgisi
+        const otherUser = await env.DB.prepare(`
+          SELECT id, username, display_name, avatar_url FROM users WHERE id = ?
+        `).bind(otherUserId).first();
+
+        return jsonResponse({
+          messages: (messages.results || []).reverse(),
+          other_user: otherUser,
+          page,
+          limit
+        }, 200, 0, request);
       }
 
       // ================================

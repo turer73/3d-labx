@@ -415,10 +415,16 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
                   data-bio={maker.bio || ''}
                   data-printers={maker.printers || '[]'}
                   data-specialties={maker.specialties || '[]'}
+                  data-user-id={maker.user_id || 0}
                   data-discord={maker.contact_discord || ''}
                   data-telegram={maker.contact_telegram || ''}
                   data-instagram={maker.contact_instagram || ''}
                   data-email={maker.contact_email || ''}
+                  data-phone={maker.contact_phone || ''}
+                  data-show-email={maker.show_email || 0}
+                  data-show-phone={maker.show_phone || 0}
+                  data-allow-messages={maker.allow_messages !== 0 ? '1' : '0'}
+                  data-contact-preference={maker.contact_preference || 'message'}
                   data-offers-printing={maker.offers_printing}
                   data-offers-help={maker.offers_help}
                   data-reputation={maker.reputation_points || 0}
@@ -510,11 +516,13 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
     </div>
   </main>
 
-  <!-- İletişim Modal -->
+  <!-- İletişim Modal (Yeni Tasarım) -->
   <div id="contactModal" class="contact-modal">
     <div class="modal-backdrop"></div>
     <div class="modal-content">
       <button class="modal-close" id="closeModal">&times;</button>
+
+      <!-- Header -->
       <div class="modal-header">
         <div class="modal-avatar" id="modalAvatar">T</div>
         <div class="modal-user-info">
@@ -522,13 +530,54 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
           <p id="modalLocation">İstanbul, Kadıköy</p>
         </div>
       </div>
-      <div class="modal-body">
-        <h4>{t.contactInfo}</h4>
+
+      <!-- Tab Navigation -->
+      <div class="modal-tabs">
+        <button class="modal-tab active" data-tab="contact">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          {lang === 'tr' ? 'İletişim' : lang === 'de' ? 'Kontakt' : 'Contact'}
+        </button>
+        <button class="modal-tab" data-tab="message" id="messageTab">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          {lang === 'tr' ? 'Mesaj Gönder' : lang === 'de' ? 'Nachricht' : 'Message'}
+        </button>
+      </div>
+
+      <!-- Contact Tab -->
+      <div class="modal-tab-content active" id="tabContact">
         <div class="contact-list" id="contactList">
           <!-- JS ile doldurulacak -->
         </div>
         <div class="contact-note">
           <small>{t.contactNote}</small>
+        </div>
+      </div>
+
+      <!-- Message Tab -->
+      <div class="modal-tab-content" id="tabMessage">
+        <div class="message-form" id="messageForm">
+          <div class="message-login-notice hidden" id="msgLoginNotice">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <p>{lang === 'tr' ? 'Mesaj göndermek için giriş yapın.' : lang === 'de' ? 'Melden Sie sich an, um eine Nachricht zu senden.' : 'Sign in to send a message.'}</p>
+            <a href="/auth/giris" class="msg-login-btn">{lang === 'tr' ? 'Giriş Yap' : lang === 'de' ? 'Anmelden' : 'Sign In'}</a>
+          </div>
+          <div class="message-disabled hidden" id="msgDisabledNotice">
+            <p>{lang === 'tr' ? 'Bu kullanıcı site içi mesaj kabul etmiyor.' : lang === 'de' ? 'Dieser Benutzer akzeptiert keine Nachrichten.' : 'This user does not accept messages.'}</p>
+          </div>
+          <div class="message-input-area" id="msgInputArea">
+            <textarea id="messageInput" placeholder={lang === 'tr' ? 'Mesajınızı yazın... (Kendinizi tanıtın, ne hakkında yardım istediğinizi belirtin)' : lang === 'de' ? 'Schreiben Sie Ihre Nachricht...' : 'Write your message...'} rows="4" maxlength="1000"></textarea>
+            <div class="message-footer">
+              <span class="msg-char-count"><span id="msgCharCount">0</span>/1000</span>
+              <button type="button" class="msg-send-btn" id="sendMessageBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                {lang === 'tr' ? 'Gönder' : lang === 'de' ? 'Senden' : 'Send'}
+              </button>
+            </div>
+          </div>
+          <div class="message-success hidden" id="msgSuccess">
+            <span class="success-icon">✅</span>
+            <p>{lang === 'tr' ? 'Mesajınız gönderildi!' : lang === 'de' ? 'Nachricht gesendet!' : 'Message sent!'}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -1211,17 +1260,17 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
     background: var(--bg-card);
     border: 1px solid var(--border-soft);
     border-radius: 20px;
-    padding: 24px;
-    max-width: 400px;
-    width: 90%;
+    padding: 0;
+    max-width: 440px;
+    width: 92%;
     max-height: 90vh;
     overflow-y: auto;
-    animation: modalIn 0.2s ease;
+    animation: modalIn 0.25s ease;
   }
 
   @keyframes modalIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
   }
 
   .modal-close {
@@ -1240,6 +1289,7 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    z-index: 2;
   }
 
   .modal-close:hover {
@@ -1251,54 +1301,99 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
     display: flex;
     align-items: center;
     gap: 16px;
-    margin-bottom: 20px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--border-soft);
+    padding: 24px 24px 16px;
   }
 
   .modal-avatar {
-    width: 56px;
-    height: 56px;
+    width: 52px;
+    height: 52px;
     border-radius: 14px;
     background: linear-gradient(135deg, #8B5CF6, #7C3AED);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: 600;
+    flex-shrink: 0;
   }
 
   .modal-user-info h3 {
     margin: 0 0 4px;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     color: var(--text-main);
   }
 
   .modal-user-info p {
     margin: 0;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     color: var(--text-muted);
   }
 
-  .modal-body h4 {
-    margin: 0 0 16px;
-    font-size: 1rem;
-    color: var(--text-main);
+  /* Tab Navigation */
+  .modal-tabs {
+    display: flex;
+    gap: 0;
+    padding: 0 24px;
+    border-bottom: 2px solid var(--border-soft);
   }
 
+  .modal-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 16px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .modal-tab:hover {
+    color: #8B5CF6;
+  }
+
+  .modal-tab.active {
+    color: #8B5CF6;
+    border-bottom-color: #8B5CF6;
+  }
+
+  .modal-tab svg {
+    flex-shrink: 0;
+  }
+
+  /* Tab Content */
+  .modal-tab-content {
+    display: none;
+    padding: 20px 24px 24px;
+  }
+
+  .modal-tab-content.active {
+    display: block;
+  }
+
+  /* Contact List */
   .contact-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
   }
 
   .contact-item {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 16px;
+    padding: 12px 14px;
     background: var(--bg-main);
+    border: 1px solid var(--border-soft);
     border-radius: 12px;
     text-decoration: none;
     color: var(--text-main);
@@ -1306,76 +1401,229 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
   }
 
   .contact-item:hover {
-    background: rgba(139, 92, 246, 0.1);
-    border-color: #8B5CF6;
+    background: rgba(139, 92, 246, 0.08);
+    border-color: rgba(139, 92, 246, 0.3);
+  }
+
+  .contact-item.preferred {
+    border-color: rgba(139, 92, 246, 0.4);
+    background: rgba(139, 92, 246, 0.05);
   }
 
   .contact-icon {
-    font-size: 1.3rem;
-    width: 32px;
-    text-align: center;
+    font-size: 1.2rem;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-card);
+    border-radius: 10px;
+    flex-shrink: 0;
   }
 
   .contact-info {
     flex: 1;
+    min-width: 0;
   }
 
   .contact-label {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: var(--text-muted);
-    margin-bottom: 2px;
+    margin-bottom: 1px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
   }
 
   .contact-value {
     font-weight: 500;
+    font-size: 0.9rem;
     color: var(--text-main);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .contact-copy {
+  .contact-preferred-tag {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    background: rgba(139, 92, 246, 0.15);
+    color: #8B5CF6;
+    border-radius: 4px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .contact-action {
     padding: 6px 12px;
     background: #8B5CF6;
     color: white;
     border: none;
     border-radius: 8px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
+    white-space: nowrap;
   }
 
-  .contact-copy:hover {
+  .contact-action:hover {
     background: #7C3AED;
   }
 
   .contact-note {
     margin-top: 16px;
-    padding: 12px;
-    background: rgba(251, 191, 36, 0.1);
+    padding: 10px 14px;
+    background: rgba(251, 191, 36, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.15);
     border-radius: 10px;
     text-align: center;
   }
 
   .contact-note small {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: var(--text-muted);
-  }
-
-  .contact-note a {
-    color: #F59E0B;
   }
 
   .no-contact {
     text-align: center;
-    padding: 20px;
+    padding: 24px 16px;
     color: var(--text-muted);
   }
+
+  /* Message Tab */
+  .message-form {
+    min-height: 180px;
+  }
+
+  .message-login-notice,
+  .message-disabled {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 32px 16px;
+    text-align: center;
+  }
+
+  .message-login-notice svg { color: #8B5CF6; }
+  .message-login-notice p,
+  .message-disabled p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .msg-login-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 24px;
+    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+    color: white;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+  }
+
+  .msg-login-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  }
+
+  .message-input-area textarea {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+  }
+
+  .message-input-area textarea:focus {
+    outline: none;
+    border-color: #8B5CF6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  }
+
+  .message-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+  }
+
+  .msg-char-count {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .msg-send-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .msg-send-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  }
+
+  .msg-send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .message-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 32px 16px;
+    text-align: center;
+  }
+
+  .message-success .success-icon {
+    font-size: 2.5rem;
+  }
+
+  .message-success p {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #10B981;
+  }
+
+  .hidden { display: none !important; }
 </style>
 
-<script define:vars={{ jsTranslations: { copy: t.copy, copied: t.copied, open: t.open, send: t.send, sampleProfile: t.sampleProfile, sampleProfileNote: t.sampleProfileNote, noContactInfo: t.noContactInfo } }}>
+<script define:vars={{ jsTranslations: { copy: t.copy, copied: t.copied, open: t.open, send: t.send, sampleProfile: t.sampleProfile, sampleProfileNote: t.sampleProfileNote, noContactInfo: t.noContactInfo }, jsLang: lang }}>
   const t = jsTranslations;
+  const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev';
+  let currentTargetUserId = null;
 
+  // Filter checkbox
   const filterCheckbox = document.getElementById('filterPrinting');
-
   filterCheckbox?.addEventListener('change', () => {
     const url = new URL(window.location.href);
     if (filterCheckbox.checked) {
@@ -1395,9 +1643,55 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
   const modalLocation = document.getElementById('modalLocation');
   const contactList = document.getElementById('contactList');
 
+  // Tab elementleri
+  const tabContact = document.getElementById('tabContact');
+  const tabMessage = document.getElementById('tabMessage');
+  const modalTabs = document.querySelectorAll('.modal-tab');
+
+  // Mesaj elementleri
+  const msgLoginNotice = document.getElementById('msgLoginNotice');
+  const msgDisabledNotice = document.getElementById('msgDisabledNotice');
+  const msgInputArea = document.getElementById('msgInputArea');
+  const msgSuccess = document.getElementById('msgSuccess');
+  const messageInput = document.getElementById('messageInput');
+  const msgCharCount = document.getElementById('msgCharCount');
+  const sendMessageBtn = document.getElementById('sendMessageBtn');
+
+  function getAuthToken() {
+    return localStorage.getItem('authToken');
+  }
+
+  // Tab switching
+  modalTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const tabName = tab.getAttribute('data-tab');
+      modalTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      if (tabName === 'contact') {
+        tabContact?.classList.add('active');
+        tabMessage?.classList.remove('active');
+      } else {
+        tabContact?.classList.remove('active');
+        tabMessage?.classList.add('active');
+      }
+    });
+  });
+
   // Modal'ı kapat
   function closeModal() {
     modal?.classList.remove('active');
+    currentTargetUserId = null;
+    // Reset tabs
+    modalTabs.forEach(t => t.classList.remove('active'));
+    modalTabs[0]?.classList.add('active');
+    tabContact?.classList.add('active');
+    tabMessage?.classList.remove('active');
+    // Reset message form
+    if (messageInput) messageInput.value = '';
+    if (msgCharCount) msgCharCount.textContent = '0';
+    msgSuccess?.classList.add('hidden');
+    msgInputArea?.classList.remove('hidden');
   }
 
   modalBackdrop?.addEventListener('click', closeModal);
@@ -1419,6 +1713,55 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
     });
   }
 
+  // Karakter sayacı
+  messageInput?.addEventListener('input', () => {
+    if (msgCharCount) msgCharCount.textContent = messageInput.value.length.toString();
+  });
+
+  // Mesaj gönder
+  sendMessageBtn?.addEventListener('click', async () => {
+    if (!currentTargetUserId || !messageInput?.value?.trim()) return;
+
+    const token = getAuthToken();
+    if (!token) return;
+
+    sendMessageBtn.disabled = true;
+    sendMessageBtn.textContent = jsLang === 'tr' ? 'Gönderiliyor...' : 'Sending...';
+
+    try {
+      const res = await fetch(`${API_URL}/api/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          to_user_id: currentTargetUserId,
+          content: messageInput.value.trim()
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        msgInputArea?.classList.add('hidden');
+        msgSuccess?.classList.remove('hidden');
+      } else {
+        const errMsg = data.error || 'Hata oluştu';
+        alert(errMsg);
+      }
+    } catch (err) {
+      alert('Bağlantı hatası');
+    } finally {
+      sendMessageBtn.disabled = false;
+      const sendText = jsLang === 'tr' ? 'Gönder' : jsLang === 'de' ? 'Senden' : 'Send';
+      sendMessageBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> ${sendText}`;
+    }
+  });
+
+  // Preferred label
+  const prefLabel = jsLang === 'tr' ? 'Tercih' : jsLang === 'de' ? 'Bevorzugt' : 'Preferred';
+
   // Modal'ı aç fonksiyonu
   function openModal(element) {
     const username = element.getAttribute('data-username') || '';
@@ -1429,7 +1772,15 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
     const telegram = element.getAttribute('data-telegram') || '';
     const instagram = element.getAttribute('data-instagram') || '';
     const email = element.getAttribute('data-email') || '';
+    const phone = element.getAttribute('data-phone') || '';
+    const showEmail = element.getAttribute('data-show-email') === '1';
+    const showPhone = element.getAttribute('data-show-phone') === '1';
+    const allowMessages = element.getAttribute('data-allow-messages') === '1';
+    const contactPref = element.getAttribute('data-contact-preference') || 'message';
     const isSample = element.getAttribute('data-is-sample') === '1';
+    const userId = parseInt(element.getAttribute('data-user-id') || '0');
+
+    currentTargetUserId = userId;
 
     // Modal bilgilerini doldur
     if (modalAvatar) modalAvatar.textContent = displayName.charAt(0).toUpperCase();
@@ -1441,54 +1792,92 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
     // İletişim listesini oluştur
     let contactHTML = '';
 
-    if (discord) {
+    // Site içi mesaj (her zaman göster eğer kabul ediyorsa)
+    if (allowMessages && !isSample) {
+      const isPreferred = contactPref === 'message';
       contactHTML += `
-        <div class="contact-item">
+        <div class="contact-item${isPreferred ? ' preferred' : ''}" style="cursor:pointer;" onclick="document.querySelector('[data-tab=message]').click()">
           <span class="contact-icon">💬</span>
           <div class="contact-info">
-            <span class="contact-label">Discord</span>
+            <span class="contact-label">${jsLang === 'tr' ? 'SİTE İÇİ MESAJ' : jsLang === 'de' ? 'PLATTFORM-NACHRICHT' : 'PLATFORM MESSAGE'}</span>
+            <span class="contact-value">${jsLang === 'tr' ? 'Mesaj göndermek için tıkla' : jsLang === 'de' ? 'Klicken zum Senden' : 'Click to send message'}</span>
+          </div>
+          ${isPreferred ? `<span class="contact-preferred-tag">${prefLabel}</span>` : ''}
+        </div>
+      `;
+    }
+
+    if (discord) {
+      const isPreferred = contactPref === 'discord';
+      contactHTML += `
+        <div class="contact-item${isPreferred ? ' preferred' : ''}">
+          <span class="contact-icon">🎮</span>
+          <div class="contact-info">
+            <span class="contact-label">DISCORD</span>
             <span class="contact-value">${discord}</span>
           </div>
-          <button class="contact-copy" onclick="copyToClipboard('${discord}', this)">${t.copy}</button>
+          ${isPreferred ? `<span class="contact-preferred-tag">${prefLabel}</span>` : ''}
+          <button class="contact-action" onclick="copyToClipboard('${discord}', this)">${t.copy}</button>
         </div>
       `;
     }
 
     if (telegram) {
+      const isPreferred = contactPref === 'telegram';
       contactHTML += `
-        <a href="https://t.me/${telegram.replace('@', '')}" target="_blank" class="contact-item">
+        <a href="https://t.me/${telegram.replace('@', '')}" target="_blank" class="contact-item${isPreferred ? ' preferred' : ''}">
           <span class="contact-icon">✈️</span>
           <div class="contact-info">
-            <span class="contact-label">Telegram</span>
+            <span class="contact-label">TELEGRAM</span>
             <span class="contact-value">${telegram}</span>
           </div>
-          <span class="contact-copy">${t.open}</span>
+          ${isPreferred ? `<span class="contact-preferred-tag">${prefLabel}</span>` : ''}
+          <span class="contact-action">${t.open}</span>
         </a>
       `;
     }
 
     if (instagram) {
+      const isPreferred = contactPref === 'instagram';
       contactHTML += `
-        <a href="https://instagram.com/${instagram.replace('@', '')}" target="_blank" class="contact-item">
+        <a href="https://instagram.com/${instagram.replace('@', '')}" target="_blank" class="contact-item${isPreferred ? ' preferred' : ''}">
           <span class="contact-icon">📸</span>
           <div class="contact-info">
-            <span class="contact-label">Instagram</span>
+            <span class="contact-label">INSTAGRAM</span>
             <span class="contact-value">${instagram}</span>
           </div>
-          <span class="contact-copy">${t.open}</span>
+          ${isPreferred ? `<span class="contact-preferred-tag">${prefLabel}</span>` : ''}
+          <span class="contact-action">${t.open}</span>
         </a>
       `;
     }
 
-    if (email) {
+    if (email && showEmail) {
+      const isPreferred = contactPref === 'email';
       contactHTML += `
-        <a href="mailto:${email}" class="contact-item">
+        <a href="mailto:${email}" class="contact-item${isPreferred ? ' preferred' : ''}">
           <span class="contact-icon">📧</span>
           <div class="contact-info">
-            <span class="contact-label">E-mail</span>
+            <span class="contact-label">E-POSTA</span>
             <span class="contact-value">${email}</span>
           </div>
-          <span class="contact-copy">${t.send}</span>
+          ${isPreferred ? `<span class="contact-preferred-tag">${prefLabel}</span>` : ''}
+          <span class="contact-action">${t.send}</span>
+        </a>
+      `;
+    }
+
+    if (phone && showPhone) {
+      const isPreferred = contactPref === 'phone';
+      contactHTML += `
+        <a href="tel:${phone}" class="contact-item${isPreferred ? ' preferred' : ''}">
+          <span class="contact-icon">📱</span>
+          <div class="contact-info">
+            <span class="contact-label">${jsLang === 'tr' ? 'TELEFON' : jsLang === 'de' ? 'TELEFON' : 'PHONE'}</span>
+            <span class="contact-value">${phone}</span>
+          </div>
+          ${isPreferred ? `<span class="contact-preferred-tag">${prefLabel}</span>` : ''}
+          <span class="contact-action">${jsLang === 'tr' ? 'Ara' : jsLang === 'de' ? 'Anrufen' : 'Call'}</span>
         </a>
       `;
     }
@@ -1501,6 +1890,27 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
 
     if (contactList) contactList.innerHTML = contactHTML;
 
+    // Mesaj tab'ını ayarla
+    msgSuccess?.classList.add('hidden');
+    msgLoginNotice?.classList.add('hidden');
+    msgDisabledNotice?.classList.add('hidden');
+    msgInputArea?.classList.add('hidden');
+
+    if (isSample) {
+      msgDisabledNotice?.classList.remove('hidden');
+      if (msgDisabledNotice) msgDisabledNotice.querySelector('p').textContent = t.sampleProfileNote;
+    } else if (!allowMessages) {
+      msgDisabledNotice?.classList.remove('hidden');
+    } else if (!getAuthToken()) {
+      msgLoginNotice?.classList.remove('hidden');
+    } else {
+      msgInputArea?.classList.remove('hidden');
+    }
+
+    // Reset message
+    if (messageInput) messageInput.value = '';
+    if (msgCharCount) msgCharCount.textContent = '0';
+
     // Modal'ı aç
     modal?.classList.add('active');
   }
@@ -1509,13 +1919,12 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
   const makerCards = document.querySelectorAll('.maker-card');
   makerCards.forEach(card => {
     card.addEventListener('click', (e) => {
-      // İletişim butonuna tıklandıysa kart tıklamasını engelle
       if (e.target.closest('.contact-btn')) return;
       openModal(card);
     });
   });
 
-  // İletişim butonları (ayrıca çalışsın)
+  // İletişim butonları
   const contactBtns = document.querySelectorAll('.contact-btn');
   contactBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -1525,6 +1934,6 @@ const totalMakers = cities.reduce((sum, c) => sum + (c.maker_count || 0), 0);
     });
   });
 
-  // Global fonksiyon olarak tanımla
+  // Global fonksiyon
   window.copyToClipboard = copyToClipboard;
 </script>

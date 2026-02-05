@@ -188,35 +188,108 @@ const specialtyOptions = [
             </div>
           </div>
 
-          <!-- İletişim -->
+          <!-- İletişim Bilgileri -->
           <div class="form-section">
             <h3>
-              <span class="section-icon">💬</span>
-              İletişim Tercihi
+              <span class="section-icon">📬</span>
+              İletişim Bilgileri
             </h3>
+            <p class="section-desc">Diğer maker'ların sana ulaşabilmesi için en az bir iletişim yöntemi ekle.</p>
 
-            <div class="form-group">
-              <div class="radio-group">
-                <label class="radio-item">
-                  <input type="radio" name="contactPreference" value="message" checked />
-                  <span>📨 Platform mesajı (Önerilen)</span>
-                </label>
-                <label class="radio-item">
-                  <input type="radio" name="contactPreference" value="email" />
-                  <span>📧 E-posta</span>
-                </label>
-                <label class="radio-item">
-                  <input type="radio" name="contactPreference" value="both" />
-                  <span>🔄 Her ikisi de</span>
-                </label>
+            <div class="contact-fields">
+              <!-- Site İçi Mesaj -->
+              <div class="contact-field-item active-always">
+                <div class="contact-field-header">
+                  <span class="contact-field-icon">💬</span>
+                  <span class="contact-field-label">Site İçi Mesaj</span>
+                  <span class="contact-field-badge recommended">Önerilen</span>
+                </div>
+                <div class="contact-field-body">
+                  <label class="toggle-small">
+                    <input type="checkbox" id="allowMessages" name="allowMessages" checked />
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-text-sm">Mesaj almaya açığım</span>
+                  </label>
+                  <small class="field-hint">Kişisel bilgilerin paylaşılmadan doğrudan site üzerinden mesaj alırsın.</small>
+                </div>
+              </div>
+
+              <!-- Discord -->
+              <div class="contact-field-item">
+                <div class="contact-field-header">
+                  <span class="contact-field-icon">🎮</span>
+                  <span class="contact-field-label">Discord</span>
+                </div>
+                <div class="contact-field-body">
+                  <input type="text" id="contactDiscord" name="contactDiscord" placeholder="kullaniciadi#1234 veya kullaniciadi" />
+                </div>
+              </div>
+
+              <!-- Telegram -->
+              <div class="contact-field-item">
+                <div class="contact-field-header">
+                  <span class="contact-field-icon">✈️</span>
+                  <span class="contact-field-label">Telegram</span>
+                </div>
+                <div class="contact-field-body">
+                  <input type="text" id="contactTelegram" name="contactTelegram" placeholder="@kullaniciadi" />
+                </div>
+              </div>
+
+              <!-- Instagram -->
+              <div class="contact-field-item">
+                <div class="contact-field-header">
+                  <span class="contact-field-icon">📸</span>
+                  <span class="contact-field-label">Instagram</span>
+                </div>
+                <div class="contact-field-body">
+                  <input type="text" id="contactInstagram" name="contactInstagram" placeholder="@kullaniciadi" />
+                </div>
+              </div>
+
+              <!-- E-posta -->
+              <div class="contact-field-item">
+                <div class="contact-field-header">
+                  <span class="contact-field-icon">📧</span>
+                  <span class="contact-field-label">E-posta</span>
+                </div>
+                <div class="contact-field-body">
+                  <input type="email" id="contactEmail" name="contactEmail" placeholder="ornek@email.com" />
+                  <label class="toggle-small" style="margin-top:8px;">
+                    <input type="checkbox" id="showEmail" name="showEmail" />
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-text-sm">E-postamı profilimde göster</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Telefon -->
+              <div class="contact-field-item">
+                <div class="contact-field-header">
+                  <span class="contact-field-icon">📱</span>
+                  <span class="contact-field-label">Telefon</span>
+                </div>
+                <div class="contact-field-body">
+                  <input type="tel" id="contactPhone" name="contactPhone" placeholder="05XX XXX XX XX" />
+                  <label class="toggle-small" style="margin-top:8px;">
+                    <input type="checkbox" id="showPhone" name="showPhone" />
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-text-sm">Telefonumu profilimde göster</span>
+                  </label>
+                </div>
               </div>
             </div>
 
-            <div class="form-group" id="showEmailGroup" style="display: none;">
-              <label class="checkbox-item warning">
-                <input type="checkbox" id="showEmail" name="showEmail" />
-                <span>E-posta adresimi profilimde göster (önerilmez)</span>
-              </label>
+            <div class="contact-preference-section" style="margin-top:16px;">
+              <label>Tercih edilen iletişim yöntemi:</label>
+              <select id="contactPreference" name="contactPreference">
+                <option value="message">💬 Site İçi Mesaj</option>
+                <option value="discord">🎮 Discord</option>
+                <option value="telegram">✈️ Telegram</option>
+                <option value="instagram">📸 Instagram</option>
+                <option value="email">📧 E-posta</option>
+                <option value="phone">📱 Telefon</option>
+              </select>
             </div>
           </div>
 
@@ -714,6 +787,163 @@ const specialtyOptions = [
 
   .hidden { display: none !important; }
 
+  /* İletişim Alanları */
+  .contact-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .contact-field-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    padding: 16px;
+    transition: all 0.2s ease;
+  }
+
+  .contact-field-item:hover {
+    border-color: rgba(139, 92, 246, 0.3);
+  }
+
+  .contact-field-item.active-always {
+    border-color: rgba(139, 92, 246, 0.4);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), rgba(124, 58, 237, 0.02));
+  }
+
+  .contact-field-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .contact-field-icon {
+    font-size: 1.3rem;
+    width: 28px;
+    text-align: center;
+  }
+
+  .contact-field-label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    flex: 1;
+  }
+
+  .contact-field-badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+
+  .contact-field-badge.recommended {
+    background: rgba(139, 92, 246, 0.15);
+    color: #8B5CF6;
+  }
+
+  .contact-field-body input[type="text"],
+  .contact-field-body input[type="email"],
+  .contact-field-body input[type="tel"] {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+  }
+
+  .contact-field-body input:focus {
+    outline: none;
+    border-color: #8B5CF6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  }
+
+  .field-hint {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+
+  /* Toggle Small */
+  .toggle-small {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .toggle-small input { display: none; }
+
+  .toggle-slider {
+    position: relative;
+    width: 42px;
+    height: 24px;
+    background: var(--border-soft);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .toggle-slider::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  .toggle-small input:checked + .toggle-slider {
+    background: #8B5CF6;
+  }
+
+  .toggle-small input:checked + .toggle-slider::after {
+    left: 21px;
+  }
+
+  .toggle-text-sm {
+    font-size: 0.85rem;
+    color: var(--text-main);
+  }
+
+  /* Contact Preference Section */
+  .contact-preference-section label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    color: var(--text-main);
+  }
+
+  .contact-preference-section select {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    cursor: pointer;
+  }
+
+  .contact-preference-section select:focus {
+    outline: none;
+    border-color: #8B5CF6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  }
+
   @media (max-width: 640px) {
     .profile-page { padding-top: 120px; }
     .form-card { padding: 20px; }
@@ -770,11 +1000,20 @@ const specialtyOptions = [
           (document.getElementById('showEmail') as HTMLInputElement).checked = p.show_email === 1;
           (document.getElementById('termsAccepted') as HTMLInputElement).checked = true;
 
+          // İletişim bilgileri
+          (document.getElementById('contactDiscord') as HTMLInputElement).value = p.contact_discord || '';
+          (document.getElementById('contactTelegram') as HTMLInputElement).value = p.contact_telegram || '';
+          (document.getElementById('contactInstagram') as HTMLInputElement).value = p.contact_instagram || '';
+          (document.getElementById('contactEmail') as HTMLInputElement).value = p.contact_email || '';
+          (document.getElementById('contactPhone') as HTMLInputElement).value = p.contact_phone || '';
+          (document.getElementById('showPhone') as HTMLInputElement).checked = p.show_phone === 1;
+          (document.getElementById('allowMessages') as HTMLInputElement).checked = p.allow_messages !== 0;
+
           // Contact preference
-          const contactRadios = document.querySelectorAll('input[name="contactPreference"]');
-          contactRadios.forEach((radio: any) => {
-            if (radio.value === p.contact_preference) radio.checked = true;
-          });
+          const contactPrefSelect = document.getElementById('contactPreference') as HTMLSelectElement;
+          if (contactPrefSelect && p.contact_preference) {
+            contactPrefSelect.value = p.contact_preference;
+          }
 
           // Printers
           try {
@@ -813,18 +1052,7 @@ const specialtyOptions = [
 
   bioInput?.addEventListener('input', updateBioCount);
 
-  // Contact preference -> show email toggle
-  const contactRadios = document.querySelectorAll('input[name="contactPreference"]');
-  const showEmailGroup = document.getElementById('showEmailGroup');
-
-  contactRadios.forEach(radio => {
-    radio.addEventListener('change', (e) => {
-      const value = (e.target as HTMLInputElement).value;
-      if (showEmailGroup) {
-        showEmailGroup.style.display = (value === 'email' || value === 'both') ? 'block' : 'none';
-      }
-    });
-  });
+  // (Contact preference artık select dropdown - ek JS gerekmez)
 
   // Printers tag input
   const printerInputField = document.getElementById('printerInputField') as HTMLInputElement;
@@ -875,8 +1103,15 @@ const specialtyOptions = [
     const bio = (document.getElementById('bio') as HTMLTextAreaElement)?.value?.trim();
     const offersPrinting = (document.getElementById('offersPrinting') as HTMLInputElement)?.checked;
     const offersHelp = (document.getElementById('offersHelp') as HTMLInputElement)?.checked;
-    const contactPreference = (document.querySelector('input[name="contactPreference"]:checked') as HTMLInputElement)?.value;
+    const contactPreference = (document.getElementById('contactPreference') as HTMLSelectElement)?.value || 'message';
     const showEmail = (document.getElementById('showEmail') as HTMLInputElement)?.checked;
+    const showPhone = (document.getElementById('showPhone') as HTMLInputElement)?.checked;
+    const allowMessages = (document.getElementById('allowMessages') as HTMLInputElement)?.checked;
+    const contactDiscord = (document.getElementById('contactDiscord') as HTMLInputElement)?.value?.trim();
+    const contactTelegram = (document.getElementById('contactTelegram') as HTMLInputElement)?.value?.trim();
+    const contactInstagram = (document.getElementById('contactInstagram') as HTMLInputElement)?.value?.trim();
+    const contactEmail = (document.getElementById('contactEmail') as HTMLInputElement)?.value?.trim();
+    const contactPhone = (document.getElementById('contactPhone') as HTMLInputElement)?.value?.trim();
     const termsAccepted = (document.getElementById('termsAccepted') as HTMLInputElement)?.checked;
 
     // Specialties
@@ -914,7 +1149,14 @@ const specialtyOptions = [
           offers_printing: offersPrinting ? 1 : 0,
           offers_help: offersHelp ? 1 : 0,
           contact_preference: contactPreference,
+          contact_discord: contactDiscord,
+          contact_telegram: contactTelegram,
+          contact_instagram: contactInstagram,
+          contact_email: contactEmail,
+          contact_phone: contactPhone,
           show_email: showEmail ? 1 : 0,
+          show_phone: showPhone ? 1 : 0,
+          allow_messages: allowMessages ? 1 : 0,
           bio,
           terms_accepted: 1
         })
