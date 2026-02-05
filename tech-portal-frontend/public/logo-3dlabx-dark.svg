@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 72" fill="none">
+  <defs>
+    <linearGradient id="mainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#4F46E5"/>
+    </linearGradient>
+    <linearGradient id="innerGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#818CF8"/>
+    </linearGradient>
+    <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F97316"/>
+      <stop offset="100%" stop-color="#FB923C"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- === LOGO İKON GRUBU === -->
+  <g transform="translate(4, 3)">
+    <ellipse cx="30" cy="33" rx="28" ry="28" fill="#60A5FA" opacity="0.06"/>
+
+    <!-- 3D Küp -->
+    <path d="M30 8 L52 20 L30 32 L8 20 Z" fill="url(#innerGlow)" opacity="0.95"/>
+    <path d="M8 20 L30 32 L30 56 L8 44 Z" fill="#2563EB" opacity="0.85"/>
+    <path d="M52 20 L30 32 L30 56 L52 44 Z" fill="#4F46E5" opacity="0.9"/>
+
+    <path d="M30 8 L52 20 L30 32 L8 20 Z" fill="none" stroke="white" stroke-width="0.5" opacity="0.3"/>
+    <path d="M8 20 L30 32 L30 56 L8 44 Z" fill="none" stroke="white" stroke-width="0.5" opacity="0.2"/>
+    <path d="M52 20 L30 32 L30 56 L52 44 Z" fill="none" stroke="white" stroke-width="0.5" opacity="0.2"/>
+
+    <g opacity="0.25" stroke="white" stroke-width="0.6">
+      <line x1="10" y1="24" x2="29" y2="35.5"/>
+      <line x1="10" y1="28" x2="29" y2="39.5"/>
+      <line x1="10" y1="32" x2="29" y2="43.5"/>
+      <line x1="10" y1="36" x2="29" y2="47.5"/>
+      <line x1="10" y1="40" x2="29" y2="51.5"/>
+      <line x1="50" y1="24" x2="31" y2="35.5"/>
+      <line x1="50" y1="28" x2="31" y2="39.5"/>
+      <line x1="50" y1="32" x2="31" y2="43.5"/>
+      <line x1="50" y1="36" x2="31" y2="47.5"/>
+      <line x1="50" y1="40" x2="31" y2="51.5"/>
+    </g>
+
+    <g transform="translate(30, 2)">
+      <rect x="-4" y="-4" width="8" height="6" rx="1.5" fill="#94A3B8" opacity="0.8"/>
+      <polygon points="-3,2 3,2 1.5,6 -1.5,6" fill="#64748B" opacity="0.8"/>
+      <circle cx="0" cy="7.5" r="1.8" fill="url(#orangeGrad)" filter="url(#glow)"/>
+    </g>
+
+    <path d="M20 14 L30 20 L40 14 L30 8 Z" fill="white" opacity="0.15"/>
+    <circle cx="18" cy="15" r="1" fill="white" opacity="0.4"/>
+    <circle cx="42" cy="15" r="0.7" fill="white" opacity="0.25"/>
+  </g>
+
+  <!-- === YAZI GRUBU (DARK MODE) === -->
+  <g transform="translate(76, 0)">
+    <text x="0" y="47" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="38" font-weight="900" letter-spacing="-1.5" fill="url(#mainGrad)">3D</text>
+    <text x="52" y="45" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="34" font-weight="300" fill="#64748B">-</text>
+    <text x="65" y="47" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="38" font-weight="900" letter-spacing="-1.5" fill="#F1F5F9">LAB</text>
+    <text x="142" y="47" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="40" font-weight="900" letter-spacing="-1" fill="url(#orangeGrad)">X</text>
+
+    <rect x="0" y="54" width="50" height="2.5" rx="1.25" fill="url(#mainGrad)" opacity="0.7"/>
+    <rect x="54" y="54" width="20" height="2.5" rx="1.25" fill="url(#orangeGrad)" opacity="0.5"/>
+
+    <text x="1" y="68" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="9" font-weight="500" letter-spacing="3" fill="#64748B">TÜRKİYE'NİN 3D BASKI REHBERİ</text>
+  </g>
+</svg>
