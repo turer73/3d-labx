@@ -188,7 +188,19 @@ const t = translations[lang];
 // Maker haritası açıklaması dile göre
 const makerMapDesc = lang === 'tr' ? t.makersInTurkey : lang === 'de' ? t.makersInGermany : t.makersNearYou;
 
-// Forum kategorilerini ve son konuları çek
+// Kategori isimlerini dile göre getir
+function getCatName(cat: any) {
+  if (lang === 'en' && cat.name_en) return cat.name_en;
+  if (lang === 'de' && cat.name_de) return cat.name_de;
+  return cat.name;
+}
+function getCatDesc(cat: any) {
+  if (lang === 'en' && cat.description_en) return cat.description_en;
+  if (lang === 'de' && cat.description_de) return cat.description_de;
+  return cat.description;
+}
+
+// Forum kategorilerini, son konuları ve projeleri çek
 let categories: any[] = [];
 let recentThreads: any[] = [];
 let featuredProjects: any[] = [];
@@ -198,7 +210,7 @@ try {
   const [catRes, threadsRes, projectsRes] = await Promise.all([
     fetch(`${API_BASE}/api/forum/categories`),
     fetch(`${API_BASE}/api/forum/categories/sorular/threads?limit=5`),
-    fetch(`${API_BASE}/api/forum/categories/projeler/threads?limit=6&sort=popular`)
+    fetch(`${API_BASE}/api/projects?limit=6&sort=popular`)
   ]);
 
   if (catRes.ok) {
@@ -213,7 +225,7 @@ try {
 
   if (projectsRes.ok) {
     const projectsData = await projectsRes.json();
-    featuredProjects = projectsData.threads || [];
+    featuredProjects = projectsData.projects || [];
   }
 } catch (e) {
   error = e instanceof Error ? e.message : "Bilinmeyen hata";
@@ -222,8 +234,7 @@ try {
 // İstatistikler
 const totalThreads = categories.reduce((sum: number, c: any) => sum + (c.thread_count || 0), 0);
 const totalPosts = categories.reduce((sum: number, c: any) => sum + (c.post_count || 0), 0);
-const projectCategory = categories.find((c: any) => c.slug === 'projeler');
-const projectCount = projectCategory?.thread_count || 0;
+const projectCount = featuredProjects.length || 0;
 
 // Tarih formatlama (dile göre)
 const dateLocale = lang === 'tr' ? 'tr-TR' : lang === 'de' ? 'de-DE' : 'en-US';
@@ -337,8 +348,8 @@ function formatDate(dateStr: string) {
           <a href={`/topluluk/forum/${cat.slug}`} class={`bento-card category-card cat-${index + 1}`} style={`--cat-color: ${cat.color || '#F97316'}`}>
             <div class="cat-icon">{cat.icon}</div>
             <div class="cat-content">
-              <h3>{cat.name}</h3>
-              <p>{cat.description}</p>
+              <h3>{getCatName(cat)}</h3>
+              <p>{getCatDesc(cat)}</p>
             </div>
             <div class="cat-footer">
               <span class="cat-stat">{cat.thread_count} {t.topic}</span>
@@ -401,10 +412,10 @@ function formatDate(dateStr: string) {
           </div>
           <div class="projects-grid">
             {featuredProjects.length > 0 ? featuredProjects.slice(0, 6).map((project, i) => (
-              <a href={`/topluluk/forum/konu/${project.slug}`} class="project-item">
+              <a href={`/topluluk/projeler/${project.slug}`} class="project-item">
                 <div class="project-thumb" style={`--hue: ${(i * 60) % 360}`}>
-                  <span class="project-emoji">🎨</span>
-                  {project.is_pinned === 1 && <span class="pinned-badge">📌</span>}
+                  <span class="project-emoji">{project.filament_type === 'TPU' ? '🦖' : project.filament_type === 'ABS' ? '🎭' : project.filament_type === 'PETG' ? '⚙️' : '🎨'}</span>
+                  {project.is_featured === 1 && <span class="pinned-badge">⭐</span>}
                 </div>
                 <div class="project-info">
                   <h4>{project.title}</h4>
@@ -414,7 +425,7 @@ function formatDate(dateStr: string) {
             )) : (
               <div class="empty-state full">
                 <p>{t.noProjectsYet}</p>
-                <a href="/topluluk/forum/proje-paylas" class="btn-small">{t.shareFirstProject}</a>
+                <a href="/topluluk/projeler/paylas" class="btn-small">{t.shareFirstProject}</a>
               </div>
             )}
           </div>

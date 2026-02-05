@@ -3322,6 +3322,26 @@ Content: ${(post.content_tr || '').substring(0, 1500)}`;
 
           return jsonResponse({ threads: threads.results || [] });
         }
+
+        // Admin SQL endpoint - sadece admin erişimli
+        if (path === "/admin/sql" && method === "POST") {
+          const body = await request.json();
+          const query = body.query;
+          if (!query) return errorResponse("SQL query gerekli", 400, "MISSING_QUERY");
+
+          try {
+            const isSelect = query.trim().toUpperCase().startsWith("SELECT");
+            if (isSelect) {
+              const result = await env.DB.prepare(query).all();
+              return jsonResponse({ results: result.results || [], meta: result.meta });
+            } else {
+              const result = await env.DB.prepare(query).run();
+              return jsonResponse({ success: true, meta: result.meta });
+            }
+          } catch (sqlErr) {
+            return errorResponse("SQL error: " + sqlErr.message, 500, "SQL_ERROR");
+          }
+        }
       }
 
       // ================================
@@ -4532,6 +4552,107 @@ Content: ${(post.content_tr || '').substring(0, 1500)}`;
         await env.DB.prepare(`
           DELETE FROM maker_profiles WHERE user_id = ?
         `).bind(session.user_id).run();
+
+        return jsonResponse({ success: true });
+      }
+
+      // ================================
+      // 🔔 BİLDİRİM SİSTEMİ API
+      // ================================
+
+      // Bildirimleri getir (authenticated)
+      if (path === "/api/notifications" && method === "GET") {
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return errorResponse("Giriş yapmalısınız", 401, "UNAUTHORIZED");
+        }
+        const token = authHeader.substring(7);
+        const session = await env.DB.prepare(`
+          SELECT s.*, u.id as user_id FROM sessions s
+          JOIN users u ON s.user_id = u.id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+        if (!session) return errorResponse("Geçersiz oturum", 401, "INVALID_SESSION");
+
+        const { page, limit, offset } = validatePagination(
+          url.searchParams.get("page"),
+          url.searchParams.get("limit") || "20"
+        );
+
+        const countResult = await env.DB.prepare(`
+          SELECT COUNT(*) as total FROM notifications WHERE user_id = ?
+        `).bind(session.user_id).first();
+        const total = countResult?.total || 0;
+
+        const unreadResult = await env.DB.prepare(`
+          SELECT COUNT(*) as unread FROM notifications WHERE user_id = ? AND is_read = 0
+        `).bind(session.user_id).first();
+        const unread = unreadResult?.unread || 0;
+
+        const notifications = await env.DB.prepare(`
+          SELECT * FROM notifications WHERE user_id = ?
+          ORDER BY created_at DESC LIMIT ? OFFSET ?
+        `).bind(session.user_id, limit, offset).all();
+
+        return jsonResponse({
+          notifications: notifications.results || [],
+          unread,
+          pagination: {
+            page, limit, total,
+            totalPages: Math.ceil(total / limit),
+            hasNext: offset + limit < total,
+            hasPrev: page > 1
+          }
+        });
+      }
+
+      // Okunmamış bildirim sayısı (hızlı endpoint)
+      if (path === "/api/notifications/count" && method === "GET") {
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return jsonResponse({ unread: 0 });
+        }
+        const token = authHeader.substring(7);
+        const session = await env.DB.prepare(`
+          SELECT s.user_id FROM sessions s
+          JOIN users u ON s.user_id = u.id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+        if (!session) return jsonResponse({ unread: 0 });
+
+        const result = await env.DB.prepare(`
+          SELECT COUNT(*) as unread FROM notifications WHERE user_id = ? AND is_read = 0
+        `).bind(session.user_id).first();
+
+        return jsonResponse({ unread: result?.unread || 0 }, 200, 30, request);
+      }
+
+      // Bildirimi okundu işaretle
+      if (path === "/api/notifications/read" && method === "POST") {
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return errorResponse("Giriş yapmalısınız", 401, "UNAUTHORIZED");
+        }
+        const token = authHeader.substring(7);
+        const session = await env.DB.prepare(`
+          SELECT s.user_id FROM sessions s
+          JOIN users u ON s.user_id = u.id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+        if (!session) return errorResponse("Geçersiz oturum", 401, "INVALID_SESSION");
+
+        const body = await request.json();
+        if (body.all) {
+          // Tümünü okundu işaretle
+          await env.DB.prepare(`
+            UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0
+          `).bind(session.user_id).run();
+        } else if (body.id) {
+          // Tek bildirimi okundu işaretle
+          await env.DB.prepare(`
+            UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?
+          `).bind(body.id, session.user_id).run();
+        }
 
         return jsonResponse({ success: true });
       }

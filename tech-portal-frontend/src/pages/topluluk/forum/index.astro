@@ -61,6 +61,18 @@ const translations: Record<Language, {
 
 const t = translations[lang];
 
+// Kategori isimlerini dile göre getir
+function getCatName(cat: any) {
+  if (lang === 'en' && cat.name_en) return cat.name_en;
+  if (lang === 'de' && cat.name_de) return cat.name_de;
+  return cat.name;
+}
+function getCatDesc(cat: any) {
+  if (lang === 'en' && cat.description_en) return cat.description_en;
+  if (lang === 'de' && cat.description_de) return cat.description_de;
+  return cat.description;
+}
+
 let categories: any[] = [];
 
 try {
@@ -107,8 +119,8 @@ try {
               <span class="cat-icon">{cat.icon}</span>
             </div>
             <div class="cat-main">
-              <h2>{cat.name}</h2>
-              <p>{cat.description}</p>
+              <h2>{getCatName(cat)}</h2>
+              <p>{getCatDesc(cat)}</p>
             </div>
             <div class="cat-stats">
               <div class="stat">
