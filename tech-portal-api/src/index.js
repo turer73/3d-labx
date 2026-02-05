@@ -561,7 +561,7 @@ async function generateWithGemini(env, prompt) {
     const timeoutId = setTimeout(() => controller.abort(), 30000);
 
     const res = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent",
       {
         method: "POST",
         signal: controller.signal,
@@ -571,11 +571,7 @@ async function generateWithGemini(env, prompt) {
         },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
-          safetySettings: [
-            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
-            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" }
-          ]
+          generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
         })
       }
     );
@@ -583,7 +579,8 @@ async function generateWithGemini(env, prompt) {
     clearTimeout(timeoutId);
 
     if (!res.ok) {
-      console.error("Gemini API error:", res.status);
+      const errBody = await res.text().catch(() => "");
+      console.error("Gemini API error:", res.status, errBody.substring(0, 500));
       return null;
     }
 
@@ -644,7 +641,31 @@ async function generateWithDeepSeek(env, prompt) {
   }
 }
 
-// 🧠 AI - Unified (tries Gemini first, falls back to DeepSeek)
+// 🧠 Cloudflare Workers AI
+async function generateWithWorkersAI(env, prompt) {
+  if (!env.AI) {
+    console.error("Workers AI binding not configured");
+    return null;
+  }
+
+  try {
+    const response = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
+      messages: [
+        { role: "system", content: "You are an expert translator. Respond with ONLY valid JSON. Keep content field SHORT (max 500 chars). No markdown wrapping." },
+        { role: "user", content: prompt }
+      ],
+      max_tokens: 2048,
+      temperature: 0.5
+    });
+
+    return response?.response || null;
+  } catch (error) {
+    console.error("Workers AI error:", error.message);
+    return null;
+  }
+}
+
+// 🧠 AI - Unified (tries Gemini → DeepSeek → Workers AI)
 async function generateWithAI(env, prompt) {
   // Try Gemini first
   let result = await generateWithGemini(env, prompt);
@@ -653,6 +674,11 @@ async function generateWithAI(env, prompt) {
   // Fallback to DeepSeek
   console.log("Gemini failed, trying DeepSeek...");
   result = await generateWithDeepSeek(env, prompt);
+  if (result) return result;
+
+  // Fallback to Cloudflare Workers AI
+  console.log("DeepSeek failed, trying Workers AI...");
+  result = await generateWithWorkersAI(env, prompt);
   return result;
 }
 
@@ -2171,18 +2197,12 @@ ${sourceText}`;
 
           for (const post of untranslated.results) {
             try {
-              const prompt = `Translate the following Turkish text to ${langNames[targetLang]}. Return ONLY valid JSON, nothing else.
+              const prompt = `Translate to ${langNames[targetLang]}. Return ONLY a JSON object with these 3 fields:
+{"title":"translated title","summary":"translated summary max 200 chars","content":"translated content max 500 chars, plain text only"}
 
-{
-  "title": "Translated title (max 100 chars)",
-  "summary": "Translated summary (max 200 chars)",
-  "content": "Translated content (keep paragraphs, maintain HTML if any)"
-}
-
-Turkish text to translate:
 Title: ${post.title_tr}
-Summary: ${post.summary_tr}
-Content: ${post.content_tr?.substring(0, 3000) || ''}`;
+Summary: ${(post.summary_tr || '').substring(0, 300)}
+Content: ${(post.content_tr || '').substring(0, 1500)}`;
 
               const aiText = await generateWithAI(env, prompt);
               if (!aiText) {
@@ -2192,9 +2212,15 @@ Content: ${post.content_tr?.substring(0, 3000) || ''}`;
 
               let parsed;
               try {
-                const cleanJson = aiText.replace(/```json\n?|\n?```/g, "").trim();
+                let cleanJson = aiText.replace(/```json\n?|\n?```/g, "").trim();
+                const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
+                if (jsonMatch) cleanJson = jsonMatch[0];
+                if (!cleanJson.endsWith('}')) {
+                  cleanJson = cleanJson.replace(/,?\s*"[^"]*$/, '') + '}';
+                }
                 parsed = JSON.parse(cleanJson);
               } catch {
+                console.error("Parse error for post", post.id, "AI raw:", aiText.substring(0, 300));
                 errors.push({ id: post.id, error: "Parse failed" });
                 continue;
               }
@@ -2236,27 +2262,28 @@ Content: ${post.content_tr?.substring(0, 3000) || ''}`;
           if (!post) return errorResponse("Post bulunamadı", 404, "NOT_FOUND");
 
           const langNames = { en: "English", de: "German" };
-          const prompt = `Translate the following Turkish text to ${langNames[targetLang]}. Return ONLY valid JSON, nothing else.
+          const prompt = `Translate to ${langNames[targetLang]}. Return ONLY a JSON object with these 3 fields:
+{"title":"translated title","summary":"translated summary max 200 chars","content":"translated content max 500 chars, plain text only"}
 
-{
-  "title": "Translated title (max 100 chars)",
-  "summary": "Translated summary (max 200 chars)",
-  "content": "Translated content (keep paragraphs, maintain HTML if any)"
-}
-
-Turkish text to translate:
 Title: ${post.title_tr}
-Summary: ${post.summary_tr}
-Content: ${post.content_tr?.substring(0, 3000) || ''}`;
+Summary: ${(post.summary_tr || '').substring(0, 300)}
+Content: ${(post.content_tr || '').substring(0, 1500)}`;
 
           const aiText = await generateWithAI(env, prompt);
           if (!aiText) return errorResponse("AI çeviri başarısız", 500, "AI_ERROR");
 
           let parsed;
           try {
-            const cleanJson = aiText.replace(/```json\n?|\n?```/g, "").trim();
+            let cleanJson = aiText.replace(/```json\n?|\n?```/g, "").trim();
+            const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
+            if (jsonMatch) cleanJson = jsonMatch[0];
+            // Kesik JSON fix: kapanmayan string ve brace'leri kapat
+            if (!cleanJson.endsWith('}')) {
+              cleanJson = cleanJson.replace(/,?\s*"[^"]*$/, '') + '}';
+            }
             parsed = JSON.parse(cleanJson);
-          } catch {
+          } catch (parseErr) {
+            console.error("Parse error. AI raw:", aiText.substring(0, 500));
             return errorResponse("AI yanıtı parse edilemedi", 500, "PARSE_ERROR");
           }
 
