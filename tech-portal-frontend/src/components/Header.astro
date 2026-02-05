@@ -22,13 +22,7 @@ const t = translations[lang];
 <header class="site-header" id="siteHeader">
   <div class="container header-inner">
     <a href="/" class="logo">
-      <div class="logo-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
-          <path d="m3.3 7 8.7 5 8.7-5"/>
-          <path d="M12 22V12"/>
-        </svg>
-      </div>
+      <img src="/logo-icon.svg" alt="3D-LabX Logo" class="logo-icon-img" width="40" height="40" />
       <span class="logo-text">3D-LAB<span class="logo-x">X</span></span>
     </a>
 
@@ -592,21 +586,16 @@ const t = translations[lang];
     transform: scale(1.02);
   }
 
-  .logo-icon {
+  .logo-icon-img {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
+    border-radius: 10px;
     box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
     transition: transform 0.3s ease;
   }
 
-  .logo:hover .logo-icon {
-    transform: rotate(12deg);
+  .logo:hover .logo-icon-img {
+    transform: rotate(8deg) scale(1.05);
   }
 
   .logo-text {
