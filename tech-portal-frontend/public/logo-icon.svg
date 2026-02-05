@@ -12,6 +12,18 @@
       <stop offset="0%" stop-color="#F97316"/>
       <stop offset="100%" stop-color="#FB923C"/>
     </linearGradient>
+    <linearGradient id="metal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E2E8F0"/>
+      <stop offset="50%" stop-color="#94A3B8"/>
+      <stop offset="100%" stop-color="#64748B"/>
+    </linearGradient>
+    <linearGradient id="filament" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FB923C"/>
+      <stop offset="100%" stop-color="#F97316"/>
+    </linearGradient>
+    <filter id="nozzleGlow">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#F97316" flood-opacity="0.5"/>
+    </filter>
   </defs>
 
   <!-- Rounded square arka plan -->
@@ -20,48 +32,69 @@
   <!-- İç glow kenar -->
   <rect x="2" y="2" width="60" height="60" rx="12" fill="none" stroke="white" stroke-width="0.5" opacity="0.15"/>
 
-  <!-- XYZ Kalibrasyon Küpü -->
-  <g transform="translate(32, 30)">
+  <!-- === NOZZLE (3D Yazıcı Kafası) === -->
+  <g transform="translate(32, 6)">
+    <!-- Heatsink -->
+    <rect x="-6" y="0" width="12" height="4" rx="0.8" fill="url(#metal)"/>
+    <rect x="-5" y="0.5" width="10" height="1" fill="white" opacity="0.35"/>
+
+    <!-- Heat block -->
+    <rect x="-4.5" y="4" width="9" height="6" rx="0.8" fill="url(#metal)"/>
+    <rect x="-3.5" y="5" width="7" height="1.5" fill="white" opacity="0.25"/>
+
+    <!-- Nozzle ucu -->
+    <path d="M-3 10 L3 10 L1.5 14 L-1.5 14 Z" fill="url(#metal)"/>
+
+    <!-- Nozzle deliği -->
+    <circle cx="0" cy="13.5" r="0.9" fill="#1E293B"/>
+
+    <!-- Filament damlası -->
+    <ellipse cx="0" cy="17" rx="2" ry="2.5" fill="url(#filament)" filter="url(#nozzleGlow)"/>
+    <ellipse cx="-0.3" cy="16.5" rx="0.8" ry="1" fill="#FBBF24" opacity="0.5"/>
+  </g>
+
+  <!-- === XYZ Kalibrasyon Küpü (Nozzle altında) === -->
+  <g transform="translate(32, 26)">
     <!-- Üst yüzey -->
-    <path d="M0 -16 L20 -6 L0 4 L-20 -6 Z" fill="url(#top)" opacity="0.95"/>
+    <path d="M0 -4 L16 4 L0 12 L-16 4 Z" fill="url(#top)" opacity="0.95"/>
     <!-- Sol yüzey -->
-    <path d="M-20 -6 L0 4 L0 24 L-20 14 Z" fill="#1D4ED8" opacity="0.9"/>
+    <path d="M-16 4 L0 12 L0 28 L-16 20 Z" fill="#1D4ED8" opacity="0.9"/>
     <!-- Sağ yüzey -->
-    <path d="M20 -6 L0 4 L0 24 L20 14 Z" fill="#3730A3" opacity="0.9"/>
+    <path d="M16 4 L0 12 L0 28 L16 20 Z" fill="#3730A3" opacity="0.9"/>
 
     <!-- Kenar highlight -->
-    <path d="M0 -16 L20 -6 L0 4 L-20 -6 Z" fill="none" stroke="white" stroke-width="0.8" opacity="0.4"/>
-    <path d="M-20 -6 L0 4 L0 24 L-20 14 Z" fill="none" stroke="white" stroke-width="0.5" opacity="0.2"/>
-    <path d="M20 -6 L0 4 L0 24 L20 14 Z" fill="none" stroke="white" stroke-width="0.5" opacity="0.2"/>
-    <line x1="0" y1="4" x2="0" y2="24" stroke="white" stroke-width="0.5" opacity="0.25"/>
+    <path d="M0 -4 L16 4 L0 12 L-16 4 Z" fill="none" stroke="white" stroke-width="0.7" opacity="0.45"/>
+    <path d="M-16 4 L0 12 L0 28 L-16 20 Z" fill="none" stroke="white" stroke-width="0.5" opacity="0.25"/>
+    <path d="M16 4 L0 12 L0 28 L16 20 Z" fill="none" stroke="white" stroke-width="0.5" opacity="0.25"/>
+    <line x1="0" y1="12" x2="0" y2="28" stroke="white" stroke-width="0.5" opacity="0.3"/>
 
     <!-- X harfi - Üst yüzey -->
-    <text x="0" y="-4" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="800" text-anchor="middle" fill="white" opacity="0.9">X</text>
+    <text x="0" y="3" font-family="Inter, Arial, sans-serif" font-size="9" font-weight="800" text-anchor="middle" fill="white" opacity="0.9">X</text>
 
     <!-- Y harfi - Sol yüzey -->
-    <g transform="translate(-10, 10) skewY(28)">
-      <text x="0" y="0" font-family="Inter, Arial, sans-serif" font-size="9" font-weight="800" text-anchor="middle" fill="white" opacity="0.75">Y</text>
+    <g transform="translate(-8, 15) skewY(28)">
+      <text x="0" y="0" font-family="Inter, Arial, sans-serif" font-size="8" font-weight="800" text-anchor="middle" fill="white" opacity="0.7">Y</text>
     </g>
 
     <!-- Z harfi - Sağ yüzey -->
-    <g transform="translate(10, 10) skewY(-28)">
-      <text x="0" y="0" font-family="Inter, Arial, sans-serif" font-size="9" font-weight="800" text-anchor="middle" fill="white" opacity="0.75">Z</text>
+    <g transform="translate(8, 15) skewY(-28)">
+      <text x="0" y="0" font-family="Inter, Arial, sans-serif" font-size="8" font-weight="800" text-anchor="middle" fill="white" opacity="0.7">Z</text>
     </g>
 
-    <!-- Köşe deliği (kalibrasyon küpü karakteristiği) -->
-    <circle cx="0" cy="-10" r="2.5" fill="#1E40AF" opacity="0.5"/>
-    <circle cx="0" cy="-10" r="1.5" fill="#0F172A" opacity="0.6"/>
+    <!-- Köşe deliği -->
+    <circle cx="0" cy="0" r="2" fill="#1E40AF" opacity="0.5"/>
+    <circle cx="0" cy="0" r="1.2" fill="#0F172A" opacity="0.6"/>
 
     <!-- Işık yansıması -->
-    <path d="M-8 -11 L0 -6 L8 -11 L0 -16 Z" fill="white" opacity="0.1"/>
+    <path d="M-6 0 L0 4 L6 0 L0 -4 Z" fill="white" opacity="0.08"/>
   </g>
 
   <!-- Parıltı noktaları -->
-  <circle cx="16" cy="18" r="1.2" fill="white" opacity="0.4"/>
-  <circle cx="50" cy="20" r="0.8" fill="white" opacity="0.25"/>
-  <circle cx="32" cy="12" r="0.7" fill="white" opacity="0.5"/>
+  <circle cx="14" cy="12" r="1" fill="white" opacity="0.4"/>
+  <circle cx="52" cy="14" r="0.7" fill="white" opacity="0.3"/>
+  <circle cx="32" cy="8" r="0.6" fill="white" opacity="0.5"/>
 
-  <!-- Turuncu vurgu noktası (X'i temsilen) -->
-  <circle cx="52" cy="52" r="5" fill="url(#orange)" opacity="0.9"/>
-  <text x="52" y="55.5" font-family="Inter, Arial, sans-serif" font-size="7" font-weight="900" text-anchor="middle" fill="white">X</text>
+  <!-- Turuncu X badge (köşede) -->
+  <circle cx="52" cy="52" r="6" fill="url(#orange)" opacity="0.95"/>
+  <text x="52" y="55.5" font-family="Inter, Arial, sans-serif" font-size="8" font-weight="900" text-anchor="middle" fill="white">X</text>
 </svg>

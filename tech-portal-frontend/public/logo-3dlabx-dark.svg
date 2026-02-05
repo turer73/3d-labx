@@ -1,66 +1,170 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 80" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" fill="none">
   <defs>
-    <linearGradient id="mainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <!-- Ana gradient - Mavi → Mor -->
+    <linearGradient id="mainGrad" x1="0%" y1="0%" x2="100%"  y2="100%">
       <stop offset="0%" stop-color="#2563EB"/>
       <stop offset="100%" stop-color="#4F46E5"/>
     </linearGradient>
+
+    <!-- İkon iç ışık gradient -->
     <linearGradient id="innerGlow" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#60A5FA"/>
       <stop offset="100%" stop-color="#818CF8"/>
     </linearGradient>
+
+    <!-- Turuncu gradient -->
     <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#F97316"/>
       <stop offset="100%" stop-color="#FB923C"/>
     </linearGradient>
+
+    <!-- Metal gradient (nozzle için) -->
+    <linearGradient id="metalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E2E8F0"/>
+      <stop offset="30%" stop-color="#CBD5E1"/>
+      <stop offset="60%" stop-color="#94A3B8"/>
+      <stop offset="100%" stop-color="#64748B"/>
+    </linearGradient>
+
+    <!-- Nozzle parlak metal -->
+    <linearGradient id="nozzleShine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F1F5F9"/>
+      <stop offset="50%" stop-color="#94A3B8"/>
+      <stop offset="100%" stop-color="#64748B"/>
+    </linearGradient>
+
+    <!-- Filament gradient (turuncu-sarı) -->
+    <linearGradient id="filamentGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FB923C"/>
+      <stop offset="100%" stop-color="#F97316"/>
+    </linearGradient>
+
+    <!-- Glow efekti -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Nozzle glow -->
+    <filter id="nozzleGlow">
+      <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#F97316" flood-opacity="0.6"/>
+    </filter>
+
+    <!-- Text shadow (dark mode - daha parlak) -->
     <filter id="textShadow">
       <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#60A5FA" flood-opacity="0.4"/>
     </filter>
+
+    <!-- Küp gölge -->
+    <filter id="cubeShadow">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#0F172A" flood-opacity="0.4"/>
+    </filter>
   </defs>
 
-  <!-- === XYZ KALİBRASYON KÜPÜ === -->
-  <g transform="translate(8, 6)">
-    <ellipse cx="32" cy="36" rx="30" ry="30" fill="#60A5FA" opacity="0.05"/>
+  <!-- === 3D YAZICI NOZZLE + XYZ KÜP KOMBİNASYONU === -->
+  <g transform="translate(6, 2)" filter="url(#cubeShadow)">
 
-    <!-- 3D XYZ Küp -->
-    <path d="M32 8 L56 20 L32 32 L8 20 Z" fill="url(#innerGlow)" opacity="0.95"/>
-    <path d="M8 20 L32 32 L32 58 L8 46 Z" fill="#2563EB" opacity="0.9"/>
-    <path d="M56 20 L32 32 L32 58 L56 46 Z" fill="#4F46E5" opacity="0.9"/>
+    <!-- Arka plan glow (dark mode - daha parlak) -->
+    <ellipse cx="38" cy="42" rx="36" ry="36" fill="#60A5FA" opacity="0.06"/>
 
-    <path d="M32 8 L56 20 L32 32 L8 20 Z" fill="none" stroke="white" stroke-width="0.8" opacity="0.4"/>
-    <path d="M8 20 L32 32 L32 58 L8 46 Z" fill="none" stroke="white" stroke-width="0.6" opacity="0.25"/>
-    <path d="M56 20 L32 32 L32 58 L56 46 Z" fill="none" stroke="white" stroke-width="0.6" opacity="0.25"/>
-    <line x1="32" y1="32" x2="32" y2="58" stroke="white" stroke-width="0.6" opacity="0.3"/>
+    <!-- === NOZZLE (3D Yazıcı Kafası) === -->
+    <g transform="translate(38, 4)">
+      <!-- Nozzle gövde üst kısım (heatsink) -->
+      <rect x="-8" y="0" width="16" height="6" rx="1" fill="url(#metalGrad)"/>
+      <rect x="-7" y="1" width="14" height="1" fill="white" opacity="0.4"/>
 
-    <!-- XYZ harfleri -->
-    <g transform="translate(32, 18)" fill="white" opacity="0.85">
-      <text x="0" y="5" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="800" text-anchor="middle">X</text>
+      <!-- Heatsink çizgileri -->
+      <line x1="-8" y1="2" x2="8" y2="2" stroke="#64748B" stroke-width="0.5" opacity="0.5"/>
+      <line x1="-8" y1="4" x2="8" y2="4" stroke="#64748B" stroke-width="0.5" opacity="0.5"/>
+
+      <!-- Heat block -->
+      <rect x="-6" y="6" width="12" height="8" rx="1" fill="url(#nozzleShine)"/>
+      <rect x="-5" y="7" width="10" height="2" fill="white" opacity="0.3"/>
+
+      <!-- Nozzle ucu (konik) -->
+      <path d="M-4 14 L4 14 L2 20 L-2 20 Z" fill="url(#metalGrad)"/>
+      <path d="M-3 14 L-1 14 L-1.5 19 L-2.5 19 Z" fill="white" opacity="0.25"/>
+
+      <!-- Nozzle deliği -->
+      <circle cx="0" cy="19" r="1.2" fill="#1E293B"/>
+
+      <!-- Filament damlası (erimiş plastik) - Animasyon hissi -->
+      <ellipse cx="0" cy="23" rx="2.5" ry="3.5" fill="url(#filamentGrad)" filter="url(#nozzleGlow)"/>
+      <ellipse cx="-0.5" cy="22" rx="1" ry="1.5" fill="#FBBF24" opacity="0.6"/>
     </g>
-    <g transform="translate(18, 42) skewY(25)" fill="white" opacity="0.7">
-      <text x="0" y="0" font-family="Inter, Arial, sans-serif" font-size="10" font-weight="800" text-anchor="middle">Y</text>
-    </g>
-    <g transform="translate(46, 42) skewY(-25)" fill="white" opacity="0.7">
-      <text x="0" y="0" font-family="Inter, Arial, sans-serif" font-size="10" font-weight="800" text-anchor="middle">Z</text>
+
+    <!-- === 3D XYZ KÜP (Nozzle altında, perspektifli) === -->
+    <g transform="translate(38, 32)">
+      <!-- Üst yüzey (X harfi) - Hafif eğik perspektif -->
+      <path d="M0 -6 L22 6 L0 18 L-22 6 Z" fill="url(#innerGlow)" opacity="0.95"/>
+
+      <!-- Sol yüzey (Y harfi) -->
+      <path d="M-22 6 L0 18 L0 42 L-22 30 Z" fill="#2563EB" opacity="0.9"/>
+
+      <!-- Sağ yüzey (Z harfi) -->
+      <path d="M22 6 L0 18 L0 42 L22 30 Z" fill="#4F46E5" opacity="0.9"/>
+
+      <!-- Kenar highlight çizgileri -->
+      <path d="M0 -6 L22 6 L0 18 L-22 6 Z" fill="none" stroke="white" stroke-width="0.8" opacity="0.5"/>
+      <path d="M-22 6 L0 18 L0 42 L-22 30 Z" fill="none" stroke="white" stroke-width="0.6" opacity="0.3"/>
+      <path d="M22 6 L0 18 L0 42 L22 30 Z" fill="none" stroke="white" stroke-width="0.6" opacity="0.3"/>
+      <line x1="0" y1="18" x2="0" y2="42" stroke="white" stroke-width="0.6" opacity="0.35"/>
+
+      <!-- X harfi - Üst yüzeyde (perspektifli) -->
+      <g transform="translate(0, 4)">
+        <text x="0" y="4" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="900" text-anchor="middle" fill="white" opacity="0.9">X</text>
+      </g>
+
+      <!-- Y harfi - Sol yüzeyde (perspektifli skew) -->
+      <g transform="translate(-11, 26) skewY(28)">
+        <text x="0" y="0" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="900" text-anchor="middle" fill="white" opacity="0.75">Y</text>
+      </g>
+
+      <!-- Z harfi - Sağ yüzeyde (perspektifli skew) -->
+      <g transform="translate(11, 26) skewY(-28)">
+        <text x="0" y="0" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="900" text-anchor="middle" fill="white" opacity="0.75">Z</text>
+      </g>
+
+      <!-- Köşe delikleri (XYZ küpünün karakteristiği) -->
+      <!-- Üst köşe -->
+      <circle cx="0" cy="-1" r="2.2" fill="#1E40AF" opacity="0.5"/>
+      <circle cx="0" cy="-1" r="1.3" fill="#0F172A" opacity="0.7"/>
+
+      <!-- Işık yansımaları -->
+      <path d="M-10 0 L0 6 L10 0 L0 -6 Z" fill="white" opacity="0.1"/>
+
+      <!-- Parıltı noktaları -->
+      <circle cx="-16" cy="2" r="1.2" fill="white" opacity="0.5"/>
+      <circle cx="16" cy="2" r="0.9" fill="white" opacity="0.35"/>
+      <circle cx="0" cy="-5" r="0.7" fill="white" opacity="0.55"/>
     </g>
 
-    <!-- Köşe deliği -->
-    <circle cx="32" cy="14" r="2" fill="#1E40AF" opacity="0.5"/>
-    <circle cx="32" cy="14" r="1.2" fill="#0F172A" opacity="0.6"/>
-
-    <path d="M22 14 L32 20 L42 14 L32 8 Z" fill="white" opacity="0.12"/>
-    <circle cx="20" cy="14" r="1" fill="white" opacity="0.45"/>
-    <circle cx="44" cy="14" r="0.7" fill="white" opacity="0.3"/>
+    <!-- Küpün üzerine düşen filament izi -->
+    <ellipse cx="38" cy="30" rx="3" ry="1.5" fill="url(#filamentGrad)" opacity="0.4"/>
   </g>
 
-  <!-- === YAZI (DARK MODE) === -->
-  <g transform="translate(78, 8)">
-    <text x="0" y="44" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="40" font-weight="900" letter-spacing="-2" fill="url(#mainGrad)" filter="url(#textShadow)">3D</text>
-    <text x="56" y="42" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="36" font-weight="300" fill="#64748B">-</text>
-    <text x="72" y="44" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="40" font-weight="900" letter-spacing="-2" fill="#F1F5F9">Lab</text>
-    <text x="148" y="44" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="44" font-weight="900" letter-spacing="-1" fill="url(#orangeGrad)">X</text>
+  <!-- === YAZI GRUBU (DARK MODE) === -->
+  <g transform="translate(90, 8)">
+    <!-- "3D" kısmı - gradient -->
+    <text x="0" y="44" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="42" font-weight="900" letter-spacing="-2" fill="url(#mainGrad)" filter="url(#textShadow)">3D</text>
 
-    <rect x="2" y="52" width="45" height="2.5" rx="1.25" fill="url(#mainGrad)" opacity="0.6"/>
-    <rect x="50" y="52" width="25" height="2.5" rx="1.25" fill="url(#orangeGrad)" opacity="0.5"/>
+    <!-- "-" tire -->
+    <text x="60" y="42" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="36" font-weight="300" fill="#64748B">-</text>
 
+    <!-- "Lab" kısmı - BEYAZ (dark mode) -->
+    <text x="78" y="44" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="42" font-weight="900" letter-spacing="-2" fill="#F1F5F9">Lab</text>
+
+    <!-- "X" turuncu vurgulu, biraz daha büyük -->
+    <text x="160" y="44" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="46" font-weight="900" letter-spacing="-1" fill="url(#orangeGrad)">X</text>
+
+    <!-- Alt çizgi - ince gradient bar -->
+    <rect x="2" y="52" width="50" height="2.5" rx="1.25" fill="url(#mainGrad)" opacity="0.6"/>
+    <rect x="55" y="52" width="30" height="2.5" rx="1.25" fill="url(#orangeGrad)" opacity="0.5"/>
+
+    <!-- Tagline -->
     <text x="2" y="67" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="8.5" font-weight="500" letter-spacing="2.5" fill="#64748B">TÜRKİYE'NİN 3D BASKI REHBERİ</text>
   </g>
 </svg>
