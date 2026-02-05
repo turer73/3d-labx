@@ -1179,6 +1179,7 @@ export default {
         // Kullanıcının tam bilgilerini ve istatistiklerini al
         const userDetails = await env.DB.prepare(`
           SELECT u.id, u.email, u.username, u.display_name, u.avatar_url, u.bio, u.role, u.created_at,
+                 u.location, u.website, u.twitter, u.github,
                  us.reputation_points, us.thread_count, us.reply_count, us.like_received_count
           FROM users u
           LEFT JOIN user_stats us ON u.id = us.user_id
@@ -1199,6 +1200,10 @@ export default {
           bio: userDetails.bio,
           role: userDetails.role,
           created_at: userDetails.created_at,
+          location: userDetails.location || '',
+          website: userDetails.website || '',
+          twitter: userDetails.twitter || '',
+          github: userDetails.github || '',
           reputation_points: userDetails.reputation_points || 0,
           stats: {
             posts: userDetails.thread_count || 0,
@@ -1208,6 +1213,70 @@ export default {
           },
           maker_profile: makerProfile || null
         }, 200, 0, request);
+      }
+
+      // Profil güncelleme
+      if (path === "/api/auth/profile" && method === "PUT") {
+        const session = await getSessionUser(env, request);
+        if (!session) {
+          return errorResponse("Oturum geçersiz", 401, "UNAUTHORIZED", request);
+        }
+
+        const body = await request.json();
+        const display_name = sanitizeString(body.display_name, 100);
+        const bio = sanitizeString(body.bio, 500);
+        const location = sanitizeString(body.location, 100);
+        const website = sanitizeString(body.website, 255);
+        const twitter = sanitizeString(body.twitter, 50);
+        const github = sanitizeString(body.github, 50);
+
+        if (!display_name || display_name.length < 2) {
+          return errorResponse("Görünen ad en az 2 karakter olmalı", 400, "INVALID_NAME", request);
+        }
+
+        await env.DB.prepare(`
+          UPDATE users SET display_name = ?, bio = ?, location = ?, website = ?, twitter = ?, github = ?
+          WHERE id = ?
+        `).bind(display_name, bio || '', location || '', website || '', twitter || '', github || '', session.user_id).run();
+
+        return jsonResponse({ success: true, message: "Profil güncellendi" }, 200, 0, request);
+      }
+
+      // Şifre değiştirme
+      if (path === "/api/auth/change-password" && method === "POST") {
+        const session = await getSessionUser(env, request);
+        if (!session) {
+          return errorResponse("Oturum geçersiz", 401, "UNAUTHORIZED", request);
+        }
+
+        const body = await request.json();
+        const currentPassword = body.currentPassword;
+        const newPassword = body.newPassword;
+
+        if (!currentPassword || !newPassword) {
+          return errorResponse("Mevcut ve yeni şifre gerekli", 400, "MISSING_DATA", request);
+        }
+
+        if (newPassword.length < 6) {
+          return errorResponse("Yeni şifre en az 6 karakter olmalı", 400, "WEAK_PASSWORD", request);
+        }
+
+        // Mevcut şifreyi doğrula
+        const user = await env.DB.prepare(`SELECT password_hash FROM users WHERE id = ?`).bind(session.user_id).first();
+        if (!user) {
+          return errorResponse("Kullanıcı bulunamadı", 404, "USER_NOT_FOUND", request);
+        }
+
+        const isValid = await verifyPassword(currentPassword, user.password_hash);
+        if (!isValid) {
+          return errorResponse("Mevcut şifre yanlış", 400, "WRONG_PASSWORD", request);
+        }
+
+        // Yeni şifreyi hashle ve kaydet
+        const newHash = await hashPassword(newPassword);
+        await env.DB.prepare(`UPDATE users SET password_hash = ? WHERE id = ?`).bind(newHash, session.user_id).run();
+
+        return jsonResponse({ success: true, message: "Şifre değiştirildi" }, 200, 0, request);
       }
 
       // Şifre sıfırlama isteği
