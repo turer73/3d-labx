@@ -1,0 +1,922 @@
+---
+export const prerender = true;
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+
+const title = "FlashForge Adventurer 5X Sorun Giderme Rehberi | 3D-labX";
+const description = "FlashForge Adventurer 5X, Adventurer 5M, Creator serisi yazıcılarda karşılaşılan sorunlar ve çözümleri. Nozül tıkanıklığı, seviyeleme hatası, Wi-Fi bağlantı sorunları, filament kesici arızası ve daha fazlası için adım adım rehber.";
+const canonicalUrl = "https://3d-labx.com/sorun-cozumleri/flashforge-sorun-giderme";
+
+const problems = [
+  {
+    id: 1,
+    title: "Nozül Tıkanıklığı (Clogging)",
+    slug: "nozul-tikanikligi",
+    color: "red",
+    shortDesc: "Filament akmıyor, ekstruder tıkırdıyor veya baskı ortasında malzeme kesilmesi yaşanıyor.",
+    steps: [
+      { bold: "Cold Pull:", text: "Nozülü 240°C'ye ısıtın, filamenti manuel olarak itin. Sonra ısıtıcıyı kapatın ve 90°C'ye düşünce hızla çekin. Bu işlem tıkanmış kalıntıları çıkarır." },
+      { bold: "İğne Temizliği:", text: "FlashForge kutusundan çıkan 0.4mm temizleme iğnesini kullanarak nozül ucunu sıcakken temizleyin." },
+      { bold: "PTFE Boru Kontrolü:", text: "Hotend'e giren PTFE borunun ucunun yanmış veya deforme olup olmadığını kontrol edin. Gerekirse 1-2mm keserek yenileyin." },
+      { bold: "Quick-Swap Nozül:", text: "Adventurer 5X'in hızlı değiştirilebilir nozül sistemini kullanarak yedek nozüle geçin. Tıkanan nozülü aseton ile 24 saat bekletip temizleyebilirsiniz." }
+    ],
+    tip: "PLA'dan PETG'ye veya ABS'ye geçiş yaparken mutlaka 10-15cm filament akıtarak eski malzeme kalıntısını temizleyin."
+  },
+  {
+    id: 2,
+    title: "İlk Katman Yapışma Sorunu",
+    slug: "ilk-katman-yapisma",
+    color: "yellow",
+    shortDesc: "İlk katman tablaya tutunamıyor, köşelerden kalkıyor veya spaghetti baskı oluşuyor.",
+    steps: [
+      { bold: "Tabla Temizliği:", text: "PEI tablayı %99 IPA (izopropil alkol) ile silin. Yağlı parmak izleri yapışmayı ciddi şekilde engeller." },
+      { bold: "Z-Offset Ayarı:", text: "Menüden 'Leveling' > 'Z-Offset' bölümüne girin. Değeri -0.05mm adımlarla düşürerek ilk katmanın hafifçe ezilmesini sağlayın." },
+      { bold: "Sıcaklık Artışı:", text: "İlk katman tabla sıcaklığını 5-10°C artırın. PLA için 65°C, PETG için 80°C, ABS için 110°C deneyin." },
+      { bold: "Yapıştırıcı Kullanımı:", text: "Cam tabla kullanıyorsanız Glue Stick (yapıştırıcı çubuk) sürün. PEI tablada genellikle gerekmez, ancak PETG için Magigoo veya benzeri ayırıcı önerilir." }
+    ],
+    tip: "PETG, PEI tablaya çok güçlü yapışabilir ve yüzeye zarar verebilir. PETG basarken mutlaka ayırıcı (Magigoo, Glue Stick) kullanın."
+  },
+  {
+    id: 3,
+    title: "Seviyeleme Hatası (Leveling Error)",
+    slug: "seviyeleme-hatasi",
+    color: "blue",
+    shortDesc: "Otomatik seviyeleme başarısız oluyor veya 'Leveling Failed' hatası alınıyor.",
+    steps: [
+      { bold: "Sensör Temizliği:", text: "Seviyeleme sensörünün (proximity sensor veya strain gauge) altında filament artığı veya toz olup olmadığını kontrol edin. Yumuşak bir fırça ile temizleyin." },
+      { bold: "Tabla Yüzeyi:", text: "Metal klipslerin, yapıştırıcı artıklarının veya baskı kalıntılarının tablayı yükseltmediğinden emin olun." },
+      { bold: "Yeniden Kalibrasyon:", text: "Menüden 'Tools' > 'Leveling' > 'Auto Level' seçeneğini çalıştırın. İşlem sırasında yazıcıyı sallamayın." },
+      { bold: "Firmware Güncellemesi:", text: "FlashPrint veya Flashcloud üzerinden firmware güncellemesi olup olmadığını kontrol edin. Seviyeleme algoritması güncellemelerle iyileştirilir." }
+    ],
+    tip: "Seviyeleme işlemini yazıcı tamamen ısındıktan sonra yapın. Soğukken yapılan kalibrasyon, ısıl genleşme nedeniyle yanlış sonuç verebilir."
+  },
+  {
+    id: 4,
+    title: "Wi-Fi Bağlantı Sorunları",
+    slug: "wifi-baglanti",
+    color: "purple",
+    shortDesc: "Yazıcı Wi-Fi ağını bulamıyor, bağlanıp kopuyor veya FlashCloud'a erişilemiyor.",
+    steps: [
+      { bold: "Ağ Sıfırlama:", text: "Yazıcı ayarlarından 'Network' > 'Wi-Fi' bölümüne girin, mevcut ağı unutun ve yeniden bağlanın." },
+      { bold: "Frekans Kontrolü:", text: "FlashForge yazıcılar genellikle sadece 2.4GHz Wi-Fi destekler. Routerınızın 2.4GHz bandının aktif olduğundan emin olun." },
+      { bold: "Sinyal Gücü:", text: "Yazıcı ile router arasındaki mesafeyi azaltın veya Wi-Fi sinyal güçlendirici (repeater) kullanın. Metal kasalı yazıcılar sinyali zayıflatabilir." },
+      { bold: "FlashCloud Alternatifi:", text: "Wi-Fi sorunları devam ederse USB bellek ile yazdırma yapın. G-code dosyasını FlashPrint'ten dışa aktarıp USB'ye kopyalayın." }
+    ],
+    tip: "Türkçe karakter içeren Wi-Fi ağ isimleri (ş, ç, ğ, ü, ö, ı) bağlantı sorununa neden olabilir. Ağ adını sadece İngilizce karakterlerle değiştirmeyi deneyin."
+  },
+  {
+    id: 5,
+    title: "Kayış ve Gürültü Sorunu",
+    slug: "kayis-gurultu",
+    color: "green",
+    shortDesc: "Baskı sırasında anormal sesler geliyor, katman kayması oluşuyor veya mekanik titreşim hissediliyor.",
+    steps: [
+      { bold: "Kayış Gerginliği:", text: "X ve Y eksen kayışlarını kontrol edin. Kayış parmakla çekildiğinde hafif bir 'twang' sesi çıkarmalı. Çok gevşekse gergi vidasını sıkın." },
+      { bold: "Rulman Yağlama:", text: "Lineer rulmanları ve çelik çubukları PTFE bazlı yağ (Super Lube gibi) ile hafifçe yağlayın. Fazla yağ toz toplar." },
+      { bold: "Vida Kontrolü:", text: "Tüm gövde vidalarını kontrol edin. Titreşimle gevşeyen vidalar hem gürültüye hem de baskı kalitesi düşüşüne neden olur." },
+      { bold: "Motor Sürücüsü:", text: "TMC sürücülü motorlar sessiz çalışmalıdır. Anormal motor uğultusu firmware sorunu olabilir - fabrika ayarlarına sıfırlamayı deneyin." }
+    ],
+    tip: "Yazıcıyı sert ve düz bir zemine yerleştirin. Titreşim önleyici (anti-vibration) pedler veya beton karo gibi ağır bir altlık kullanmak gürültüyü ciddi şekilde azaltır."
+  },
+  {
+    id: 6,
+    title: "Filament Kesici Hatası",
+    slug: "filament-kesici",
+    color: "orange",
+    shortDesc: "Filament değişimi sırasında kesici çalışmıyor veya filament düzgün kesilemiyor.",
+    steps: [
+      { bold: "Kesici Bıçak Kontrolü:", text: "Kesici mekanizmayı gözle inceleyin. Bıçak körelmiş veya kırılmış olabilir. Gerekirse yedek parça sipariş edin." },
+      { bold: "Filament Kalınlığı:", text: "Bazı jenerik filamentler 1.75mm±0.05mm toleransını aşar. Kalın filament kesicide sıkışabilir. Kaliteli marka filament kullanın." },
+      { bold: "Manuel Geçiş:", text: "Kesici çalışmıyorsa filamenti yazıcıya girmeden önce yan keski ile 45° açıyla kesin. Sivri uç besleyiciye daha kolay girer." }
+    ],
+    tip: "Filament ucunu kestikten sonra hafifçe eğik (açılı) bırakın. Düz kesim besleyici dişliye takılabilir, eğik kesim ise sorunsuz girer."
+  }
+];
+
+// FAQ verileri
+const faqs = [
+  {
+    question: "FlashForge Adventurer 5X'te nozül nasıl değiştirilir?",
+    answer: "Adventurer 5X, Quick-Swap nozül sistemine sahiptir. Nozülü 200°C'nin üzerinde ısıtın, ardından mandal mekanizmasına basarak eski nozülü çıkarın ve yenisini takın. İşlem 30 saniyeden kısa sürer ve ek alet gerektirmez."
+  },
+  {
+    question: "FlashForge yazıcımda hangi dilimleyici yazılımını kullanmalıyım?",
+    answer: "FlashForge resmi dilimleyicisi FlashPrint'tir ve yazıcınız için optimize edilmiş profiller içerir. Alternatif olarak OrcaSlicer veya Cura da kullanılabilir, ancak makine profilini manuel olarak eklemeniz gerekir. FlashPrint güncel sürümünü flashforge.com adresinden indirebilirsiniz."
+  },
+  {
+    question: "FlashForge Adventurer 5X ile ABS basabilir miyim?",
+    answer: "Evet, Adventurer 5X kapalı kasa yapısı sayesinde ABS baskı için uygundur. Tabla sıcaklığını 100-110°C, nozül sıcaklığını 230-250°C olarak ayarlayın. Kapalı kapak ile iç sıcaklığın stabil kalmasını sağlayın ve warping riskini azaltmak için Glue Stick kullanın."
+  },
+  {
+    question: "FlashForge yazıcımda baskı ortasında filament bitiyor, ne yapmalıyım?",
+    answer: "Adventurer 5X, filament algılama sensörüne sahiptir. Filament bittiğinde baskı otomatik olarak duraklar ve ekranda filament değişimi istenir. Yeni makara takıp 'Resume' (Devam Et) tuşuna basın. Sensör çalışmıyorsa firmware güncellemesi yapın."
+  },
+  {
+    question: "FlashForge Adventurer 5X'in maksimum baskı hızı nedir?",
+    answer: "Adventurer 5X, 300mm/s'ye kadar baskı hızını destekler. Ancak en iyi kalite için PLA'da 150-200mm/s, PETG'de 80-120mm/s, ABS'de 60-100mm/s önerilir. Yüksek hızlarda input shaping (titreşim kompanzasyonu) aktif olmalıdır."
+  },
+  {
+    question: "FlashForge yazıcımı OrcaSlicer ile kullanabilir miyim?",
+    answer: "Evet, OrcaSlicer FlashForge Adventurer serisi için profil desteği sunmaktadır. OrcaSlicer'ın güncel sürümünü indirip yazıcı ekleme ekranından FlashForge modelinizi seçebilirsiniz. Ağ baskısı için LAN üzerinden bağlantı kurabilirsiniz."
+  }
+];
+
+const colorClasses: Record<string, { bg: string; dot: string }> = {
+  red: { bg: "bg-red-500/10", dot: "bg-red-500" },
+  yellow: { bg: "bg-yellow-500/10", dot: "bg-yellow-500" },
+  blue: { bg: "bg-blue-500/10", dot: "bg-blue-500" },
+  green: { bg: "bg-green-500/10", dot: "bg-green-500" },
+  orange: { bg: "bg-orange-500/10", dot: "bg-orange-500" },
+  purple: { bg: "bg-purple-500/10", dot: "bg-purple-500" }
+};
+
+// Schema.org HowTo yapısı
+const howToSchema = problems.map((problem, index) => ({
+  "@type": "HowTo",
+  "name": `FlashForge ${problem.title} Nasıl Çözülür`,
+  "description": problem.shortDesc,
+  "step": problem.steps.map((step, stepIndex) => ({
+    "@type": "HowToStep",
+    "position": stepIndex + 1,
+    "name": step.bold.replace(":", ""),
+    "text": step.text
+  })),
+  "tip": problem.tip ? {
+    "@type": "HowToTip",
+    "text": problem.tip
+  } : undefined
+}));
+
+// FAQ Schema
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.answer
+    }
+  }))
+};
+
+// Ana sayfa schema
+const pageSchema = {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "FlashForge Yazıcı Sorun Giderme Rehberi",
+  "description": description,
+  "url": canonicalUrl,
+  "datePublished": "2025-01-20",
+  "dateModified": new Date().toISOString().split('T')[0],
+  "author": {
+    "@type": "Organization",
+    "name": "3D-labX",
+    "url": "https://3d-labx.com"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "3D-labX",
+    "url": "https://3d-labx.com",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://3d-labx.com/logo.png"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": canonicalUrl
+  },
+  "about": {
+    "@type": "Product",
+    "name": "FlashForge 3D Yazıcılar",
+    "brand": {
+      "@type": "Brand",
+      "name": "FlashForge"
+    }
+  },
+  "hasPart": howToSchema
+};
+
+// Breadcrumb Schema
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Ana Sayfa",
+      "item": "https://3d-labx.com"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Sorun Çözümleri",
+      "item": "https://3d-labx.com/sorun-cozumleri"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "FlashForge Sorun Giderme",
+      "item": canonicalUrl
+    }
+  ]
+};
+---
+
+<BaseLayout title={title} description={description}>
+  <Header />
+
+  <!-- Schema.org JSON-LD -->
+  <script type="application/ld+json" set:html={JSON.stringify(pageSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
+  <main class="troubleshoot-page" itemscope itemtype="https://schema.org/TechArticle">
+    <div class="container">
+
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol>
+          <li><a href="/">Ana Sayfa</a></li>
+          <li><a href="/sorun-cozumleri">Sorun Çözümleri</a></li>
+          <li aria-current="page">FlashForge</li>
+        </ol>
+      </nav>
+
+      <!-- Hero Section -->
+      <header class="hero-section">
+        <div class="hero-badge flashforge">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+          </svg>
+          FlashForge Destek Rehberi
+        </div>
+        <h1 class="hero-title" itemprop="headline">FlashForge Yazıcı Sorun Giderme Rehberi</h1>
+        <p class="hero-desc" itemprop="description">
+          Adventurer 5X, Adventurer 5M Pro, Creator serisi FlashForge yazıcılarda karşılaşabileceğiniz yaygın sorunlar için kapsamlı çözüm rehberi. Topluluk deneyimleri ve resmi FlashForge kaynaklarından derlenmiştir.
+        </p>
+        <div class="hero-links">
+          <a href="https://www.flashforge.com/download-center" target="_blank" rel="noopener" class="wiki-link">
+            FlashForge İndirme Merkezi
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+            </svg>
+          </a>
+          <a href="#faq" class="faq-link">
+            SSS
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </a>
+        </div>
+      </header>
+
+      <!-- Info Banner -->
+      <div class="info-banner">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div>
+          <strong>Başlamadan Önce:</strong> FlashForge yazıcılarda birçok sorun firmware güncellemesi ve otomatik kalibrasyon ile çözülebilir. FlashPrint veya Flashcloud uygulamasından yazılım güncellemelerini kontrol edin. Ayrıca <a href="/sorun-cozumleri/3d-yazici-nozzle-tikanikligi-kabustan-kurtulmanin-kesin-yollari-2026-rehberi-mkyiw0om">Nozzle Tıkanıklığı Rehberimizi</a> inceleyebilirsiniz.
+        </div>
+      </div>
+
+      <!-- Quick Navigation -->
+      <nav class="quick-nav" aria-label="Sorun kategorileri">
+        <h2 class="quick-nav-title">Hızlı Erişim</h2>
+        <div class="quick-nav-grid">
+          {problems.map((problem) => (
+            <a href={`#${problem.slug}`} class="quick-nav-item">
+              <span class={`nav-dot ${colorClasses[problem.color].dot}`}></span>
+              {problem.title}
+            </a>
+          ))}
+        </div>
+      </nav>
+
+      <!-- Problems Grid -->
+      <section class="problems-section" aria-labelledby="problems-title">
+        <h2 id="problems-title" class="section-title">Sorunlar ve Çözümleri</h2>
+
+        <div class="problems-grid">
+          {problems.map((problem) => {
+            const colors = colorClasses[problem.color];
+            return (
+              <article
+                id={problem.slug}
+                class="problem-card"
+                itemscope
+                itemtype="https://schema.org/HowTo"
+              >
+                <div class="card-header">
+                  <div class={`icon-wrapper ${colors.bg}`}>
+                    <div class={`status-dot ${colors.dot}`}></div>
+                  </div>
+                  <h3 class="card-title" itemprop="name">{problem.title}</h3>
+                </div>
+                <p class="card-desc" itemprop="description">{problem.shortDesc}</p>
+                <div class="solution-box">
+                  <h4 class="solution-title">Çözüm Adımları:</h4>
+                  <ol class="solution-list" itemprop="step" itemscope itemtype="https://schema.org/HowToStep">
+                    {problem.steps.map((step, index) => (
+                      <li itemprop="text">
+                        <strong>{step.bold}</strong> {step.text}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+                {problem.tip && (
+                  <div class="tip-box" itemprop="tip">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z"/>
+                    </svg>
+                    <span>{problem.tip}</span>
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <!-- FAQ Section -->
+      <section id="faq" class="faq-section" aria-labelledby="faq-title">
+        <h2 id="faq-title" class="section-title">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Sık Sorulan Sorular (SSS)
+        </h2>
+
+        <div class="faq-list">
+          {faqs.map((faq, index) => (
+            <details class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+              <summary itemprop="name">{faq.question}</summary>
+              <div class="faq-answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                <p itemprop="text">{faq.answer}</p>
+              </div>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      <!-- Related Content -->
+      <section class="related-section" aria-labelledby="related-title">
+        <h2 id="related-title" class="section-title">İlgili Rehberler</h2>
+        <div class="related-grid">
+          <a href="/sorun-cozumleri/3d-yazici-nozzle-tikanikligi-kabustan-kurtulmanin-kesin-yollari-2026-rehberi-mkyiw0om" class="related-card">
+            <span class="related-icon">🔧</span>
+            <div class="related-content">
+              <h3>Nozzle Tıkanıklığı Rehberi</h3>
+              <p>Tüm marka yazıcılar için detaylı nozzle temizleme teknikleri</p>
+            </div>
+          </a>
+          <a href="/sorun-cozumleri/3d-baskida-i-lk-katman-yapisma-sorununa-kokten-cozum-rehberi-mkxazxot" class="related-card">
+            <span class="related-icon">📐</span>
+            <div class="related-content">
+              <h3>İlk Katman Yapışma Rehberi</h3>
+              <p>Tabla seviyeleme ve yapışma optimizasyonu</p>
+            </div>
+          </a>
+          <a href="/sorun-cozumleri/bambu-lab-sorun-giderme" class="related-card">
+            <span class="related-icon">🖨️</span>
+            <div class="related-content">
+              <h3>Bambu Lab Sorun Giderme</h3>
+              <p>X1, P1, A1 serisi için kapsamlı rehber</p>
+            </div>
+          </a>
+          <a href="/sorun-cozumleri/creality-sorun-giderme" class="related-card">
+            <span class="related-icon">🖨️</span>
+            <div class="related-content">
+              <h3>Creality Sorun Giderme</h3>
+              <p>Ender 3, CR-10 serisi için rehber</p>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- Back Link -->
+      <div class="back-section">
+        <a href="/sorun-cozumleri" class="back-link">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          Tüm Sorun Çözümlerine Dön
+        </a>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .troubleshoot-page {
+    padding-top: 120px;
+    padding-bottom: 60px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    margin-bottom: 24px;
+  }
+
+  .breadcrumb ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.875rem;
+  }
+
+  .breadcrumb li {
+    display: flex;
+    align-items: center;
+    color: var(--text-muted);
+  }
+
+  .breadcrumb li::after {
+    content: '/';
+    margin-left: 8px;
+    color: var(--text-light);
+  }
+
+  .breadcrumb li:last-child::after {
+    display: none;
+  }
+
+  .breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .breadcrumb a:hover {
+    color: #E84D1A;
+  }
+
+  /* Hero Section */
+  .hero-section {
+    text-align: center;
+    margin-bottom: 32px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--success);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  .hero-badge.flashforge {
+    background: linear-gradient(135deg, #E84D1A 0%, #c43d10 100%);
+  }
+
+  .hero-title {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 800;
+    margin-bottom: 16px;
+    color: var(--text-main);
+  }
+
+  .hero-desc {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .hero-links {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .wiki-link, .faq-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .wiki-link {
+    background: rgba(232, 77, 26, 0.1);
+    color: #E84D1A;
+    border: 1px solid rgba(232, 77, 26, 0.3);
+  }
+
+  .wiki-link:hover {
+    background: rgba(232, 77, 26, 0.2);
+  }
+
+  .faq-link {
+    background: var(--bg-card);
+    color: var(--text-main);
+    border: 1px solid var(--border-soft);
+  }
+
+  .faq-link:hover {
+    border-color: var(--accent);
+  }
+
+  /* Info Banner */
+  .info-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: rgba(232, 77, 26, 0.1);
+    border: 1px solid rgba(232, 77, 26, 0.3);
+    border-left: 4px solid #E84D1A;
+    padding: 16px 20px;
+    border-radius: 0 12px 12px 0;
+    margin-bottom: 32px;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .info-banner svg {
+    color: #E84D1A;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .info-banner a {
+    color: #E84D1A;
+    font-weight: 500;
+  }
+
+  /* Quick Navigation */
+  .quick-nav {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 32px;
+  }
+
+  .quick-nav-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .quick-nav-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .quick-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .quick-nav-item:hover {
+    border-color: #E84D1A;
+    background: rgba(232, 77, 26, 0.05);
+  }
+
+  .nav-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Section Title */
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 24px;
+  }
+
+  /* Problems Grid */
+  .problems-section {
+    margin-bottom: 48px;
+  }
+
+  .problems-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 24px;
+  }
+
+  .problem-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s ease;
+    scroll-margin-top: 140px;
+  }
+
+  .problem-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-medium);
+  }
+
+  .problem-card:target {
+    border-color: #E84D1A;
+    box-shadow: 0 0 0 2px rgba(232, 77, 26, 0.2);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .card-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .card-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  .solution-box {
+    background: var(--bg-main);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .solution-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .solution-list {
+    list-style: decimal;
+    padding-left: 20px;
+    margin: 0;
+  }
+
+  .solution-list li {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+
+  .solution-list li strong {
+    color: var(--text-main);
+    font-weight: 600;
+  }
+
+  .tip-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(234, 179, 8, 0.1);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .tip-box svg {
+    color: #eab308;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* FAQ Section */
+  .faq-section {
+    margin-bottom: 48px;
+  }
+
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .faq-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .faq-item summary {
+    padding: 16px 20px;
+    font-weight: 600;
+    color: var(--text-main);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    list-style: none;
+  }
+
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-item summary::after {
+    content: '+';
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+  }
+
+  .faq-item[open] summary::after {
+    content: '-';
+  }
+
+  .faq-item[open] {
+    border-color: #E84D1A;
+  }
+
+  .faq-answer {
+    padding: 0 20px 16px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  .faq-answer p {
+    margin: 0;
+  }
+
+  /* Related Section */
+  .related-section {
+    margin-bottom: 48px;
+  }
+
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .related-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .related-card:hover {
+    border-color: #E84D1A;
+    transform: translateY(-2px);
+  }
+
+  .related-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .related-content h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0 0 4px 0;
+  }
+
+  .related-content p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  /* Back Section */
+  .back-section {
+    text-align: center;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-weight: 500;
+    padding: 12px 24px;
+    border-radius: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .back-link:hover {
+    color: #E84D1A;
+    border-color: #E84D1A;
+    background: rgba(232, 77, 26, 0.05);
+  }
+
+  /* Utility classes */
+  .bg-red-500\/10 { background: rgba(239, 68, 68, 0.1); }
+  .bg-yellow-500\/10 { background: rgba(234, 179, 8, 0.1); }
+  .bg-blue-500\/10 { background: rgba(59, 130, 246, 0.1); }
+  .bg-green-500\/10 { background: rgba(34, 197, 94, 0.1); }
+  .bg-orange-500\/10 { background: rgba(249, 115, 22, 0.1); }
+  .bg-purple-500\/10 { background: rgba(168, 85, 247, 0.1); }
+
+  .bg-red-500 { background: #ef4444; }
+  .bg-yellow-500 { background: #eab308; }
+  .bg-blue-500 { background: #3b82f6; }
+  .bg-green-500 { background: #22c55e; }
+  .bg-orange-500 { background: #f97316; }
+  .bg-purple-500 { background: #a855f7; }
+
+  .w-4 { width: 1rem; }
+  .h-4 { height: 1rem; }
+  .w-5 { width: 1.25rem; }
+  .h-5 { height: 1.25rem; }
+  .w-6 { width: 1.5rem; }
+  .h-6 { height: 1.5rem; }
+
+  @media (max-width: 768px) {
+    .problems-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .troubleshoot-page {
+      padding-top: 100px;
+    }
+
+    .related-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-links {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+</style>
