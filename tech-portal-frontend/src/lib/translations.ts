@@ -178,6 +178,39 @@ export const translations: Record<Language, {
     categoryTroubleshooting: string;
     categoryArticle: string;
   };
+  // Troubleshooting Page
+  troubleshootingPage: {
+    pageTitle: string;
+    pageDesc: string;
+    heroTitle: string;
+    heroDesc: string;
+    brandGuides: string;
+    solutions: string;
+    categories: string;
+    brandGuidesSection: string;
+    troubleshootingGuide: string;
+    viewGuide: string;
+    commonProblems: string;
+    nozzleClog: string;
+    firstLayerAdhesion: string;
+    stringing: string;
+    warping: string;
+    allGuides: string;
+    loadMore: string;
+    loading: string;
+    noMorePosts: string;
+    errorLoading: string;
+    notFoundTitle: string;
+    notFoundDesc: string;
+    forumCta: string;
+    forumCtaDesc: string;
+    goToForum: string;
+    contactUs: string;
+    breadcrumbHome: string;
+    breadcrumbTroubleshooting: string;
+    prev: string;
+    next: string;
+  };
   // Interactive Guides (Cura, Orca, Bambu, PrusaSlicer)
   interactiveGuide: {
     // Common
@@ -437,6 +470,39 @@ export const translations: Record<Language, {
       categoryReview: "İnceleme",
       categoryTroubleshooting: "Sorun Çözümü",
       categoryArticle: "Makale"
+    },
+    // Troubleshooting Page
+    troubleshootingPage: {
+      pageTitle: "3D Yazıcı Sorun Çözümleri ve Troubleshooting Rehberleri | 3D-labX",
+      pageDesc: "3D yazıcı sorunlarına kapsamlı çözümler: Nozzle tıkanıklığı, ilk katman yapışmama, ipliklenme, katman kayması ve daha fazlası.",
+      heroTitle: "3D Yazıcı Sorun Çözümleri",
+      heroDesc: "3D baskı sorunlarınıza kapsamlı çözümler. Marka bazlı rehberler ve adım adım troubleshooting kılavuzları.",
+      brandGuides: "Marka Rehberi",
+      solutions: "Çözüm",
+      categories: "Kategori",
+      brandGuidesSection: "Marka Bazlı Rehberler",
+      troubleshootingGuide: "Sorun Giderme",
+      viewGuide: "Rehberi İncele",
+      commonProblems: "Sık Karşılaşılan Sorunlar",
+      nozzleClog: "Nozzle Tıkanıklığı",
+      firstLayerAdhesion: "İlk Katman Yapışmıyor",
+      stringing: "İpliklenme (Stringing)",
+      warping: "Warping / Çarpılma",
+      allGuides: "Tüm Çözüm Rehberleri",
+      loadMore: "Daha Fazla Yükle",
+      loading: "Yükleniyor...",
+      noMorePosts: "Tüm içerikler yüklendi",
+      errorLoading: "İçerikler yüklenirken bir hata oluştu.",
+      notFoundTitle: "Sorununuzu Bulamadınız mı?",
+      notFoundDesc: "Topluluğumuza katılın, deneyimli maker'lardan yardım alın.",
+      goToForum: "Foruma Git",
+      contactUs: "İletişime Geç",
+      forumCta: "Sorununuzu Bulamadınız mı?",
+      forumCtaDesc: "Topluluğumuza katılın, deneyimli maker'lardan yardım alın.",
+      breadcrumbHome: "Ana Sayfa",
+      breadcrumbTroubleshooting: "Sorun Çözümleri",
+      prev: "Önceki",
+      next: "Sonraki",
     },
     // Interactive Guides
     interactiveGuide: {
@@ -698,6 +764,39 @@ export const translations: Record<Language, {
       categoryTroubleshooting: "Troubleshooting",
       categoryArticle: "Article"
     },
+    // Troubleshooting Page
+    troubleshootingPage: {
+      pageTitle: "3D Printer Troubleshooting Guides | 3D-labX",
+      pageDesc: "Comprehensive solutions for 3D printer issues: Nozzle clogging, first layer adhesion, stringing, layer shifting and more.",
+      heroTitle: "3D Printer Troubleshooting",
+      heroDesc: "Comprehensive solutions for your 3D printing problems. Brand-specific guides and step-by-step troubleshooting manuals.",
+      brandGuides: "Brand Guides",
+      solutions: "Solutions",
+      categories: "Categories",
+      brandGuidesSection: "Brand Guides",
+      troubleshootingGuide: "Troubleshooting",
+      viewGuide: "View Guide",
+      commonProblems: "Common Problems",
+      nozzleClog: "Nozzle Clogging",
+      firstLayerAdhesion: "First Layer Adhesion",
+      stringing: "Stringing",
+      warping: "Warping",
+      allGuides: "All Troubleshooting Guides",
+      loadMore: "Load More",
+      loading: "Loading...",
+      noMorePosts: "All content loaded",
+      errorLoading: "An error occurred while loading content.",
+      notFoundTitle: "Can't Find Your Problem?",
+      notFoundDesc: "Join our community, get help from experienced makers.",
+      goToForum: "Go to Forum",
+      contactUs: "Contact Us",
+      forumCta: "Can't Find Your Problem?",
+      forumCtaDesc: "Join our community, get help from experienced makers.",
+      breadcrumbHome: "Home",
+      breadcrumbTroubleshooting: "Troubleshooting",
+      prev: "Previous",
+      next: "Next",
+    },
     // Interactive Guides
     interactiveGuide: {
       // Common
@@ -957,6 +1056,39 @@ export const translations: Record<Language, {
       categoryReview: "Bewertung",
       categoryTroubleshooting: "Fehlerbehebung",
       categoryArticle: "Artikel"
+    },
+    // Troubleshooting Page
+    troubleshootingPage: {
+      pageTitle: "3D-Drucker Fehlerbehebung | 3D-labX",
+      pageDesc: "Umfassende Lösungen für 3D-Drucker-Probleme: Düsenverstopfung, Haftungsprobleme, Fädenziehen, Schichtverschiebung und mehr.",
+      heroTitle: "3D-Drucker Fehlerbehebung",
+      heroDesc: "Umfassende Lösungen für Ihre 3D-Druck-Probleme. Markenspezifische Anleitungen und Schritt-für-Schritt Fehlerbehebung.",
+      brandGuides: "Marken-Anleitungen",
+      solutions: "Lösungen",
+      categories: "Kategorien",
+      brandGuidesSection: "Marken-Anleitungen",
+      troubleshootingGuide: "Fehlerbehebung",
+      viewGuide: "Anleitung ansehen",
+      commonProblems: "Häufige Probleme",
+      nozzleClog: "Düsenverstopfung",
+      firstLayerAdhesion: "Erste Schicht haftet nicht",
+      stringing: "Fädenziehen (Stringing)",
+      warping: "Warping / Verzug",
+      allGuides: "Alle Fehlerbehebungen",
+      loadMore: "Mehr laden",
+      loading: "Wird geladen...",
+      noMorePosts: "Alle Inhalte geladen",
+      errorLoading: "Beim Laden ist ein Fehler aufgetreten.",
+      notFoundTitle: "Problem nicht gefunden?",
+      notFoundDesc: "Treten Sie unserer Community bei, erhalten Sie Hilfe von erfahrenen Makern.",
+      goToForum: "Zum Forum",
+      contactUs: "Kontakt",
+      forumCta: "Problem nicht gefunden?",
+      forumCtaDesc: "Treten Sie unserer Community bei, erhalten Sie Hilfe von erfahrenen Makern.",
+      breadcrumbHome: "Startseite",
+      breadcrumbTroubleshooting: "Fehlerbehebung",
+      prev: "Zurück",
+      next: "Weiter",
     },
     // Interactive Guides
     interactiveGuide: {
