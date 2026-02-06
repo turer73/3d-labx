@@ -14,6 +14,31 @@ const { slug } = Astro.params;
 const lang = getLanguage(Astro.request);
 const t = translations[lang];
 
+// Dile göre doğru route'a yönlendir (SEO için önemli)
+if (lang === "de") {
+  try {
+    const slugRes = await fetch(`${API_BASE}/api/post/${slug}?lang=de`);
+    if (slugRes.ok) {
+      const postData = await slugRes.json();
+      const deSlug = postData.slug_de || postData.slug;
+      return Astro.redirect(`/fehlerbehebung/${deSlug}`, 301);
+    }
+  } catch (e) {}
+  return Astro.redirect(`/fehlerbehebung/${slug}`, 301);
+}
+
+if (lang === "en") {
+  try {
+    const slugRes = await fetch(`${API_BASE}/api/post/${slug}?lang=en`);
+    if (slugRes.ok) {
+      const postData = await slugRes.json();
+      const enSlug = postData.slug_en || postData.slug;
+      return Astro.redirect(`/troubleshooting/${enSlug}`, 301);
+    }
+  } catch (e) {}
+  return Astro.redirect(`/troubleshooting/${slug}`, 301);
+}
+
 // Eski URL'lerden yönlendirme (SEO için)
 const redirects: Record<string, string> = {
   "bambu-lab-yazicilarda-sik-karsilasilan-sorunlar-ve-cozumleri-x1-p1-a1-serisi": "/sorun-cozumleri/bambu-lab-sorun-giderme",

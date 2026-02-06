@@ -1,0 +1,202 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+import { marked } from "marked";
+import { getLanguage, dateLocales, type Language } from "../../lib/api";
+import { translations } from "../../lib/translations";
+
+export const prerender = false;
+
+const API_BASE = "https://tech-portal-api.turgut-d01.workers.dev";
+const { slug } = Astro.params;
+
+// Bu sayfa sadece Almanca site için
+const lang: Language = "de";
+const t = translations[lang];
+
+// Dil kontrolü
+const detectedLang = getLanguage(Astro.request);
+if (detectedLang === "tr") {
+  return Astro.redirect(`/sorun-cozumleri/${slug}`, 301);
+}
+if (detectedLang === "en") {
+  return Astro.redirect(`/troubleshooting/${slug}`, 301);
+}
+
+let post: any = null;
+let relatedPosts: any[] = [];
+let fetchError = "";
+
+try {
+  const res = await fetch(`${API_BASE}/api/post/${slug}?lang=${lang}`);
+  if (res.ok) {
+    post = await res.json();
+  }
+
+  if (post) {
+    const relatedRes = await fetch(`${API_BASE}/api/posts?category=${post.category}&limit=4&lang=${lang}`);
+    if (relatedRes.ok) {
+      const relatedData = await relatedRes.json();
+      const allRelated = relatedData.posts || [];
+      relatedPosts = allRelated.filter((p: any) => p.slug !== slug).slice(0, 3);
+    }
+  }
+} catch (e: any) {
+  fetchError = e?.message || "Fetch error";
+}
+
+const title = post?.title || t.article.notFound;
+
+function formatContent(content: string): string {
+  if (!content) return "";
+  if (content.includes("<p>") || content.includes("<h2>") || content.includes("<div>")) {
+    return content;
+  }
+  if (content.includes("##") || content.includes("**") || content.includes("|")) {
+    return marked.parse(content) as string;
+  }
+  return content.split(/\n\n+/).map(p => `<p>${p.replace(/\n/g, "<br/>")}</p>`).join("");
+}
+
+function extractHeadings(content: string): {id: string, text: string}[] {
+  const headings: {id: string, text: string}[] = [];
+  const regex = /<h2[^>]*>(.*?)<\/h2>/gi;
+  let match;
+  while ((match = regex.exec(content)) !== null) {
+    const text = match[1].replace(/<[^>]+>/g, '');
+    const id = text.toLowerCase().replace(/[^a-z0-9äöüß]/gi, '-').replace(/-+/g, '-');
+    headings.push({ id, text });
+  }
+  return headings;
+}
+
+function calculateReadTime(content: string): number {
+  const text = content.replace(/<[^>]+>/g, '');
+  const words = text.split(/\s+/).length;
+  return Math.ceil(words / 200);
+}
+
+const formattedContent = post ? formatContent(post.content || "") : "";
+const headings = extractHeadings(formattedContent);
+const readTime = post ? calculateReadTime(post.content || "") : 0;
+
+const formattedDate = post?.created_at
+  ? new Date(post.created_at).toLocaleDateString("de-DE", { day: "numeric", month: "long", year: "numeric" })
+  : "";
+---
+
+<BaseLayout title={title}>
+  <Header />
+
+  {fetchError && (
+    <main class="error-page">
+      <p style="color: red;">{t.homepage.connectionError}: {fetchError}</p>
+      <a href="/fehlerbehebung">Zurück zur Fehlerbehebung</a>
+    </main>
+  )}
+
+  {!post && !fetchError && (
+    <main class="error-page">
+      <h1>{t.article.notFound}</h1>
+      <a href="/fehlerbehebung">Zurück zur Fehlerbehebung</a>
+    </main>
+  )}
+
+  {post && (
+    <>
+      <section class="article-hero">
+        <div class="hero-container">
+          <div class="hero-meta">
+            <span class="category-badge">🔧 Fehlerbehebung</span>
+            <span class="meta-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              {formattedDate}
+            </span>
+            <span class="meta-item">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              {readTime} Min. Lesezeit
+            </span>
+          </div>
+          <h1 class="hero-title">{post.title}</h1>
+          <p class="hero-summary">{post.summary}</p>
+        </div>
+      </section>
+
+      <div class="article-layout">
+        <main class="article-main">
+          <div class="article-content" set:html={formattedContent} />
+
+          <a href="/fehlerbehebung" class="back-link">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Zurück zur Fehlerbehebung
+          </a>
+        </main>
+
+        <aside class="sidebar">
+          {headings.length > 0 && (
+            <div class="sidebar-card">
+              <h3 class="sidebar-title">📑 Inhaltsverzeichnis</h3>
+              <ul class="toc-list">
+                {headings.map(h => (
+                  <li><a href={`#${h.id}`}>{h.text}</a></li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {relatedPosts.length > 0 && (
+            <div class="sidebar-card">
+              <h3 class="sidebar-title">📚 Verwandte Artikel</h3>
+              {relatedPosts.map(rp => (
+                <a href={`/fehlerbehebung/${rp.slug}`} class="related-post">
+                  <div class="related-post-icon">🔧</div>
+                  <div>
+                    <div class="related-post-title">{rp.title}</div>
+                    <div class="related-post-cat">Fehlerbehebung</div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
+        </aside>
+      </div>
+    </>
+  )}
+</BaseLayout>
+
+<style>
+  .error-page { padding-top: 160px; max-width: 600px; margin: 0 auto; text-align: center; padding: 160px 20px 80px; }
+  .article-hero { padding: 140px 20px 50px; background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-main) 100%); border-bottom: 1px solid var(--border-soft); }
+  .hero-container { max-width: 900px; margin: 0 auto; }
+  .hero-meta { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .category-badge { color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; background: #ef4444; }
+  .meta-item { display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 0.9rem; }
+  .hero-title { font-size: 2.5rem; font-weight: 700; line-height: 1.2; margin-bottom: 16px; color: var(--text-main); }
+  .hero-summary { font-size: 1.15rem; color: var(--text-muted); line-height: 1.6; max-width: 700px; }
+  .article-layout { display: grid; grid-template-columns: 1fr 280px; gap: 40px; max-width: 1100px; margin: 0 auto; padding: 40px 20px 80px; }
+  @media (max-width: 900px) { .article-layout { grid-template-columns: 1fr; } .sidebar { order: -1; } .hero-title { font-size: 1.8rem; } }
+  .article-main { min-width: 0; }
+  .article-content { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 16px; padding: 36px; color: var(--text-main); line-height: 1.8; font-size: 1.05rem; }
+  .article-content :global(p) { margin-bottom: 18px; }
+  .article-content :global(h2) { font-size: 1.4rem; margin-top: 36px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); color: var(--text-main); }
+  .article-content :global(h3) { font-size: 1.15rem; margin-top: 28px; margin-bottom: 12px; color: var(--text-main); }
+  .article-content :global(ul), .article-content :global(ol) { margin-bottom: 18px; padding-left: 24px; }
+  .article-content :global(li) { margin-bottom: 10px; }
+  .article-content :global(strong), .article-content :global(b) { color: var(--accent); font-weight: 600; }
+  .article-content :global(pre) { background: #1e1e2e; border-radius: 12px; padding: 20px; overflow-x: auto; margin: 20px 0; }
+  .article-content :global(code) { font-family: 'Fira Code', monospace; font-size: 0.9rem; color: #a6e3a1; }
+  .back-link { display: inline-flex; align-items: center; gap: 8px; color: var(--accent); text-decoration: none; font-weight: 500; margin-top: 32px; padding: 12px 20px; background: rgba(59, 130, 246, 0.1); border-radius: 10px; transition: all 0.2s; }
+  .back-link:hover { background: var(--accent); color: white; }
+  .sidebar { display: flex; flex-direction: column; gap: 20px; position: sticky; top: 100px; align-self: start; }
+  .sidebar-card { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 16px; padding: 20px; }
+  .sidebar-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 14px; font-weight: 600; }
+  .toc-list { list-style: none; padding: 0; margin: 0; }
+  .toc-list li { margin-bottom: 8px; }
+  .toc-list a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; display: block; padding: 8px 12px; border-radius: 8px; transition: all 0.2s; }
+  .toc-list a:hover { color: var(--text-main); background: var(--bg-hover); }
+  .related-post { display: flex; gap: 12px; padding: 12px; border-radius: 10px; transition: background 0.2s; text-decoration: none; margin-bottom: 8px; }
+  .related-post:hover { background: var(--bg-hover); }
+  .related-post-icon { width: 44px; height: 44px; background: var(--bg-hover); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+  .related-post-title { font-size: 0.9rem; font-weight: 500; color: var(--text-main); margin-bottom: 4px; }
+  .related-post-cat { font-size: 0.75rem; color: var(--text-muted); }
+</style>

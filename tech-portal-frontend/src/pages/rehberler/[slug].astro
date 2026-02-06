@@ -16,6 +16,34 @@ const dateLocale = dateLocales[lang];
 const API_BASE = "https://tech-portal-api.turgut-d01.workers.dev";
 const { slug } = Astro.params;
 
+// Dile göre doğru route'a yönlendir (SEO için önemli)
+// Almanca sitede /anleitungen/, İngilizce sitede /guides/ kullanılmalı
+if (lang === "de") {
+  // Almanca slug'ı bul ve yönlendir
+  try {
+    const slugRes = await fetch(`${API_BASE}/api/post/${slug}?lang=de`);
+    if (slugRes.ok) {
+      const postData = await slugRes.json();
+      const deSlug = postData.slug_de || postData.slug;
+      return Astro.redirect(`/anleitungen/${deSlug}`, 301);
+    }
+  } catch (e) {}
+  return Astro.redirect(`/anleitungen/${slug}`, 301);
+}
+
+if (lang === "en") {
+  // İngilizce slug'ı bul ve yönlendir
+  try {
+    const slugRes = await fetch(`${API_BASE}/api/post/${slug}?lang=en`);
+    if (slugRes.ok) {
+      const postData = await slugRes.json();
+      const enSlug = postData.slug_en || postData.slug;
+      return Astro.redirect(`/guides/${enSlug}`, 301);
+    }
+  } catch (e) {}
+  return Astro.redirect(`/guides/${slug}`, 301);
+}
+
 // Sorun giderme sayfalarını /sorun-cozumleri/ altına yönlendir
 const sorunGidermeRedirects: Record<string, string> = {
   "bambu-lab-sorun-giderme": "/sorun-cozumleri/bambu-lab-sorun-giderme",
