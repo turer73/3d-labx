@@ -1,7 +1,50 @@
 import type { APIRoute } from "astro";
 import { getApiBase, getLanguage } from "../lib/api";
 
-// Helper function to generate hreflang tags
+// Kategori çevirileri
+const categoryTranslations: Record<string, Record<string, string>> = {
+  tr: {
+    "sorun-cozumleri": "sorun-cozumleri",
+    "rehberler": "rehberler",
+    "incelemeler": "incelemeler",
+    "3d-baski": "3d-baski",
+    "teknoloji": "teknoloji",
+    "yapay-zeka": "yapay-zeka",
+  },
+  en: {
+    "sorun-cozumleri": "troubleshooting",
+    "rehberler": "guides",
+    "incelemeler": "reviews",
+    "3d-baski": "3d-printing",
+    "teknoloji": "technology",
+    "yapay-zeka": "ai",
+  },
+  de: {
+    "sorun-cozumleri": "fehlerbehebung",
+    "rehberler": "anleitungen",
+    "incelemeler": "bewertungen",
+    "3d-baski": "3d-druck",
+    "teknoloji": "technologie",
+    "yapay-zeka": "ki",
+  }
+};
+
+// Helper function to generate hreflang tags with localized paths
+function hreflangTagsForPost(post: any): string {
+  const trPath = `/${post.category}/${post.slug_tr || post.slug}`;
+  const enCategory = categoryTranslations.en[post.category] || post.category;
+  const deCategory = categoryTranslations.de[post.category] || post.category;
+  const enPath = `/${enCategory}/${post.slug_en || post.slug_tr || post.slug}`;
+  const dePath = `/${deCategory}/${post.slug_de || post.slug_tr || post.slug}`;
+
+  return `
+    <xhtml:link rel="alternate" hreflang="tr" href="https://3d-labx.com${trPath}"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://en.3d-labx.com${enPath}"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://de.3d-labx.com${dePath}"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://3d-labx.com${trPath}"/>`;
+}
+
+// Helper function for static pages
 function hreflangTags(path: string): string {
   return `
     <xhtml:link rel="alternate" hreflang="tr" href="https://3d-labx.com${path}"/>
@@ -19,8 +62,8 @@ export const GET: APIRoute = async ({ request }) => {
   if (lang === "en") siteUrl = "https://en.3d-labx.com";
   if (lang === "de") siteUrl = "https://de.3d-labx.com";
 
-  // API'den tüm postları al
-  const res = await fetch(`${API_BASE}/api/posts?limit=500`);
+  // API'den tüm postları al (dile göre slug dahil)
+  const res = await fetch(`${API_BASE}/api/posts?limit=500&lang=${lang}`);
   const data = await res.json();
   const posts = data.posts || [];
 
@@ -157,17 +200,20 @@ export const GET: APIRoute = async ({ request }) => {
   </url>`
     ),
 
-    // Dinamik blog/rehber içerikleri - hreflang ile
+    // Dinamik blog/rehber içerikleri - dile göre slug ve hreflang ile
     ...posts.map(
       (post: any) => {
-        const postPath = `/${post.category}/${post.slug}`;
+        // Dile göre kategori ve slug seç
+        const localCategory = categoryTranslations[lang]?.[post.category] || post.category;
+        const localSlug = post.slug; // API zaten dile göre slug döndürüyor
+        const postPath = `/${localCategory}/${localSlug}`;
         const postDate = post.created_at ? new Date(post.created_at).toISOString().split('T')[0] : today;
         return `
   <url>
     <loc>${siteUrl}${postPath}</loc>
     <lastmod>${postDate}</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>${hreflangTags(postPath)}
+    <priority>0.6</priority>${hreflangTagsForPost(post)}
   </url>`;
       }
     ),

@@ -16,6 +16,7 @@ type Post = {
   title_tr: string;
   summary_tr: string;
   slug: string;
+  slug_tr?: string;
   category: string;
   image_url?: string;
   is_featured: number;
@@ -117,6 +118,41 @@ const categoryLabels: Record<Language, Record<string, string>> = {
     "topluluk-projesi": "Community Projekt"
   }
 };
+
+// URL kategori slug'ları (SEO için dile göre)
+const categoryUrls: Record<Language, Record<string, string>> = {
+  tr: {
+    "3d-baski": "3d-baski",
+    "rehberler": "rehberler",
+    "incelemeler": "incelemeler",
+    "sorun-cozumleri": "sorun-cozumleri",
+    "topluluk": "topluluk",
+    "teknoloji": "teknoloji",
+    "yapay-zeka": "yapay-zeka"
+  },
+  en: {
+    "3d-baski": "3d-printing",
+    "rehberler": "guides",
+    "incelemeler": "reviews",
+    "sorun-cozumleri": "troubleshooting",
+    "topluluk": "community",
+    "teknoloji": "technology",
+    "yapay-zeka": "ai"
+  },
+  de: {
+    "3d-baski": "3d-druck",
+    "rehberler": "anleitungen",
+    "incelemeler": "bewertungen",
+    "sorun-cozumleri": "fehlerbehebung",
+    "topluluk": "community",
+    "teknoloji": "technologie",
+    "yapay-zeka": "ki"
+  }
+};
+
+function getCategoryUrl(cat: string) {
+  return categoryUrls[lang][cat] || cat;
+}
 
 function getCategoryLabel(cat: string) {
   return categoryLabels[lang][cat] || categoryLabels[lang]["3d-baski"];

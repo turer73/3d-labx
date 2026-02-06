@@ -229,9 +229,9 @@ async function safeParseJSON(request) {
 function getLangFields(lang) {
   const safeLang = validateLang(lang);
   const fieldMap = {
-    tr: { titleField: "title_tr", summaryField: "summary_tr", contentField: "content_tr" },
-    en: { titleField: "title_en", summaryField: "summary_en", contentField: "content_en" },
-    de: { titleField: "title_de", summaryField: "summary_de", contentField: "content_de" }
+    tr: { titleField: "title_tr", summaryField: "summary_tr", contentField: "content_tr", slugField: "slug" },
+    en: { titleField: "title_en", summaryField: "summary_en", contentField: "content_en", slugField: "slug_en" },
+    de: { titleField: "title_de", summaryField: "summary_de", contentField: "content_de", slugField: "slug_de" }
   };
   return fieldMap[safeLang] || fieldMap.tr;
 }
@@ -840,7 +840,7 @@ export default {
       // Ana Sayfa (kategorilere göre gruplu) - Çok dilli destek
       if (path === "/api/home" && method === "GET") {
         const lang = validateLang(url.searchParams.get("lang") || "tr");
-        const { titleField, summaryField } = getLangFields(lang);
+        const { titleField, summaryField, slugField } = getLangFields(lang);
         const result = {};
 
         for (const category of CATEGORIES) {
@@ -848,7 +848,9 @@ export default {
             SELECT id,
               COALESCE(NULLIF(${titleField}, ''), title_tr) as title_tr,
               COALESCE(NULLIF(${summaryField}, ''), summary_tr) as summary_tr,
-              slug, category, post_type, image_url, is_featured, created_at
+              COALESCE(NULLIF(${slugField}, ''), slug) as slug,
+              slug as slug_tr,
+              category, post_type, image_url, is_featured, created_at
             FROM posts
             WHERE published = 1 AND category = ?
             ORDER BY created_at DESC
@@ -872,13 +874,15 @@ export default {
         );
 
         // Dile göre alan seçimi (güvenli whitelist) - COALESCE ile fallback
-        const { titleField, summaryField } = getLangFields(lang);
+        const { titleField, summaryField, slugField } = getLangFields(lang);
 
         let query = `
           SELECT id,
                  COALESCE(NULLIF(${titleField}, ''), title_tr) as title,
                  COALESCE(NULLIF(${summaryField}, ''), summary_tr) as summary,
-                 slug, category, post_type, image_url, is_featured, created_at, language
+                 COALESCE(NULLIF(${slugField}, ''), slug) as slug,
+                 slug as slug_tr,
+                 category, post_type, image_url, is_featured, created_at, language
           FROM posts
           WHERE published = 1 AND (language = ? OR language IS NULL OR language = 'tr')
         `;
@@ -926,50 +930,64 @@ export default {
         if (!slug) return errorResponse("Slug required", 400, "INVALID_SLUG");
 
         // Dile göre alan seçimi (güvenli whitelist) - COALESCE ile fallback
-        const { titleField, summaryField, contentField } = getLangFields(lang);
+        const { titleField, summaryField, contentField, slugField } = getLangFields(lang);
 
+        // Hem orijinal slug hem de dile özel slug ile ara
         const post = await env.DB.prepare(`
           SELECT id,
                  COALESCE(NULLIF(${titleField}, ''), title_tr) as title,
                  COALESCE(NULLIF(${summaryField}, ''), summary_tr) as summary,
                  COALESCE(NULLIF(${contentField}, ''), content_tr) as content,
-                 slug, category, post_type, image_url, source_url, created_at, language, original_id
+                 COALESCE(NULLIF(${slugField}, ''), slug) as slug,
+                 slug as slug_tr,
+                 slug_en, slug_de,
+                 category, post_type, image_url, source_url, created_at, language, original_id
           FROM posts
-          WHERE slug = ? AND published = 1
-        `).bind(slug).first();
+          WHERE (slug = ? OR slug_en = ? OR slug_de = ?) AND published = 1
+        `).bind(slug, slug, slug).first();
 
         if (!post) return errorResponse("Post not found", 404, "NOT_FOUND");
 
-        // Diğer dillerdeki versiyonları bul
-        const translations = await env.DB.prepare(`
-          SELECT language, slug FROM posts
-          WHERE (original_id = ? OR id = ? OR original_id = (SELECT original_id FROM posts WHERE id = ?))
-          AND published = 1 AND id != ?
-        `).bind(post.id, post.original_id || post.id, post.id, post.id).all();
-
+        // Diğer dillerdeki slug'ları döndür (hreflang için)
         return jsonResponse({
           ...post,
-          translations: translations.results || []
+          slugs: {
+            tr: post.slug_tr,
+            en: post.slug_en || post.slug_tr,
+            de: post.slug_de || post.slug_tr
+          }
         }, 200, CONFIG.CACHE_TTL);
       }
 
-      // Arama
+      // Arama - Çok dilli destek
       if (path === "/api/search" && method === "GET") {
         const query = sanitizeString(url.searchParams.get("q"), 100);
+        const lang = validateLang(url.searchParams.get("lang") || "tr");
         if (!query || query.length < 2) {
           return jsonResponse({ results: [], query: "" }, 200, 60);
         }
 
+        const { titleField, summaryField, slugField } = getLangFields(lang);
         const searchTerm = `%${query}%`;
         const results = await env.DB.prepare(`
-          SELECT id, title_tr, summary_tr, slug, category, image_url
+          SELECT id,
+                 COALESCE(NULLIF(${titleField}, ''), title_tr) as title,
+                 COALESCE(NULLIF(${summaryField}, ''), summary_tr) as summary,
+                 COALESCE(NULLIF(${slugField}, ''), slug) as slug,
+                 category, image_url
           FROM posts
-          WHERE published = 1 AND (title_tr LIKE ? OR summary_tr LIKE ?)
+          WHERE published = 1 AND (
+            title_tr LIKE ? OR summary_tr LIKE ? OR
+            title_en LIKE ? OR summary_en LIKE ? OR
+            title_de LIKE ? OR summary_de LIKE ?
+          )
           ORDER BY
-            CASE WHEN title_tr LIKE ? THEN 0 ELSE 1 END,
+            CASE WHEN ${titleField} LIKE ? THEN 0
+                 WHEN title_tr LIKE ? THEN 1
+                 ELSE 2 END,
             created_at DESC
           LIMIT 20
-        `).bind(searchTerm, searchTerm, searchTerm).all();
+        `).bind(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm).all();
 
         return jsonResponse({
           results: results.results || [],
@@ -2363,7 +2381,9 @@ Content: ${(post.content_tr || '').substring(0, 4000)}`;
             SELECT
               COUNT(*) as total,
               SUM(CASE WHEN title_en IS NOT NULL AND title_en != '' THEN 1 ELSE 0 END) as translated_en,
-              SUM(CASE WHEN title_de IS NOT NULL AND title_de != '' THEN 1 ELSE 0 END) as translated_de
+              SUM(CASE WHEN title_de IS NOT NULL AND title_de != '' THEN 1 ELSE 0 END) as translated_de,
+              SUM(CASE WHEN slug_en IS NOT NULL AND slug_en != '' THEN 1 ELSE 0 END) as slug_en_count,
+              SUM(CASE WHEN slug_de IS NOT NULL AND slug_de != '' THEN 1 ELSE 0 END) as slug_de_count
             FROM posts
             WHERE published = 1 AND title_tr IS NOT NULL AND title_tr != ''
           `).first();
@@ -2373,12 +2393,126 @@ Content: ${(post.content_tr || '').substring(0, 4000)}`;
             english: {
               translated: stats.translated_en,
               pending: stats.total - stats.translated_en,
-              percentage: Math.round((stats.translated_en / stats.total) * 100)
+              percentage: Math.round((stats.translated_en / stats.total) * 100),
+              slugs: stats.slug_en_count || 0
             },
             german: {
               translated: stats.translated_de,
               pending: stats.total - stats.translated_de,
-              percentage: Math.round((stats.translated_de / stats.total) * 100)
+              percentage: Math.round((stats.translated_de / stats.total) * 100),
+              slugs: stats.slug_de_count || 0
+            }
+          });
+        }
+
+        // Admin: Toplu Slug Çevirisi (POST /admin/translate-slugs)
+        if (path === "/admin/translate-slugs" && method === "POST") {
+          const body = await request.json();
+          const targetLang = body.lang || "en";
+          const limit = Math.min(body.limit || 20, 100);
+
+          if (!["en", "de"].includes(targetLang)) {
+            return errorResponse("Invalid language. Use 'en' or 'de'", 400, "INVALID_LANG");
+          }
+
+          const slugField = `slug_${targetLang}`;
+          const titleField = `title_${targetLang}`;
+
+          // Slug'ı olmayan ama çevirisi olan postları bul
+          const posts = await env.DB.prepare(`
+            SELECT id, slug, ${titleField} as title_translated
+            FROM posts
+            WHERE published = 1
+              AND ${titleField} IS NOT NULL AND ${titleField} != ''
+              AND (${slugField} IS NULL OR ${slugField} = '')
+            ORDER BY created_at DESC
+            LIMIT ?
+          `).bind(limit).all();
+
+          if (!posts.results || posts.results.length === 0) {
+            return jsonResponse({
+              success: true,
+              translated: 0,
+              message: `No posts need slug translation to ${targetLang}`
+            });
+          }
+
+          // Slug oluşturma fonksiyonu (URL-safe)
+          const createLocalizedSlug = (text) => {
+            return text
+              .toLowerCase()
+              .normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '') // Aksan işaretlerini kaldır
+              .replace(/[äöüß]/g, (match) => {
+                const map = { 'ä': 'ae', 'ö': 'oe', 'ü': 'ue', 'ß': 'ss' };
+                return map[match] || match;
+              })
+              .replace(/[^a-z0-9\s-]/g, '') // Sadece alfanumerik ve tire
+              .trim()
+              .replace(/\s+/g, '-') // Boşlukları tire yap
+              .replace(/-+/g, '-') // Çoklu tireleri tek tire yap
+              .substring(0, 80); // Maksimum uzunluk
+          };
+
+          let translated = 0;
+          const errors = [];
+
+          for (const post of posts.results) {
+            try {
+              // Çevrilmiş başlıktan slug oluştur
+              let newSlug = createLocalizedSlug(post.title_translated);
+
+              // Benzersizlik için orijinal slug'ın son kısmını ekle
+              const originalSuffix = post.slug.split('-').slice(-1)[0];
+              if (originalSuffix && /^[a-z0-9]+$/.test(originalSuffix)) {
+                newSlug = `${newSlug}-${originalSuffix}`;
+              }
+
+              await env.DB.prepare(`
+                UPDATE posts SET ${slugField} = ? WHERE id = ?
+              `).bind(newSlug, post.id).run();
+
+              translated++;
+            } catch (err) {
+              errors.push({ id: post.id, error: err.message });
+            }
+          }
+
+          await logAdminAction(env, request, "translate-slugs", null, { lang: targetLang, count: translated });
+
+          return jsonResponse({
+            success: true,
+            translated,
+            total: posts.results.length,
+            errors: errors.length > 0 ? errors : undefined,
+            message: `Generated ${translated}/${posts.results.length} ${targetLang} slugs`
+          });
+        }
+
+        // Admin: Slug Çeviri Durumu (GET /admin/slug-status)
+        if (path === "/admin/slug-status" && method === "GET") {
+          const stats = await env.DB.prepare(`
+            SELECT
+              COUNT(*) as total,
+              SUM(CASE WHEN slug_en IS NOT NULL AND slug_en != '' THEN 1 ELSE 0 END) as slug_en,
+              SUM(CASE WHEN slug_de IS NOT NULL AND slug_de != '' THEN 1 ELSE 0 END) as slug_de,
+              SUM(CASE WHEN title_en IS NOT NULL AND title_en != '' THEN 1 ELSE 0 END) as title_en,
+              SUM(CASE WHEN title_de IS NOT NULL AND title_de != '' THEN 1 ELSE 0 END) as title_de
+            FROM posts
+            WHERE published = 1
+          `).first();
+
+          return jsonResponse({
+            total: stats.total,
+            english: {
+              titles: stats.title_en,
+              slugs: stats.slug_en,
+              pending: stats.title_en - stats.slug_en
+            },
+            german: {
+              titles: stats.title_de,
+              slugs: stats.slug_de,
+              pending: stats.title_de - stats.slug_de
             }
           });
         }
