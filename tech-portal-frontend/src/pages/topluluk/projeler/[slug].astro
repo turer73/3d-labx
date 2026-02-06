@@ -653,7 +653,7 @@ function formatDate(dateStr: string): string {
   likeBtn?.addEventListener('click', async () => {
     const token = localStorage.getItem('authToken');
     if (!token) {
-      (window as any).showToast?.('Beğenmek için giriş yapın', 'warning');
+      window.showToast?.('Beğenmek için giriş yapın', 'warning');
       return;
     }
 
@@ -697,7 +697,7 @@ function formatDate(dateStr: string): string {
       });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      (window as any).showToast?.('Link kopyalandı!', 'success');
+      window.showToast?.('Link kopyalandı!', 'success');
     }
   });
 </script>

@@ -964,7 +964,7 @@ const specialtyOptions = [
   }
 
   // Login kontrolü
-  const form = document.getElementById('profileForm') as HTMLFormElement;
+  const form = document.getElementById('profileForm');
   const loginNotice = document.getElementById('loginNotice');
   const existingProfile = document.getElementById('existingProfile');
   const deleteSection = document.getElementById('deleteSection');
@@ -992,25 +992,25 @@ const specialtyOptions = [
           if (submitBtn) submitBtn.textContent = 'Profili Güncelle';
 
           const p = data.profile;
-          (document.getElementById('city') as HTMLSelectElement).value = p.city || '';
-          (document.getElementById('district') as HTMLInputElement).value = p.district || '';
-          (document.getElementById('bio') as HTMLTextAreaElement).value = p.bio || '';
-          (document.getElementById('offersPrinting') as HTMLInputElement).checked = p.offers_printing === 1;
-          (document.getElementById('offersHelp') as HTMLInputElement).checked = p.offers_help === 1;
-          (document.getElementById('showEmail') as HTMLInputElement).checked = p.show_email === 1;
-          (document.getElementById('termsAccepted') as HTMLInputElement).checked = true;
+          (document.getElementById('city')).value = p.city || '';
+          (document.getElementById('district')).value = p.district || '';
+          (document.getElementById('bio')).value = p.bio || '';
+          (document.getElementById('offersPrinting')).checked = p.offers_printing === 1;
+          (document.getElementById('offersHelp')).checked = p.offers_help === 1;
+          (document.getElementById('showEmail')).checked = p.show_email === 1;
+          (document.getElementById('termsAccepted')).checked = true;
 
           // İletişim bilgileri
-          (document.getElementById('contactDiscord') as HTMLInputElement).value = p.contact_discord || '';
-          (document.getElementById('contactTelegram') as HTMLInputElement).value = p.contact_telegram || '';
-          (document.getElementById('contactInstagram') as HTMLInputElement).value = p.contact_instagram || '';
-          (document.getElementById('contactEmail') as HTMLInputElement).value = p.contact_email || '';
-          (document.getElementById('contactPhone') as HTMLInputElement).value = p.contact_phone || '';
-          (document.getElementById('showPhone') as HTMLInputElement).checked = p.show_phone === 1;
-          (document.getElementById('allowMessages') as HTMLInputElement).checked = p.allow_messages !== 0;
+          (document.getElementById('contactDiscord')).value = p.contact_discord || '';
+          (document.getElementById('contactTelegram')).value = p.contact_telegram || '';
+          (document.getElementById('contactInstagram')).value = p.contact_instagram || '';
+          (document.getElementById('contactEmail')).value = p.contact_email || '';
+          (document.getElementById('contactPhone')).value = p.contact_phone || '';
+          (document.getElementById('showPhone')).checked = p.show_phone === 1;
+          (document.getElementById('allowMessages')).checked = p.allow_messages !== 0;
 
           // Contact preference
-          const contactPrefSelect = document.getElementById('contactPreference') as HTMLSelectElement;
+          const contactPrefSelect = document.getElementById('contactPreference');
           if (contactPrefSelect && p.contact_preference) {
             contactPrefSelect.value = p.contact_preference;
           }
@@ -1041,7 +1041,7 @@ const specialtyOptions = [
   loadExistingProfile();
 
   // Bio karakter sayacı
-  const bioInput = document.getElementById('bio') as HTMLTextAreaElement;
+  const bioInput = document.getElementById('bio');
   const bioCount = document.getElementById('bioCount');
 
   function updateBioCount() {
@@ -1055,7 +1055,7 @@ const specialtyOptions = [
   // (Contact preference artık select dropdown - ek JS gerekmez)
 
   // Printers tag input
-  const printerInputField = document.getElementById('printerInputField') as HTMLInputElement;
+  const printerInputField = document.getElementById('printerInputField');
   const printersList = document.getElementById('printersList');
 
   function renderPrinters() {
@@ -1094,41 +1094,41 @@ const specialtyOptions = [
 
     const token = getAuthToken();
     if (!token) {
-      (window as any).showToast?.('Lütfen giriş yapın', 'warning');
+      window.showToast?.('Lütfen giriş yapın', 'warning');
       return;
     }
 
-    const city = (document.getElementById('city') as HTMLSelectElement)?.value;
-    const district = (document.getElementById('district') as HTMLInputElement)?.value?.trim();
-    const bio = (document.getElementById('bio') as HTMLTextAreaElement)?.value?.trim();
-    const offersPrinting = (document.getElementById('offersPrinting') as HTMLInputElement)?.checked;
-    const offersHelp = (document.getElementById('offersHelp') as HTMLInputElement)?.checked;
-    const contactPreference = (document.getElementById('contactPreference') as HTMLSelectElement)?.value || 'message';
-    const showEmail = (document.getElementById('showEmail') as HTMLInputElement)?.checked;
-    const showPhone = (document.getElementById('showPhone') as HTMLInputElement)?.checked;
-    const allowMessages = (document.getElementById('allowMessages') as HTMLInputElement)?.checked;
-    const contactDiscord = (document.getElementById('contactDiscord') as HTMLInputElement)?.value?.trim();
-    const contactTelegram = (document.getElementById('contactTelegram') as HTMLInputElement)?.value?.trim();
-    const contactInstagram = (document.getElementById('contactInstagram') as HTMLInputElement)?.value?.trim();
-    const contactEmail = (document.getElementById('contactEmail') as HTMLInputElement)?.value?.trim();
-    const contactPhone = (document.getElementById('contactPhone') as HTMLInputElement)?.value?.trim();
-    const termsAccepted = (document.getElementById('termsAccepted') as HTMLInputElement)?.checked;
+    const city = (document.getElementById('city'))?.value;
+    const district = (document.getElementById('district'))?.value?.trim();
+    const bio = (document.getElementById('bio'))?.value?.trim();
+    const offersPrinting = (document.getElementById('offersPrinting'))?.checked;
+    const offersHelp = (document.getElementById('offersHelp'))?.checked;
+    const contactPreference = (document.getElementById('contactPreference'))?.value || 'message';
+    const showEmail = (document.getElementById('showEmail'))?.checked;
+    const showPhone = (document.getElementById('showPhone'))?.checked;
+    const allowMessages = (document.getElementById('allowMessages'))?.checked;
+    const contactDiscord = (document.getElementById('contactDiscord'))?.value?.trim();
+    const contactTelegram = (document.getElementById('contactTelegram'))?.value?.trim();
+    const contactInstagram = (document.getElementById('contactInstagram'))?.value?.trim();
+    const contactEmail = (document.getElementById('contactEmail'))?.value?.trim();
+    const contactPhone = (document.getElementById('contactPhone'))?.value?.trim();
+    const termsAccepted = (document.getElementById('termsAccepted'))?.checked;
 
     // Specialties
     const specialtyCheckboxes = document.querySelectorAll('input[name="specialties"]:checked');
     const specialties = Array.from(specialtyCheckboxes).map((cb: any) => cb.value);
 
     if (!city) {
-      (window as any).showToast?.('Lütfen il seçin', 'warning');
+      window.showToast?.('Lütfen il seçin', 'warning');
       return;
     }
 
     if (!termsAccepted) {
-      (window as any).showToast?.('Lütfen yasal metinleri onaylayın', 'warning');
+      window.showToast?.('Lütfen yasal metinleri onaylayın', 'warning');
       return;
     }
 
-    const btn = submitBtn as HTMLButtonElement;
+    const btn = submitBtn;
     if (btn) {
       btn.disabled = true;
       btn.textContent = 'Kaydediliyor...';
@@ -1165,14 +1165,14 @@ const specialtyOptions = [
       const data = await res.json();
 
       if (res.ok) {
-        (window as any).showToast?.('Profiliniz kaydedildi!', 'success');
+        window.showToast?.('Profiliniz kaydedildi!', 'success');
         window.location.href = '/topluluk/harita';
       } else {
-        (window as any).showToast?.(data.error || 'Bir hata oluştu', 'error');
+        window.showToast?.(data.error || 'Bir hata oluştu', 'error');
       }
     } catch (err) {
       console.error('Profile save error:', err);
-      (window as any).showToast?.('Bir hata oluştu', 'error');
+      window.showToast?.('Bir hata oluştu', 'error');
     } finally {
       if (btn) {
         btn.disabled = false;
@@ -1196,12 +1196,12 @@ const specialtyOptions = [
       });
 
       if (res.ok) {
-        (window as any).showToast?.('Profiliniz haritadan kaldırıldı', 'success');
+        window.showToast?.('Profiliniz haritadan kaldırıldı', 'success');
         window.location.href = '/topluluk/harita';
       }
     } catch (err) {
       console.error('Delete error:', err);
-      (window as any).showToast?.('Bir hata oluştu', 'error');
+      window.showToast?.('Bir hata oluştu', 'error');
     }
   });
 </script>

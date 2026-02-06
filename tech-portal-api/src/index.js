@@ -532,13 +532,46 @@ function parseRSS(xml) {
     };
 
     const title = isAtom ? get("title") : get("title");
-    const description = isAtom ? (get("summary") || get("content")) : get("description");
+
+    // content:encoded alanını kontrol et (WordPress RSS'lerinde tam içerik burada)
+    const getContent = () => {
+      // content:encoded namespace'i için özel regex
+      const contentEncodedMatch = item.match(/<content:encoded[^>]*>([\s\S]*?)<\/content:encoded>/);
+      if (contentEncodedMatch) {
+        return contentEncodedMatch[1].replace(/<!\[CDATA\[|\]\]>/g, "").trim();
+      }
+
+      // Atom content
+      if (isAtom) {
+        return get("content") || get("summary") || "";
+      }
+
+      // RSS description
+      return get("description") || "";
+    };
+
+    const rawContent = getContent();
+    // HTML taglerini temizle ama paragrafları koru
+    const cleanContent = rawContent
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '') // Script'leri kaldır
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // Style'ları kaldır
+      .replace(/<br\s*\/?>/gi, '\n') // br'leri newline yap
+      .replace(/<\/p>/gi, '\n\n') // p kapanışlarını çift newline yap
+      .replace(/<[^>]*>/g, '') // Diğer HTML taglerini kaldır
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/\n{3,}/g, '\n\n') // Fazla newline'ları temizle
+      .trim();
 
     if (title) {
       items.push({
         title: title.replace(/<[^>]*>/g, '').trim(),
         link: getLink(),
-        description: description.replace(/<[^>]*>/g, '').substring(0, 500),
+        description: cleanContent.substring(0, 3000), // Daha uzun içerik (3000 karakter)
         image: getImage()
       });
     }
@@ -838,11 +871,14 @@ export default {
           url.searchParams.get("limit")
         );
 
-        // Dile göre alan seçimi (güvenli whitelist)
+        // Dile göre alan seçimi (güvenli whitelist) - COALESCE ile fallback
         const { titleField, summaryField } = getLangFields(lang);
 
         let query = `
-          SELECT id, ${titleField} as title, ${summaryField} as summary, slug, category, post_type, image_url, is_featured, created_at, language
+          SELECT id,
+                 COALESCE(NULLIF(${titleField}, ''), title_tr) as title,
+                 COALESCE(NULLIF(${summaryField}, ''), summary_tr) as summary,
+                 slug, category, post_type, image_url, is_featured, created_at, language
           FROM posts
           WHERE published = 1 AND (language = ? OR language IS NULL OR language = 'tr')
         `;
@@ -889,11 +925,14 @@ export default {
         const lang = validateLang(url.searchParams.get("lang") || "tr");
         if (!slug) return errorResponse("Slug required", 400, "INVALID_SLUG");
 
-        // Dile göre alan seçimi (güvenli whitelist)
+        // Dile göre alan seçimi (güvenli whitelist) - COALESCE ile fallback
         const { titleField, summaryField, contentField } = getLangFields(lang);
 
         const post = await env.DB.prepare(`
-          SELECT id, ${titleField} as title, ${summaryField} as summary, ${contentField} as content,
+          SELECT id,
+                 COALESCE(NULLIF(${titleField}, ''), title_tr) as title,
+                 COALESCE(NULLIF(${summaryField}, ''), summary_tr) as summary,
+                 COALESCE(NULLIF(${contentField}, ''), content_tr) as content,
                  slug, category, post_type, image_url, source_url, created_at, language, original_id
           FROM posts
           WHERE slug = ? AND published = 1
@@ -2231,6 +2270,70 @@ ${sourceText}`;
             id: result.meta?.last_row_id,
             slug,
             title: parsed.title_tr
+          });
+        }
+
+        // Admin: Haber içeriklerini formatlı hale getir
+        if (path === "/admin/format-news" && method === "POST") {
+          const body = await request.json();
+          const limit = Math.min(parseInt(body.limit) || 5, 20);
+
+          // Düz metin içerikleri bul (paragraf içermeyen, AI tarafından üretilmiş)
+          const unformatted = await env.DB.prepare(`
+            SELECT id, title_tr, content_tr
+            FROM posts
+            WHERE ai_generated = 1
+              AND post_type = 'haber'
+              AND content_tr IS NOT NULL
+              AND content_tr NOT LIKE '%\n\n%'
+            ORDER BY created_at DESC
+            LIMIT ?
+          `).bind(limit).all();
+
+          if (!unformatted.results || unformatted.results.length === 0) {
+            return jsonResponse({ success: true, formatted: 0, message: "Formatlanacak içerik yok" });
+          }
+
+          let formattedCount = 0;
+          const errors = [];
+
+          for (const post of unformatted.results) {
+            try {
+              const prompt = `Aşağıdaki düz metni paragraf formatına çevir.
+Her paragraf arasında \\n\\n kullan. Minimum 3 paragraf olmalı.
+Metni değiştirme, sadece paragraflara böl.
+Sadece formatlanmış metni döndür, başka bir şey yazma.
+
+Metin:
+${post.content_tr}`;
+
+              const aiText = await generateWithAI(env, prompt);
+              if (!aiText) {
+                errors.push({ id: post.id, error: "AI failed" });
+                continue;
+              }
+
+              // Formatlanmış içeriği kaydet
+              const formattedContent = aiText.trim();
+              if (formattedContent.includes('\n\n') || formattedContent.length > post.content_tr.length * 0.8) {
+                await env.DB.prepare(`
+                  UPDATE posts SET content_tr = ? WHERE id = ?
+                `).bind(formattedContent, post.id).run();
+                formattedCount++;
+                console.log("Formatted post:", post.id, post.title_tr.substring(0, 40));
+              } else {
+                errors.push({ id: post.id, error: "Format check failed" });
+              }
+            } catch (err) {
+              errors.push({ id: post.id, error: err.message });
+            }
+          }
+
+          return jsonResponse({
+            success: true,
+            formatted: formattedCount,
+            total: unformatted.results.length,
+            errors: errors.length > 0 ? errors : undefined
           });
         }
 
@@ -5714,8 +5817,16 @@ Sadece JSON döndür:
 {
   "title_tr": "Türkçe başlık",
   "summary_tr": "Türkçe özet (max 200 karakter)",
-  "content_tr": "Türkçe detaylı içerik (min 300 karakter)"
+  "content_tr": "Türkçe detaylı içerik (min 500 karakter, paragraflar halinde)"
 }
+
+ÖNEMLİ: content_tr alanını şu kurallara göre yaz:
+- Her paragraf arasında \\n\\n (çift satır sonu) kullan
+- İlk paragraf: Haberin ana konusunu özetle
+- İkinci paragraf: Detayları ve teknik bilgileri açıkla
+- Üçüncü paragraf: Sektöre/kullanıcılara etkisini belirt
+- Gerekirse 4. paragraf ekle
+- Minimum 3 paragraf olmalı
 
 Başlık: ${item.title}
 Özet: ${item.description}`;

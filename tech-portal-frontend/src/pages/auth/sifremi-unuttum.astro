@@ -49,7 +49,7 @@ const description = "Şifrenizi sıfırlayın.";
 </BaseLayout>
 
 <script>
-  const form = document.getElementById('forgotForm') as HTMLFormElement;
+  const form = document.getElementById('forgotForm');
   const message = document.getElementById('formMessage')!;
   const submitBtn = document.getElementById('submitBtn')!;
   const btnText = submitBtn.querySelector('.btn-text')!;
@@ -58,11 +58,11 @@ const description = "Şifrenizi sıfırlayın.";
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const email = (document.getElementById('email') as HTMLInputElement).value;
+    const email = (document.getElementById('email')).value;
 
     btnText.style.display = 'none';
-    (btnLoading as HTMLElement).style.display = 'flex';
-    (submitBtn as HTMLButtonElement).disabled = true;
+    (btnLoading).style.display = 'flex';
+    (submitBtn).disabled = true;
     message.className = 'form-message';
     message.textContent = '';
 
@@ -86,8 +86,8 @@ const description = "Şifrenizi sıfırlayın.";
       message.textContent = 'Bağlantı hatası. Lütfen tekrar deneyin.';
     } finally {
       btnText.style.display = 'inline';
-      (btnLoading as HTMLElement).style.display = 'none';
-      (submitBtn as HTMLButtonElement).disabled = false;
+      (btnLoading).style.display = 'none';
+      (submitBtn).disabled = false;
     }
   });
 </script>

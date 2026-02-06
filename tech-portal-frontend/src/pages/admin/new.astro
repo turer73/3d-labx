@@ -738,7 +738,7 @@ import "../../styles/admin.css";
   const tabs = document.querySelectorAll('.editor-tab');
   const htmlEditor = document.getElementById('htmlEditor');
   const previewPanel = document.getElementById('previewPanel');
-  const contentTextarea = document.getElementById('content_tr') as HTMLTextAreaElement;
+  const contentTextarea = document.getElementById('content_tr');
   const previewContent = document.getElementById('previewContent');
 
   tabs.forEach(tab => {
@@ -857,7 +857,7 @@ import "../../styles/admin.css";
     document.querySelectorAll('.placeholder-warning.image-placeholder').forEach(el => {
       el.addEventListener('click', () => {
         // HTML moduna geç
-        const htmlTab = document.querySelector('.editor-tab[data-mode="html"]') as HTMLElement;
+        const htmlTab = document.querySelector('.editor-tab[data-mode="html"]');
         htmlTab?.click();
 
         // Kullanıcıya bilgi ver
@@ -869,7 +869,7 @@ import "../../styles/admin.css";
     document.querySelectorAll('.placeholder-warning.link-placeholder').forEach(el => {
       el.addEventListener('click', () => {
         // HTML moduna geç
-        const htmlTab = document.querySelector('.editor-tab[data-mode="html"]') as HTMLElement;
+        const htmlTab = document.querySelector('.editor-tab[data-mode="html"]');
         htmlTab?.click();
 
         alert('💡 İpucu: HTML kodunda href="https://3d-labx.com" yazan yeri gerçek bağlantı URL\'si ile değiştirin.\n\nÖrnek: href="https://ornek-site.com/sayfa"');
@@ -1080,12 +1080,12 @@ import "../../styles/admin.css";
   }
 
   // Kapak görseli yükleme
-  const coverUpload = document.getElementById('cover_upload') as HTMLInputElement;
-  const imageUrlInput = document.getElementById('image_url') as HTMLInputElement;
+  const coverUpload = document.getElementById('cover_upload');
+  const imageUrlInput = document.getElementById('image_url');
   const coverPreview = document.getElementById('cover_preview');
 
   coverUpload?.addEventListener('change', async (e) => {
-    const file = (e.target as HTMLInputElement).files?.[0];
+    const file = (e.target).files?.[0];
     if (!file) return;
 
     // Progress göster
@@ -1109,10 +1109,10 @@ import "../../styles/admin.css";
   });
 
   // İçerik resmi yükleme
-  const contentUpload = document.getElementById('content_upload') as HTMLInputElement;
+  const contentUpload = document.getElementById('content_upload');
 
   contentUpload?.addEventListener('change', async (e) => {
-    const file = (e.target as HTMLInputElement).files?.[0];
+    const file = (e.target).files?.[0];
     if (!file || !contentTextarea) return;
 
     // Cursor pozisyonunu al
@@ -1140,9 +1140,9 @@ import "../../styles/admin.css";
   });
 
   // AI görsel oluşturma
-  const aiImageBtn = document.getElementById('ai_image_btn') as HTMLButtonElement;
-  const titleInput = document.getElementById('title_tr') as HTMLInputElement;
-  const categorySelect = document.getElementById('category') as HTMLSelectElement;
+  const aiImageBtn = document.getElementById('ai_image_btn');
+  const titleInput = document.getElementById('title_tr');
+  const categorySelect = document.getElementById('category');
 
   aiImageBtn?.addEventListener('click', async () => {
     const title = titleInput?.value;
@@ -1193,11 +1193,11 @@ import "../../styles/admin.css";
   });
 
   // Form submit
-  const form = document.getElementById('postForm') as HTMLFormElement;
-  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
-  const btnText = submitBtn.querySelector('.btn-text') as HTMLSpanElement;
-  const btnLoading = submitBtn.querySelector('.btn-loading') as HTMLSpanElement;
-  const messageDiv = document.getElementById('message') as HTMLDivElement;
+  const form = document.getElementById('postForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const btnText = submitBtn.querySelector('.btn-text');
+  const btnLoading = submitBtn.querySelector('.btn-loading');
+  const messageDiv = document.getElementById('message');
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1218,8 +1218,8 @@ import "../../styles/admin.css";
       category: formData.get('category'),
       image_url: formData.get('image_url') || null,
       source_url: formData.get('source_url') || null,
-      is_featured: (document.getElementById('is_featured') as HTMLInputElement).checked ? 1 : 0,
-      published: (document.getElementById('published') as HTMLInputElement).checked ? 1 : 0
+      is_featured: (document.getElementById('is_featured')).checked ? 1 : 0,
+      published: (document.getElementById('published')).checked ? 1 : 0
     };
 
     try {

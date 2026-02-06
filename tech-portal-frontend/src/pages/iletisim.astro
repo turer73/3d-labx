@@ -97,9 +97,9 @@ const description = "3D-labX ile iletişime geçin. Sorularınız, önerileriniz
 </BaseLayout>
 
 <script>
-  const form = document.getElementById('contactForm') as HTMLFormElement;
+  const form = document.getElementById('contactForm');
   const formMessage = document.getElementById('formMessage');
-  const submitBtn = form?.querySelector('button[type="submit"]') as HTMLButtonElement;
+  const submitBtn = form?.querySelector('button[type="submit"]');
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();

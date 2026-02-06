@@ -39,16 +39,16 @@ import "../../styles/admin.css";
 </BaseLayout>
 
 <script>
-  const form = document.getElementById('loginForm') as HTMLFormElement;
-  const errorDiv = document.getElementById('errorMessage') as HTMLDivElement;
-  const btn = form.querySelector('button') as HTMLButtonElement;
-  const btnText = btn.querySelector('.btn-text') as HTMLSpanElement;
-  const btnLoading = btn.querySelector('.btn-loading') as HTMLSpanElement;
+  const form = document.getElementById('loginForm');
+  const errorDiv = document.getElementById('errorMessage');
+  const btn = form.querySelector('button');
+  const btnText = btn.querySelector('.btn-text');
+  const btnLoading = btn.querySelector('.btn-loading');
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const secret = (document.getElementById('secret') as HTMLInputElement).value;
+    const secret = (document.getElementById('secret')).value;
 
     // Loading state
     btnText.classList.add('hidden');

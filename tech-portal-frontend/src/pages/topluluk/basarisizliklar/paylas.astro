@@ -669,7 +669,7 @@ const filamentTypes = [
   }
 
   // Login kontrolü
-  const form = document.getElementById('failForm') as HTMLFormElement;
+  const form = document.getElementById('failForm');
   const loginNotice = document.getElementById('loginNotice');
 
   if (!getAuthToken()) {
@@ -678,9 +678,9 @@ const filamentTypes = [
   }
 
   // Karakter sayaçları
-  const titleInput = document.getElementById('title') as HTMLInputElement;
+  const titleInput = document.getElementById('title');
   const titleCount = document.getElementById('titleCount');
-  const descInput = document.getElementById('description') as HTMLTextAreaElement;
+  const descInput = document.getElementById('description');
   const descCount = document.getElementById('descCount');
 
   titleInput?.addEventListener('input', () => {
@@ -692,7 +692,7 @@ const filamentTypes = [
   });
 
   // Çözüm checkbox toggle
-  const isSolvedCheckbox = document.getElementById('isSolved') as HTMLInputElement;
+  const isSolvedCheckbox = document.getElementById('isSolved');
   const solutionGroup = document.getElementById('solutionGroup');
 
   isSolvedCheckbox?.addEventListener('change', () => {
@@ -703,11 +703,11 @@ const filamentTypes = [
 
   // Görsel yükleme
   const imageUploadArea = document.getElementById('imageUploadArea');
-  const imageInput = document.getElementById('imageInput') as HTMLInputElement;
+  const imageInput = document.getElementById('imageInput');
   const imagePreviews = document.getElementById('imagePreviews');
 
   imageUploadArea?.addEventListener('click', (e) => {
-    if ((e.target as HTMLElement).closest('.image-preview')) return;
+    if ((e.target).closest('.image-preview')) return;
     imageInput?.click();
   });
 
@@ -728,25 +728,25 @@ const filamentTypes = [
   });
 
   imageInput?.addEventListener('change', (e) => {
-    const files = (e.target as HTMLInputElement).files;
+    const files = (e.target).files;
     if (files) handleFiles(files);
   });
 
   async function handleFiles(files: FileList) {
     const token = getAuthToken();
     if (!token) {
-      (window as any).showToast?.('Lütfen giriş yapın', 'warning');
+      window.showToast?.('Lütfen giriş yapın', 'warning');
       return;
     }
 
     for (const file of Array.from(files)) {
       if (!file.type.startsWith('image/')) continue;
       if (file.size > 5 * 1024 * 1024) {
-        (window as any).showToast?.(`${file.name} çok büyük (max 5MB)`, 'warning');
+        window.showToast?.(`${file.name} çok büyük (max 5MB)`, 'warning');
         continue;
       }
       if (uploadedImages.length >= 5) {
-        (window as any).showToast?.('En fazla 5 görsel yükleyebilirsiniz', 'warning');
+        window.showToast?.('En fazla 5 görsel yükleyebilirsiniz', 'warning');
         break;
       }
 
@@ -786,7 +786,7 @@ const filamentTypes = [
           console.error('Upload error:', err);
           preview.remove();
           uploadedImages = uploadedImages.filter((_, i) => i !== idx);
-          (window as any).showToast?.('Görsel yüklenemedi', 'error');
+          window.showToast?.('Görsel yüklenemedi', 'error');
         }
 
         preview.querySelector('.remove-btn')?.addEventListener('click', (ev) => {
@@ -805,36 +805,36 @@ const filamentTypes = [
 
     const token = getAuthToken();
     if (!token) {
-      (window as any).showToast?.('Lütfen giriş yapın', 'warning');
+      window.showToast?.('Lütfen giriş yapın', 'warning');
       return;
     }
 
-    const failType = (document.querySelector('input[name="failType"]:checked') as HTMLInputElement)?.value;
-    const title = (document.getElementById('title') as HTMLInputElement)?.value?.trim();
-    const description = (document.getElementById('description') as HTMLTextAreaElement)?.value?.trim();
-    const printerModel = (document.getElementById('printerModel') as HTMLInputElement)?.value?.trim();
-    const filamentType = (document.getElementById('filamentType') as HTMLSelectElement)?.value;
-    const filamentBrand = (document.getElementById('filamentBrand') as HTMLInputElement)?.value?.trim();
-    const isSolved = (document.getElementById('isSolved') as HTMLInputElement)?.checked;
-    const solution = (document.getElementById('solution') as HTMLTextAreaElement)?.value?.trim();
+    const failType = (document.querySelector('input[name="failType"]:checked'))?.value;
+    const title = (document.getElementById('title'))?.value?.trim();
+    const description = (document.getElementById('description'))?.value?.trim();
+    const printerModel = (document.getElementById('printerModel'))?.value?.trim();
+    const filamentType = (document.getElementById('filamentType'))?.value;
+    const filamentBrand = (document.getElementById('filamentBrand'))?.value?.trim();
+    const isSolved = (document.getElementById('isSolved'))?.checked;
+    const solution = (document.getElementById('solution'))?.value?.trim();
 
     if (!failType) {
-      (window as any).showToast?.('Lütfen bir hata tipi seçin', 'warning');
+      window.showToast?.('Lütfen bir hata tipi seçin', 'warning');
       return;
     }
 
     if (!title || title.length < 5) {
-      (window as any).showToast?.('Başlık en az 5 karakter olmalıdır', 'warning');
+      window.showToast?.('Başlık en az 5 karakter olmalıdır', 'warning');
       return;
     }
 
     const images = uploadedImages.filter(img => img.url).map(img => img.url);
     if (images.length === 0) {
-      (window as any).showToast?.('En az bir görsel yükleyin', 'warning');
+      window.showToast?.('En az bir görsel yükleyin', 'warning');
       return;
     }
 
-    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+    const submitBtn = document.getElementById('submitBtn');
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.innerHTML = 'Paylaşılıyor...';
@@ -863,14 +863,14 @@ const filamentTypes = [
       const data = await res.json();
 
       if (res.ok && data.slug) {
-        (window as any).showToast?.('Başarısızlığınız paylaşıldı!', 'success');
+        window.showToast?.('Başarısızlığınız paylaşıldı!', 'success');
         window.location.href = `/topluluk/basarisizliklar/${data.slug}`;
       } else {
-        (window as any).showToast?.(data.error || 'Bir hata oluştu', 'error');
+        window.showToast?.(data.error || 'Bir hata oluştu', 'error');
       }
     } catch (err) {
       console.error('Fail create error:', err);
-      (window as any).showToast?.('Bir hata oluştu, lütfen tekrar deneyin', 'error');
+      window.showToast?.('Bir hata oluştu, lütfen tekrar deneyin', 'error');
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;

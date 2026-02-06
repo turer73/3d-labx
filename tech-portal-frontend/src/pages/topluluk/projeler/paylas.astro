@@ -623,7 +623,7 @@ const modelSources = [
   }
 
   // Login kontrolü
-  const form = document.getElementById('projectForm') as HTMLFormElement;
+  const form = document.getElementById('projectForm');
   const loginNotice = document.getElementById('loginNotice');
 
   if (!getAuthToken()) {
@@ -632,9 +632,9 @@ const modelSources = [
   }
 
   // Karakter sayaçları
-  const titleInput = document.getElementById('title') as HTMLInputElement;
+  const titleInput = document.getElementById('title');
   const titleCount = document.getElementById('titleCount');
-  const descInput = document.getElementById('description') as HTMLTextAreaElement;
+  const descInput = document.getElementById('description');
   const descCount = document.getElementById('descCount');
 
   titleInput?.addEventListener('input', () => {
@@ -647,12 +647,12 @@ const modelSources = [
 
   // Görsel yükleme
   const imageUploadArea = document.getElementById('imageUploadArea');
-  const imageInput = document.getElementById('imageInput') as HTMLInputElement;
+  const imageInput = document.getElementById('imageInput');
   const imagePreviews = document.getElementById('imagePreviews');
   const uploadPlaceholder = document.getElementById('uploadPlaceholder');
 
   imageUploadArea?.addEventListener('click', (e) => {
-    if ((e.target as HTMLElement).closest('.image-preview')) return;
+    if ((e.target).closest('.image-preview')) return;
     imageInput?.click();
   });
 
@@ -673,25 +673,25 @@ const modelSources = [
   });
 
   imageInput?.addEventListener('change', (e) => {
-    const files = (e.target as HTMLInputElement).files;
+    const files = (e.target).files;
     if (files) handleFiles(files);
   });
 
   async function handleFiles(files: FileList) {
     const token = getAuthToken();
     if (!token) {
-      (window as any).showToast?.('Lütfen giriş yapın', 'warning');
+      window.showToast?.('Lütfen giriş yapın', 'warning');
       return;
     }
 
     for (const file of Array.from(files)) {
       if (!file.type.startsWith('image/')) continue;
       if (file.size > 5 * 1024 * 1024) {
-        (window as any).showToast?.(`${file.name} çok büyük (max 5MB)`, 'warning');
+        window.showToast?.(`${file.name} çok büyük (max 5MB)`, 'warning');
         continue;
       }
       if (uploadedImages.length >= 10) {
-        (window as any).showToast?.('En fazla 10 görsel yükleyebilirsiniz', 'warning');
+        window.showToast?.('En fazla 10 görsel yükleyebilirsiniz', 'warning');
         break;
       }
 
@@ -733,7 +733,7 @@ const modelSources = [
           console.error('Upload error:', err);
           preview.remove();
           uploadedImages = uploadedImages.filter((_, i) => i !== idx);
-          (window as any).showToast?.('Görsel yüklenemedi', 'error');
+          window.showToast?.('Görsel yüklenemedi', 'error');
         }
 
         preview.querySelector('.remove-btn')?.addEventListener('click', (ev) => {
@@ -752,32 +752,32 @@ const modelSources = [
 
     const token = getAuthToken();
     if (!token) {
-      (window as any).showToast?.('Lütfen giriş yapın', 'warning');
+      window.showToast?.('Lütfen giriş yapın', 'warning');
       return;
     }
 
-    const title = (document.getElementById('title') as HTMLInputElement)?.value?.trim();
-    const description = (document.getElementById('description') as HTMLTextAreaElement)?.value?.trim();
-    const printerModel = (document.getElementById('printerModel') as HTMLInputElement)?.value?.trim();
-    const filamentType = (document.getElementById('filamentType') as HTMLSelectElement)?.value;
-    const filamentBrand = (document.getElementById('filamentBrand') as HTMLInputElement)?.value?.trim();
-    const printTime = parseFloat((document.getElementById('printTime') as HTMLInputElement)?.value) || null;
-    const printSettings = (document.getElementById('printSettings') as HTMLTextAreaElement)?.value?.trim();
-    const modelUrl = (document.getElementById('modelUrl') as HTMLInputElement)?.value?.trim();
-    const modelSource = (document.getElementById('modelSource') as HTMLSelectElement)?.value;
+    const title = (document.getElementById('title'))?.value?.trim();
+    const description = (document.getElementById('description'))?.value?.trim();
+    const printerModel = (document.getElementById('printerModel'))?.value?.trim();
+    const filamentType = (document.getElementById('filamentType'))?.value;
+    const filamentBrand = (document.getElementById('filamentBrand'))?.value?.trim();
+    const printTime = parseFloat((document.getElementById('printTime'))?.value) || null;
+    const printSettings = (document.getElementById('printSettings'))?.value?.trim();
+    const modelUrl = (document.getElementById('modelUrl'))?.value?.trim();
+    const modelSource = (document.getElementById('modelSource'))?.value;
 
     if (!title || title.length < 5) {
-      (window as any).showToast?.('Başlık en az 5 karakter olmalıdır', 'warning');
+      window.showToast?.('Başlık en az 5 karakter olmalıdır', 'warning');
       return;
     }
 
     const images = uploadedImages.filter(img => img.url).map(img => img.url);
     if (images.length === 0) {
-      (window as any).showToast?.('En az bir görsel yükleyin', 'warning');
+      window.showToast?.('En az bir görsel yükleyin', 'warning');
       return;
     }
 
-    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+    const submitBtn = document.getElementById('submitBtn');
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.innerHTML = 'Paylaşılıyor...';
@@ -807,14 +807,14 @@ const modelSources = [
       const data = await res.json();
 
       if (res.ok && data.slug) {
-        (window as any).showToast?.('Projeniz başarıyla paylaşıldı!', 'success');
+        window.showToast?.('Projeniz başarıyla paylaşıldı!', 'success');
         window.location.href = `/topluluk/projeler/${data.slug}`;
       } else {
-        (window as any).showToast?.(data.error || 'Bir hata oluştu', 'error');
+        window.showToast?.(data.error || 'Bir hata oluştu', 'error');
       }
     } catch (err) {
       console.error('Project create error:', err);
-      (window as any).showToast?.('Bir hata oluştu, lütfen tekrar deneyin', 'error');
+      window.showToast?.('Bir hata oluştu, lütfen tekrar deneyin', 'error');
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;

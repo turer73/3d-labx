@@ -55,12 +55,12 @@ const description = "E-posta doğrulama linkini yeniden gönderin.";
 </BaseLayout>
 
 <script>
-  const form = document.getElementById('resendForm') as HTMLFormElement;
+  const form = document.getElementById('resendForm');
   const message = document.getElementById('formMessage')!;
   const submitBtn = document.getElementById('submitBtn')!;
   const btnText = submitBtn.querySelector('.btn-text')!;
   const btnLoading = submitBtn.querySelector('.btn-loading')!;
-  const emailInput = document.getElementById('email') as HTMLInputElement;
+  const emailInput = document.getElementById('email');
 
   // Get email from URL if provided
   const urlParams = new URLSearchParams(window.location.search);
@@ -81,8 +81,8 @@ const description = "E-posta doğrulama linkini yeniden gönderin.";
     }
 
     btnText.style.display = 'none';
-    (btnLoading as HTMLElement).style.display = 'flex';
-    (submitBtn as HTMLButtonElement).disabled = true;
+    (btnLoading).style.display = 'flex';
+    (submitBtn).disabled = true;
     message.className = 'form-message';
     message.textContent = '';
 
@@ -111,8 +111,8 @@ const description = "E-posta doğrulama linkini yeniden gönderin.";
       message.textContent = 'Bağlantı hatası. Lütfen tekrar deneyin.';
     } finally {
       btnText.style.display = 'inline';
-      (btnLoading as HTMLElement).style.display = 'none';
-      (submitBtn as HTMLButtonElement).disabled = false;
+      (btnLoading).style.display = 'none';
+      (submitBtn).disabled = false;
     }
   });
 </script>

@@ -244,7 +244,7 @@ import "../../styles/admin.css";
     // Durum değiştir
     document.querySelectorAll('.status-toggle').forEach(btn => {
       btn.addEventListener('click', async (e) => {
-        const target = e.currentTarget as HTMLButtonElement;
+        const target = e.currentTarget;
         const id = target.dataset.id;
         const currentStatus = target.dataset.published === '1';
 
@@ -270,7 +270,7 @@ import "../../styles/admin.css";
     // Öne çıkan değiştir
     document.querySelectorAll('.featured-toggle').forEach(btn => {
       btn.addEventListener('click', async (e) => {
-        const target = e.currentTarget as HTMLButtonElement;
+        const target = e.currentTarget;
         const id = target.dataset.id;
         const currentFeatured = target.dataset.featured === '1';
 
@@ -296,7 +296,7 @@ import "../../styles/admin.css";
     // Silme
     document.querySelectorAll('.delete-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const target = e.currentTarget as HTMLButtonElement;
+        const target = e.currentTarget;
         deletePostId = parseInt(target.dataset.id!);
         document.getElementById('deleteModal')?.classList.remove('hidden');
       });
@@ -347,7 +347,7 @@ import "../../styles/admin.css";
     // Event listeners
     paginationEl.querySelectorAll('.pagination-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const page = parseInt((e.target as HTMLButtonElement).dataset.page!);
+        const page = parseInt((e.target).dataset.page!);
         loadPosts(page);
       });
     });
@@ -359,19 +359,19 @@ import "../../styles/admin.css";
   function handleSearch() {
     clearTimeout(searchTimeout);
     searchTimeout = window.setTimeout(() => {
-      currentSearch = (document.getElementById('searchInput') as HTMLInputElement).value.trim();
+      currentSearch = (document.getElementById('searchInput')).value.trim();
       loadPosts(1);
     }, 300);
   }
 
   function handleCategoryChange() {
-    currentCategory = (document.getElementById('categoryFilter') as HTMLSelectElement).value;
+    currentCategory = (document.getElementById('categoryFilter')).value;
     loadPosts(1);
   }
 
   // Client-side status filtresi (API'de yok)
   function filterByStatus() {
-    const status = (document.getElementById('statusFilter') as HTMLSelectElement).value;
+    const status = (document.getElementById('statusFilter')).value;
     if (status === '') {
       renderPosts(allPosts);
     } else {

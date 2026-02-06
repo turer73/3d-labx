@@ -1112,8 +1112,8 @@ import "../../styles/admin.css";
     const gridContainer = document.getElementById('boxesGrid')!;
     const listContainer = document.getElementById('boxesList')!;
     const emptyState = document.getElementById('emptyState')!;
-    const previewSection = document.querySelector('.preview-section') as HTMLElement;
-    const listSection = document.querySelector('.list-section') as HTMLElement;
+    const previewSection = document.querySelector('.preview-section');
+    const listSection = document.querySelector('.list-section');
 
     if (boxes.length === 0) {
       emptyState.classList.remove('hidden');
@@ -1245,14 +1245,14 @@ import "../../styles/admin.css";
   }
 
   function handleDragStart(e: DragEvent) {
-    draggedElement = e.target as HTMLElement;
+    draggedElement = e.target;
     draggedElement.classList.add('dragging');
     e.dataTransfer!.effectAllowed = 'move';
     e.dataTransfer!.setData('text/plain', draggedElement.dataset.id || '');
   }
 
   function handleDragEnd(e: DragEvent) {
-    const el = e.target as HTMLElement;
+    const el = e.target;
     el.classList.remove('dragging');
     document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
     draggedElement = null;
@@ -1264,14 +1264,14 @@ import "../../styles/admin.css";
   }
 
   function handleDragEnter(e: DragEvent) {
-    const target = (e.target as HTMLElement).closest('[draggable="true"]');
+    const target = (e.target).closest('[draggable="true"]');
     if (target && target !== draggedElement) {
       target.classList.add('drag-over');
     }
   }
 
   function handleDragLeave(e: DragEvent) {
-    const target = (e.target as HTMLElement).closest('[draggable="true"]');
+    const target = (e.target).closest('[draggable="true"]');
     if (target) {
       target.classList.remove('drag-over');
     }
@@ -1279,7 +1279,7 @@ import "../../styles/admin.css";
 
   async function handleDrop(e: DragEvent) {
     e.preventDefault();
-    const target = (e.target as HTMLElement).closest('[draggable="true"]') as HTMLElement;
+    const target = (e.target).closest('[draggable="true"]');
     if (!target || !draggedElement || target === draggedElement) return;
 
     target.classList.remove('drag-over');
@@ -1324,7 +1324,7 @@ import "../../styles/admin.css";
     tab.addEventListener('click', () => {
       document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-      currentPage = (tab as HTMLElement).dataset.page || 'anasayfa';
+      currentPage = (tab).dataset.page || 'anasayfa';
       renderBoxes();
     });
   });
@@ -1334,14 +1334,14 @@ import "../../styles/admin.css";
     btn.addEventListener('click', () => {
       document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      currentView = (btn as HTMLElement).dataset.view || 'grid';
+      currentView = (btn).dataset.view || 'grid';
       renderBoxes();
     });
   });
 
   // Toggle Visibility
   async function handleToggleVisibility(e: Event) {
-    const btn = e.target as HTMLButtonElement;
+    const btn = e.target;
     const id = parseInt(btn.dataset.id || '0');
     const currentVisible = btn.dataset.visible === '1';
 
@@ -1359,22 +1359,22 @@ import "../../styles/admin.css";
 
   // Edit
   function handleEdit(e: Event) {
-    const btn = e.target as HTMLButtonElement;
+    const btn = e.target;
     const id = parseInt(btn.dataset.id || '0');
     const box = allBoxes.find(b => b.id === id);
     if (!box) return;
 
     editingId = id;
     document.getElementById('modalTitle')!.textContent = 'İçerik Kutusunu Düzenle';
-    (document.getElementById('boxId') as HTMLInputElement).value = id.toString();
-    (document.getElementById('slotKey') as HTMLInputElement).value = box.slot_key;
-    (document.getElementById('targetPage') as HTMLSelectElement).value = box.target_page || 'anasayfa';
-    (document.getElementById('contentType') as HTMLSelectElement).value = box.content_type;
-    (document.getElementById('boxSize') as HTMLSelectElement).value = box.size || 'normal';
-    (document.getElementById('isVisible') as HTMLInputElement).checked = !!box.is_visible;
+    (document.getElementById('boxId')).value = id.toString();
+    (document.getElementById('slotKey')).value = box.slot_key;
+    (document.getElementById('targetPage')).value = box.target_page || 'anasayfa';
+    (document.getElementById('contentType')).value = box.content_type;
+    (document.getElementById('boxSize')).value = box.size || 'normal';
+    (document.getElementById('isVisible')).checked = !!box.is_visible;
 
     // Set color theme
-    const colorRadio = document.querySelector(`input[name="colorTheme"][value="${box.color_theme || 'orange'}"]`) as HTMLInputElement;
+    const colorRadio = document.querySelector(`input[name="colorTheme"][value="${box.color_theme || 'orange'}"]`);
     if (colorRadio) colorRadio.checked = true;
 
     updateConfigFields(box.content_type, JSON.parse(box.config || '{}'));
@@ -1383,7 +1383,7 @@ import "../../styles/admin.css";
 
   // Delete
   function handleDelete(e: Event) {
-    const btn = e.target as HTMLButtonElement;
+    const btn = e.target;
     deleteId = parseInt(btn.dataset.id || '0');
     document.getElementById('deleteBoxName')!.textContent = btn.dataset.name || '';
     document.getElementById('deleteModal')!.classList.remove('hidden');
@@ -1557,40 +1557,40 @@ import "../../styles/admin.css";
   function getConfigFromForm(type: string): any {
     const config: any = {};
 
-    const tagLabel = (document.getElementById('cfgTagLabel') as HTMLInputElement)?.value;
+    const tagLabel = (document.getElementById('cfgTagLabel'))?.value;
     if (tagLabel) config.tag_label = tagLabel;
 
-    const linkUrl = (document.getElementById('cfgLinkUrl') as HTMLInputElement)?.value;
+    const linkUrl = (document.getElementById('cfgLinkUrl'))?.value;
     if (linkUrl) config.link_url = linkUrl;
 
     if (type === 'category_post') {
-      config.category = (document.getElementById('cfgCategory') as HTMLSelectElement)?.value || '3d-baski';
-      const statText = (document.getElementById('cfgStatText') as HTMLInputElement)?.value;
+      config.category = (document.getElementById('cfgCategory'))?.value || '3d-baski';
+      const statText = (document.getElementById('cfgStatText'))?.value;
       if (statText) config.stat_text = statText;
-      const postCount = (document.getElementById('cfgPostCount') as HTMLInputElement)?.value;
+      const postCount = (document.getElementById('cfgPostCount'))?.value;
       if (postCount) config.post_count = parseInt(postCount);
     } else if (type === 'custom_html') {
-      config.title = (document.getElementById('cfgTitle') as HTMLInputElement)?.value || '';
-      config.description = (document.getElementById('cfgDescription') as HTMLTextAreaElement)?.value || '';
-      const codeBlock = (document.getElementById('cfgCodeBlock') as HTMLTextAreaElement)?.value;
+      config.title = (document.getElementById('cfgTitle'))?.value || '';
+      config.description = (document.getElementById('cfgDescription'))?.value || '';
+      const codeBlock = (document.getElementById('cfgCodeBlock'))?.value;
       if (codeBlock) config.code_block = codeBlock;
-      const version = (document.getElementById('cfgVersion') as HTMLInputElement)?.value;
+      const version = (document.getElementById('cfgVersion'))?.value;
       if (version) config.version = version;
-      const imageUrl = (document.getElementById('cfgImageUrl') as HTMLInputElement)?.value;
+      const imageUrl = (document.getElementById('cfgImageUrl'))?.value;
       if (imageUrl) config.image_url = imageUrl;
     } else if (type === 'ai_tools') {
-      config.title = (document.getElementById('cfgTitle') as HTMLInputElement)?.value || '';
-      config.description = (document.getElementById('cfgDescription') as HTMLInputElement)?.value || '';
-      const toolsStr = (document.getElementById('cfgTools') as HTMLInputElement)?.value || '';
+      config.title = (document.getElementById('cfgTitle'))?.value || '';
+      config.description = (document.getElementById('cfgDescription'))?.value || '';
+      const toolsStr = (document.getElementById('cfgTools'))?.value || '';
       config.tools = toolsStr.split(',').map((t: string) => t.trim()).filter(Boolean);
-      config.extra_count = parseInt((document.getElementById('cfgExtraCount') as HTMLInputElement)?.value || '0');
+      config.extra_count = parseInt((document.getElementById('cfgExtraCount'))?.value || '0');
     } else if (type === 'community') {
-      config.title = (document.getElementById('cfgTitle') as HTMLInputElement)?.value || '';
-      config.description = (document.getElementById('cfgDescription') as HTMLInputElement)?.value || '';
-      config.comments = parseInt((document.getElementById('cfgComments') as HTMLInputElement)?.value || '0');
-      config.likes = parseInt((document.getElementById('cfgLikes') as HTMLInputElement)?.value || '0');
+      config.title = (document.getElementById('cfgTitle'))?.value || '';
+      config.description = (document.getElementById('cfgDescription'))?.value || '';
+      config.comments = parseInt((document.getElementById('cfgComments'))?.value || '0');
+      config.likes = parseInt((document.getElementById('cfgLikes'))?.value || '0');
     } else if (type === 'featured_post') {
-      const postSlug = (document.getElementById('cfgPostSlug') as HTMLInputElement)?.value;
+      const postSlug = (document.getElementById('cfgPostSlug'))?.value;
       if (postSlug) config.post_slug = postSlug;
     }
 
@@ -1599,7 +1599,7 @@ import "../../styles/admin.css";
 
   // Content type değişince config alanlarını güncelle
   document.getElementById('contentType')?.addEventListener('change', (e) => {
-    const type = (e.target as HTMLSelectElement).value;
+    const type = (e.target).value;
     updateConfigFields(type);
   });
 
@@ -1610,11 +1610,11 @@ import "../../styles/admin.css";
   function openAddModal() {
     editingId = null;
     document.getElementById('modalTitle')!.textContent = 'Yeni İçerik Kutusu';
-    (document.getElementById('boxForm') as HTMLFormElement).reset();
-    (document.getElementById('boxId') as HTMLInputElement).value = '';
-    (document.getElementById('targetPage') as HTMLSelectElement).value = currentPage;
-    (document.getElementById('isVisible') as HTMLInputElement).checked = true;
-    const orangeRadio = document.querySelector('input[name="colorTheme"][value="orange"]') as HTMLInputElement;
+    (document.getElementById('boxForm')).reset();
+    (document.getElementById('boxId')).value = '';
+    (document.getElementById('targetPage')).value = currentPage;
+    (document.getElementById('isVisible')).checked = true;
+    const orangeRadio = document.querySelector('input[name="colorTheme"][value="orange"]');
     if (orangeRadio) orangeRadio.checked = true;
     document.getElementById('configFields')!.innerHTML = '';
     document.getElementById('configSection')!.classList.add('hidden');
@@ -1625,17 +1625,17 @@ import "../../styles/admin.css";
   document.getElementById('boxForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const id = (document.getElementById('boxId') as HTMLInputElement).value;
-    const contentType = (document.getElementById('contentType') as HTMLSelectElement).value;
-    const colorTheme = (document.querySelector('input[name="colorTheme"]:checked') as HTMLInputElement)?.value || 'orange';
+    const id = (document.getElementById('boxId')).value;
+    const contentType = (document.getElementById('contentType')).value;
+    const colorTheme = (document.querySelector('input[name="colorTheme"]:checked'))?.value || 'orange';
 
     const payload: any = {
-      slot_key: (document.getElementById('slotKey') as HTMLInputElement).value,
-      target_page: (document.getElementById('targetPage') as HTMLSelectElement).value,
+      slot_key: (document.getElementById('slotKey')).value,
+      target_page: (document.getElementById('targetPage')).value,
       content_type: contentType,
-      size: (document.getElementById('boxSize') as HTMLSelectElement).value,
+      size: (document.getElementById('boxSize')).value,
       color_theme: colorTheme,
-      is_visible: (document.getElementById('isVisible') as HTMLInputElement).checked,
+      is_visible: (document.getElementById('isVisible')).checked,
       config: getConfigFromForm(contentType)
     };
 
@@ -1645,9 +1645,9 @@ import "../../styles/admin.css";
       payload.display_order = maxOrder + 1;
     }
 
-    const submitBtn = document.querySelector('#boxForm button[type="submit"]') as HTMLButtonElement;
-    const btnText = submitBtn.querySelector('.btn-text') as HTMLElement;
-    const btnLoading = submitBtn.querySelector('.btn-loading') as HTMLElement;
+    const submitBtn = document.querySelector('#boxForm button[type="submit"]');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoading = submitBtn.querySelector('.btn-loading');
 
     btnText.classList.add('hidden');
     btnLoading.classList.remove('hidden');

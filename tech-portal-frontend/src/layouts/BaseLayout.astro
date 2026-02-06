@@ -113,9 +113,27 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
     <!-- Theme Script (Prevents Flash) -->
     <script is:inline>
       (function() {
-        const theme = localStorage.getItem('theme') ||
-          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        // Tema yükle
+        let theme = localStorage.getItem('theme') || 'dark';
+        if (theme === 'system') {
+          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        const root = document.documentElement;
+        root.setAttribute('data-theme', theme);
+
+        if (theme === 'light') {
+          root.style.setProperty('--bg-main', '#f5f5f5');
+          root.style.setProperty('--bg-card', '#ffffff');
+          root.style.setProperty('--text-main', '#1a1a1a');
+          root.style.setProperty('--text-muted', '#666666');
+          root.style.setProperty('--border-soft', '#e0e0e0');
+        }
+
+        // Yazı boyutu yükle
+        const fontSize = localStorage.getItem('fontSize') || 'medium';
+        const sizes = { 'small': '14px', 'medium': '16px', 'large': '18px' };
+        root.style.fontSize = sizes[fontSize] || '16px';
       })();
     </script>
 
@@ -259,11 +277,11 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
       <div class="join-banner-content">
         <div class="join-banner-text">
           <span class="join-emoji">🎉</span>
-          <span><strong>Topluluğa Katıl!</strong> Forum, proje paylaşımı ve daha fazlası için ücretsiz üye ol.</span>
+          <span><strong>{t.footer.joinCommunity}</strong> {t.footer.joinDesc}</span>
         </div>
         <div class="join-banner-actions">
-          <a href="/auth/kayit" class="join-btn">Üye Ol</a>
-          <button class="join-dismiss" id="joinDismiss" title="Kapat">✕</button>
+          <a href="/auth/kayit" class="join-btn">{t.footer.signUp}</a>
+          <button class="join-dismiss" id="joinDismiss" title={t.footer.close}>✕</button>
         </div>
       </div>
     </div>
@@ -358,14 +376,19 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
     </script>
 
     <!-- Newsletter Script -->
-    <script is:inline>
+    <script is:inline define:vars={{
+      subscribingText: t.footer.subscribing,
+      successText: t.footer.subscribeSuccess,
+      errorText: t.footer.subscribeError,
+      connectionErrorText: t.footer.connectionError
+    }}>
       document.getElementById('newsletterForm')?.addEventListener('submit', async function(e) {
         e.preventDefault();
         const email = this.querySelector('input[type="email"]').value;
         const btn = this.querySelector('button');
         const originalText = btn.textContent;
 
-        btn.textContent = 'Kaydediliyor...';
+        btn.textContent = subscribingText;
         btn.disabled = true;
 
         try {
@@ -376,14 +399,14 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
           });
 
           if (res.ok) {
-            window.showToast('Bültene başarıyla abone oldunuz! 🎉', 'success');
+            window.showToast(successText, 'success');
             this.reset();
           } else {
             const data = await res.json();
-            window.showToast(data.error || 'Bir hata oluştu', 'error');
+            window.showToast(data.error || errorText, 'error');
           }
         } catch (err) {
-          window.showToast('Bağlantı hatası, lütfen tekrar deneyin', 'error');
+          window.showToast(connectionErrorText, 'error');
         } finally {
           btn.textContent = originalText;
           btn.disabled = false;

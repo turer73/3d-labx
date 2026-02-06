@@ -621,7 +621,7 @@ Dikkat edilmesi gerekenler..."
   });
 
   imageInput?.addEventListener('change', (e) => {
-    const files = (e.target as HTMLInputElement).files;
+    const files = (e.target).files;
     if (files) handleFiles(files);
   });
 
@@ -672,13 +672,13 @@ Dikkat edilmesi gerekenler..."
       return;
     }
 
-    const title = (document.getElementById('title') as HTMLInputElement)?.value?.trim();
-    const printer = (document.getElementById('printer') as HTMLInputElement)?.value?.trim();
-    const filament = (document.getElementById('filament') as HTMLInputElement)?.value?.trim();
-    const printTime = (document.getElementById('printTime') as HTMLInputElement)?.value?.trim();
-    const layerHeight = (document.getElementById('layerHeight') as HTMLInputElement)?.value?.trim();
-    const stlLink = (document.getElementById('stlLink') as HTMLInputElement)?.value?.trim();
-    let content = (document.getElementById('content') as HTMLTextAreaElement)?.value?.trim();
+    const title = (document.getElementById('title'))?.value?.trim();
+    const printer = (document.getElementById('printer'))?.value?.trim();
+    const filament = (document.getElementById('filament'))?.value?.trim();
+    const printTime = (document.getElementById('printTime'))?.value?.trim();
+    const layerHeight = (document.getElementById('layerHeight'))?.value?.trim();
+    const stlLink = (document.getElementById('stlLink'))?.value?.trim();
+    let content = (document.getElementById('content'))?.value?.trim();
 
     if (!title || title.length < 5) {
       window.showToast('Başlık en az 5 karakter olmalıdır', 'warning');
@@ -690,7 +690,7 @@ Dikkat edilmesi gerekenler..."
       return;
     }
 
-    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+    const submitBtn = document.getElementById('submitBtn');
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.innerHTML = 'Yukleniyor...';

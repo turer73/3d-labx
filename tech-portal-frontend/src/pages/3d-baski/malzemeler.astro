@@ -1512,7 +1512,7 @@ const description = t.pageDesc;
   const filterBtns = document.querySelectorAll('.filter-btn');
   const materialCards = document.querySelectorAll('.material-card');
 
-  const filterMap: Record<string, string[]> = {
+  const filterMap = {
     all: [],
     beginner: ['pla', 'petg'],
     durable: ['petg', 'abs', 'nylon'],
@@ -1531,9 +1531,9 @@ const description = t.pageDesc;
       materialCards.forEach(card => {
         const type = card.getAttribute('data-type');
         if (filter === 'all' || (type && allowed.includes(type))) {
-          (card as HTMLElement).style.display = 'block';
+          card.style.display = 'block';
         } else {
-          (card as HTMLElement).style.display = 'none';
+          card.style.display = 'none';
         }
       });
     });
@@ -1552,9 +1552,9 @@ const description = t.pageDesc;
       priceCards.forEach(card => {
         const cardType = card.getAttribute('data-type');
         if (type === cardType) {
-          (card as HTMLElement).style.display = 'block';
+          card.style.display = 'block';
         } else {
-          (card as HTMLElement).style.display = 'none';
+          card.style.display = 'none';
         }
       });
     });

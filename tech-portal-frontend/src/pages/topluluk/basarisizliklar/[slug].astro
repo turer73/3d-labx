@@ -915,7 +915,7 @@ const firstImage = images[0] || null;
 
   // Thumbnail tıklama
   const thumbnails = document.querySelectorAll('.thumbnail');
-  const mainImage = document.getElementById('mainImage') as HTMLImageElement;
+  const mainImage = document.getElementById('mainImage');
 
   thumbnails.forEach(thumb => {
     thumb.addEventListener('click', () => {
@@ -944,7 +944,7 @@ const firstImage = images[0] || null;
   metooBtn?.addEventListener('click', async () => {
     const token = getAuthToken();
     if (!token) {
-      (window as any).showToast?.('Lütfen giriş yapın', 'warning');
+      window.showToast?.('Lütfen giriş yapın', 'warning');
       return;
     }
 
@@ -963,7 +963,7 @@ const firstImage = images[0] || null;
       if (res.ok) {
         if (data.action === 'added') {
           metooBtn.classList.add('active');
-          (window as any).showToast?.('Eklendi!', 'success');
+          window.showToast?.('Eklendi!', 'success');
         } else {
           metooBtn.classList.remove('active');
         }
@@ -986,7 +986,7 @@ const firstImage = images[0] || null;
       } catch {}
     } else {
       await navigator.clipboard.writeText(url);
-      (window as any).showToast?.('Link kopyalandı!', 'success');
+      window.showToast?.('Link kopyalandı!', 'success');
     }
   });
 
@@ -996,15 +996,15 @@ const firstImage = images[0] || null;
 
     const token = getAuthToken();
     if (!token) {
-      (window as any).showToast?.('Lütfen giriş yapın', 'warning');
+      window.showToast?.('Lütfen giriş yapın', 'warning');
       return;
     }
 
-    const content = (document.getElementById('commentContent') as HTMLTextAreaElement)?.value?.trim();
-    const isSolution = (document.getElementById('isSolution') as HTMLInputElement)?.checked;
+    const content = document.getElementById('commentContent')?.value?.trim();
+    const isSolution = document.getElementById('isSolution')?.checked;
 
     if (!content || content.length < 3) {
-      (window as any).showToast?.('Yorum en az 3 karakter olmalıdır', 'warning');
+      window.showToast?.('Yorum en az 3 karakter olmalıdır', 'warning');
       return;
     }
 
@@ -1023,15 +1023,15 @@ const firstImage = images[0] || null;
       });
 
       if (res.ok) {
-        (window as any).showToast?.('Yorumunuz eklendi!', 'success');
+        window.showToast?.('Yorumunuz eklendi!', 'success');
         window.location.reload();
       } else {
         const data = await res.json();
-        (window as any).showToast?.(data.error || 'Bir hata oluştu', 'error');
+        window.showToast?.(data.error || 'Bir hata oluştu', 'error');
       }
     } catch (err) {
       console.error('Comment error:', err);
-      (window as any).showToast?.('Bir hata oluştu', 'error');
+      window.showToast?.('Bir hata oluştu', 'error');
     }
   });
 </script>

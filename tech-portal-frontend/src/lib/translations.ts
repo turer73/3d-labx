@@ -82,6 +82,16 @@ export const translations: Record<Language, {
     subscribe: string;
     noSpam: string;
     copyright: string;
+    // Join Banner
+    joinCommunity: string;
+    joinDesc: string;
+    signUp: string;
+    close: string;
+    // Newsletter messages
+    subscribing: string;
+    subscribeSuccess: string;
+    subscribeError: string;
+    connectionError: string;
   };
   // Homepage
   homepage: {
@@ -378,7 +388,17 @@ export const translations: Record<Language, {
       emailPlaceholder: "E-posta adresiniz",
       subscribe: "Abone Ol",
       noSpam: "Spam göndermiyoruz, istediğinizde çıkabilirsiniz.",
-      copyright: "Türkiye'nin 3D Baskı Rehberi"
+      copyright: "Türkiye'nin 3D Baskı Rehberi",
+      // Join Banner
+      joinCommunity: "Topluluğa Katıl!",
+      joinDesc: "Forum, proje paylaşımı ve daha fazlası için ücretsiz üye ol.",
+      signUp: "Üye Ol",
+      close: "Kapat",
+      // Newsletter messages
+      subscribing: "Kaydediliyor...",
+      subscribeSuccess: "Bültene başarıyla abone oldunuz! 🎉",
+      subscribeError: "Bir hata oluştu",
+      connectionError: "Bağlantı hatası, lütfen tekrar deneyin"
     },
     homepage: {
       title: "3D-LABX - Türkiye'nin 3D Baskı Rehberi | Yazıcı Ayarları, Sorun Çözümleri",
@@ -671,7 +691,17 @@ export const translations: Record<Language, {
       emailPlaceholder: "Your email address",
       subscribe: "Subscribe",
       noSpam: "No spam, unsubscribe anytime.",
-      copyright: "Your 3D Printing Guide"
+      copyright: "Your 3D Printing Guide",
+      // Join Banner
+      joinCommunity: "Join the Community!",
+      joinDesc: "Sign up free for forums, project sharing and more.",
+      signUp: "Sign Up",
+      close: "Close",
+      // Newsletter messages
+      subscribing: "Subscribing...",
+      subscribeSuccess: "Successfully subscribed to newsletter! 🎉",
+      subscribeError: "An error occurred",
+      connectionError: "Connection error, please try again"
     },
     homepage: {
       title: "3D-LABX - Your 3D Printing Guide | Printer Settings, Troubleshooting",
@@ -964,7 +994,17 @@ export const translations: Record<Language, {
       emailPlaceholder: "Ihre E-Mail-Adresse",
       subscribe: "Abonnieren",
       noSpam: "Kein Spam, jederzeit abmelden.",
-      copyright: "Ihr 3D-Druck Ratgeber"
+      copyright: "Ihr 3D-Druck Ratgeber",
+      // Join Banner
+      joinCommunity: "Community beitreten!",
+      joinDesc: "Kostenlos registrieren für Foren, Projektsharing und mehr.",
+      signUp: "Registrieren",
+      close: "Schließen",
+      // Newsletter messages
+      subscribing: "Wird abonniert...",
+      subscribeSuccess: "Newsletter erfolgreich abonniert! 🎉",
+      subscribeError: "Ein Fehler ist aufgetreten",
+      connectionError: "Verbindungsfehler, bitte erneut versuchen"
     },
     homepage: {
       title: "3D-LABX - Ihr 3D-Druck Ratgeber | Drucker-Einstellungen, Fehlerbehebung",

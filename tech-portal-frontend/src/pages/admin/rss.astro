@@ -60,9 +60,14 @@ import "../../styles/admin.css";
           <h1>RSS Kaynakları</h1>
           <p class="text-muted">Haber akışı kaynaklarını yönetin</p>
         </div>
-        <button id="addRssBtn" class="btn btn-primary">
-          ➕ Yeni Kaynak Ekle
-        </button>
+        <div class="header-actions">
+          <button id="formatNewsBtn" class="btn btn-secondary" title="Düz metin haberleri paragraf formatına çevir">
+            📝 Haberleri Formatla
+          </button>
+          <button id="addRssBtn" class="btn btn-primary">
+            ➕ Yeni Kaynak Ekle
+          </button>
+        </div>
       </header>
 
       <!-- İstatistikler -->
@@ -191,6 +196,12 @@ import "../../styles/admin.css";
 </BaseLayout>
 
 <style>
+  .header-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
   .message-warning {
     background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
     border: 2px solid #F59E0B;
@@ -202,6 +213,15 @@ import "../../styles/admin.css";
     align-items: center;
     flex-wrap: wrap;
     gap: 12px;
+  }
+
+  .message-info {
+    background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+    border: 2px solid #3B82F6;
+    color: #1E40AF;
+    padding: 16px 20px;
+    border-radius: 14px;
+    margin-bottom: 24px;
   }
 
   .url-cell {
@@ -306,8 +326,8 @@ import "../../styles/admin.css";
 
   function renderTable() {
     const tbody = document.querySelector('#rssTable tbody')!;
-    const categoryFilter = (document.getElementById('categoryFilter') as HTMLSelectElement).value;
-    const searchQuery = (document.getElementById('searchInput') as HTMLInputElement).value.toLowerCase();
+    const categoryFilter = (document.getElementById('categoryFilter')).value;
+    const searchQuery = (document.getElementById('searchInput')).value.toLowerCase();
 
     let filtered = allSources;
 
@@ -366,7 +386,7 @@ import "../../styles/admin.css";
   }
 
   async function toggleStatus(e: Event) {
-    const btn = e.target as HTMLButtonElement;
+    const btn = e.target;
     const id = btn.dataset.id;
     const currentActive = btn.dataset.active === '1';
 
@@ -389,7 +409,7 @@ import "../../styles/admin.css";
   }
 
   function showDeleteModal(e: Event) {
-    const btn = e.target as HTMLButtonElement;
+    const btn = e.target;
     deleteId = parseInt(btn.dataset.id || '0');
     const name = btn.dataset.name;
 
@@ -423,7 +443,7 @@ import "../../styles/admin.css";
 
   document.getElementById('cancelAddBtn')?.addEventListener('click', () => {
     document.getElementById('addModal')!.classList.add('hidden');
-    (document.getElementById('addRssForm') as HTMLFormElement).reset();
+    (document.getElementById('addRssForm')).reset();
   });
 
   document.getElementById('modalBackdrop')?.addEventListener('click', () => {
@@ -446,9 +466,9 @@ import "../../styles/admin.css";
   document.getElementById('addRssForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const url = (document.getElementById('rssUrl') as HTMLInputElement).value;
-    const name = (document.getElementById('rssName') as HTMLInputElement).value;
-    const category = (document.getElementById('rssCategory') as HTMLSelectElement).value;
+    const url = (document.getElementById('rssUrl')).value;
+    const name = (document.getElementById('rssName')).value;
+    const category = (document.getElementById('rssCategory')).value;
 
     try {
       const res = await fetch(`${API_BASE}/admin/rss`, {
@@ -464,7 +484,7 @@ import "../../styles/admin.css";
 
       if (res.ok) {
         document.getElementById('addModal')!.classList.add('hidden');
-        (document.getElementById('addRssForm') as HTMLFormElement).reset();
+        (document.getElementById('addRssForm')).reset();
         loadSources();
       } else {
         alert(data.error || 'Ekleme başarısız');
@@ -495,6 +515,39 @@ import "../../styles/admin.css";
   // Filtreler
   document.getElementById('categoryFilter')?.addEventListener('change', renderTable);
   document.getElementById('searchInput')?.addEventListener('input', renderTable);
+
+  // Haber içeriklerini formatla
+  document.getElementById('formatNewsBtn')?.addEventListener('click', async () => {
+    const btn = document.getElementById('formatNewsBtn');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Formatlanıyor...';
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/format-news`, {
+        method: 'POST',
+        headers: {
+          'X-ADMIN-SECRET': secret!,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ limit: 10 })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert(`✅ ${data.formatted}/${data.total} haber formatlandı!`);
+      } else {
+        alert('❌ Hata: ' + (data.error || 'Bilinmeyen hata'));
+      }
+    } catch (err) {
+      console.error('Format error:', err);
+      alert('❌ Bağlantı hatası');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+  });
 
   // Yükle
   loadSources();
