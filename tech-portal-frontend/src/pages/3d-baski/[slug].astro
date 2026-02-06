@@ -15,6 +15,14 @@ const langParam = lang !== "tr" ? `?lang=${lang}` : "";
 const API_BASE = getApiBase(Astro.request);
 const { slug } = Astro.params;
 
+// Dile göre doğru route'a yönlendir (SEO için önemli)
+if (lang === "en") {
+  return Astro.redirect(`/news/${slug}`, 301);
+}
+if (lang === "de") {
+  return Astro.redirect(`/nachrichten/${slug}`, 301);
+}
+
 let post: any = null;
 let relatedPosts: any[] = [];
 let fetchError = "";

@@ -10,6 +10,14 @@ const lang = getLanguage(Astro.request);
 const API_BASE = getApiBase(Astro.request);
 const { slug } = Astro.params;
 
+// Dile göre doğru route'a yönlendir (SEO için önemli)
+if (lang === "en") {
+  return Astro.redirect(`/reviews/${slug}`, 301);
+}
+if (lang === "de") {
+  return Astro.redirect(`/bewertungen/${slug}`, 301);
+}
+
 // Çeviriler
 const translations: Record<Language, {
   notFound: string;
