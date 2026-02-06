@@ -1893,8 +1893,26 @@ export default {
       // 🔐 ADMIN ENDPOINTS
       // ================================
       if (isAdminPath) {
+        // Auth: X-ADMIN-SECRET veya Bearer token (admin role)
         const secret = request.headers.get("X-ADMIN-SECRET");
-        if (!secret || secret !== env.ADMIN_SECRET) {
+        const authHeader = request.headers.get("Authorization");
+        let isAuthorized = false;
+
+        // Option 1: Admin secret
+        if (secret && secret === env.ADMIN_SECRET) {
+          isAuthorized = true;
+        }
+
+        // Option 2: JWT token with admin role
+        if (!isAuthorized && authHeader?.startsWith("Bearer ")) {
+          const token = authHeader.slice(7);
+          const user = await verifyToken(token, env);
+          if (user && user.role === "admin") {
+            isAuthorized = true;
+          }
+        }
+
+        if (!isAuthorized) {
           return errorResponse("Forbidden", 403, "FORBIDDEN");
         }
 
@@ -2191,6 +2209,178 @@ Content: ${(post.content_tr || '').substring(0, 3000)}`;
           await logAdminAction(env, request, "delete", id);
 
           return jsonResponse({ success: true, id });
+        }
+
+        // Admin: Toplu Çeviri (POST /admin/translate-batch)
+        if (path === "/admin/translate-batch" && method === "POST") {
+          const body = await request.json();
+          const targetLang = body.lang || "en"; // "en" veya "de"
+          const limit = Math.min(body.limit || 10, 50); // Maksimum 50 post bir seferde
+
+          if (!["en", "de"].includes(targetLang)) {
+            return errorResponse("Invalid language. Use 'en' or 'de'", 400, "INVALID_LANG");
+          }
+
+          const titleField = `title_${targetLang}`;
+          const summaryField = `summary_${targetLang}`;
+          const contentField = `content_${targetLang}`;
+
+          // Çevrilmemiş postları bul
+          const posts = await env.DB.prepare(`
+            SELECT id, title_tr, summary_tr, content_tr
+            FROM posts
+            WHERE published = 1
+              AND title_tr IS NOT NULL
+              AND title_tr != ''
+              AND (${titleField} IS NULL OR ${titleField} = '')
+            ORDER BY created_at DESC
+            LIMIT ?
+          `).bind(limit).all();
+
+          if (!posts.results || posts.results.length === 0) {
+            return jsonResponse({
+              success: true,
+              translated: 0,
+              message: `No posts need translation to ${targetLang}`
+            });
+          }
+
+          const langNames = { en: "English", de: "German" };
+          let translated = 0;
+          const errors = [];
+
+          for (const post of posts.results) {
+            try {
+              const prompt = `Translate the following Turkish text to ${langNames[targetLang]}. Return ONLY valid JSON, nothing else.
+
+{
+  "title": "Translated title",
+  "summary": "Translated summary",
+  "content": "Translated content (preserve HTML formatting)"
+}
+
+Turkish text:
+Title: ${post.title_tr}
+Summary: ${post.summary_tr || ''}
+Content: ${(post.content_tr || '').substring(0, 4000)}`;
+
+              const aiText = await generateWithAI(env, prompt);
+              if (aiText) {
+                const cleanJson = aiText.replace(/```json\n?|\n?```/g, "").trim();
+                const parsed = JSON.parse(cleanJson);
+
+                await env.DB.prepare(`
+                  UPDATE posts SET ${titleField} = ?, ${summaryField} = ?, ${contentField} = ?
+                  WHERE id = ?
+                `).bind(
+                  sanitizeString(parsed.title, 500),
+                  sanitizeString(parsed.summary, 1000),
+                  sanitizeString(parsed.content, 50000),
+                  post.id
+                ).run();
+
+                translated++;
+              }
+            } catch (err) {
+              errors.push({ id: post.id, error: err.message });
+            }
+          }
+
+          await logAdminAction(env, request, "translate-batch", null, { lang: targetLang, count: translated });
+
+          return jsonResponse({
+            success: true,
+            translated,
+            total: posts.results.length,
+            errors: errors.length > 0 ? errors : undefined,
+            message: `Translated ${translated}/${posts.results.length} posts to ${targetLang}`
+          });
+        }
+
+        // Admin: Tek Post Çeviri (POST /admin/translate/:id)
+        if (path.startsWith("/admin/translate/") && method === "POST") {
+          const id = validateId(path.replace("/admin/translate/", ""));
+          if (!id) return errorResponse("Invalid ID", 400, "INVALID_ID");
+
+          const body = await request.json();
+          const targetLang = body.lang || "en";
+
+          if (!["en", "de"].includes(targetLang)) {
+            return errorResponse("Invalid language", 400, "INVALID_LANG");
+          }
+
+          const post = await env.DB.prepare(`
+            SELECT id, title_tr, summary_tr, content_tr FROM posts WHERE id = ?
+          `).bind(id).first();
+
+          if (!post) return errorResponse("Post not found", 404, "NOT_FOUND");
+          if (!post.title_tr) return errorResponse("No Turkish content to translate", 400, "NO_CONTENT");
+
+          const langNames = { en: "English", de: "German" };
+          const prompt = `Translate the following Turkish text to ${langNames[targetLang]}. Return ONLY valid JSON.
+
+{
+  "title": "Translated title",
+  "summary": "Translated summary",
+  "content": "Translated content (preserve HTML)"
+}
+
+Turkish:
+Title: ${post.title_tr}
+Summary: ${post.summary_tr || ''}
+Content: ${(post.content_tr || '').substring(0, 4000)}`;
+
+          const aiText = await generateWithAI(env, prompt);
+          if (!aiText) return errorResponse("AI translation failed", 500, "AI_ERROR");
+
+          const cleanJson = aiText.replace(/```json\n?|\n?```/g, "").trim();
+          const parsed = JSON.parse(cleanJson);
+
+          await env.DB.prepare(`
+            UPDATE posts SET title_${targetLang} = ?, summary_${targetLang} = ?, content_${targetLang} = ?
+            WHERE id = ?
+          `).bind(
+            sanitizeString(parsed.title, 500),
+            sanitizeString(parsed.summary, 1000),
+            sanitizeString(parsed.content, 50000),
+            id
+          ).run();
+
+          await logAdminAction(env, request, "translate", id, { lang: targetLang });
+
+          return jsonResponse({
+            success: true,
+            id,
+            lang: targetLang,
+            title: parsed.title,
+            summary: parsed.summary
+          });
+        }
+
+        // Admin: Çeviri Durumu (GET /admin/translation-status)
+        if (path === "/admin/translation-status" && method === "GET") {
+          const stats = await env.DB.prepare(`
+            SELECT
+              COUNT(*) as total,
+              SUM(CASE WHEN title_en IS NOT NULL AND title_en != '' THEN 1 ELSE 0 END) as translated_en,
+              SUM(CASE WHEN title_de IS NOT NULL AND title_de != '' THEN 1 ELSE 0 END) as translated_de
+            FROM posts
+            WHERE published = 1 AND title_tr IS NOT NULL AND title_tr != ''
+          `).first();
+
+          return jsonResponse({
+            total: stats.total,
+            english: {
+              translated: stats.translated_en,
+              pending: stats.total - stats.translated_en,
+              percentage: Math.round((stats.translated_en / stats.total) * 100)
+            },
+            german: {
+              translated: stats.translated_de,
+              pending: stats.total - stats.translated_de,
+              percentage: Math.round((stats.translated_de / stats.total) * 100)
+            }
+          });
         }
 
         // Admin: Yeni Post Ekle
