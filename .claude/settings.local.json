@@ -94,7 +94,14 @@
       "Bash(gh run list:*)",
       "Bash(sort:*)",
       "WebFetch(domain:en.3d-labx.com)",
-      "WebFetch(domain:unsplash.com)"
+      "WebFetch(domain:unsplash.com)",
+      "Bash(cmd /c:*)",
+      "Bash(wrangler deploy:*)",
+      "Bash(for id in 288 303 363 178)",
+      "Bash(for slug in \"3d-yaziciya-beyin-nakli-hic-bilmeyenler-i-cin-klipper-nedir-ve-ne-gerekir-mkz9kxq1\" \"sifirdan-zirveye-klipper-kurulum-rehberi-kiauh-yontemi-mkzk8u26\" \"hiz-canavari-klipper-input-shaping-ve-pressure-advance-ayarlari-nasil-yapilir-ml0y1c07\" \"ender-3-ve-diger-fdm-yazicilar-i-cin-klipper-firmware-kurulum-rehberi-mkx4tr0f\")",
+      "Bash(find:*)",
+      "Bash(__NEW_LINE_ffba9a8645d20e83__ sed -i 's/ as HTMLDivElement//g; s/ as HTMLSpanElement//g' admin/index.astro admin/new.astro)",
+      "Bash(__NEW_LINE_ffba9a8645d20e83__ echo \"Done\")"
     ],
     "deny": []
   }
