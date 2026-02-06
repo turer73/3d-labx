@@ -31,11 +31,17 @@ const categoryTranslations: Record<string, Record<string, string>> = {
 
 // Helper function to generate hreflang tags with localized paths
 function hreflangTagsForPost(post: any): string {
-  const trPath = `/${post.category}/${post.slug_tr || post.slug}`;
+  // Türkçe slug her zaman slug_tr veya slug
+  const trSlug = post.slug_tr || post.slug;
+  // İngilizce ve Almanca slug'lar varsa kullan, yoksa Türkçe'ye fallback
+  const enSlug = post.slug_en || trSlug;
+  const deSlug = post.slug_de || trSlug;
+
+  const trPath = `/${post.category}/${trSlug}`;
   const enCategory = categoryTranslations.en[post.category] || post.category;
   const deCategory = categoryTranslations.de[post.category] || post.category;
-  const enPath = `/${enCategory}/${post.slug_en || post.slug_tr || post.slug}`;
-  const dePath = `/${deCategory}/${post.slug_de || post.slug_tr || post.slug}`;
+  const enPath = `/${enCategory}/${enSlug}`;
+  const dePath = `/${deCategory}/${deSlug}`;
 
   return `
     <xhtml:link rel="alternate" hreflang="tr" href="https://3d-labx.com${trPath}"/>

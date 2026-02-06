@@ -882,6 +882,7 @@ export default {
                  COALESCE(NULLIF(${summaryField}, ''), summary_tr) as summary,
                  COALESCE(NULLIF(${slugField}, ''), slug) as slug,
                  slug as slug_tr,
+                 slug_en, slug_de,
                  category, post_type, image_url, is_featured, created_at, language
           FROM posts
           WHERE published = 1 AND (language = ? OR language IS NULL OR language = 'tr')
