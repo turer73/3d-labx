@@ -178,6 +178,68 @@ function checkRateLimit(ip, isAdmin = false) {
 }
 
 // ================================
+// 🔒 SECURITY UTILITIES
+// ================================
+// Timing-safe string comparison to prevent timing attacks
+function secureCompare(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  if (a.length !== b.length) return false;
+
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
+
+// ================================
+// 🤖 AI RESPONSE VALIDATION
+// ================================
+// Clean and parse AI JSON response
+function parseAIJson(aiText) {
+  if (!aiText || typeof aiText !== 'string') return null;
+
+  try {
+    // Remove markdown code blocks
+    let cleanJson = aiText.replace(/```json\n?|\n?```/g, "").trim();
+
+    // Extract JSON object from response
+    const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
+    if (jsonMatch) cleanJson = jsonMatch[0];
+
+    // Fix truncated JSON (unclosed strings/braces)
+    if (!cleanJson.endsWith('}')) {
+      cleanJson = cleanJson.replace(/,?\s*"[^"]*$/, '') + '}';
+    }
+
+    return JSON.parse(cleanJson);
+  } catch {
+    return null;
+  }
+}
+
+// Validate AI translation response has required fields
+function validateTranslationResponse(parsed) {
+  if (!parsed || typeof parsed !== 'object') return false;
+  if (!parsed.title || typeof parsed.title !== 'string') return false;
+  if (parsed.title.length < 3 || parsed.title.length > 500) return false;
+  // summary and content can be empty but must be strings if present
+  if (parsed.summary !== undefined && typeof parsed.summary !== 'string') return false;
+  if (parsed.content !== undefined && typeof parsed.content !== 'string') return false;
+  return true;
+}
+
+// Validate AI Turkish generation response
+function validateTurkishResponse(parsed) {
+  if (!parsed || typeof parsed !== 'object') return false;
+  if (!parsed.title_tr || typeof parsed.title_tr !== 'string') return false;
+  if (parsed.title_tr.length < 3 || parsed.title_tr.length > 500) return false;
+  if (!parsed.summary_tr || typeof parsed.summary_tr !== 'string') return false;
+  if (!parsed.content_tr || typeof parsed.content_tr !== 'string') return false;
+  return true;
+}
+
+// ================================
 // 🔒 INPUT VALIDATION
 // ================================
 function sanitizeString(str, maxLength = 1000) {
@@ -331,8 +393,7 @@ async function sendVerificationEmail(env, email, token, username) {
   const verifyUrl = `https://3d-labx.com/auth/verify?token=${token}`;
 
   // Debug için log
-  console.log('Sending verification email to:', email);
-  console.log('RESEND_API_KEY exists:', !!env.RESEND_API_KEY);
+  // Email verification request logged
 
   try {
     const response = await fetch('https://api.resend.com/emails', {
@@ -377,7 +438,7 @@ async function sendVerificationEmail(env, email, token, username) {
 async function sendPasswordResetEmail(env, email, token, username) {
   const resetUrl = `https://3d-labx.com/auth/reset-password?token=${token}`;
 
-  console.log('Sending password reset email to:', email);
+  // Password reset request logged
 
   try {
     const response = await fetch('https://api.resend.com/emails', {
@@ -717,12 +778,12 @@ async function generateWithAI(env, prompt) {
   if (result) return result;
 
   // Fallback to DeepSeek
-  console.log("Gemini failed, trying DeepSeek...");
+  // Fallback to DeepSeek
   result = await generateWithDeepSeek(env, prompt);
   if (result) return result;
 
   // Fallback to Cloudflare Workers AI
-  console.log("DeepSeek failed, trying Workers AI...");
+  // Fallback to Workers AI
   result = await generateWithWorkersAI(env, prompt);
   return result;
 }
@@ -820,7 +881,9 @@ export default {
         object.writeHttpMetadata(headers);
         headers.set("etag", object.httpEtag);
         headers.set("Cache-Control", "public, max-age=31536000");
-        headers.set("Access-Control-Allow-Origin", "*");
+        // Images are public CDN - use dynamic origin for CORS
+        const imageOrigin = request.headers.get("Origin");
+        headers.set("Access-Control-Allow-Origin", isAllowedOrigin(imageOrigin) ? imageOrigin : "https://3d-labx.com");
 
         return new Response(object.body, { headers });
       }
@@ -1487,7 +1550,7 @@ export default {
             },
             body: JSON.stringify({
               from: '3D-labX <noreply@3d-labx.com>',
-              to: 'turgut.urer@gmail.com',
+              to: env.CONTACT_EMAIL || 'contact@3d-labx.com',
               reply_to: email,
               subject: `[3D-labX İletişim] ${subjectLabel} - ${name}`,
               html: `
@@ -1723,14 +1786,14 @@ export default {
           return jsonResponse({ success: true }, 200, 0, request);
         } catch (err) {
           console.error('Log save error:', err);
-          return jsonResponse({ success: false }, 200, 0, request);
+          return jsonResponse({ success: false, error: "Log save failed" }, 500, 0, request);
         }
       }
 
       // Admin: Logları getir
       if (path === "/api/admin/logs" && method === "GET") {
         const adminSecret = request.headers.get("X-ADMIN-SECRET");
-        if (!adminSecret || adminSecret !== env.ADMIN_SECRET) {
+        if (!adminSecret || !secureCompare(adminSecret, env.ADMIN_SECRET)) {
           return errorResponse("Yetkisiz", 401, "UNAUTHORIZED");
         }
 
@@ -1786,7 +1849,7 @@ export default {
       // Admin: Log istatistikleri
       if (path === "/api/admin/logs/stats" && method === "GET") {
         const adminSecret = request.headers.get("X-ADMIN-SECRET");
-        if (!adminSecret || adminSecret !== env.ADMIN_SECRET) {
+        if (!adminSecret || !secureCompare(adminSecret, env.ADMIN_SECRET)) {
           return errorResponse("Yetkisiz", 401, "UNAUTHORIZED");
         }
 
@@ -1820,7 +1883,7 @@ export default {
       // Admin: Logları temizle (eski kayıtlar)
       if (path === "/api/admin/logs/cleanup" && method === "DELETE") {
         const adminSecret = request.headers.get("X-ADMIN-SECRET");
-        if (!adminSecret || adminSecret !== env.ADMIN_SECRET) {
+        if (!adminSecret || !secureCompare(adminSecret, env.ADMIN_SECRET)) {
           return errorResponse("Yetkisiz", 401, "UNAUTHORIZED");
         }
 
@@ -2195,16 +2258,16 @@ Content: ${(post.content_tr || '').substring(0, 3000)}`;
 
                     const aiText = await generateWithAI(env, prompt);
                     if (aiText) {
-                      const cleanJson = aiText.replace(/```json\n?|\n?```/g, "").trim();
-                      const parsed = JSON.parse(cleanJson);
-                      await env.DB.prepare(`
-                        UPDATE posts SET title_${targetLang} = ?, summary_${targetLang} = ?, content_${targetLang} = ?
-                        WHERE id = ?
-                      `).bind(parsed.title, parsed.summary, parsed.content, post.id).run();
-                      console.log(`Auto-translated post ${post.id} to ${targetLang}`);
+                      const parsed = parseAIJson(aiText);
+                      if (parsed && validateTranslationResponse(parsed)) {
+                        await env.DB.prepare(`
+                          UPDATE posts SET title_${targetLang} = ?, summary_${targetLang} = ?, content_${targetLang} = ?
+                          WHERE id = ?
+                        `).bind(parsed.title, parsed.summary || '', parsed.content || '', post.id).run();
+                      }
                     }
                   } catch (err) {
-                    console.error(`Auto-translate error (${targetLang}):`, err.message);
+                    // Silent fail for background translation
                   }
                 };
 
@@ -2297,16 +2360,19 @@ Content: ${(post.content_tr || '').substring(0, 4000)}`;
 
               const aiText = await generateWithAI(env, prompt);
               if (aiText) {
-                const cleanJson = aiText.replace(/```json\n?|\n?```/g, "").trim();
-                const parsed = JSON.parse(cleanJson);
+                const parsed = parseAIJson(aiText);
+                if (!parsed || !validateTranslationResponse(parsed)) {
+                  errors.push({ id: post.id, error: "Invalid AI response format" });
+                  continue;
+                }
 
                 await env.DB.prepare(`
                   UPDATE posts SET ${titleField} = ?, ${summaryField} = ?, ${contentField} = ?
                   WHERE id = ?
                 `).bind(
                   sanitizeString(parsed.title, 500),
-                  sanitizeString(parsed.summary, 1000),
-                  sanitizeString(parsed.content, 50000),
+                  sanitizeString(parsed.summary || '', 1000),
+                  sanitizeString(parsed.content || '', 50000),
                   post.id
                 ).run();
 
@@ -2364,16 +2430,18 @@ Content: ${(post.content_tr || '').substring(0, 4000)}`;
           const aiText = await generateWithAI(env, prompt);
           if (!aiText) return errorResponse("AI translation failed", 500, "AI_ERROR");
 
-          const cleanJson = aiText.replace(/```json\n?|\n?```/g, "").trim();
-          const parsed = JSON.parse(cleanJson);
+          const parsed = parseAIJson(aiText);
+          if (!parsed || !validateTranslationResponse(parsed)) {
+            return errorResponse("AI response format invalid", 500, "PARSE_ERROR");
+          }
 
           await env.DB.prepare(`
             UPDATE posts SET title_${targetLang} = ?, summary_${targetLang} = ?, content_${targetLang} = ?
             WHERE id = ?
           `).bind(
             sanitizeString(parsed.title, 500),
-            sanitizeString(parsed.summary, 1000),
-            sanitizeString(parsed.content, 50000),
+            sanitizeString(parsed.summary || '', 1000),
+            sanitizeString(parsed.content || '', 50000),
             id
           ).run();
 
@@ -2384,7 +2452,7 @@ Content: ${(post.content_tr || '').substring(0, 4000)}`;
             id,
             lang: targetLang,
             title: parsed.title,
-            summary: parsed.summary
+            summary: parsed.summary || ''
           });
         }
 
@@ -2584,12 +2652,9 @@ ${sourceText}`;
           const aiText = await generateWithAI(env, prompt);
           if (!aiText) return errorResponse("AI generation failed", 500, "AI_ERROR");
 
-          let parsed;
-          try {
-            const cleanJson = aiText.replace(/```json\n?|\n?```/g, "").trim();
-            parsed = JSON.parse(cleanJson);
-          } catch {
-            return errorResponse("AI response parse failed", 500, "PARSE_ERROR");
+          const parsed = parseAIJson(aiText);
+          if (!parsed || !validateTurkishResponse(parsed)) {
+            return errorResponse("AI response format invalid", 500, "PARSE_ERROR");
           }
 
           const slug = createSlug(parsed.title_tr);
@@ -2598,7 +2663,12 @@ ${sourceText}`;
           const result = await env.DB.prepare(`
             INSERT INTO posts (title_tr, summary_tr, content_tr, slug, category, post_type, ai_generated, status, published)
             VALUES (?, ?, ?, ?, ?, ?, 1, 'draft', 0)
-          `).bind(parsed.title_tr, parsed.summary_tr, parsed.content_tr, slug, category, postType).run();
+          `).bind(
+            sanitizeString(parsed.title_tr, 500),
+            sanitizeString(parsed.summary_tr, 1000),
+            sanitizeString(parsed.content_tr, 50000),
+            slug, category, postType
+          ).run();
 
           await logAdminAction(env, request, "ai-generate", result.meta?.last_row_id);
 
@@ -2657,7 +2727,6 @@ ${post.content_tr}`;
                   UPDATE posts SET content_tr = ? WHERE id = ?
                 `).bind(formattedContent, post.id).run();
                 formattedCount++;
-                console.log("Formatted post:", post.id, post.title_tr.substring(0, 40));
               } else {
                 errors.push({ id: post.id, error: "Format check failed" });
               }
@@ -2719,25 +2788,21 @@ Content: ${(post.content_tr || '').substring(0, 1500)}`;
                 continue;
               }
 
-              let parsed;
-              try {
-                let cleanJson = aiText.replace(/```json\n?|\n?```/g, "").trim();
-                const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
-                if (jsonMatch) cleanJson = jsonMatch[0];
-                if (!cleanJson.endsWith('}')) {
-                  cleanJson = cleanJson.replace(/,?\s*"[^"]*$/, '') + '}';
-                }
-                parsed = JSON.parse(cleanJson);
-              } catch {
-                console.error("Parse error for post", post.id, "AI raw:", aiText.substring(0, 300));
-                errors.push({ id: post.id, error: "Parse failed" });
+              const parsed = parseAIJson(aiText);
+              if (!parsed || !validateTranslationResponse(parsed)) {
+                errors.push({ id: post.id, error: "Invalid response format" });
                 continue;
               }
 
               await env.DB.prepare(`
                 UPDATE posts SET ${targetTitleField} = ?, ${targetSummaryField} = ?, ${targetContentField} = ?
                 WHERE id = ?
-              `).bind(parsed.title, parsed.summary, parsed.content, post.id).run();
+              `).bind(
+                sanitizeString(parsed.title, 500),
+                sanitizeString(parsed.summary || '', 1000),
+                sanitizeString(parsed.content || '', 50000),
+                post.id
+              ).run();
 
               translatedCount++;
             } catch (err) {
@@ -2781,19 +2846,9 @@ Content: ${(post.content_tr || '').substring(0, 1500)}`;
           const aiText = await generateWithAI(env, prompt);
           if (!aiText) return errorResponse("AI çeviri başarısız", 500, "AI_ERROR");
 
-          let parsed;
-          try {
-            let cleanJson = aiText.replace(/```json\n?|\n?```/g, "").trim();
-            const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
-            if (jsonMatch) cleanJson = jsonMatch[0];
-            // Kesik JSON fix: kapanmayan string ve brace'leri kapat
-            if (!cleanJson.endsWith('}')) {
-              cleanJson = cleanJson.replace(/,?\s*"[^"]*$/, '') + '}';
-            }
-            parsed = JSON.parse(cleanJson);
-          } catch (parseErr) {
-            console.error("Parse error. AI raw:", aiText.substring(0, 500));
-            return errorResponse("AI yanıtı parse edilemedi", 500, "PARSE_ERROR");
+          const parsed = parseAIJson(aiText);
+          if (!parsed || !validateTranslationResponse(parsed)) {
+            return errorResponse("AI yanıtı geçersiz format", 500, "PARSE_ERROR");
           }
 
           const targetTitleField = `title_${targetLang}`;
@@ -2803,7 +2858,12 @@ Content: ${(post.content_tr || '').substring(0, 1500)}`;
           await env.DB.prepare(`
             UPDATE posts SET ${targetTitleField} = ?, ${targetSummaryField} = ?, ${targetContentField} = ?
             WHERE id = ?
-          `).bind(parsed.title, parsed.summary, parsed.content, postId).run();
+          `).bind(
+            sanitizeString(parsed.title, 500),
+            sanitizeString(parsed.summary || '', 1000),
+            sanitizeString(parsed.content || '', 50000),
+            postId
+          ).run();
 
           return jsonResponse({
             success: true,
@@ -3486,7 +3546,7 @@ Content: ${(post.content_tr || '').substring(0, 1500)}`;
         if (path === "/admin/content-boxes/seed" && method === "POST") {
           const count = await env.DB.prepare(`SELECT COUNT(*) as cnt FROM content_boxes`).first();
           if (count && count.cnt > 0) {
-            return jsonResponse({ success: false, message: "Zaten veri mevcut. Önce temizleyin." });
+            return errorResponse("Zaten veri mevcut. Önce temizleyin.", 409, "DATA_EXISTS");
           }
 
           await env.DB.prepare(`
@@ -4521,7 +4581,7 @@ Content: ${(post.content_tr || '').substring(0, 1500)}`;
       // Admin: Filament ekle
       if (path === "/api/admin/filaments" && method === "POST") {
         const adminSecret = request.headers.get("X-ADMIN-SECRET");
-        if (adminSecret !== env.ADMIN_SECRET) {
+        if (!secureCompare(adminSecret, env.ADMIN_SECRET)) {
           return errorResponse("Yetkisiz erisim", 403, "FORBIDDEN");
         }
 
@@ -4543,7 +4603,7 @@ Content: ${(post.content_tr || '').substring(0, 1500)}`;
       // Admin: Filament güncelle
       if (path.match(/^\/api\/admin\/filaments\/(\d+)$/) && method === "PUT") {
         const adminSecret = request.headers.get("X-ADMIN-SECRET");
-        if (adminSecret !== env.ADMIN_SECRET) {
+        if (!secureCompare(adminSecret, env.ADMIN_SECRET)) {
           return errorResponse("Yetkisiz erisim", 403, "FORBIDDEN");
         }
 
@@ -6099,7 +6159,7 @@ ${text}`;
   // ================================
   async scheduled(event, env, ctx) {
     if (!CONFIG.CRON_ENABLED) {
-      console.log("Cron disabled");
+      // Cron disabled
       return;
     }
 
@@ -6111,7 +6171,7 @@ ${text}`;
 // ⏰ CRON JOB
 // ================================
 async function runCron(env) {
-  console.log("Cron started:", new Date().toISOString());
+  // Cron job started
 
   let totalAdded = 0;
   let totalSkipped = 0;
@@ -6174,16 +6234,8 @@ Başlık: ${item.title}
             continue;
           }
 
-          let parsed;
-          try {
-            let cleanJson = aiText.replace(/```json\n?|\n?```/g, "").trim();
-            const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
-            if (jsonMatch) cleanJson = jsonMatch[0];
-            if (!cleanJson.endsWith('}')) {
-              cleanJson = cleanJson.replace(/,?\s*"[^"]*$/, '') + '}';
-            }
-            parsed = JSON.parse(cleanJson);
-          } catch {
+          const parsed = parseAIJson(aiText);
+          if (!parsed || !validateTurkishResponse(parsed)) {
             totalErrors++;
             continue;
           }
@@ -6199,9 +6251,9 @@ Başlık: ${item.title}
               INSERT INTO posts (title_tr, summary_tr, content_tr, title_en, summary_en, slug, category, post_type, source_url, image_url, ai_generated, status, published)
               VALUES (?, ?, ?, ?, ?, ?, ?, 'haber', ?, ?, 1, 'published', 1)
             `).bind(
-              parsed.title_tr,
-              parsed.summary_tr,
-              parsed.content_tr,
+              sanitizeString(parsed.title_tr, 500),
+              sanitizeString(parsed.summary_tr, 1000),
+              sanitizeString(parsed.content_tr, 50000),
               title_en,
               summary_en,
               slug,
@@ -6211,7 +6263,6 @@ Başlık: ${item.title}
             ).run();
 
             totalAdded++;
-            console.log("Added:", parsed.title_tr.substring(0, 50));
 
             // Otomatik DE çevirisi
             try {
@@ -6223,14 +6274,8 @@ Summary: ${summary_en}`;
 
               const deText = await generateWithAI(env, dePrompt);
               if (deText) {
-                let deJson = deText.replace(/```json\n?|\n?```/g, "").trim();
-                const deMatch = deJson.match(/\{[\s\S]*\}/);
-                if (deMatch) deJson = deMatch[0];
-                if (!deJson.endsWith('}')) {
-                  deJson = deJson.replace(/,?\s*"[^"]*$/, '') + '}';
-                }
-                const deParsed = JSON.parse(deJson);
-                if (deParsed.title) {
+                const deParsed = parseAIJson(deText);
+                if (deParsed && validateTranslationResponse(deParsed)) {
                   // Yeni eklenen postun ID'sini al
                   const newPost = await env.DB.prepare(
                     `SELECT id FROM posts WHERE source_url = ?`
@@ -6238,8 +6283,12 @@ Summary: ${summary_en}`;
                   if (newPost) {
                     await env.DB.prepare(`
                       UPDATE posts SET title_de = ?, summary_de = ?, content_de = ? WHERE id = ?
-                    `).bind(deParsed.title, deParsed.summary || '', deParsed.content || '', newPost.id).run();
-                    console.log("DE translated:", deParsed.title.substring(0, 40));
+                    `).bind(
+                      sanitizeString(deParsed.title, 500),
+                      sanitizeString(deParsed.summary || '', 1000),
+                      sanitizeString(deParsed.content || '', 50000),
+                      newPost.id
+                    ).run();
                   }
                 }
               }
@@ -6261,7 +6310,7 @@ Summary: ${summary_en}`;
     }
   }
 
-  console.log(`Cron completed: added=${totalAdded}, skipped=${totalSkipped}, errors=${totalErrors}`);
+  // Cron job completed - stats: added=${totalAdded}, skipped=${totalSkipped}, errors=${totalErrors}
 
   // Filament fiyatlarını güncelle (günde 1 kez - sabah 09:00'da)
   const now = new Date();
@@ -6275,8 +6324,6 @@ Summary: ${summary_en}`;
 // 💰 FİLAMENT FİYAT GÜNCELLEYİCİ
 // ================================
 async function updateFilamentPrices(env) {
-  console.log("Filament price update started:", new Date().toISOString());
-
   const sources = [
     // Filament Marketim - en düşük fiyata göre sıralı
     { url: "https://www.filamentmarketim.com/pla-filament?siralama=en-dusuk-fiyat", name: "FilamentMarketim", type: "PLA" },
@@ -6300,7 +6347,6 @@ async function updateFilamentPrices(env) {
       });
 
       if (!response.ok) {
-        console.log(`Fetch failed for ${source.url}: ${response.status}`);
         continue;
       }
 
@@ -6310,17 +6356,14 @@ async function updateFilamentPrices(env) {
         : parseFilamentHtml(html, source.name);
       allProducts.push(...products);
 
-      console.log(`Parsed ${products.length} products from ${source.url}`);
-
       // Rate limiting
       await new Promise(resolve => setTimeout(resolve, 2000));
-    } catch (error) {
-      console.error(`Error fetching ${source.url}:`, error.message);
+    } catch {
+      // Silently skip failed sources
     }
   }
 
   if (allProducts.length === 0) {
-    console.log("No products found, keeping existing prices");
     return;
   }
 
@@ -6352,39 +6395,32 @@ async function updateFilamentPrices(env) {
           p.is_best_deal || 0
         ).run();
         added++;
-      } catch (dbErr) {
-        console.error("DB insert error:", dbErr.message);
+      } catch {
+        // Skip failed inserts
       }
     }
 
     // En uygun fiyatları işaretle
     await markBestDeals(env);
 
-    console.log(`Filament prices updated: ${added} products added`);
-
     // turkish_filaments tablosundaki fiyatları da güncelle
     await syncTurkishFilamentPrices(env, allProducts);
 
-  } catch (error) {
-    console.error("Filament DB update error:", error.message);
+  } catch {
+    // Silently fail filament update
   }
 }
 
 // turkish_filaments tablosunu filament_prices'dan güncelle
 async function syncTurkishFilamentPrices(env, scrapedProducts) {
-  console.log("Syncing turkish_filaments prices...");
-
   // Tüm Türk filamentlerini al
   const turkishFilaments = await env.DB.prepare(`
     SELECT id, brand, model, material_type, color FROM turkish_filaments
   `).all();
 
   if (!turkishFilaments.results || turkishFilaments.results.length === 0) {
-    console.log("No turkish filaments found to sync");
     return;
   }
-
-  let updated = 0;
 
   for (const filament of turkishFilaments.results) {
     // Scrape edilen ürünler arasında eşleşme ara
@@ -6397,15 +6433,11 @@ async function syncTurkishFilamentPrices(env, scrapedProducts) {
           SET price_tl = ?, updated_at = CURRENT_TIMESTAMP
           WHERE id = ?
         `).bind(match.price_tl, filament.id).run();
-        updated++;
-        console.log(`Updated price for ${filament.brand} ${filament.model}: ${match.price_tl} TL`);
-      } catch (e) {
-        console.error(`Failed to update ${filament.brand}:`, e.message);
+      } catch {
+        // Skip failed updates
       }
     }
   }
-
-  console.log(`Turkish filaments synced: ${updated}/${turkishFilaments.results.length} updated`);
 }
 
 // Filament için en uygun fiyat eşleşmesini bul

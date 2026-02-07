@@ -304,10 +304,8 @@ const t = translations[currentLang as Language] || translations.tr;
   langBtns.forEach(btn => {
     btn.addEventListener('click', async () => {
       const targetLang = btn.dataset.lang;
-      console.log('[Translate] Clicked:', targetLang, 'Current:', currentLang, 'isTranslating:', isTranslating);
 
       if (targetLang === currentLang || isTranslating) {
-        console.log('[Translate] Skipping - same lang or already translating');
         return;
       }
 
@@ -321,20 +319,16 @@ const t = translations[currentLang as Language] || translations.tr;
       try {
         // Get translatable content
         const contentElements = document.querySelectorAll('[data-translatable], .thread-content, .article-content, .reply-content, .cat-main h2, .cat-main p, h1');
-        console.log('[Translate] Found elements:', contentElements.length);
 
         if (contentElements.length === 0) {
           // If no specific elements, try main content
           const mainContent = document.querySelector('main');
-          console.log('[Translate] No specific elements, using main:', !!mainContent);
           if (mainContent) {
             await translateElement(mainContent, targetLang);
           }
         } else {
           // Translate each element
-          console.log('[Translate] Translating', contentElements.length, 'elements...');
           for (const el of contentElements) {
-            console.log('[Translate] Element:', el.className || el.tagName, 'Text length:', (el.innerText || '').length);
             await translateElement(el, targetLang);
           }
         }
@@ -350,8 +344,7 @@ const t = translations[currentLang as Language] || translations.tr;
           status.className = 'menu-status';
         }, 3000);
 
-      } catch (error) {
-        console.error('Translation error:', error);
+      } catch {
         status.textContent = tError;
         status.className = 'menu-status error';
       } finally {
@@ -417,32 +410,21 @@ const t = translations[currentLang as Language] || translations.tr;
   }
 
   async function callTranslateAPI(text, targetLang) {
-    console.log('[Translate] API call, text length:', text.length, 'target:', targetLang);
-    try {
-      const response = await fetch(`${API_URL}/api/translate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: text,
-          targetLang: targetLang,
-          sourceLang: currentLang
-        })
-      });
+    const response = await fetch(`${API_URL}/api/translate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: text,
+        targetLang: targetLang,
+        sourceLang: currentLang
+      })
+    });
 
-      console.log('[Translate] API response status:', response.status);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('[Translate] API error:', errorText);
-        throw new Error('Translation API error: ' + errorText);
-      }
-
-      const data = await response.json();
-      console.log('[Translate] API success, result length:', data.translatedText?.length);
-      return data.translatedText;
-    } catch (err) {
-      console.error('[Translate] API call failed:', err);
-      throw err;
+    if (!response.ok) {
+      throw new Error('Translation API error');
     }
+
+    const data = await response.json();
+    return data.translatedText;
   }
 </script>
