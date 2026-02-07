@@ -83,13 +83,25 @@ const ALLOWED_ORIGINS = [
   "https://magaza.3d-labx.com",
   "https://dergi.3d-labx.com",
   "https://tech-portal.pages.dev",
+  "https://tech-portal-1kj.pages.dev",
   "http://localhost:4321",
   "http://localhost:3000"
 ];
 
+// Dynamic origin check for Pages preview deployments
+function isAllowedOrigin(origin) {
+  if (!origin) return false;
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  // Allow all *.pages.dev preview deployments
+  if (origin.endsWith('.pages.dev')) return true;
+  // Allow all subdomains of 3d-labx.com
+  if (origin.endsWith('.3d-labx.com') || origin === 'https://3d-labx.com') return true;
+  return false;
+}
+
 function getCorsHeaders(request) {
   const origin = request?.headers?.get("Origin") || "";
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  const allowedOrigin = isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0];
 
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
@@ -1708,10 +1720,10 @@ export default {
             sanitizeString(userAgent, 500)
           ).run();
 
-          return jsonResponse({ success: true });
+          return jsonResponse({ success: true }, 200, 0, request);
         } catch (err) {
           console.error('Log save error:', err);
-          return jsonResponse({ success: false });
+          return jsonResponse({ success: false }, 200, 0, request);
         }
       }
 

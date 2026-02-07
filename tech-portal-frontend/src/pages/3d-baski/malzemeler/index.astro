@@ -1,0 +1,526 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Header from "../../../components/Header.astro";
+
+export const prerender = false;
+
+// Malzeme verileri
+const materials = [
+  {
+    id: "pla",
+    name: "PLA",
+    fullName: "Polylactic Acid",
+    icon: "🌱",
+    color: "#22C55E",
+    difficulty: 1,
+    durability: 2,
+    heatResistance: 60,
+    description: "Başlangıç için ideal, biyobozunur ve kolay kullanımlı filament."
+  },
+  {
+    id: "petg",
+    name: "PETG",
+    fullName: "Polyethylene Terephthalate Glycol",
+    icon: "💧",
+    color: "#3B82F6",
+    difficulty: 2,
+    durability: 4,
+    heatResistance: 80,
+    description: "Dayanıklı, kimyasallara dirençli ve gıdaya uygun filament."
+  },
+  {
+    id: "abs",
+    name: "ABS",
+    fullName: "Acrylonitrile Butadiene Styrene",
+    icon: "🔧",
+    color: "#EF4444",
+    difficulty: 3,
+    durability: 4,
+    heatResistance: 100,
+    description: "Isıya dayanıklı, darbeye dirençli ve işlenebilir endüstriyel filament."
+  },
+  {
+    id: "asa",
+    name: "ASA",
+    fullName: "Acrylonitrile Styrene Acrylate",
+    icon: "☀️",
+    color: "#F97316",
+    difficulty: 3,
+    durability: 4,
+    heatResistance: 100,
+    description: "UV dayanıklı, dış mekan kullanımı için ideal filament."
+  },
+  {
+    id: "tpu",
+    name: "TPU",
+    fullName: "Thermoplastic Polyurethane",
+    icon: "🏃",
+    color: "#8B5CF6",
+    difficulty: 4,
+    durability: 3,
+    heatResistance: 80,
+    description: "Esnek, darbe emici ve aşınmaya dayanıklı kauçuk benzeri filament."
+  },
+  {
+    id: "nylon",
+    name: "Nylon",
+    fullName: "Polyamide (PA)",
+    icon: "⚙️",
+    color: "#6366F1",
+    difficulty: 5,
+    durability: 5,
+    heatResistance: 120,
+    description: "Çok dayanıklı, aşınmaya dirençli ve profesyonel kalitede filament."
+  }
+];
+
+const pageTitle = "3D Baskı Malzemeleri - Filament Rehberi | 3D-labX";
+const pageDescription = "PLA, PETG, ABS, ASA, TPU ve Nylon filament türleri için detaylı baskı ayarları, karşılaştırmalar ve öneriler.";
+
+// Zorluk yıldızı hesaplama fonksiyonu
+function getDifficultyStars(level: number): string {
+  return "★".repeat(level) + "☆".repeat(5 - level);
+}
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <Header />
+
+  <main class="materials-page">
+    <div class="container">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb">
+        <a href="/3d-baski">3D Baskı</a>
+        <span>/</span>
+        <span class="current">Malzemeler</span>
+      </nav>
+
+      <!-- Hero -->
+      <header class="page-hero">
+        <div class="hero-content">
+          <div class="hero-badge">
+            <span>🧪</span>
+            <span>Filament Rehberi</span>
+          </div>
+          <h1>3D Baskı Malzemeleri</h1>
+          <p class="hero-desc">
+            Her filament türünün kendine özgü özellikleri vardır. Projenize en uygun malzemeyi seçin ve
+            doğru baskı ayarlarıyla mükemmel sonuçlar elde edin.
+          </p>
+        </div>
+      </header>
+
+      <!-- Malzemeler Grid -->
+      <section class="materials-grid">
+        {materials.map((material) => (
+          <a href={`/3d-baski/malzemeler/${material.id}`} class="material-card" style={`--mat-color: ${material.color}`}>
+            <div class="card-header">
+              <span class="material-icon">{material.icon}</span>
+              <div class="material-title">
+                <h2>{material.name}</h2>
+                <span class="full-name">{material.fullName}</span>
+              </div>
+            </div>
+
+            <p class="material-desc">{material.description}</p>
+
+            <div class="material-stats">
+              <div class="stat">
+                <span class="stat-label">Zorluk</span>
+                <span class="stat-stars">{getDifficultyStars(material.difficulty)}</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Dayanıklılık</span>
+                <span class="stat-stars">{getDifficultyStars(material.durability)}</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Isı Direnci</span>
+                <span class="stat-value">{material.heatResistance}°C</span>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <span class="view-link">
+                Detayları Gör
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </span>
+            </div>
+          </a>
+        ))}
+      </section>
+
+      <!-- Karşılaştırma Tablosu -->
+      <section class="comparison-section">
+        <h2>📊 Hızlı Karşılaştırma</h2>
+        <div class="comparison-table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Malzeme</th>
+                <th>Zorluk</th>
+                <th>Dayanıklılık</th>
+                <th>Isı Direnci</th>
+                <th>İdeal Kullanım</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="table-icon">🌱</span> PLA</td>
+                <td>⭐</td>
+                <td>⭐⭐</td>
+                <td>60°C</td>
+                <td>Dekoratif, Prototip</td>
+              </tr>
+              <tr>
+                <td><span class="table-icon">💧</span> PETG</td>
+                <td>⭐⭐</td>
+                <td>⭐⭐⭐⭐</td>
+                <td>80°C</td>
+                <td>Mekanik, Gıda kapları</td>
+              </tr>
+              <tr>
+                <td><span class="table-icon">🔧</span> ABS</td>
+                <td>⭐⭐⭐</td>
+                <td>⭐⭐⭐⭐</td>
+                <td>100°C</td>
+                <td>Otomotiv, Aletler</td>
+              </tr>
+              <tr>
+                <td><span class="table-icon">☀️</span> ASA</td>
+                <td>⭐⭐⭐</td>
+                <td>⭐⭐⭐⭐</td>
+                <td>100°C</td>
+                <td>Dış mekan</td>
+              </tr>
+              <tr>
+                <td><span class="table-icon">🏃</span> TPU</td>
+                <td>⭐⭐⭐⭐</td>
+                <td>⭐⭐⭐</td>
+                <td>80°C</td>
+                <td>Esnek parçalar</td>
+              </tr>
+              <tr>
+                <td><span class="table-icon">⚙️</span> Nylon</td>
+                <td>⭐⭐⭐⭐⭐</td>
+                <td>⭐⭐⭐⭐⭐</td>
+                <td>120°C</td>
+                <td>Endüstriyel</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="cta-section">
+        <a href="/filamentler" class="cta-btn primary">
+          <span>🛒</span>
+          Türk Markası Filamentler
+        </a>
+        <a href="/3d-baski" class="cta-btn secondary">
+          <span>←</span>
+          3D Baskı Haberlerine Dön
+        </a>
+      </section>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .materials-page {
+    padding: 100px 20px 60px;
+    min-height: 100vh;
+    background: var(--bg-main);
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--primary);
+  }
+
+  .breadcrumb .current {
+    color: var(--text-main);
+    font-weight: 500;
+  }
+
+  /* Hero */
+  .page-hero {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(234, 88, 12, 0.05));
+    border: 1px solid rgba(249, 115, 22, 0.2);
+    border-radius: 20px;
+    padding: 40px;
+    margin-bottom: 40px;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: var(--bg-card);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+  }
+
+  .page-hero h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 12px;
+  }
+
+  .hero-desc {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 700px;
+    line-height: 1.6;
+  }
+
+  /* Materials Grid */
+  .materials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+
+  .material-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    padding: 24px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .material-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--mat-color);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .material-icon {
+    font-size: 2.5rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--mat-color) 15%, transparent), color-mix(in srgb, var(--mat-color) 5%, transparent));
+    border-radius: 16px;
+  }
+
+  .material-title h2 {
+    font-size: 1.5rem;
+    color: var(--mat-color);
+    margin: 0;
+  }
+
+  .full-name {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .material-desc {
+    font-size: 0.95rem;
+    color: var(--text-main);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .material-stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .stat-stars {
+    font-size: 0.9rem;
+    color: var(--mat-color);
+    letter-spacing: 2px;
+  }
+
+  .stat-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .view-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--mat-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  /* Comparison Section */
+  .comparison-section {
+    margin-bottom: 48px;
+  }
+
+  .comparison-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 24px;
+  }
+
+  .comparison-table-wrapper {
+    overflow-x: auto;
+    border-radius: 16px;
+    border: 1px solid var(--border-soft);
+  }
+
+  .comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-card);
+  }
+
+  .comparison-table th,
+  .comparison-table td {
+    padding: 16px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .comparison-table th {
+    background: var(--bg-main);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+  }
+
+  .comparison-table td {
+    font-size: 0.95rem;
+  }
+
+  .comparison-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .comparison-table tr:hover td {
+    background: var(--bg-main);
+  }
+
+  .table-icon {
+    margin-right: 8px;
+  }
+
+  /* CTA */
+  .cta-section {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    padding: 32px 0;
+  }
+
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .cta-btn.primary {
+    background: var(--primary);
+    color: white;
+  }
+
+  .cta-btn.primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+  }
+
+  .cta-btn.secondary {
+    background: var(--bg-card);
+    color: var(--text-main);
+    border: 1px solid var(--border-soft);
+  }
+
+  .cta-btn.secondary:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .page-hero {
+      padding: 24px;
+    }
+
+    .page-hero h1 {
+      font-size: 1.8rem;
+    }
+
+    .materials-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .material-stats {
+      flex-wrap: wrap;
+    }
+
+    .cta-section {
+      flex-direction: column;
+    }
+
+    .cta-btn {
+      justify-content: center;
+    }
+  }
+</style>

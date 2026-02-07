@@ -39,3 +39,43 @@ export const dateLocales: Record<Language, string> = {
   en: "en-US",
   de: "de-DE"
 };
+
+// Dile göre kategori URL yolları
+export const categoryPaths: Record<Language, Record<string, string>> = {
+  tr: {
+    "3d-baski": "3d-baski",
+    "rehberler": "rehberler",
+    "incelemeler": "incelemeler",
+    "sorun-cozumleri": "sorun-cozumleri",
+    "teknoloji": "teknoloji",
+    "yapay-zeka": "yapay-zeka"
+  },
+  en: {
+    "3d-baski": "news",
+    "rehberler": "guides",
+    "incelemeler": "reviews",
+    "sorun-cozumleri": "troubleshooting",
+    "teknoloji": "technology",
+    "yapay-zeka": "ai"
+  },
+  de: {
+    "3d-baski": "nachrichten",
+    "rehberler": "anleitungen",
+    "incelemeler": "bewertungen",
+    "sorun-cozumleri": "fehlerbehebung",
+    "teknoloji": "technologie",
+    "yapay-zeka": "ki"
+  }
+};
+
+// Post URL'si oluştur (dil ve kategori bazlı)
+export function getPostUrl(category: string, slug: string, lang: Language): string {
+  const path = categoryPaths[lang][category] || category;
+  return `/${path}/${slug}`;
+}
+
+// Kategori sayfası URL'si oluştur (dil bazlı)
+export function getCategoryUrl(category: string, lang: Language): string {
+  const path = categoryPaths[lang][category] || category;
+  return `/${path}`;
+}

@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
-import { getApiBase, getLanguage, dateLocales, type Language } from "../lib/api";
+import { getApiBase, getLanguage, dateLocales, getPostUrl, getCategoryUrl, type Language } from "../lib/api";
 import { translations } from "../lib/translations";
 
 export const prerender = false;
@@ -204,7 +204,7 @@ function getExcerpt(content: string, length: number = 120): string {
                 </div>
                 <h1>{slide.title || slide.title_tr}</h1>
                 <p>{slide.summary || slide.summary_tr}</p>
-                <a href={slide.category === 'topluluk-projesi' ? `/topluluk/forum/konu/${slide.slug}` : `/${slide.category}/${slide.slug}`} class="hero-btn">
+                <a href={slide.category === 'topluluk-projesi' ? `/topluluk/forum/konu/${slide.slug}` : getPostUrl(slide.category, slide.slug, lang)} class="hero-btn">
                   {slide.category === 'topluluk-projesi' ? t.homepage.viewProject : t.homepage.readMore}
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
                 </a>
@@ -238,7 +238,7 @@ function getExcerpt(content: string, length: number = 120): string {
   <section class="quick-access-band">
     <div class="container">
       <div class="quick-access-grid">
-        <a href="/sorun-cozumleri" class="quick-card">
+        <a href={getCategoryUrl("sorun-cozumleri", lang)} class="quick-card">
           <div class="quick-icon">🔧</div>
           <div class="quick-text">
             <span class="quick-title">{t.homepage.haveProblem}</span>
@@ -246,7 +246,7 @@ function getExcerpt(content: string, length: number = 120): string {
           </div>
           <svg class="quick-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
         </a>
-        <a href="/rehberler" class="quick-card">
+        <a href={getCategoryUrl("rehberler", lang)} class="quick-card">
           <div class="quick-icon">📚</div>
           <div class="quick-text">
             <span class="quick-title">{t.homepage.newbie}</span>
@@ -290,11 +290,11 @@ function getExcerpt(content: string, length: number = 120): string {
             <h2>{t.homepage.troubleshootingSection}</h2>
             <span class="priority-badge">{t.homepage.mostSearched}</span>
           </div>
-          <a href="/sorun-cozumleri" class="category-link">{t.homepage.viewAll} →</a>
+          <a href={getCategoryUrl("sorun-cozumleri", lang)} class="category-link">{t.homepage.viewAll} →</a>
         </div>
         <div class="category-grid six-cols">
           {sorunPosts.slice(0, 6).map((post, i) => (
-            <a href={`/sorun-cozumleri/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} green`}>
+            <a href={getPostUrl("sorun-cozumleri", post.slug, lang)} class={`cat-card ${i === 0 ? 'cat-featured' : ''} green`}>
               {post.image_url && (
                 <div class="cat-image">
                   <img src={post.image_url} alt={post.title || post.title_tr} loading="lazy" decoding="async" />
@@ -318,7 +318,7 @@ function getExcerpt(content: string, length: number = 120): string {
           <h2>{t.homepage.slicerGuides}</h2>
           <p>{t.homepage.slicerGuidesDesc}</p>
         </div>
-        <a href="/rehberler" class="section-cta">
+        <a href={getCategoryUrl("rehberler", lang)} class="section-cta">
           {t.homepage.allGuides}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
         </a>
@@ -387,11 +387,11 @@ function getExcerpt(content: string, length: number = 120): string {
             <span class="category-icon cyan">📘</span>
             <h2>{t.homepage.guidesSection}</h2>
           </div>
-          <a href="/rehberler" class="category-link">{t.homepage.viewAll} →</a>
+          <a href={getCategoryUrl("rehberler", lang)} class="category-link">{t.homepage.viewAll} →</a>
         </div>
         <div class="category-grid six-cols">
           {rehberPosts.slice(0, 6).map((post, i) => (
-            <a href={`/rehberler/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} cyan`}>
+            <a href={getPostUrl("rehberler", post.slug, lang)} class={`cat-card ${i === 0 ? 'cat-featured' : ''} cyan`}>
               {post.image_url && (
                 <div class="cat-image">
                   <img src={post.image_url} alt={post.title || post.title_tr} loading="lazy" decoding="async" />
@@ -415,11 +415,11 @@ function getExcerpt(content: string, length: number = 120): string {
             <span class="category-icon orange">📰</span>
             <h2>{t.homepage.newsSection}</h2>
           </div>
-          <a href="/3d-baski" class="category-link">{t.homepage.viewAll} →</a>
+          <a href={getCategoryUrl("3d-baski", lang)} class="category-link">{t.homepage.viewAll} →</a>
         </div>
         <div class="category-grid six-cols">
           {printPosts.slice(1, 7).map((post, i) => (
-            <a href={`/3d-baski/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} orange`}>
+            <a href={getPostUrl("3d-baski", post.slug, lang)} class={`cat-card ${i === 0 ? 'cat-featured' : ''} orange`}>
               {post.image_url && (
                 <div class="cat-image">
                   <img src={post.image_url} alt={post.title || post.title_tr} loading="lazy" decoding="async" />
@@ -503,11 +503,11 @@ function getExcerpt(content: string, length: number = 120): string {
             <span class="category-icon purple">⭐</span>
             <h2>{t.homepage.reviewsSection}</h2>
           </div>
-          <a href="/incelemeler" class="category-link">{t.homepage.viewAll} →</a>
+          <a href={getCategoryUrl("incelemeler", lang)} class="category-link">{t.homepage.viewAll} →</a>
         </div>
         <div class="category-grid six-cols">
           {incelemePosts.slice(0, 6).map((post, i) => (
-            <a href={`/incelemeler/${post.slug}`} class={`cat-card ${i === 0 ? 'cat-featured' : ''} purple`}>
+            <a href={getPostUrl("incelemeler", post.slug, lang)} class={`cat-card ${i === 0 ? 'cat-featured' : ''} purple`}>
               {post.image_url && (
                 <div class="cat-image">
                   <img src={post.image_url} alt={post.title || post.title_tr} loading="lazy" decoding="async" />

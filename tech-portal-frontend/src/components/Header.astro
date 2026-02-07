@@ -1,10 +1,18 @@
 ---
-import { getLanguage, type Language } from "../lib/api";
+import { getLanguage, getCategoryUrl, type Language } from "../lib/api";
 import { translations } from "../lib/translations";
 
 const currentPath = Astro.url.pathname;
 const lang = getLanguage(Astro.request);
 const t = translations[lang];
+
+// Category URLs for current language
+const urls = {
+  news: getCategoryUrl("3d-baski", lang),
+  guides: getCategoryUrl("rehberler", lang),
+  troubleshooting: getCategoryUrl("sorun-cozumleri", lang),
+  reviews: getCategoryUrl("incelemeler", lang),
+};
 ---
 
 <!-- Announcement Bar - Simplified -->
@@ -28,20 +36,20 @@ const t = translations[lang];
 
     <nav class="desktop-nav">
       <div class="nav-dropdown-wrapper">
-        <a href="/3d-baski" class={`nav-btn nav-btn-orange ${currentPath.startsWith("/3d-baski") || currentPath.startsWith("/rehberler") || currentPath.startsWith("/sorun-cozumleri") || currentPath.startsWith("/filamentler") ? "active" : ""}`}>
+        <a href={urls.news} class={`nav-btn nav-btn-orange ${currentPath.startsWith("/3d-baski") || currentPath.startsWith("/rehberler") || currentPath.startsWith("/sorun-cozumleri") || currentPath.startsWith("/filamentler") ? "active" : ""}`}>
           {t.nav.printing3d}
           <svg class="dropdown-chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
         </a>
         <div class="nav-dropdown">
-          <a href="/3d-baski" class="nav-dropdown-item">
+          <a href={urls.news} class="nav-dropdown-item">
             <span class="dropdown-icon">📰</span>
             <span>{t.nav.news}</span>
           </a>
-          <a href="/rehberler" class="nav-dropdown-item">
+          <a href={urls.guides} class="nav-dropdown-item">
             <span class="dropdown-icon">📚</span>
             <span>{t.nav.guides}</span>
           </a>
-          <a href="/sorun-cozumleri" class="nav-dropdown-item">
+          <a href={urls.troubleshooting} class="nav-dropdown-item">
             <span class="dropdown-icon">🔧</span>
             <span>{t.nav.troubleshooting}</span>
           </a>
@@ -55,7 +63,7 @@ const t = translations[lang];
           </a>
         </div>
       </div>
-      <a href="/incelemeler" class={`nav-btn nav-btn-cyan ${currentPath.startsWith("/incelemeler") ? "active" : ""}`}>{t.nav.reviews}</a>
+      <a href={urls.reviews} class={`nav-btn nav-btn-cyan ${currentPath.startsWith("/incelemeler") ? "active" : ""}`}>{t.nav.reviews}</a>
       <div class="nav-dropdown-wrapper">
         <a href="/topluluk" class={`nav-btn nav-btn-purple ${currentPath.startsWith("/topluluk") ? "active" : ""}`}>
           {t.nav.community}
@@ -165,12 +173,12 @@ const t = translations[lang];
   <div class="mobile-menu">
     <nav class="mobile-nav">
       <a href="/" class={currentPath === "/" ? "active" : ""}>{t.nav.home}</a>
-      <a href="/3d-baski" class={currentPath.startsWith("/3d-baski") ? "active" : ""}>{t.nav.printing3d}</a>
-      <a href="/rehberler" class="mobile-sub-link">📚 {t.nav.guides}</a>
-      <a href="/sorun-cozumleri" class="mobile-sub-link">🔧 {t.nav.troubleshooting}</a>
+      <a href={urls.news} class={currentPath.startsWith("/3d-baski") ? "active" : ""}>{t.nav.printing3d}</a>
+      <a href={urls.guides} class="mobile-sub-link">📚 {t.nav.guides}</a>
+      <a href={urls.troubleshooting} class="mobile-sub-link">🔧 {t.nav.troubleshooting}</a>
       <a href="/3d-baski/malzemeler" class="mobile-sub-link">🧵 {t.nav.filamentTypes}</a>
       <a href="/filamentler" class="mobile-sub-link">🇹🇷 {t.nav.localBrands}</a>
-      <a href="/incelemeler" class={currentPath.startsWith("/incelemeler") ? "active" : ""}>{t.nav.reviews}</a>
+      <a href={urls.reviews} class={currentPath.startsWith("/incelemeler") ? "active" : ""}>{t.nav.reviews}</a>
       <a href="/topluluk" class={currentPath.startsWith("/topluluk") ? "active" : ""}>{t.nav.community}</a>
       <a href="/topluluk/projeler" class="mobile-sub-link">🎨 {t.nav.iAlsoPrinted}</a>
       <a href="/topluluk/basarisizliklar" class="mobile-sub-link">🔥 {t.nav.failGallery}</a>

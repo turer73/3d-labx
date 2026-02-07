@@ -1,0 +1,187 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+import { getApiBase, getPostUrl, type Language } from "../../lib/api";
+
+export const prerender = false;
+
+const lang: Language = "de";
+
+const t = {
+  pageTitle: "3D-Druck Nachrichten",
+  pageDesc: "Neueste 3D-Druck-Nachrichten, Technologieentwicklungen und Branchenanalysen",
+  badge: "3D-Druck",
+  newsCount: "Nachrichten",
+  lastUpdate: "Letzte Aktualisierung",
+  current: "Aktuell",
+  featured: "Empfohlen",
+  showingNews: "Nachrichten angezeigt",
+  updatesDaily: "Tägliche Updates",
+  errorTitle: "Beim Laden des Inhalts ist ein Fehler aufgetreten.",
+  noContent: "Noch keine Inhalte in dieser Kategorie.",
+  backHome: "Zurück zur Startseite"
+};
+
+type Post = {
+  id: number;
+  title: string;
+  summary: string;
+  slug: string;
+  category: string;
+  image_url?: string;
+  is_featured: number;
+  created_at?: string;
+};
+
+const API_BASE = getApiBase(Astro.request);
+const MAX_POSTS = 37;
+
+let posts: Post[] = [];
+let error: string | null = null;
+
+try {
+  const res = await fetch(`${API_BASE}/api/posts?category=3d-baski&limit=${MAX_POSTS}&lang=de`, { headers: { "Accept": "application/json" } });
+  if (!res.ok) throw new Error(`API Fehler: ${res.status}`);
+  const data = await res.json();
+  posts = (data.posts || []).sort((a: Post, b: Post) => {
+    const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return dateB - dateA;
+  }).slice(0, MAX_POSTS);
+} catch (e) {
+  error = e instanceof Error ? e.message : "Unbekannter Fehler";
+}
+
+const title = `${t.pageTitle} – 3D-labX`;
+const today = new Date().toLocaleDateString("de-DE", { year: "numeric", month: "long", day: "numeric" });
+const heroPosts = posts.slice(0, 2);
+const gridPosts = posts.slice(2);
+---
+
+<BaseLayout title={title} description={t.pageDesc}>
+  <Header />
+
+  <main class="category-page">
+    <div class="container">
+      <div class="page-header">
+        <div class="page-title-group">
+          <div class="title-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            <span>{t.badge}</span>
+          </div>
+          <h1>{t.pageTitle}</h1>
+          <p class="page-desc">{t.pageDesc}</p>
+        </div>
+        <div class="post-stats">
+          <span class="post-count">{posts.length} {t.newsCount}</span>
+          <span class="update-date">{t.lastUpdate}: {today}</span>
+        </div>
+      </div>
+
+      {error && <div class="message message-error"><p>{t.errorTitle}: {error}</p></div>}
+
+      {!error && posts.length === 0 && (
+        <div class="empty-state">
+          <h2>Noch keine Inhalte</h2>
+          <p>{t.noContent}</p>
+          <a href="/" class="btn btn-primary">{t.backHome}</a>
+        </div>
+      )}
+
+      {posts.length > 0 && (
+        <>
+          {heroPosts.length > 0 && (
+            <div class="hero-bento">
+              {heroPosts[0] && (
+                <a href={getPostUrl("3d-baski", heroPosts[0].slug, lang)} class="hero-card hero-main">
+                  <div class="hero-image">
+                    {heroPosts[0].image_url && <img src={heroPosts[0].image_url} alt={heroPosts[0].title} />}
+                    <div class="hero-overlay"></div>
+                  </div>
+                  <div class="hero-content">
+                    <span class="hero-badge">{t.current}</span>
+                    <h2>{heroPosts[0].title}</h2>
+                    <p>{heroPosts[0].summary}</p>
+                  </div>
+                </a>
+              )}
+              {heroPosts[1] && (
+                <a href={getPostUrl("3d-baski", heroPosts[1].slug, lang)} class="hero-card hero-side">
+                  <div class="hero-image">
+                    {heroPosts[1].image_url && <img src={heroPosts[1].image_url} alt={heroPosts[1].title} />}
+                    <div class="hero-overlay"></div>
+                  </div>
+                  <div class="hero-content">
+                    <h2>{heroPosts[1].title}</h2>
+                    <p>{heroPosts[1].summary}</p>
+                  </div>
+                </a>
+              )}
+            </div>
+          )}
+
+          <div class="bento-grid">
+            {gridPosts.map((post, index) => (
+              <a href={getPostUrl("3d-baski", post.slug, lang)} class={`bento-card ${index === 0 ? 'bento-wide' : ''}`}>
+                {post.image_url && <div class="bento-image"><img src={post.image_url} alt={post.title} loading="lazy" /></div>}
+                <div class="bento-content">
+                  {post.is_featured === 1 && <span class="bento-badge">{t.featured}</span>}
+                  <h3>{post.title}</h3>
+                  <p>{post.summary}</p>
+                  {post.created_at && <time class="bento-date">{new Date(post.created_at).toLocaleDateString("de-DE", { year: "numeric", month: "short", day: "numeric" })}</time>}
+                </div>
+              </a>
+            ))}
+          </div>
+
+          <div class="all-posts-info">
+            <span>{posts.length} {t.showingNews} • {t.updatesDaily}</span>
+          </div>
+        </>
+      )}
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .category-page { padding-top: 140px; padding-bottom: 64px; min-height: 100vh; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+  .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
+  .page-title-group { display: flex; flex-direction: column; gap: 8px; }
+  .title-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(234, 88, 12, 0.1)); border: 1px solid rgba(249, 115, 22, 0.3); border-radius: 20px; color: #F97316; font-size: 0.8rem; font-weight: 600; width: fit-content; }
+  .page-header h1 { margin: 0; font-size: 2rem; background: linear-gradient(135deg, var(--text-main) 0%, var(--text-muted) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .page-desc { color: var(--text-muted); font-size: 1rem; margin: 0; max-width: 500px; }
+  .post-stats { display: flex; align-items: center; gap: 8px; }
+  .post-count { padding: 8px 16px; background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 20px; color: var(--text-muted); font-size: 0.85rem; }
+  .update-date { padding: 8px 16px; background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(234, 88, 12, 0.05)); border: 1px solid rgba(249, 115, 22, 0.2); border-radius: 20px; color: #F97316; font-size: 0.8rem; }
+  .hero-bento { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .hero-card { position: relative; border-radius: 20px; overflow: hidden; text-decoration: none; transition: transform 0.3s ease; }
+  .hero-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
+  .hero-main { min-height: 320px; }
+  .hero-side { min-height: 320px; }
+  .hero-image { position: absolute; inset: 0; }
+  .hero-image img { width: 100%; height: 100%; object-fit: cover; }
+  .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.1)); }
+  .hero-content { position: absolute; bottom: 0; left: 0; right: 0; padding: 24px; z-index: 1; }
+  .hero-badge { display: inline-flex; padding: 4px 10px; background: linear-gradient(135deg, #F97316, #EA580C); color: white; font-size: 0.7rem; font-weight: 600; border-radius: 12px; margin-bottom: 12px; }
+  .hero-content h2 { margin: 0 0 8px; font-size: 1.4rem; color: white; }
+  .hero-main .hero-content h2 { font-size: 1.8rem; }
+  .hero-content p { margin: 0; font-size: 0.9rem; color: rgba(255,255,255,0.8); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .bento-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .bento-card { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 16px; overflow: hidden; text-decoration: none; display: flex; flex-direction: column; transition: transform 0.3s ease, border-color 0.3s ease; }
+  .bento-card:hover { transform: translateY(-4px); border-color: rgba(249, 115, 22, 0.4); }
+  .bento-card.bento-wide { grid-column: span 2; }
+  .bento-image { aspect-ratio: 16/10; overflow: hidden; }
+  .bento-wide .bento-image { aspect-ratio: 21/10; }
+  .bento-image img { width: 100%; height: 100%; object-fit: cover; }
+  .bento-content { padding: 12px 14px; display: flex; flex-direction: column; flex: 1; }
+  .bento-badge { display: inline-block; width: fit-content; padding: 3px 8px; background: linear-gradient(135deg, #F97316, #EA580C); color: white; font-size: 0.65rem; font-weight: 600; border-radius: 6px; margin-bottom: 8px; }
+  .bento-content h3 { margin: 0 0 8px; font-size: 1rem; color: var(--text-main); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .bento-content p { margin: 0; font-size: 0.85rem; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1; }
+  .bento-date { display: block; margin-top: 12px; font-size: 0.75rem; color: var(--text-light); }
+  .all-posts-info { margin-top: 40px; display: flex; justify-content: center; padding: 16px 28px; background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(234, 88, 12, 0.05)); border: 1px solid rgba(249, 115, 22, 0.2); border-radius: 50px; color: #F97316; font-size: 0.9rem; }
+  .empty-state { text-align: center; padding: 60px 20px; }
+  @media (max-width: 1200px) { .bento-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 900px) { .hero-bento { grid-template-columns: 1fr; } .bento-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px) { .category-page { padding-top: 120px; } .page-header { flex-direction: column; } .bento-grid { grid-template-columns: 1fr; } .bento-card.bento-wide { grid-column: span 1; } }
+</style>
