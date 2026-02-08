@@ -2306,6 +2306,7 @@ Content: ${(post.content_tr || '').substring(0, 3000)}`;
         }
 
         // Admin: Toplu Çeviri (POST /admin/translate-batch)
+        // Akıllı çeviri: EN varsa EN'den, yoksa TR'den çevirir
         if (path === "/admin/translate-batch" && method === "POST") {
           const body = await request.json();
           const targetLang = body.lang || "en"; // "en" veya "de"
@@ -2319,14 +2320,13 @@ Content: ${(post.content_tr || '').substring(0, 3000)}`;
           const summaryField = `summary_${targetLang}`;
           const contentField = `content_${targetLang}`;
 
-          // Çevrilmemiş postları bul
+          // Çevrilmemiş postları bul (hem TR hem EN içerik al)
           const posts = await env.DB.prepare(`
-            SELECT id, title_tr, summary_tr, content_tr
+            SELECT id, title_tr, summary_tr, content_tr, title_en, summary_en, content_en
             FROM posts
             WHERE published = 1
-              AND title_tr IS NOT NULL
-              AND title_tr != ''
-              AND (${titleField} IS NULL OR ${titleField} = '')
+              AND title_tr IS NOT NULL AND title_tr != ''
+              AND (${contentField} IS NULL OR ${contentField} = '' OR LENGTH(${contentField}) < 100)
             ORDER BY created_at DESC
             LIMIT ?
           `).bind(limit).all();
@@ -2339,24 +2339,31 @@ Content: ${(post.content_tr || '').substring(0, 3000)}`;
             });
           }
 
-          const langNames = { en: "English", de: "German" };
+          const langNames = { en: "English", de: "German", tr: "Turkish" };
           let translated = 0;
           const errors = [];
 
           for (const post of posts.results) {
             try {
-              const prompt = `Translate the following Turkish text to ${langNames[targetLang]}. Return ONLY valid JSON, nothing else.
+              // Akıllı kaynak seçimi: EN içerik varsa EN'den, yoksa TR'den çevir
+              const hasEN = post.content_en && post.content_en.length > 100;
+              const sourceLang = (targetLang === 'en') ? 'tr' : (hasEN ? 'en' : 'tr');
+              const sourceTitle = sourceLang === 'en' ? post.title_en : post.title_tr;
+              const sourceSummary = sourceLang === 'en' ? post.summary_en : post.summary_tr;
+              const sourceContent = sourceLang === 'en' ? post.content_en : post.content_tr;
+
+              const prompt = `Translate this ${langNames[sourceLang]} tech article to ${langNames[targetLang]}. Return ONLY valid JSON:
 
 {
   "title": "Translated title",
-  "summary": "Translated summary",
-  "content": "Translated content (preserve HTML formatting)"
+  "summary": "Translated summary (max 200 chars)",
+  "content": "Translated content with paragraphs (preserve HTML formatting)"
 }
 
-Turkish text:
-Title: ${post.title_tr}
-Summary: ${post.summary_tr || ''}
-Content: ${(post.content_tr || '').substring(0, 4000)}`;
+${langNames[sourceLang]} text:
+Title: ${sourceTitle}
+Summary: ${sourceSummary || ''}
+Content: ${(sourceContent || '').substring(0, 4000)}`;
 
               const aiText = await generateWithAI(env, prompt);
               if (aiText) {
@@ -2378,6 +2385,8 @@ Content: ${(post.content_tr || '').substring(0, 4000)}`;
 
                 translated++;
               }
+              // Rate limiting
+              await new Promise(resolve => setTimeout(resolve, 500));
             } catch (err) {
               errors.push({ id: post.id, error: err.message });
             }
@@ -6242,20 +6251,30 @@ Başlık: ${item.title}
 
           const slug = createSlug(parsed.title_tr);
 
-          // Orijinal İngilizce içeriği title_en/summary_en olarak sakla
-          const title_en = (item.title || '').substring(0, 500);
-          const summary_en = (item.description || '').substring(0, 500);
+          // Orijinal İngilizce içeriği (RSS'ten geliyor)
+          const title_en = sanitizeString(item.title || '', 500);
+          const summary_en = sanitizeString(item.description || '', 1000);
+          // content_en için orijinal İngilizce içeriği genişlet
+          const content_en = sanitizeString(
+            (item.description || '') + '\n\n' + (item.fullContent || item.description || ''),
+            50000
+          );
 
           try {
+            // 3 dili birden kaydet
             await env.DB.prepare(`
-              INSERT INTO posts (title_tr, summary_tr, content_tr, title_en, summary_en, slug, category, post_type, source_url, image_url, ai_generated, status, published)
-              VALUES (?, ?, ?, ?, ?, ?, ?, 'haber', ?, ?, 1, 'published', 1)
+              INSERT INTO posts (
+                title_tr, summary_tr, content_tr,
+                title_en, summary_en, content_en,
+                slug, category, post_type, source_url, image_url, ai_generated, status, published
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'haber', ?, ?, 1, 'published', 1)
             `).bind(
               sanitizeString(parsed.title_tr, 500),
               sanitizeString(parsed.summary_tr, 1000),
               sanitizeString(parsed.content_tr, 50000),
               title_en,
               summary_en,
+              content_en,
               slug,
               category,
               item.link,
@@ -6264,23 +6283,26 @@ Başlık: ${item.title}
 
             totalAdded++;
 
-            // Otomatik DE çevirisi
-            try {
-              const dePrompt = `Translate to German. Return ONLY a JSON object with these 3 fields:
-{"title":"translated title","summary":"translated summary max 200 chars","content":"translated content max 500 chars, plain text only"}
+            // Yeni eklenen postun ID'sini al
+            const newPost = await env.DB.prepare(
+              `SELECT id FROM posts WHERE source_url = ?`
+            ).bind(item.link).first();
 
+            if (newPost) {
+              // Otomatik DE çevirisi (EN'den çevir - daha doğru)
+              try {
+                const dePrompt = `Translate this English content to German. Return ONLY a JSON object:
+{"title":"German title","summary":"German summary max 200 chars","content":"German content with paragraphs, min 400 chars"}
+
+English content:
 Title: ${title_en}
-Summary: ${summary_en}`;
+Summary: ${summary_en}
+Content: ${content_en.substring(0, 3000)}`;
 
-              const deText = await generateWithAI(env, dePrompt);
-              if (deText) {
-                const deParsed = parseAIJson(deText);
-                if (deParsed && validateTranslationResponse(deParsed)) {
-                  // Yeni eklenen postun ID'sini al
-                  const newPost = await env.DB.prepare(
-                    `SELECT id FROM posts WHERE source_url = ?`
-                  ).bind(item.link).first();
-                  if (newPost) {
+                const deText = await generateWithAI(env, dePrompt);
+                if (deText) {
+                  const deParsed = parseAIJson(deText);
+                  if (deParsed && validateTranslationResponse(deParsed)) {
                     await env.DB.prepare(`
                       UPDATE posts SET title_de = ?, summary_de = ?, content_de = ? WHERE id = ?
                     `).bind(
@@ -6291,9 +6313,9 @@ Summary: ${summary_en}`;
                     ).run();
                   }
                 }
+              } catch {
+                // DE translation failed, continue
               }
-            } catch (deErr) {
-              console.error("DE auto-translate error:", deErr.message);
             }
           } catch (dbError) {
             console.error("DB error:", dbError.message);
@@ -6312,11 +6334,109 @@ Summary: ${summary_en}`;
 
   // Cron job completed - stats: added=${totalAdded}, skipped=${totalSkipped}, errors=${totalErrors}
 
+  // Her cron çalışmasında 5 eski post'u otomatik çevir (backfill)
+  await translateMissingContent(env, 5);
+
   // Filament fiyatlarını güncelle (günde 1 kez - sabah 09:00'da)
   const now = new Date();
   const hour = now.getUTCHours();
   if (hour === 6) { // UTC 6 = TR 09:00
     await updateFilamentPrices(env);
+  }
+}
+
+// ================================
+// 🌍 EKSİK ÇEVİRİ TAMAMLAYICI
+// ================================
+async function translateMissingContent(env, limit = 5) {
+  // EN içerik eksik postları bul (TR'den çevir)
+  const missingEN = await env.DB.prepare(`
+    SELECT id, title_tr, summary_tr, content_tr
+    FROM posts
+    WHERE published = 1
+      AND title_tr IS NOT NULL AND title_tr != ''
+      AND content_tr IS NOT NULL AND LENGTH(content_tr) > 100
+      AND (content_en IS NULL OR content_en = '' OR LENGTH(content_en) < 100)
+    ORDER BY created_at DESC
+    LIMIT ?
+  `).bind(limit).all();
+
+  for (const post of (missingEN.results || [])) {
+    try {
+      const enPrompt = `Translate this Turkish tech news to English. Return ONLY a JSON object:
+{"title":"English title","summary":"English summary max 200 chars","content":"English content with paragraphs, min 400 chars"}
+
+Turkish:
+Title: ${post.title_tr}
+Summary: ${post.summary_tr || ''}
+Content: ${(post.content_tr || '').substring(0, 3000)}`;
+
+      const enText = await generateWithAI(env, enPrompt);
+      if (enText) {
+        const enParsed = parseAIJson(enText);
+        if (enParsed && validateTranslationResponse(enParsed)) {
+          await env.DB.prepare(`
+            UPDATE posts SET title_en = ?, summary_en = ?, content_en = ? WHERE id = ?
+          `).bind(
+            sanitizeString(enParsed.title, 500),
+            sanitizeString(enParsed.summary || '', 1000),
+            sanitizeString(enParsed.content || '', 50000),
+            post.id
+          ).run();
+        }
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    } catch {
+      // Skip failed
+    }
+  }
+
+  // DE içerik eksik postları bul - EN varsa EN'den, yoksa TR'den çevir
+  const missingDE = await env.DB.prepare(`
+    SELECT id, title_tr, summary_tr, content_tr, title_en, summary_en, content_en
+    FROM posts
+    WHERE published = 1
+      AND title_tr IS NOT NULL AND title_tr != ''
+      AND (content_de IS NULL OR content_de = '' OR LENGTH(content_de) < 100)
+    ORDER BY created_at DESC
+    LIMIT ?
+  `).bind(limit).all();
+
+  for (const post of (missingDE.results || [])) {
+    try {
+      // EN varsa EN'den çevir (daha doğru), yoksa TR'den
+      const hasEN = post.content_en && post.content_en.length > 100;
+      const sourceLang = hasEN ? 'English' : 'Turkish';
+      const sourceTitle = hasEN ? post.title_en : post.title_tr;
+      const sourceSummary = hasEN ? post.summary_en : post.summary_tr;
+      const sourceContent = hasEN ? post.content_en : post.content_tr;
+
+      const dePrompt = `Translate this ${sourceLang} tech news to German. Return ONLY a JSON object:
+{"title":"German title","summary":"German summary max 200 chars","content":"German content with paragraphs, min 400 chars"}
+
+${sourceLang}:
+Title: ${sourceTitle}
+Summary: ${sourceSummary || ''}
+Content: ${(sourceContent || '').substring(0, 3000)}`;
+
+      const deText = await generateWithAI(env, dePrompt);
+      if (deText) {
+        const deParsed = parseAIJson(deText);
+        if (deParsed && validateTranslationResponse(deParsed)) {
+          await env.DB.prepare(`
+            UPDATE posts SET title_de = ?, summary_de = ?, content_de = ? WHERE id = ?
+          `).bind(
+            sanitizeString(deParsed.title, 500),
+            sanitizeString(deParsed.summary || '', 1000),
+            sanitizeString(deParsed.content || '', 50000),
+            post.id
+          ).run();
+        }
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    } catch {
+      // Skip failed
+    }
   }
 }
 
