@@ -8,6 +8,12 @@ interface BreadcrumbItem {
   url: string;
 }
 
+interface HreflangUrls {
+  tr: string;
+  en: string;
+  de: string;
+}
+
 interface Props {
   title?: string;
   description?: string;
@@ -17,6 +23,7 @@ interface Props {
   noIndex?: boolean;
   breadcrumbs?: BreadcrumbItem[];
   lang?: Language;
+  hreflangUrls?: HreflangUrls;
 }
 
 // Auto-detect language from subdomain if not provided
@@ -31,7 +38,15 @@ const {
   noIndex = false,
   breadcrumbs,
   lang = detectedLang,
+  hreflangUrls,
 } = Astro.props;
+
+// Hreflang URLs - özel URL verilmişse kullan, yoksa aynı path'i kullan
+const finalHreflangUrls: HreflangUrls = hreflangUrls || {
+  tr: `https://3d-labx.com${Astro.url.pathname}`,
+  en: `https://en.3d-labx.com${Astro.url.pathname}`,
+  de: `https://de.3d-labx.com${Astro.url.pathname}`
+};
 
 // Get translations for footer
 const t = translations[lang];
@@ -156,10 +171,10 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
     <link rel="alternate" type="application/rss+xml" title="3D-labX RSS" href="/rss.xml" />
 
     <!-- Hreflang for multilingual support -->
-    <link rel="alternate" hreflang="tr" href={`https://3d-labx.com${Astro.url.pathname}`} />
-    <link rel="alternate" hreflang="en" href={`https://en.3d-labx.com${Astro.url.pathname}`} />
-    <link rel="alternate" hreflang="de" href={`https://de.3d-labx.com${Astro.url.pathname}`} />
-    <link rel="alternate" hreflang="x-default" href={`https://3d-labx.com${Astro.url.pathname}`} />
+    <link rel="alternate" hreflang="tr" href={finalHreflangUrls.tr} />
+    <link rel="alternate" hreflang="en" href={finalHreflangUrls.en} />
+    <link rel="alternate" hreflang="de" href={finalHreflangUrls.de} />
+    <link rel="alternate" hreflang="x-default" href={finalHreflangUrls.tr} />
 
     <!-- Open Graph -->
     <meta property="og:title" content={metaTitle} />

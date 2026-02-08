@@ -2,8 +2,8 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
 import { marked } from "marked";
-import { getLanguage, getBaseUrl, dateLocales } from "../../lib/api";
-import { getTranslations, type Language } from "../../lib/translations";
+import { getLanguage, getBaseUrl, dateLocales, getHreflangUrls, type Language } from "../../lib/api";
+import { getTranslations } from "../../lib/translations";
 
 export const prerender = false;
 
@@ -84,6 +84,14 @@ try {
 // API artık dile göre title, summary, content döndürüyor
 const title = post?.title || t.article.notFound;
 
+// Hreflang URL'leri
+const hreflangUrls = post ? getHreflangUrls(
+  post.category || "rehberler",
+  post.slug_tr || post.slug,
+  post.slug_en,
+  post.slug_de
+) : undefined;
+
 // İçerik HTML mi yoksa Markdown mı kontrol et
 function formatContent(content: string): string {
   if (!content) return "";
@@ -144,7 +152,7 @@ const catData = categoryInfo[post?.category] || { name: { tr: "Makale", en: "Art
 const catInfo = { name: catData.name[lang], color: catData.color, icon: catData.icon };
 ---
 
-<BaseLayout title={title}>
+<BaseLayout title={title} article={!!post} hreflangUrls={hreflangUrls} lang={lang}>
   <Header />
 
   {fetchError && (

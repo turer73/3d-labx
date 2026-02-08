@@ -2,7 +2,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
 import { marked } from "marked";
-import { getLanguage, dateLocales, type Language } from "../../lib/api";
+import { getLanguage, dateLocales, getHreflangUrls, type Language } from "../../lib/api";
 import { translations } from "../../lib/translations";
 
 export const prerender = false;
@@ -97,6 +97,14 @@ try {
 
 // Dile göre içerik al
 const title = post ? getLocalizedField(post, "title", lang) : t.article.notFound;
+
+// Hreflang URL'leri
+const hreflangUrls = post ? getHreflangUrls(
+  post.category || "sorun-cozumleri",
+  post.slug_tr || post.slug,
+  post.slug_en,
+  post.slug_de
+) : undefined;
 const summary = post ? getLocalizedField(post, "summary", lang) : "";
 const content = post ? getLocalizedField(post, "content", lang) : "";
 
@@ -167,7 +175,7 @@ const backLink = backLinks[post?.category] || { url: "/", text: t.nav.home };
 const loginUrl = lang === "tr" ? "/auth/giris" : "/auth/login";
 ---
 
-<BaseLayout title={title}>
+<BaseLayout title={title} article={!!post} hreflangUrls={hreflangUrls} lang={lang}>
   <Header />
 
   {fetchError && (

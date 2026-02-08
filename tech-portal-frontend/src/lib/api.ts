@@ -74,6 +74,23 @@ export function getPostUrl(category: string, slug: string, lang: Language): stri
   return `/${path}/${slug}`;
 }
 
+// Hreflang URL'leri oluştur (post için)
+export function getHreflangUrls(category: string, slugTr: string, slugEn?: string, slugDe?: string): {
+  tr: string;
+  en: string;
+  de: string;
+} {
+  const pathTr = categoryPaths.tr[category] || category;
+  const pathEn = categoryPaths.en[category] || category;
+  const pathDe = categoryPaths.de[category] || category;
+
+  return {
+    tr: `https://3d-labx.com/${pathTr}/${slugTr}`,
+    en: `https://en.3d-labx.com/${pathEn}/${slugEn || slugTr}`,
+    de: `https://de.3d-labx.com/${pathDe}/${slugDe || slugTr}`
+  };
+}
+
 // Kategori sayfası URL'si oluştur (dil bazlı)
 export function getCategoryUrl(category: string, lang: Language): string {
   const path = categoryPaths[lang][category] || category;

@@ -2,7 +2,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
 import { marked } from "marked";
-import { getLanguage, getApiBase, dateLocales, type Language } from "../../lib/api";
+import { getLanguage, getApiBase, dateLocales, getHreflangUrls, type Language } from "../../lib/api";
 import { translations } from "../../lib/translations";
 
 export const prerender = false;
@@ -50,6 +50,14 @@ try {
 
 // API'den gelen title (dile göre zaten çevrilmiş) veya fallback
 const title = post?.title || post?.title_tr || (lang === "en" ? "Content Not Found" : lang === "de" ? "Inhalt nicht gefunden" : "İçerik Bulunamadı");
+
+// Hreflang URL'leri (SEO için doğru dil URL'leri)
+const hreflangUrls = post ? getHreflangUrls(
+  post.category || "3d-baski",
+  post.slug_tr || post.slug,
+  post.slug_en,
+  post.slug_de
+) : undefined;
 
 // İçerik HTML mi yoksa Markdown mı kontrol et
 function formatContent(content: string): string {
@@ -137,7 +145,7 @@ const uiText = {
 const ui = uiText[lang];
 ---
 
-<BaseLayout title={title}>
+<BaseLayout title={title} article={!!post} hreflangUrls={hreflangUrls} lang={lang}>
   <Header />
 
   {fetchError && (

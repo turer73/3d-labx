@@ -2,7 +2,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
 import { marked } from "marked";
-import { getLanguage, getBaseUrl, dateLocales } from "../../lib/api";
+import { getLanguage, getBaseUrl, dateLocales, getHreflangUrls } from "../../lib/api";
 import { getTranslations, type Language } from "../../lib/translations";
 
 export const prerender = false;
@@ -48,6 +48,13 @@ try {
 }
 
 const title = post?.title || t.article.notFound;
+
+const hreflangUrls = post ? getHreflangUrls(
+  post.category || "rehberler",
+  post.slug_tr || post.slug,
+  post.slug_en,
+  post.slug_de
+) : undefined;
 
 function formatContent(content: string): string {
   if (!content) return "";
@@ -96,7 +103,7 @@ const categoryInfo: Record<string, {name: string, color: string, icon: string}> 
 const catData = categoryInfo[post?.category] || { name: "Artikel", color: "#3b82f6", icon: "📄" };
 ---
 
-<BaseLayout title={title}>
+<BaseLayout title={title} hreflangUrls={hreflangUrls}>
   <Header />
 
   {fetchError && (
