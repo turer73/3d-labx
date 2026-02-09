@@ -65,10 +65,20 @@ export const GET: APIRoute = async ({ request }) => {
   if (lang === "en") siteUrl = "https://en.3d-labx.com";
   if (lang === "de") siteUrl = "https://de.3d-labx.com";
 
-  // API'den tüm postları al (dile göre slug dahil)
-  const res = await fetch(`${API_BASE}/api/posts?limit=500&lang=${lang}`);
-  const data = await res.json();
-  const posts = data.posts || [];
+  // API'den tüm postları al (paginate - API max 50 per page)
+  let allPosts: any[] = [];
+  for (let page = 1; page <= 10; page++) {
+    try {
+      const res = await fetch(`${API_BASE}/api/posts?limit=50&page=${page}&lang=${lang}`);
+      const data = await res.json();
+      const pagePosts = data.posts || [];
+      if (pagePosts.length === 0) break;
+      allPosts = allPosts.concat(pagePosts);
+    } catch {
+      break;
+    }
+  }
+  const posts = allPosts;
 
   const today = new Date().toISOString().split('T')[0];
 

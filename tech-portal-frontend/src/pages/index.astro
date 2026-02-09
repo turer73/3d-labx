@@ -179,6 +179,8 @@ function getExcerpt(content: string, length: number = 120): string {
   <!-- HERO SLIDER SECTION -->
   <section class="hero-section" aria-label={t.homepage.featuredContent || "Öne çıkan içerikler"}>
     <div class="container">
+      <!-- SEO: Tek H1 tag - visually hidden ama Google için ana başlık -->
+      <h1 class="sr-only">{t.homepage.title}</h1>
       <div class="hero-slider-box" role="region" aria-roledescription="carousel" aria-label={t.homepage.featuredSlider || "Öne çıkan içerik slider"}>
         <div class="slider-container" tabindex="0">
           {heroSlides.map((slide, index) => (
@@ -199,7 +201,7 @@ function getExcerpt(content: string, length: number = 120): string {
                     <span class="hero-author">@{slide.username}</span>
                   )}
                 </div>
-                <h1>{slide.title || slide.title_tr}</h1>
+                <h2 class="hero-title">{slide.title || slide.title_tr}</h2>
                 <p>{slide.summary || slide.summary_tr}</p>
                 <a href={slide.category === 'topluluk-projesi' ? `/topluluk/forum/konu/${slide.slug}` : getPostUrl(slide.category, slide.slug, lang)} class="hero-btn">
                   {slide.category === 'topluluk-projesi' ? t.homepage.viewProject : t.homepage.readMore}
@@ -575,16 +577,16 @@ function getExcerpt(content: string, length: number = 120): string {
         </div>
         <div class="membership-stats">
           <div class="stat-item">
-            <span class="stat-number">1,200+</span>
-            <span class="stat-label">Üye</span>
+            <span class="stat-number">190+</span>
+            <span class="stat-label">{t.homepage.statArticles || "Makale"}</span>
           </div>
           <div class="stat-item">
-            <span class="stat-number">500+</span>
-            <span class="stat-label">Proje</span>
+            <span class="stat-number">4</span>
+            <span class="stat-label">{t.homepage.statSlicerGuides || "Slicer Rehberi"}</span>
           </div>
           <div class="stat-item">
-            <span class="stat-number">2,000+</span>
-            <span class="stat-label">Yorum</span>
+            <span class="stat-number">3</span>
+            <span class="stat-label">{t.homepage.statLanguages || "Dil"}</span>
           </div>
         </div>
       </div>
@@ -686,6 +688,19 @@ function getExcerpt(content: string, length: number = 120): string {
 </BaseLayout>
 
 <style>
+  /* SR-ONLY: Visually hidden but accessible to screen readers & SEO */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
   /* HERO SECTION */
   .hero-section {
     padding: 150px 20px 30px;
@@ -859,7 +874,7 @@ function getExcerpt(content: string, length: number = 120): string {
     50% { opacity: 0.5; }
   }
 
-  .slide-content h1 {
+  .slide-content h2.hero-title {
     font-size: 1.6rem;
     font-weight: 700;
     line-height: 1.3;
@@ -1005,7 +1020,7 @@ function getExcerpt(content: string, length: number = 120): string {
       text-align: center;
     }
 
-    .slide-content h1 {
+    .slide-content h2.hero-title {
       font-size: 1rem;
       line-height: 1.3;
       margin-bottom: 8px;
