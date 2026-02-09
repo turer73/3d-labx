@@ -229,7 +229,7 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
     <script type="application/ld+json" set:html={JSON.stringify(
       article ? {
         "@context": "https://schema.org",
-        "@type": category === "incelemeler" ? "Review" : category === "3d-baski" || category === "teknoloji" || category === "yapay-zeka" ? "NewsArticle" : category === "rehberler" ? "TechArticle" : "Article",
+        "@type": category === "incelemeler" ? "Review" : category === "3d-baski" || category === "teknoloji" ? "NewsArticle" : category === "rehberler" ? "TechArticle" : "Article",
         "headline": metaTitle,
         "name": metaTitle,
         "description": metaDescription,

@@ -9,7 +9,6 @@ const categoryTranslations: Record<string, Record<string, string>> = {
     "incelemeler": "incelemeler",
     "3d-baski": "3d-baski",
     "teknoloji": "teknoloji",
-    "yapay-zeka": "yapay-zeka",
   },
   en: {
     "sorun-cozumleri": "troubleshooting",
@@ -17,7 +16,6 @@ const categoryTranslations: Record<string, Record<string, string>> = {
     "incelemeler": "reviews",
     "3d-baski": "3d-printing",
     "teknoloji": "technology",
-    "yapay-zeka": "ai",
   },
   de: {
     "sorun-cozumleri": "fehlerbehebung",
@@ -25,7 +23,6 @@ const categoryTranslations: Record<string, Record<string, string>> = {
     "incelemeler": "bewertungen",
     "3d-baski": "3d-druck",
     "teknoloji": "technologie",
-    "yapay-zeka": "ki",
   }
 };
 
@@ -113,10 +110,8 @@ export const GET: APIRoute = async ({ request }) => {
     "/yasal/sorumluluk-reddi",
   ];
 
-  // AI araçları
-  const toolPages = [
-    "/ai-araclar",
-  ];
+  // Araç sayfaları (şimdilik boş)
+  const toolPages: string[] = [];
 
   // Malzeme rehberleri
   const materialPages = [

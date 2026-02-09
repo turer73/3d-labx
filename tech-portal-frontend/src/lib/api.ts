@@ -47,24 +47,21 @@ export const categoryPaths: Record<Language, Record<string, string>> = {
     "rehberler": "rehberler",
     "incelemeler": "incelemeler",
     "sorun-cozumleri": "sorun-cozumleri",
-    "teknoloji": "teknoloji",
-    "yapay-zeka": "yapay-zeka"
+    "teknoloji": "teknoloji"
   },
   en: {
     "3d-baski": "news",
     "rehberler": "guides",
     "incelemeler": "reviews",
     "sorun-cozumleri": "troubleshooting",
-    "teknoloji": "technology",
-    "yapay-zeka": "ai"
+    "teknoloji": "technology"
   },
   de: {
     "3d-baski": "nachrichten",
     "rehberler": "anleitungen",
     "incelemeler": "bewertungen",
     "sorun-cozumleri": "fehlerbehebung",
-    "teknoloji": "technologie",
-    "yapay-zeka": "ki"
+    "teknoloji": "technologie"
   }
 };
 
