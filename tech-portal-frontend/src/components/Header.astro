@@ -274,11 +274,12 @@ const urls = {
 
   // Apply theme
   const applyTheme = (theme: string) => {
-    if (theme === 'dark') {
-      html.setAttribute('data-theme', 'dark');
-    } else {
-      html.removeAttribute('data-theme');
+    // System preference check
+    if (theme === 'system') {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
+    // Her zaman data-theme attribute set et (light veya dark)
+    html.setAttribute('data-theme', theme === 'dark' ? 'dark' : 'light');
     localStorage.setItem('theme', theme);
   };
 
@@ -973,6 +974,7 @@ const urls = {
     transform: rotate(15deg);
   }
 
+  /* Light mode: güneş göster (karanlık moda geçiş için) */
   .theme-toggle .sun-icon {
     display: block;
   }
@@ -981,6 +983,15 @@ const urls = {
     display: none;
   }
 
+  :root[data-theme="light"] .theme-toggle .sun-icon {
+    display: block;
+  }
+
+  :root[data-theme="light"] .theme-toggle .moon-icon {
+    display: none;
+  }
+
+  /* Dark mode: ay göster (açık moda geçiş için) */
   :root[data-theme="dark"] .theme-toggle .sun-icon {
     display: none;
   }
@@ -1144,6 +1155,7 @@ const urls = {
     border-color: var(--accent);
   }
 
+  /* Light mode: güneş göster, "Koyu Tema" yazısı */
   .mobile-theme-toggle .sun-icon {
     display: block;
   }
@@ -1160,6 +1172,23 @@ const urls = {
     display: block;
   }
 
+  :root[data-theme="light"] .mobile-theme-toggle .sun-icon {
+    display: block;
+  }
+
+  :root[data-theme="light"] .mobile-theme-toggle .moon-icon {
+    display: none;
+  }
+
+  :root[data-theme="light"] .mobile-theme-toggle .light-label {
+    display: none;
+  }
+
+  :root[data-theme="light"] .mobile-theme-toggle .dark-label {
+    display: block;
+  }
+
+  /* Dark mode: ay göster, "Açık Tema" yazısı */
   :root[data-theme="dark"] .mobile-theme-toggle .sun-icon {
     display: none;
   }

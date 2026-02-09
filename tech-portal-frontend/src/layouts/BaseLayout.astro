@@ -136,21 +136,13 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
           theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
 
-        const root = document.documentElement;
-        root.setAttribute('data-theme', theme);
-
-        if (theme === 'light') {
-          root.style.setProperty('--bg-main', '#f5f5f5');
-          root.style.setProperty('--bg-card', '#ffffff');
-          root.style.setProperty('--text-main', '#1a1a1a');
-          root.style.setProperty('--text-muted', '#666666');
-          root.style.setProperty('--border-soft', '#e0e0e0');
-        }
+        // Sadece data-theme attribute ile kontrol et, inline style kullanma
+        document.documentElement.setAttribute('data-theme', theme);
 
         // Yazı boyutu yükle
         const fontSize = localStorage.getItem('fontSize') || 'medium';
         const sizes = { 'small': '14px', 'medium': '16px', 'large': '18px' };
-        root.style.fontSize = sizes[fontSize] || '16px';
+        document.documentElement.style.fontSize = sizes[fontSize] || '16px';
       })();
     </script>
 
