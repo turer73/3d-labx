@@ -1763,3 +1763,89 @@ body::before {
     0%, 100% { opacity: 0; }
     50% { opacity: 1; }
 }
+
+/* === REGION UNLOCK EXIT ANIMATION === */
+@keyframes regionUnlockOut {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(0.8) translateY(-30px); opacity: 0; }
+}
+
+/* === SVG CONQUEST FLAG ANIMATION === */
+.conquest-flag-text {
+    opacity: 0;
+    animation: flagPlantSVG 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+}
+
+@keyframes flagPlantSVG {
+    0% { opacity: 0; font-size: 0px; }
+    60% { opacity: 1; font-size: 14px; }
+    100% { opacity: 1; font-size: 10px; }
+}
+
+/* === MAP ZOOM CURSOR === */
+#map-container {
+    cursor: grab;
+}
+#map-container:active {
+    cursor: grabbing;
+}
+
+/* === MAP ZOOM TRANSITION === */
+#turkey-map {
+    transition: transform 0.15s ease-out;
+}
+
+/* === ZOOM RESET HINT === */
+.zoom-reset-hint {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    color: var(--text2);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    backdrop-filter: blur(4px);
+}
+.zoom-reset-hint.visible {
+    opacity: 1;
+}
+
+/* === CONQUERED CITIES TOOLTIP === */
+.city-tooltip {
+    position: fixed;
+    z-index: 300;
+    background: rgba(17, 24, 39, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 8px 14px;
+    pointer-events: none;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    animation: tooltipFadeIn 0.2s ease;
+    max-width: 200px;
+}
+.city-tooltip .tooltip-name {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text);
+    margin-bottom: 2px;
+}
+.city-tooltip .tooltip-status {
+    font-size: 0.72rem;
+    color: var(--text3);
+}
+.city-tooltip .tooltip-status.conquered {
+    color: var(--green-light);
+}
+.city-tooltip .tooltip-status.locked {
+    color: var(--red);
+}
+
+@keyframes tooltipFadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}

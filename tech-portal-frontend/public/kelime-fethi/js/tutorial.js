@@ -29,7 +29,7 @@ function renderTutorialStep() {
 
     const nextBtn = document.getElementById('btn-tutorial-next');
     if (nextBtn) {
-        nextBtn.textContent = tutorialStep < TUTORIAL_STEPS.length - 1 ? 'Devam' : 'Basla!';
+        nextBtn.textContent = tutorialStep < TUTORIAL_STEPS.length - 1 ? 'Devam →' : 'Başla!';
     }
 
     const dotsEl = document.getElementById('tutorial-dots');

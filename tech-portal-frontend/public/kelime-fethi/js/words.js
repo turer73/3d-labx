@@ -28,21 +28,21 @@ export async function loadGameData() {
             WORDS = wordsData.words || [];
             DAILY_WORDS = wordsData.daily || [];
             WORD_SET = new Set(WORDS); // Create Set for fast lookup
-            console.log(`[Kelime Fethi] ${WORDS.length} kelime, ${DAILY_WORDS.length} gunluk kelime yuklendi`);
+            console.log(`[Kelime Fethi] ${WORDS.length} kelime, ${DAILY_WORDS.length} günlük kelime yüklendi`);
         } else {
-            console.warn('[Kelime Fethi] words.json yuklenemedi');
+            console.warn('[Kelime Fethi] words.json yüklenemedi');
         }
 
         if (citiesRes.ok) {
             const citiesData = await citiesRes.json();
             CITIES = citiesData.cities || [];
             REGIONS = citiesData.regions || [];
-            console.log(`[Kelime Fethi] ${CITIES.length} sehir, ${REGIONS.length} bolge yuklendi`);
+            console.log(`[Kelime Fethi] ${CITIES.length} şehir, ${REGIONS.length} bölge yüklendi`);
         } else {
-            console.warn('[Kelime Fethi] cities.json yuklenemedi');
+            console.warn('[Kelime Fethi] cities.json yüklenemedi');
         }
     } catch (e) {
-        console.error('[Kelime Fethi] Veri yukleme hatasi:', e);
+        console.error('[Kelime Fethi] Veri yükleme hatası:', e);
     }
 }
 
@@ -89,7 +89,7 @@ export function validateGuess(guess) {
         return { valid: false, message: '5 harfli bir kelime girin!' };
     }
     if (!isValidWord(guess)) {
-        return { valid: false, message: 'Bu kelime sozlukte yok!' };
+        return { valid: false, message: 'Bu kelime sözlükte yok!' };
     }
 
     // Hard mode validation
@@ -119,14 +119,14 @@ export function validateGuess(guess) {
 
         for (const [pos, letter] of Object.entries(requiredPositions)) {
             if (guessArr[parseInt(pos)] !== letter) {
-                return { valid: false, message: `${parseInt(pos)+1}. harf ${letter} olmali!` };
+                return { valid: false, message: `${parseInt(pos)+1}. harf ${letter} olmalı!` };
             }
         }
 
         for (const [letter, minCount] of Object.entries(requiredLetters)) {
             const actualCount = guessArr.filter(c => c === letter).length;
             if (actualCount < minCount) {
-                return { valid: false, message: `${letter} harfi kullanilmali!` };
+                return { valid: false, message: `${letter} harfi kullanılmalı!` };
             }
         }
     }

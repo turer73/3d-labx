@@ -9,7 +9,7 @@ import { Haptic } from './haptic.js';
 import { Particles } from './particles.js';
 import { showToast } from './utils.js';
 import { loadGameData, TURKEY_MAP } from './words.js';
-import { renderMap, updateMapProgress, initRegionSelector } from './map.js';
+import { renderMap, updateMapProgress, initRegionSelector, initMapZoom, initRegionTracking, checkRegionUnlock } from './map.js';
 import { updateStats } from './stats.js';
 import { CloudSave } from './cloud.js';
 import { initPhysicalKeyboard, initVirtualKeyboard } from './keyboard.js';
@@ -248,6 +248,10 @@ async function init() {
     renderMap();
     updateUI();
     updateSplash(100);
+
+    // Init map interactions (zoom/pan)
+    initMapZoom();
+    initRegionTracking();
 
     // Init icons
     initIcons();

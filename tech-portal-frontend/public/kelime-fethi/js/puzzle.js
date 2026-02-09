@@ -9,7 +9,7 @@ import { Haptic } from './haptic.js';
 import { Particles } from './particles.js';
 import { state, save } from './state.js';
 import { evaluateGuess, validateGuess, getDailyWord, getTodayStr, getDayNumber, CITIES, REGIONS } from './words.js';
-import { renderMap, getConqueredCount, setOnCityClickCallback } from './map.js';
+import { renderMap, getConqueredCount, setOnCityClickCallback, playCityConquestAnimation, checkRegionUnlock } from './map.js';
 import { updateStats } from './stats.js';
 
 let currentInput = '';
@@ -244,12 +244,12 @@ function checkPuzzleResult(guess, evaluation, rowIndex) {
             }
 
             let message = '';
-            if (guessCount === 1) message = 'iNANILMAZ! ilk denemede!';
+            if (guessCount === 1) message = 'İNANILMAZ! İlk denemede!';
             else if (guessCount === 2) message = 'Deha! 2 denemede bildin!';
             else if (guessCount === 3) message = 'Harika! 3 denemede!';
-            else if (guessCount === 4) message = 'Guzel! 4 denemede buldum!';
+            else if (guessCount === 4) message = 'Güzel! 4 denemede buldun!';
             else if (guessCount === 5) message = 'Son anda! 5. denemede!';
-            else message = 'Zar zor! Son denemede basardin!';
+            else message = 'Zar zor! Son denemede başardın!';
 
             showResultOverlay(true, message, totalScore, hasBonus, guessCount);
 
@@ -268,11 +268,10 @@ function checkPuzzleResult(guess, evaluation, rowIndex) {
 
             if (state.activeCityId) {
                 renderMap();
-                const cityPath = document.getElementById(`city-${state.activeCityId}`);
-                if (cityPath) {
-                    cityPath.classList.add('city-just-conquered');
-                    setTimeout(() => cityPath.classList.remove('city-just-conquered'), 1500);
-                }
+                // Play conquest animation (flag, particles, glow)
+                playCityConquestAnimation(state.activeCityId);
+                // Check if a new region was unlocked
+                setTimeout(() => checkRegionUnlock(), 1200);
             }
         }, 800);
 
@@ -290,7 +289,7 @@ function checkPuzzleResult(guess, evaluation, rowIndex) {
 
         setTimeout(() => {
             SFX.lose();
-            showResultOverlay(false, `Dogru kelime: ${state.activeCityWord}`, 0, false, 0);
+            showResultOverlay(false, `Doğru kelime: ${state.activeCityWord}`, 0, false, 0);
             updateUI();
         }, 500);
     }
@@ -344,7 +343,7 @@ function showResultOverlay(won, message, score, hasBonus, guessCount) {
     const overlay = document.getElementById('result-overlay');
     if (!overlay) return;
 
-    document.getElementById('result-icon').textContent = won ? 'Tebrikler' : 'Kaybettin';
+    document.getElementById('result-icon').textContent = won ? '🏆' : '😔';
     document.getElementById('result-title').textContent = won ? 'Tebrikler!' : 'Kaybettin!';
     document.getElementById('result-message').textContent = message;
     document.getElementById('result-score').textContent = won ? `+${score}` : '';
@@ -376,16 +375,16 @@ function generateShareGrid() {
 
     let shareText = '';
     const isDaily = state.dailyDate === getTodayStr();
-    const title = isDaily ? `Kelime Fethi - Gunluk #${getDayNumber()}` : 'Kelime Fethi';
+    const title = isDaily ? `Kelime Fethi - Günlük #${getDayNumber()}` : 'Kelime Fethi';
     const won = guesses.some(g => g === word);
     shareText += `${title} ${won ? guesses.length : 'X'}/${MAX_GUESSES}\n\n`;
 
     guesses.forEach(guess => {
         const eval_ = evaluateGuess(guess, word);
         const emojiRow = eval_.map(e => {
-            if (e === 'correct') return 'G';
-            if (e === 'present') return 'S';
-            return 'X';
+            if (e === 'correct') return '🟩';
+            if (e === 'present') return '🟨';
+            return '⬛';
         }).join('');
         shareText += emojiRow + '\n';
     });
@@ -411,7 +410,7 @@ export function shareResult() {
 // ===== HINT =====
 export function useHint() {
     if (state.hints <= 0) {
-        showToast('ipucu hakkin kalmadi!');
+        showToast('İpucu hakkın kalmadı!');
         return;
     }
     if (isAnimating || currentPuzzleComplete) return;
@@ -432,7 +431,7 @@ export function useHint() {
     }
 
     if (unknownPositions.length === 0) {
-        showToast('Zaten tum harfleri biliyorsun!');
+        showToast('Zaten tüm harfleri biliyorsun!');
         return;
     }
 
@@ -481,13 +480,13 @@ export function startDailyPuzzle(switchViewFn) {
     const today = getTodayStr();
 
     if (state.dailyDate === today && state.dailyComplete) {
-        showToast('Bugunku bulmaciyi zaten tamamladin!');
+        showToast('Bugünkü bulmacayı zaten tamamladın!');
         return;
     }
 
     const word = getDailyWord();
     if (!word) {
-        showToast('Kelime verisi yuklenemedi!');
+        showToast('Kelime verisi yüklenemedi!');
         return;
     }
 
@@ -508,7 +507,7 @@ export function startDailyPuzzle(switchViewFn) {
 
     updateKeyboardState();
 
-    document.getElementById('puzzle-city-name').textContent = 'Gunluk Bulmaca';
+    document.getElementById('puzzle-city-name').textContent = 'Günlük Bulmaca';
     document.getElementById('puzzle-region-name').textContent = `#${getDayNumber()}`;
 
     renderGrid();
