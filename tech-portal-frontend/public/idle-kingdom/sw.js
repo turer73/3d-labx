@@ -1,9 +1,9 @@
 // ============================================================
-// IDLE KINGDOM — Service Worker v1.0
+// TIKLA FETHET — Service Worker v1.0
 // Offline-first caching strategy for PWA
 // ============================================================
 
-const CACHE_NAME = 'idle-kingdom-v9';
+const CACHE_NAME = 'tikla-fethet-v10';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',

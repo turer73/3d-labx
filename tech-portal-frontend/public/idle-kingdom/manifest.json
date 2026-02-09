@@ -1,7 +1,7 @@
 {
-    "name": "Idle Kingdom - Krallığını Kur",
-    "short_name": "Idle Kingdom",
-    "description": "Krallığını inşa et, kahramanlarını topla, bossları yen! Türkçe idle oyun.",
+    "name": "Tıkla Fethet - Krallığını Kur",
+    "short_name": "Tıkla Fethet",
+    "description": "Tıkla, krallığını inşa et, kahramanlarını topla, bossları yen! Türkçe idle strateji oyunu.",
     "start_url": "./index.html",
     "display": "standalone",
     "orientation": "portrait",

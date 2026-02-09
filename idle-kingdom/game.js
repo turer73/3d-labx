@@ -1,5 +1,5 @@
 // ============================================================
-// IDLE KINGDOM v3.1 — Balanced & Content-Rich Edition
+// TIKLA FETHET v3.2 — Balanced & Content-Rich Edition
 // Dopamine Loops, Scarcity, FOMO, Variable Rewards, Near-Miss
 // Daily Rewards, Flash Sales, Tap Jackpots, Streak System
 // 12 Buildings, 10 Heroes, 12 Bosses, 20 Upgrades, 30 Achievements
@@ -2417,7 +2417,7 @@ function init() {
         lastTime = performance.now();
         requestAnimationFrame(gameLoop);
 
-        console.log('🏰 Idle Kingdom v3.0 — Psychology Edition loaded!');
+        console.log('🏰 Tıkla Fethet v3.2 — Psychology Edition loaded!');
     } catch (err) {
         console.error('INIT ERROR:', err);
     }
