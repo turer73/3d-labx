@@ -89,6 +89,7 @@ const urls = {
         </div>
       </div>
       <a href="https://magaza.3d-labx.com" class="nav-btn nav-btn-green" target="_blank">{t.nav.store}</a>
+      <a href="/idle-kingdom/" class="nav-btn nav-btn-game">🎮 {t.nav.games}</a>
     </nav>
 
     <div class="header-actions">
@@ -184,6 +185,7 @@ const urls = {
       <a href="/topluluk/basarisizliklar" class="mobile-sub-link">🔥 {t.nav.failGallery}</a>
       <a href="/topluluk/harita" class="mobile-sub-link">🗺️ {t.nav.makerMap}</a>
       <a href="https://magaza.3d-labx.com" target="_blank">🛒 {t.nav.store}</a>
+      <a href="/idle-kingdom/" class="mobile-game-link">🎮 {t.nav.games}</a>
       <a href="/iletisim" class={currentPath.startsWith("/iletisim") ? "active" : ""}>{t.nav.contact}</a>
     </nav>
     <form action="/search" method="get" class="mobile-search">
@@ -748,6 +750,35 @@ const urls = {
     background: linear-gradient(135deg, #22C55E, #10B981);
     color: white;
     border-color: transparent;
+  }
+
+  /* Gold/Amber - Oyunlar */
+  .desktop-nav a.nav-btn-game {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(234, 179, 8, 0.1));
+    border-color: rgba(245, 158, 11, 0.3);
+    color: #F59E0B;
+  }
+  .desktop-nav a.nav-btn-game:hover {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(234, 179, 8, 0.2));
+    border-color: rgba(245, 158, 11, 0.5);
+    color: #F59E0B;
+    transform: scale(1.05);
+  }
+  .desktop-nav a.nav-btn-game.active {
+    background: linear-gradient(135deg, #F59E0B, #EAB308);
+    color: white;
+    border-color: transparent;
+  }
+
+  /* Mobile Game Link */
+  .mobile-game-link {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(234, 179, 8, 0.05));
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    color: #F59E0B !important;
+    font-weight: 700 !important;
+  }
+  .mobile-game-link:hover {
+    background: rgba(245, 158, 11, 0.15) !important;
   }
 
   /* Nav Dropdown */

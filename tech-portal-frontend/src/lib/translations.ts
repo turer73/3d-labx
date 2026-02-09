@@ -17,6 +17,7 @@ export const translations: Record<Language, {
     failGallery: string;
     makerMap: string;
     store: string;
+    games: string;
     contact: string;
     home: string;
   };
@@ -135,6 +136,8 @@ export const translations: Record<Language, {
     comparePrices: string;
     joinCommunity: string;
     askShare: string;
+    breakTime: string;
+    playNow: string;
     // Slicer specific
     flowCalcs: string;
     zOffset: string;
@@ -329,6 +332,7 @@ export const translations: Record<Language, {
       failGallery: "Başarısızlık Galerisi",
       makerMap: "Maker Haritası",
       store: "Mağaza",
+      games: "Oyunlar",
       contact: "İletişim",
       home: "Ana Sayfa"
     },
@@ -440,6 +444,8 @@ export const translations: Record<Language, {
       comparePrices: "Fiyatları karşılaştır",
       joinCommunity: "Topluluğa katıl!",
       askShare: "Soru sor, paylaş",
+      breakTime: "Mola zamanı! 🎮",
+      playNow: "Idle Kingdom oyna",
       flowCalcs: "Akış hesaplamaları ve sorun çözümleri",
       zOffset: "Z-Offset",
       calibration: "Kalibrasyon ve ayarlar sözlüğü",
@@ -632,6 +638,7 @@ export const translations: Record<Language, {
       failGallery: "Fail Gallery",
       makerMap: "Maker Map",
       store: "Store",
+      games: "Games",
       contact: "Contact",
       home: "Home"
     },
@@ -743,6 +750,8 @@ export const translations: Record<Language, {
       comparePrices: "Compare prices",
       joinCommunity: "Join the community!",
       askShare: "Ask questions, share",
+      breakTime: "Break time! 🎮",
+      playNow: "Play Idle Kingdom",
       flowCalcs: "Flow calculations and troubleshooting",
       zOffset: "Z-Offset",
       calibration: "Calibration and settings dictionary",
@@ -935,6 +944,7 @@ export const translations: Record<Language, {
       failGallery: "Fail-Galerie",
       makerMap: "Maker-Karte",
       store: "Shop",
+      games: "Spiele",
       contact: "Kontakt",
       home: "Startseite"
     },
@@ -1046,6 +1056,8 @@ export const translations: Record<Language, {
       comparePrices: "Preise vergleichen",
       joinCommunity: "Community beitreten!",
       askShare: "Fragen stellen, teilen",
+      breakTime: "Pausenzeit! 🎮",
+      playNow: "Idle Kingdom spielen",
       flowCalcs: "Flussberechnungen und Fehlerbehebung",
       zOffset: "Z-Offset",
       calibration: "Kalibrierung und Einstellungs-Wörterbuch",

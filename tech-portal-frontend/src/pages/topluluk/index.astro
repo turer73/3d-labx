@@ -343,6 +343,15 @@ function formatDate(dateStr: string) {
           <div class="feature-arrow">→</div>
         </a>
 
+        <a href="/idle-kingdom/" class="bento-card feature-card game-feature">
+          <div class="feature-icon">🎮</div>
+          <div class="feature-content">
+            <h3>Idle Kingdom</h3>
+            <p>{lang === 'tr' ? 'Mola ver, krallığını inşa et!' : lang === 'de' ? 'Mach Pause, baue dein Königreich!' : 'Take a break, build your kingdom!'}</p>
+          </div>
+          <div class="feature-arrow">→</div>
+        </a>
+
         <!-- Categories Grid -->
         {categories.map((cat, index) => (
           <a href={`/topluluk/forum/${cat.slug}`} class={`bento-card category-card cat-${index + 1}`} style={`--cat-color: ${cat.color || '#F97316'}`}>
@@ -813,6 +822,20 @@ function formatDate(dateStr: string) {
 
   .map-feature .feature-content h3 {
     color: #8B5CF6;
+  }
+
+  .game-feature {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(234, 179, 8, 0.05));
+    border-color: rgba(245, 158, 11, 0.2);
+  }
+
+  .game-feature:hover {
+    border-color: #F59E0B;
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15);
+  }
+
+  .game-feature .feature-content h3 {
+    color: #F59E0B;
   }
 
   /* Threads Card */

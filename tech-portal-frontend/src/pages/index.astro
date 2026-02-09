@@ -270,6 +270,14 @@ function getExcerpt(content: string, length: number = 120): string {
           </div>
           <svg class="quick-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
         </a>
+        <a href="/idle-kingdom/" class="quick-card game-card">
+          <div class="quick-icon">🎮</div>
+          <div class="quick-text">
+            <span class="quick-title">{t.homepage.breakTime}</span>
+            <span class="quick-desc">{t.homepage.playNow}</span>
+          </div>
+          <svg class="quick-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
       </div>
     </div>
   </section>
@@ -1846,7 +1854,7 @@ function getExcerpt(content: string, length: number = 120): string {
 
   .quick-access-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 16px;
   }
 
@@ -1875,6 +1883,21 @@ function getExcerpt(content: string, length: number = 120): string {
 
   .quick-card.highlight:hover {
     border-color: #8B5CF6;
+  }
+
+  .quick-card.game-card {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(234, 179, 8, 0.08) 100%);
+    border-color: rgba(245, 158, 11, 0.3);
+  }
+
+  .quick-card.game-card:hover {
+    border-color: #F59E0B;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15);
+  }
+
+  .quick-card.game-card .quick-title {
+    color: #F59E0B;
   }
 
   .quick-icon {
