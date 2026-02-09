@@ -1,0 +1,28 @@
+{
+    "name": "Kelime Fethi - Türkiye'yi Fethet",
+    "short_name": "Kelime Fethi",
+    "description": "Türkiye haritasını kelime bulmacalarıyla fethet! Günlük bulmaca, 81 şehir, Türkçe kelime oyunu.",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#0a0e1a",
+    "theme_color": "#16a34a",
+    "lang": "tr",
+    "categories": ["games", "education"],
+    "icons": [
+        {
+            "src": "assets/icon-192.svg",
+            "sizes": "192x192",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
+        {
+            "src": "assets/icon-512.svg",
+            "sizes": "512x512",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        }
+    ],
+    "screenshots": [],
+    "prefer_related_applications": false
+}

@@ -89,7 +89,20 @@ const urls = {
         </div>
       </div>
       <a href="https://magaza.3d-labx.com" class="nav-btn nav-btn-green" target="_blank">{t.nav.store}<span class="beta-badge">BETA</span></a>
-      <a href="/idle-kingdom/" class="nav-btn nav-btn-game">🎮 {t.nav.games}</a>
+      <div class="nav-dropdown">
+        <button class="nav-btn nav-btn-game nav-dropdown-btn">🎮 {t.nav.games} <svg class="dd-arrow" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="nav-dropdown-content">
+          <a href="/idle-kingdom/" class="nav-dropdown-item">
+            <span class="dropdown-icon">🏰</span>
+            <span>Tıkla Fethet</span>
+          </a>
+          <a href="/kelime-fethi/" class="nav-dropdown-item">
+            <span class="dropdown-icon">🔤</span>
+            <span>Kelime Fethi</span>
+            <span class="beta-badge">YENİ</span>
+          </a>
+        </div>
+      </div>
     </nav>
 
     <div class="header-actions">
@@ -185,7 +198,8 @@ const urls = {
       <a href="/topluluk/basarisizliklar" class="mobile-sub-link">🔥 {t.nav.failGallery}</a>
       <a href="/topluluk/harita" class="mobile-sub-link">🗺️ {t.nav.makerMap}</a>
       <a href="https://magaza.3d-labx.com" target="_blank">🛒 {t.nav.store}<span class="beta-badge">BETA</span></a>
-      <a href="/idle-kingdom/" class="mobile-game-link">🎮 {t.nav.games}</a>
+      <a href="/idle-kingdom/" class="mobile-game-link">🏰 Tıkla Fethet</a>
+      <a href="/kelime-fethi/" class="mobile-game-link">🔤 Kelime Fethi<span class="beta-badge">YENİ</span></a>
       <a href="/iletisim" class={currentPath.startsWith("/iletisim") ? "active" : ""}>{t.nav.contact}</a>
     </nav>
     <form action="/search" method="get" class="mobile-search">

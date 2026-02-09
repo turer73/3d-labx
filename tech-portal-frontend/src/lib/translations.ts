@@ -138,6 +138,8 @@ export const translations: Record<Language, {
     askShare: string;
     breakTime: string;
     playNow: string;
+    wordPuzzle: string;
+    playKelimeFethi: string;
     // Slicer specific
     flowCalcs: string;
     zOffset: string;
@@ -446,6 +448,8 @@ export const translations: Record<Language, {
       askShare: "Soru sor, paylaş",
       breakTime: "Mola zamanı! 🎮",
       playNow: "Tıkla Fethet oyna",
+      wordPuzzle: "Kelime bulmaca! 🔤",
+      playKelimeFethi: "Kelime Fethi oyna",
       flowCalcs: "Akış hesaplamaları ve sorun çözümleri",
       zOffset: "Z-Offset",
       calibration: "Kalibrasyon ve ayarlar sözlüğü",
@@ -752,6 +756,8 @@ export const translations: Record<Language, {
       askShare: "Ask questions, share",
       breakTime: "Break time! 🎮",
       playNow: "Play Tıkla Fethet",
+      wordPuzzle: "Word puzzle! 🔤",
+      playKelimeFethi: "Play Kelime Fethi",
       flowCalcs: "Flow calculations and troubleshooting",
       zOffset: "Z-Offset",
       calibration: "Calibration and settings dictionary",
@@ -1058,6 +1064,8 @@ export const translations: Record<Language, {
       askShare: "Fragen stellen, teilen",
       breakTime: "Pausenzeit! 🎮",
       playNow: "Tıkla Fethet spielen",
+      wordPuzzle: "Worträtsel! 🔤",
+      playKelimeFethi: "Kelime Fethi spielen",
       flowCalcs: "Flussberechnungen und Fehlerbehebung",
       zOffset: "Z-Offset",
       calibration: "Kalibrierung und Einstellungs-Wörterbuch",

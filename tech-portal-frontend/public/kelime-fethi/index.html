@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#16a34a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kelime Fethi">
+    <meta name="description" content="Türkiye haritasını kelime bulmacalarıyla fethet! Günlük bulmaca, 81 şehir, Türkçe kelime oyunu.">
+    <title>Kelime Fethi</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icon-192.svg">
+    <link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+    <!-- ===== TOP BAR ===== -->
+    <header id="top-bar">
+        <div class="top-left">
+            <span id="streak-indicator">🔥 0</span>
+            <span id="score-display">⭐ 0</span>
+        </div>
+        <h1 id="game-title">Kelime Fethi</h1>
+        <div class="top-right">
+            <button id="btn-cloud" class="icon-btn" title="Bulut Kayıt">☁️</button>
+            <button id="btn-sound" class="icon-btn" title="Ses">🔊</button>
+        </div>
+    </header>
+
+    <!-- ===== MAIN GAME AREA ===== -->
+    <main id="game-area">
+
+        <!-- VIEW 1: MAP -->
+        <section id="map-view" class="view active">
+            <div class="map-header">
+                <div class="progress-info">
+                    <span id="city-count">0/81</span>
+                    <span class="progress-label">şehir fethedildi</span>
+                </div>
+                <div class="progress-bar-wrap">
+                    <div class="progress-bar" id="map-progress" style="width:0%"></div>
+                </div>
+            </div>
+
+            <!-- Daily Puzzle Banner -->
+            <div id="daily-banner" class="daily-banner">
+                <div class="daily-left">
+                    <span class="daily-icon">📅</span>
+                    <div>
+                        <strong>Günlük Bulmaca</strong>
+                        <span id="daily-countdown" class="daily-timer">--:--:--</span>
+                    </div>
+                </div>
+                <button id="btn-daily" class="daily-btn">Oyna</button>
+            </div>
+
+            <!-- Turkey Map Container -->
+            <div id="map-container">
+                <svg id="turkey-map" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Map paths will be injected by game.js -->
+                </svg>
+            </div>
+
+            <!-- Region Selector -->
+            <div class="region-selector">
+                <button class="region-btn active" data-region="all">Tümü</button>
+                <button class="region-btn" data-region="marmara">Marmara</button>
+                <button class="region-btn" data-region="ege">Ege</button>
+                <button class="region-btn" data-region="akdeniz">Akdeniz</button>
+                <button class="region-btn" data-region="ic-anadolu">İç Anadolu</button>
+                <button class="region-btn" data-region="karadeniz">Karadeniz</button>
+                <button class="region-btn" data-region="dogu">Doğu A.</button>
+                <button class="region-btn" data-region="guneydogu">G.Doğu A.</button>
+            </div>
+        </section>
+
+        <!-- VIEW 2: PUZZLE -->
+        <section id="puzzle-view" class="view">
+            <div class="puzzle-header">
+                <button id="btn-back" class="back-btn">← Harita</button>
+                <div class="puzzle-city-info">
+                    <span id="puzzle-city-name">İstanbul</span>
+                    <span id="puzzle-region-name" class="region-tag">Marmara</span>
+                </div>
+                <button id="btn-hint" class="hint-btn" title="İpucu">💡 <span id="hint-count">3</span></button>
+            </div>
+
+            <!-- Guess Grid -->
+            <div id="guess-grid" class="guess-grid">
+                <!-- 6 rows x 5 tiles rendered by JS -->
+            </div>
+
+            <!-- Message area -->
+            <div id="message-area" class="message-area"></div>
+
+            <!-- Virtual Keyboard -->
+            <div id="keyboard" class="keyboard">
+                <div class="keyboard-row">
+                    <button class="key" data-key="E">E</button>
+                    <button class="key" data-key="R">R</button>
+                    <button class="key" data-key="T">T</button>
+                    <button class="key" data-key="Y">Y</button>
+                    <button class="key" data-key="U">U</button>
+                    <button class="key" data-key="I">I</button>
+                    <button class="key" data-key="O">O</button>
+                    <button class="key" data-key="P">P</button>
+                    <button class="key" data-key="Ğ">Ğ</button>
+                    <button class="key" data-key="Ü">Ü</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key" data-key="A">A</button>
+                    <button class="key" data-key="S">S</button>
+                    <button class="key" data-key="D">D</button>
+                    <button class="key" data-key="F">F</button>
+                    <button class="key" data-key="G">G</button>
+                    <button class="key" data-key="H">H</button>
+                    <button class="key" data-key="J">J</button>
+                    <button class="key" data-key="K">K</button>
+                    <button class="key" data-key="L">L</button>
+                    <button class="key" data-key="Ş">Ş</button>
+                    <button class="key" data-key="İ">İ</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key wide" data-key="ENTER">GİR</button>
+                    <button class="key" data-key="Z">Z</button>
+                    <button class="key" data-key="C">C</button>
+                    <button class="key" data-key="V">V</button>
+                    <button class="key" data-key="B">B</button>
+                    <button class="key" data-key="N">N</button>
+                    <button class="key" data-key="M">M</button>
+                    <button class="key" data-key="Ö">Ö</button>
+                    <button class="key" data-key="Ç">Ç</button>
+                    <button class="key wide" data-key="BACKSPACE">⌫</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: STATS -->
+        <section id="stats-view" class="view">
+            <div class="stats-container">
+                <h2>İstatistikler</h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-num" id="stat-played">0</span>
+                        <span class="stat-label">Oyun</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-num" id="stat-win-pct">0</span>
+                        <span class="stat-label">Kazanma %</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-num" id="stat-streak">0</span>
+                        <span class="stat-label">Seri</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-num" id="stat-max-streak">0</span>
+                        <span class="stat-label">En İyi</span>
+                    </div>
+                </div>
+                <h3>Tahmin Dağılımı</h3>
+                <div id="guess-distribution" class="guess-dist">
+                    <!-- 6 bars rendered by JS -->
+                </div>
+                <h3>Bölge İlerlemesi</h3>
+                <div id="region-progress" class="region-progress-list">
+                    <!-- Rendered by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 4: SETTINGS -->
+        <section id="settings-view" class="view">
+            <div class="settings-container">
+                <h2>Ayarlar</h2>
+                <div class="setting-row">
+                    <span>Zor Mod</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="setting-hard-mode">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-row">
+                    <span>Ses Efektleri</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="setting-sound" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-row">
+                    <span>Titreşim</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="setting-haptic" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-row danger">
+                    <span>Oyunu Sıfırla</span>
+                    <button id="btn-reset" class="reset-btn">Sıfırla</button>
+                </div>
+                <div class="about-section">
+                    <p>Kelime Fethi v1.0</p>
+                    <p>3D-labX tarafından geliştirildi</p>
+                    <a href="/" class="back-to-site">← 3D-labX'e dön</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== BOTTOM NAV ===== -->
+    <nav id="bottom-nav">
+        <button class="nav-btn active" data-tab="map">
+            <span class="nav-icon">🗺️</span>
+            <span class="nav-label">Harita</span>
+        </button>
+        <button class="nav-btn" data-tab="daily">
+            <span class="nav-icon">📅</span>
+            <span class="nav-label">Günlük</span>
+            <span id="daily-dot" class="notif-dot"></span>
+        </button>
+        <button class="nav-btn" data-tab="stats">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">İstatistik</span>
+        </button>
+        <button class="nav-btn" data-tab="settings">
+            <span class="nav-icon">⚙️</span>
+            <span class="nav-label">Ayarlar</span>
+        </button>
+    </nav>
+
+    <!-- ===== OVERLAYS ===== -->
+
+    <!-- Result Overlay -->
+    <div id="result-overlay" class="overlay hidden">
+        <div class="overlay-content result-content">
+            <div id="result-icon" class="result-icon">🏆</div>
+            <h2 id="result-title">Tebrikler!</h2>
+            <p id="result-message">İstanbul fethedildi!</p>
+            <div id="result-score" class="result-score">+300 ⭐</div>
+            <div id="result-grid-share" class="share-grid"></div>
+            <div class="result-actions">
+                <button id="btn-share" class="share-btn">📋 Paylaş</button>
+                <button id="btn-next-city" class="next-btn">Sonraki Şehir →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cloud Save Overlay -->
+    <div id="cloud-overlay" class="overlay hidden">
+        <div class="overlay-content cloud-content">
+            <h2>☁️ Bulut Kayıt</h2>
+            <div id="cloud-status" class="cloud-status"></div>
+            <div class="cloud-id">
+                <span>Oyuncu ID:</span>
+                <code id="player-id-display">-</code>
+            </div>
+            <div class="cloud-pin">
+                <label>4 Haneli PIN:</label>
+                <input type="tel" id="cloud-pin" maxlength="4" pattern="[0-9]{4}" placeholder="1234">
+            </div>
+            <div class="cloud-actions">
+                <button id="btn-cloud-save" class="cloud-action-btn save">💾 Kaydet</button>
+                <button id="btn-cloud-load" class="cloud-action-btn load">📥 Yükle</button>
+            </div>
+            <div id="cloud-msg" class="cloud-msg"></div>
+            <button id="btn-cloud-close" class="close-btn">Kapat</button>
+        </div>
+    </div>
+
+    <!-- Tutorial Overlay -->
+    <div id="tutorial-overlay" class="overlay hidden">
+        <div class="overlay-content tutorial-content">
+            <div id="tutorial-step" class="tutorial-step">
+                <!-- Steps rendered by JS -->
+            </div>
+            <div class="tutorial-actions">
+                <button id="btn-tutorial-next" class="tutorial-btn">Devam →</button>
+            </div>
+            <div class="tutorial-dots" id="tutorial-dots"></div>
+        </div>
+    </div>
+
+    <!-- Toast Messages -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Floating text container -->
+    <div id="float-container"></div>
+
+    <!-- Particle canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Scripts -->
+    <script src="game.js?v=1"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('[PWA] SW registered:', reg.scope))
+                    .catch(err => console.log('[PWA] SW failed:', err));
+            });
+        }
+    </script>
+</body>
+</html>
