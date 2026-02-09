@@ -1,15 +1,14 @@
 // ============================================================
-// KELIME FETHI — Service Worker v1.0
+// KELIME FETHI — Service Worker v2.0
 // Offline-first caching strategy for PWA
 // ============================================================
 
-const CACHE_NAME = 'kelime-fethi-v1';
+const CACHE_NAME = 'kelime-fethi-v2';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
-    './style.css?v=1',
-    './game.js?v=1',
-    './assets/icons.js?v=1',
+    './style.css?v=2',
+    './game.js?v=2',
     './assets/icon-192.svg',
     './assets/icon-512.svg',
     './manifest.json',

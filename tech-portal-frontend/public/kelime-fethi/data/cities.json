@@ -50,567 +50,1053 @@
       "name": "İstanbul",
       "region": "marmara",
       "plate": "34",
-      "words": ["BOĞAZ", "VAPUR", "KÖPRÜ", "DENİZ", "LİMAN"]
+      "words": [
+        "BOĞAZ",
+        "VAPUR",
+        "KÖPRÜ",
+        "DENİZ",
+        "LİMAN"
+      ]
     },
     {
       "id": 16,
       "name": "Bursa",
       "region": "marmara",
       "plate": "16",
-      "words": ["TÜRBE", "KEBAP", "CEVİZ", "YEŞİL", "KAYAK"]
+      "words": [
+        "TÜRBE",
+        "KEBAP",
+        "CEVİZ",
+        "YEŞİL",
+        "KAYAK"
+      ]
     },
     {
       "id": 41,
       "name": "Kocaeli",
       "region": "marmara",
       "plate": "41",
-      "words": ["LİMAN", "KONAK", "BETON", "ÇELİK", "DUVAR"]
+      "words": [
+        "LİMAN",
+        "KONAK",
+        "BETON",
+        "ÇELİK",
+        "DUVAR"
+      ]
     },
     {
       "id": 54,
       "name": "Sakarya",
       "region": "marmara",
       "plate": "54",
-      "words": ["GÖLET", "ORMAN", "KÖPRÜ", "ÇAYIR", "BAHÇE"]
+      "words": [
+        "GÖLET",
+        "ORMAN",
+        "KÖPRÜ",
+        "ÇAYIR",
+        "BAHÇE"
+      ]
     },
     {
       "id": 59,
       "name": "Tekirdağ",
       "region": "marmara",
       "plate": "59",
-      "words": ["KÖFTE", "BAĞCI", "SAHİL", "ÜZÜMÜ", "ŞARAP"]
+      "words": [
+        "KÖFTE",
+        "BAĞCI",
+        "SAHİL",
+        "DALGA",
+        "ŞARAP"
+      ]
     },
     {
       "id": 10,
       "name": "Balıkesir",
       "region": "marmara",
       "plate": "10",
-      "words": ["KÖFTE", "MADEN", "ADASI", "KOYUN", "SAHİL"]
+      "words": [
+        "KÖFTE",
+        "MADEN",
+        "GÖLET",
+        "KOYUN",
+        "SAHİL"
+      ]
     },
     {
       "id": 17,
       "name": "Çanakkale",
       "region": "marmara",
       "plate": "17",
-      "words": ["BOĞAZ", "ŞEHİT", "TRUVA", "DENİZ", "SAVAŞ"]
+      "words": [
+        "BOĞAZ",
+        "ŞEHİT",
+        "TRUVA",
+        "DENİZ",
+        "SAVAŞ"
+      ]
     },
     {
       "id": 22,
       "name": "Edirne",
       "region": "marmara",
       "plate": "22",
-      "words": ["CAMİİ", "SINIR", "CİĞER", "SARAY", "KÖPRÜ"]
+      "words": [
+        "TARİH",
+        "SINIR",
+        "CİĞER",
+        "SARAY",
+        "KÖPRÜ"
+      ]
     },
     {
       "id": 39,
       "name": "Kırklareli",
       "region": "marmara",
       "plate": "39",
-      "words": ["ORMAN", "SINIR", "YOĞUN", "PEYNİ", "KOYUN"]
+      "words": [
+        "ORMAN",
+        "SINIR",
+        "YOĞUN",
+        "BEYAZ",
+        "KOYUN"
+      ]
     },
     {
       "id": 11,
       "name": "Bilecik",
       "region": "marmara",
       "plate": "11",
-      "words": ["SÖĞÜT", "TARİH", "ORMAN", "KÖYLÜ", "ÇEŞME"]
+      "words": [
+        "SÖĞÜT",
+        "TARİH",
+        "ORMAN",
+        "KÖYLÜ",
+        "ÇEŞME"
+      ]
     },
     {
       "id": 77,
       "name": "Yalova",
       "region": "marmara",
       "plate": "77",
-      "words": ["SAHİL", "ÇİÇEK", "BAHÇE", "DENİZ", "ILICA"]
+      "words": [
+        "SAHİL",
+        "ÇİÇEK",
+        "BAHÇE",
+        "DENİZ",
+        "ILICA"
+      ]
     },
     {
       "id": 35,
       "name": "İzmir",
       "region": "ege",
       "plate": "35",
-      "words": ["KUMRU", "BOYOZ", "KONAK", "DENİZ", "PAZAR"]
+      "words": [
+        "KUMRU",
+        "BOYOZ",
+        "KONAK",
+        "DENİZ",
+        "PAZAR"
+      ]
     },
     {
       "id": 9,
       "name": "Aydın",
       "region": "ege",
       "plate": "09",
-      "words": ["İNCİR", "PAMUK", "BAHÇE", "ILICA", "OVASI"]
+      "words": [
+        "İNCİR",
+        "PAMUK",
+        "BAHÇE",
+        "ILICA",
+        "TARLA"
+      ]
     },
     {
       "id": 20,
       "name": "Denizli",
       "region": "ege",
       "plate": "20",
-      "words": ["HOROZ", "PAMUK", "BEYAZ", "DOKUM", "HAVLU"]
+      "words": [
+        "HOROZ",
+        "PAMUK",
+        "BEYAZ",
+        "DOKUM",
+        "HAVLU"
+      ]
     },
     {
       "id": 45,
       "name": "Manisa",
       "region": "ege",
       "plate": "45",
-      "words": ["MESİR", "ÜZÜMÜ", "OVASI", "DAĞCI", "TARLA"]
+      "words": [
+        "MESİR",
+        "ORMAN",
+        "ŞEKER",
+        "DAĞCI",
+        "TARLA"
+      ]
     },
     {
       "id": 48,
       "name": "Muğla",
       "region": "ege",
       "plate": "48",
-      "words": ["TEKNE", "SAHİL", "BALCI", "DENİZ", "ÇAMLI"]
+      "words": [
+        "TEKNE",
+        "SAHİL",
+        "BALCI",
+        "DENİZ",
+        "ÇAMLI"
+      ]
     },
     {
       "id": 3,
       "name": "Afyonkarahisar",
       "region": "ege",
       "plate": "03",
-      "words": ["SUCUK", "LOKUM", "TAŞLI", "ILICA", "HİSAR"]
+      "words": [
+        "SUCUK",
+        "LOKUM",
+        "TAŞLI",
+        "ILICA",
+        "HİSAR"
+      ]
     },
     {
       "id": 43,
       "name": "Kütahya",
       "region": "ege",
       "plate": "43",
-      "words": ["TABAK", "SICAK", "ÇANAK", "ORMAN", "HİSAR"]
+      "words": [
+        "TABAK",
+        "SICAK",
+        "ÇANAK",
+        "ORMAN",
+        "HİSAR"
+      ]
     },
     {
       "id": 64,
       "name": "Uşak",
       "region": "ege",
       "plate": "64",
-      "words": ["KILIM", "DOKUM", "HALCI", "ŞEKER", "TARLA"]
+      "words": [
+        "KILIM",
+        "DOKUM",
+        "HALCI",
+        "ŞEKER",
+        "TARLA"
+      ]
     },
     {
       "id": 7,
       "name": "Antalya",
       "region": "akdeniz",
       "plate": "07",
-      "words": ["KEMER", "DENİZ", "SAHİL", "KUMLU", "TEKNE"]
+      "words": [
+        "KEMER",
+        "DENİZ",
+        "SAHİL",
+        "KUMLU",
+        "TEKNE"
+      ]
     },
     {
       "id": 1,
       "name": "Adana",
       "region": "akdeniz",
       "plate": "01",
-      "words": ["KEBAP", "PAMUK", "KÖPRÜ", "BARAJ", "TARLA"]
+      "words": [
+        "KEBAP",
+        "PAMUK",
+        "KÖPRÜ",
+        "BARAJ",
+        "TARLA"
+      ]
     },
     {
       "id": 33,
       "name": "Mersin",
       "region": "akdeniz",
       "plate": "33",
-      "words": ["LİMAN", "SAHİL", "NARLI", "ÇİLEK", "DENİZ"]
+      "words": [
+        "LİMAN",
+        "SAHİL",
+        "NARLI",
+        "ÇİLEK",
+        "DENİZ"
+      ]
     },
     {
       "id": 31,
       "name": "Hatay",
       "region": "akdeniz",
       "plate": "31",
-      "words": ["KÜNFE", "DEFNE", "CAMİİ", "SINIR", "BAHÇE"]
+      "words": [
+        "KÜNFE",
+        "DEFNE",
+        "TÜRBE",
+        "SINIR",
+        "BAHÇE"
+      ]
     },
     {
       "id": 46,
       "name": "Kahramanmaraş",
       "region": "akdeniz",
       "plate": "46",
-      "words": ["MARAŞ", "BİBER", "DONMA", "DAĞCI", "PAMUK"]
+      "words": [
+        "MARAŞ",
+        "BİBER",
+        "DONMA",
+        "DAĞCI",
+        "PAMUK"
+      ]
     },
     {
       "id": 80,
       "name": "Osmaniye",
       "region": "akdeniz",
       "plate": "80",
-      "words": ["OVASI", "PAMUK", "ÇEŞME", "ORMAN", "KÖPRÜ"]
+      "words": [
+        "TARLA",
+        "PAMUK",
+        "ÇEŞME",
+        "ORMAN",
+        "KÖPRÜ"
+      ]
     },
     {
       "id": 15,
       "name": "Burdur",
       "region": "akdeniz",
       "plate": "15",
-      "words": ["GÖLLÜ", "ŞEKER", "DAĞCI", "OVASI", "KURAK"]
+      "words": [
+        "GÖLLÜ",
+        "ŞEKER",
+        "DAĞCI",
+        "TARLA",
+        "KURAK"
+      ]
     },
     {
       "id": 32,
       "name": "Isparta",
       "region": "akdeniz",
       "plate": "32",
-      "words": ["GÜLLÜ", "GÖLET", "ELMAS", "HALCI", "BAHÇE"]
+      "words": [
+        "GÜLLÜ",
+        "GÖLET",
+        "ELMAS",
+        "HALCI",
+        "BAHÇE"
+      ]
     },
     {
       "id": 6,
       "name": "Ankara",
       "region": "ic-anadolu",
       "plate": "06",
-      "words": ["SARAY", "KIZIL", "CAMİİ", "HAMAM", "ARABA"]
+      "words": [
+        "SARAY",
+        "KIZIL",
+        "SANAT",
+        "HAMAM",
+        "ARABA"
+      ]
     },
     {
       "id": 42,
       "name": "Konya",
       "region": "ic-anadolu",
       "plate": "42",
-      "words": ["TÜRBE", "SAMAN", "HAMAM", "PERDE", "TARLA"]
+      "words": [
+        "TÜRBE",
+        "SAMAN",
+        "HAMAM",
+        "PERDE",
+        "TARLA"
+      ]
     },
     {
       "id": 38,
       "name": "Kayseri",
       "region": "ic-anadolu",
       "plate": "38",
-      "words": ["MANTI", "SUCUK", "HAMUR", "DAĞCI", "HİSAR"]
+      "words": [
+        "MANTI",
+        "SUCUK",
+        "HAMUR",
+        "DAĞCI",
+        "HİSAR"
+      ]
     },
     {
       "id": 26,
       "name": "Eskişehir",
       "region": "ic-anadolu",
       "plate": "26",
-      "words": ["HAMAM", "NEHİR", "KÖPRÜ", "SARAY", "TAŞÇI"]
+      "words": [
+        "HAMAM",
+        "NEHİR",
+        "KÖPRÜ",
+        "SARAY",
+        "TAŞÇI"
+      ]
     },
     {
       "id": 58,
       "name": "Sivas",
       "region": "ic-anadolu",
       "plate": "58",
-      "words": ["KÖFTE", "HİSAR", "OVASI", "MADEN", "SOĞUK"]
+      "words": [
+        "KÖFTE",
+        "HİSAR",
+        "DONMA",
+        "MADEN",
+        "SOĞUK"
+      ]
     },
     {
       "id": 66,
       "name": "Yozgat",
       "region": "ic-anadolu",
       "plate": "66",
-      "words": ["ÇAMLI", "ORMAN", "HAMAM", "TESTI", "TARLA"]
+      "words": [
+        "ÇAMLI",
+        "ORMAN",
+        "HAMAM",
+        "TESTİ",
+        "TARLA"
+      ]
     },
     {
       "id": 68,
       "name": "Aksaray",
       "region": "ic-anadolu",
       "plate": "68",
-      "words": ["GÖLET", "ÇÖLLÜ", "KURAK", "OVASI", "HAMAM"]
+      "words": [
+        "GÖLET",
+        "ÇÖLLÜ",
+        "KURAK",
+        "TAŞLI",
+        "HAMAM"
+      ]
     },
     {
       "id": 71,
       "name": "Kırıkkale",
       "region": "ic-anadolu",
       "plate": "71",
-      "words": ["SİLAH", "ÇELİK", "MADEN", "OVASI", "TARLA"]
+      "words": [
+        "SİLAH",
+        "ÇELİK",
+        "MADEN",
+        "MOTOR",
+        "TARLA"
+      ]
     },
     {
       "id": 40,
       "name": "Kırşehir",
       "region": "ic-anadolu",
       "plate": "40",
-      "words": ["ILICA", "HAMAM", "BAĞCI", "TARLA", "MÜZİK"]
+      "words": [
+        "ILICA",
+        "HAMAM",
+        "BAĞCI",
+        "TARLA",
+        "MÜZİK"
+      ]
     },
     {
       "id": 50,
       "name": "Nevşehir",
       "region": "ic-anadolu",
       "plate": "50",
-      "words": ["BALON", "KAYAÇ", "TARİH", "ŞARAP", "TÜNEL"]
+      "words": [
+        "BALON",
+        "KAYAÇ",
+        "TARİH",
+        "ŞARAP",
+        "TÜNEL"
+      ]
     },
     {
       "id": 51,
       "name": "Niğde",
       "region": "ic-anadolu",
       "plate": "51",
-      "words": ["ELMAS", "DAĞCI", "TARLA", "ORMAN", "SOĞUK"]
+      "words": [
+        "ELMAS",
+        "DAĞCI",
+        "TARLA",
+        "ORMAN",
+        "SOĞUK"
+      ]
     },
     {
       "id": 70,
       "name": "Karaman",
       "region": "ic-anadolu",
       "plate": "70",
-      "words": ["OVASI", "TARLA", "ORMAN", "ELMAS", "DAĞCI"]
+      "words": [
+        "PAMUK",
+        "TARLA",
+        "ORMAN",
+        "ELMAS",
+        "DAĞCI"
+      ]
     },
     {
       "id": 18,
       "name": "Çankırı",
       "region": "ic-anadolu",
       "plate": "18",
-      "words": ["TUZLU", "ORMAN", "MADEN", "KAYAÇ", "TUZLA"]
+      "words": [
+        "TUZLU",
+        "ORMAN",
+        "MADEN",
+        "KAYAÇ",
+        "TUZLA"
+      ]
     },
     {
       "id": 61,
       "name": "Trabzon",
       "region": "karadeniz",
       "plate": "61",
-      "words": ["HAMSİ", "YAYLA", "ÇAYCI", "HİSAR", "PAZAR"]
+      "words": [
+        "HAMSİ",
+        "YAYLA",
+        "ÇAYCI",
+        "HİSAR",
+        "PAZAR"
+      ]
     },
     {
       "id": 55,
       "name": "Samsun",
       "region": "karadeniz",
       "plate": "55",
-      "words": ["SAHİL", "SİMİT", "DELTA", "TÜTÜN", "LİMAN"]
+      "words": [
+        "SAHİL",
+        "SİMİT",
+        "DELTA",
+        "TÜTÜN",
+        "LİMAN"
+      ]
     },
     {
       "id": 52,
       "name": "Ordu",
       "region": "karadeniz",
       "plate": "52",
-      "words": ["YAYLA", "ORMAN", "SAHİL", "DENİZ", "ÇAYIR"]
+      "words": [
+        "YAYLA",
+        "ORMAN",
+        "SAHİL",
+        "DENİZ",
+        "ÇAYIR"
+      ]
     },
     {
       "id": 28,
       "name": "Giresun",
       "region": "karadeniz",
       "plate": "28",
-      "words": ["ADASI", "YAYLA", "ORMAN", "CEVİZ", "DENİZ"]
+      "words": [
+        "CEVİZ",
+        "YAYLA",
+        "ORMAN",
+        "BALIK",
+        "DENİZ"
+      ]
     },
     {
       "id": 53,
       "name": "Rize",
       "region": "karadeniz",
       "plate": "53",
-      "words": ["ÇAYCI", "YAYLA", "YEŞİL", "YAĞIŞ", "DAĞCI"]
+      "words": [
+        "ÇAYCI",
+        "YAYLA",
+        "YEŞİL",
+        "YAĞIŞ",
+        "DAĞCI"
+      ]
     },
     {
       "id": 8,
       "name": "Artvin",
       "region": "karadeniz",
       "plate": "08",
-      "words": ["KÖPRÜ", "ORMAN", "DAĞCI", "NEHİR", "YAYLA"]
+      "words": [
+        "KÖPRÜ",
+        "ORMAN",
+        "DAĞCI",
+        "NEHİR",
+        "YAYLA"
+      ]
     },
     {
       "id": 29,
       "name": "Gümüşhane",
       "region": "karadeniz",
       "plate": "29",
-      "words": ["MADEN", "PESTİ", "ORMAN", "DAĞCI", "GÜMÜŞ"]
+      "words": [
+        "MADEN",
+        "PESTİ",
+        "ORMAN",
+        "DAĞCI",
+        "GÜMÜŞ"
+      ]
     },
     {
       "id": 69,
       "name": "Bayburt",
       "region": "karadeniz",
       "plate": "69",
-      "words": ["EHRAM", "HİSAR", "YAYLA", "TARLA", "SOĞUK"]
+      "words": [
+        "EHRAM",
+        "HİSAR",
+        "YAYLA",
+        "TARLA",
+        "SOĞUK"
+      ]
     },
     {
       "id": 60,
       "name": "Tokat",
       "region": "karadeniz",
       "plate": "60",
-      "words": ["KEBAP", "BAĞCI", "OVASI", "YAYLA", "ELMAS"]
+      "words": [
+        "KEBAP",
+        "BAĞCI",
+        "ŞARAP",
+        "YAYLA",
+        "ELMAS"
+      ]
     },
     {
       "id": 5,
       "name": "Amasya",
       "region": "karadeniz",
       "plate": "05",
-      "words": ["ELMAS", "NEHİR", "HİSAR", "SARAY", "PRENS"]
+      "words": [
+        "ELMAS",
+        "NEHİR",
+        "HİSAR",
+        "SARAY",
+        "PRENS"
+      ]
     },
     {
       "id": 19,
       "name": "Çorum",
       "region": "karadeniz",
       "plate": "19",
-      "words": ["NOHUT", "HİSAR", "HAMAM", "TARLA", "TUĞLA"]
+      "words": [
+        "NOHUT",
+        "HİSAR",
+        "HAMAM",
+        "TARLA",
+        "TUĞLA"
+      ]
     },
     {
       "id": 57,
       "name": "Sinop",
       "region": "karadeniz",
       "plate": "57",
-      "words": ["DENİZ", "TEKNE", "SAHİL", "BURNU", "BALIK"]
+      "words": [
+        "DENİZ",
+        "TEKNE",
+        "SAHİL",
+        "DALGA",
+        "BALIK"
+      ]
     },
     {
       "id": 37,
       "name": "Kastamonu",
       "region": "karadeniz",
       "plate": "37",
-      "words": ["ORMAN", "SARAY", "ÇAMLI", "YAYLA", "HİSAR"]
+      "words": [
+        "ORMAN",
+        "SARAY",
+        "ÇAMLI",
+        "YAYLA",
+        "HİSAR"
+      ]
     },
     {
       "id": 74,
       "name": "Bartın",
       "region": "karadeniz",
       "plate": "74",
-      "words": ["ORMAN", "SAHİL", "NEHİR", "KÖYLÜ", "DALGA"]
+      "words": [
+        "ORMAN",
+        "SAHİL",
+        "NEHİR",
+        "KÖYLÜ",
+        "DALGA"
+      ]
     },
     {
       "id": 67,
       "name": "Zonguldak",
       "region": "karadeniz",
       "plate": "67",
-      "words": ["KÖMÜR", "MADEN", "SAHİL", "ORMAN", "LİMAN"]
+      "words": [
+        "KÖMÜR",
+        "MADEN",
+        "SAHİL",
+        "ORMAN",
+        "LİMAN"
+      ]
     },
     {
       "id": 78,
       "name": "Karabük",
       "region": "karadeniz",
       "plate": "78",
-      "words": ["DEMİR", "ÇELİK", "KÖYLÜ", "ORMAN", "NEHİR"]
+      "words": [
+        "DEMİR",
+        "ÇELİK",
+        "KÖYLÜ",
+        "ORMAN",
+        "NEHİR"
+      ]
     },
     {
       "id": 14,
       "name": "Bolu",
       "region": "karadeniz",
       "plate": "14",
-      "words": ["GÖLET", "ORMAN", "YAYLA", "KAYAK", "LOKMA"]
+      "words": [
+        "GÖLET",
+        "ORMAN",
+        "YAYLA",
+        "KAYAK",
+        "LOKMA"
+      ]
     },
     {
       "id": 81,
       "name": "Düzce",
       "region": "karadeniz",
       "plate": "81",
-      "words": ["ORMAN", "GÖLET", "ÇAYIR", "TARLA", "BAHÇE"]
+      "words": [
+        "ORMAN",
+        "GÖLET",
+        "ÇAYIR",
+        "TARLA",
+        "BAHÇE"
+      ]
     },
     {
       "id": 25,
       "name": "Erzurum",
       "region": "dogu",
       "plate": "25",
-      "words": ["KAYAK", "SOĞUK", "OVASI", "HİSAR", "DAĞCI"]
+      "words": [
+        "KAYAK",
+        "SOĞUK",
+        "DONMA",
+        "HİSAR",
+        "DAĞCI"
+      ]
     },
     {
       "id": 65,
       "name": "Van",
       "region": "dogu",
       "plate": "65",
-      "words": ["GÖLLÜ", "HİSAR", "ADASI", "OTLAK", "BALIK"]
+      "words": [
+        "GÖLLÜ",
+        "HİSAR",
+        "GÖLET",
+        "OTLAK",
+        "BALIK"
+      ]
     },
     {
       "id": 44,
       "name": "Malatya",
       "region": "dogu",
       "plate": "44",
-      "words": ["KAYSI", "TARLA", "OVASI", "DAĞCI", "HAMUR"]
+      "words": [
+        "KAYSI",
+        "TARLA",
+        "BAHÇE",
+        "DAĞCI",
+        "HAMUR"
+      ]
     },
     {
       "id": 23,
       "name": "Elazığ",
       "region": "dogu",
       "plate": "23",
-      "words": ["BARAJ", "GÖLET", "ÜZÜMÜ", "MADEN", "OVASI"]
+      "words": [
+        "BARAJ",
+        "GÖLET",
+        "DAĞCI",
+        "MADEN",
+        "TARLA"
+      ]
     },
     {
       "id": 24,
       "name": "Erzincan",
       "region": "dogu",
       "plate": "24",
-      "words": ["OVASI", "DAĞCI", "TULUM", "NEHİR", "SOĞUK"]
+      "words": [
+        "TARLA",
+        "DAĞCI",
+        "TULUM",
+        "NEHİR",
+        "SOĞUK"
+      ]
     },
     {
       "id": 62,
       "name": "Tunceli",
       "region": "dogu",
       "plate": "62",
-      "words": ["DAĞCI", "NEHİR", "ORMAN", "YAYLA", "IRMAK"]
+      "words": [
+        "DAĞCI",
+        "NEHİR",
+        "ORMAN",
+        "YAYLA",
+        "IRMAK"
+      ]
     },
     {
       "id": 12,
       "name": "Bingöl",
       "region": "dogu",
       "plate": "12",
-      "words": ["DAĞCI", "GÖLET", "YAYLA", "OTLAK", "NEHİR"]
+      "words": [
+        "DAĞCI",
+        "GÖLET",
+        "YAYLA",
+        "OTLAK",
+        "NEHİR"
+      ]
     },
     {
       "id": 49,
       "name": "Muş",
       "region": "dogu",
       "plate": "49",
-      "words": ["OVASI", "OTLAK", "YAYLA", "TARLA", "ÇOBAN"]
+      "words": [
+        "KOYUN",
+        "OTLAK",
+        "YAYLA",
+        "TARLA",
+        "ÇOBAN"
+      ]
     },
     {
       "id": 13,
       "name": "Bitlis",
       "region": "dogu",
       "plate": "13",
-      "words": ["HİSAR", "GÖLET", "KAYAK", "TÜTÜN", "YAYLA"]
+      "words": [
+        "HİSAR",
+        "GÖLET",
+        "KAYAK",
+        "TÜTÜN",
+        "YAYLA"
+      ]
     },
     {
       "id": 30,
       "name": "Hakkari",
       "region": "dogu",
       "plate": "30",
-      "words": ["DAĞCI", "SINIR", "YAYLA", "NEHİR", "OTLAK"]
+      "words": [
+        "DAĞCI",
+        "SINIR",
+        "YAYLA",
+        "NEHİR",
+        "OTLAK"
+      ]
     },
     {
       "id": 4,
       "name": "Ağrı",
       "region": "dogu",
       "plate": "04",
-      "words": ["DAĞCI", "OTLAK", "SINIR", "SOĞUK", "YAYLA"]
+      "words": [
+        "DAĞCI",
+        "OTLAK",
+        "SINIR",
+        "SOĞUK",
+        "YAYLA"
+      ]
     },
     {
       "id": 36,
       "name": "Kars",
       "region": "dogu",
       "plate": "36",
-      "words": ["HİSAR", "SOĞUK", "SINIR", "OTLAK", "KAŞAR"]
+      "words": [
+        "HİSAR",
+        "SOĞUK",
+        "SINIR",
+        "OTLAK",
+        "KAŞAR"
+      ]
     },
     {
       "id": 76,
       "name": "Iğdır",
       "region": "dogu",
       "plate": "76",
-      "words": ["OVASI", "SINIR", "KAYSI", "PAMUK", "TARLA"]
+      "words": [
+        "ÇOBAN",
+        "SINIR",
+        "KAYSI",
+        "PAMUK",
+        "TARLA"
+      ]
     },
     {
       "id": 75,
       "name": "Ardahan",
       "region": "dogu",
       "plate": "75",
-      "words": ["HİSAR", "SOĞUK", "OTLAK", "SINIR", "GÖLET"]
+      "words": [
+        "HİSAR",
+        "SOĞUK",
+        "OTLAK",
+        "SINIR",
+        "GÖLET"
+      ]
     },
     {
       "id": 27,
       "name": "Gaziantep",
       "region": "guneydogu",
       "plate": "27",
-      "words": ["KEBAP", "BAKLA", "ANTEP", "HAMAM", "LOKUM"]
+      "words": [
+        "KEBAP",
+        "BAKLA",
+        "ANTEP",
+        "HAMAM",
+        "LOKUM"
+      ]
     },
     {
       "id": 63,
       "name": "Şanlıurfa",
       "region": "guneydogu",
       "plate": "63",
-      "words": ["BALIK", "GÖLET", "CAMİİ", "OVASI", "TARLA"]
+      "words": [
+        "BALIK",
+        "GÖLET",
+        "TARİH",
+        "PAMUK",
+        "TARLA"
+      ]
     },
     {
       "id": 21,
       "name": "Diyarbakır",
       "region": "guneydogu",
       "plate": "21",
-      "words": ["SURLU", "KEBAP", "CAMİİ", "HİSAR", "KAVUN"]
+      "words": [
+        "SURLU",
+        "KEBAP",
+        "TARİH",
+        "HİSAR",
+        "KAVUN"
+      ]
     },
     {
       "id": 47,
       "name": "Mardin",
       "region": "guneydogu",
       "plate": "47",
-      "words": ["CAMİİ", "TAŞLI", "SINIR", "TARİH", "OVASI"]
+      "words": [
+        "SARAY",
+        "TAŞLI",
+        "SINIR",
+        "TARİH",
+        "HAMAM"
+      ]
     },
     {
       "id": 72,
       "name": "Batman",
       "region": "guneydogu",
       "plate": "72",
-      "words": ["KÖPRÜ", "BARAJ", "NEHİR", "OVASI", "TARLA"]
+      "words": [
+        "KÖPRÜ",
+        "BARAJ",
+        "NEHİR",
+        "MADEN",
+        "TARLA"
+      ]
     },
     {
       "id": 56,
       "name": "Siirt",
       "region": "guneydogu",
       "plate": "56",
-      "words": ["BAHÇE", "DAĞCI", "OTLAK", "CEVİZ", "TARLA"]
+      "words": [
+        "BAHÇE",
+        "DAĞCI",
+        "OTLAK",
+        "CEVİZ",
+        "TARLA"
+      ]
     },
     {
       "id": 73,
       "name": "Şırnak",
       "region": "guneydogu",
       "plate": "73",
-      "words": ["SINIR", "DAĞCI", "OTLAK", "NEHİR", "TARLA"]
+      "words": [
+        "SINIR",
+        "DAĞCI",
+        "OTLAK",
+        "NEHİR",
+        "TARLA"
+      ]
     },
     {
       "id": 2,
       "name": "Adıyaman",
       "region": "guneydogu",
       "plate": "02",
-      "words": ["BARAJ", "TARİH", "DAĞCI", "OVASI", "TÜNEL"]
+      "words": [
+        "BARAJ",
+        "TARİH",
+        "DAĞCI",
+        "TAŞLI",
+        "TÜNEL"
+      ]
     },
     {
       "id": 79,
       "name": "Kilis",
       "region": "guneydogu",
       "plate": "79",
-      "words": ["SINIR", "BAĞCI", "TARLA", "CAMİİ", "BAHÇE"]
+      "words": [
+        "SINIR",
+        "BAĞCI",
+        "TARLA",
+        "KEBAP",
+        "BAHÇE"
+      ]
     }
   ]
 }

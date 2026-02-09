@@ -420,18 +420,46 @@ function validateGuess(guess) {
         return { valid: false, message: 'Bu kelime sözlükte yok!' };
     }
 
-    // Hard mode validation
+    // Hard mode validation — tüm önceki tahminlerden elde edilen bilgiler kullanılmalı
     if (state.hardMode && state.activeCityGuesses.length > 0) {
-        const lastGuess = state.activeCityGuesses[state.activeCityGuesses.length - 1];
-        const lastEval = evaluateGuess(lastGuess, state.activeCityWord);
         const guessArr = [...guess];
 
-        for (let i = 0; i < WORD_LENGTH; i++) {
-            if (lastEval[i] === 'correct') {
-                const lastChar = [...lastGuess][i];
-                if (guessArr[i] !== lastChar) {
-                    return { valid: false, message: `${i+1}. harf ${lastChar} olmalı!` };
+        // Tüm önceki tahminlerden correct ve present harfleri topla
+        const requiredPositions = {}; // pozisyon -> harf (yeşil)
+        const requiredLetters = {};   // harf -> minimum adet (sarı + yeşil)
+
+        for (const prevGuess of state.activeCityGuesses) {
+            const prevEval = evaluateGuess(prevGuess, state.activeCityWord);
+            const prevArr = [...prevGuess];
+            const letterCounts = {};
+
+            for (let i = 0; i < WORD_LENGTH; i++) {
+                if (prevEval[i] === 'correct') {
+                    requiredPositions[i] = prevArr[i];
+                    letterCounts[prevArr[i]] = (letterCounts[prevArr[i]] || 0) + 1;
+                } else if (prevEval[i] === 'present') {
+                    letterCounts[prevArr[i]] = (letterCounts[prevArr[i]] || 0) + 1;
                 }
+            }
+
+            // Her harf için minimum gerekli adeti güncelle
+            for (const [letter, count] of Object.entries(letterCounts)) {
+                requiredLetters[letter] = Math.max(requiredLetters[letter] || 0, count);
+            }
+        }
+
+        // 1. Yeşil harfler doğru pozisyonda olmalı
+        for (const [pos, letter] of Object.entries(requiredPositions)) {
+            if (guessArr[parseInt(pos)] !== letter) {
+                return { valid: false, message: `${parseInt(pos)+1}. harf ${letter} olmalı!` };
+            }
+        }
+
+        // 2. Sarı + yeşil harfler yeterli sayıda bulunmalı
+        for (const [letter, minCount] of Object.entries(requiredLetters)) {
+            const actualCount = guessArr.filter(c => c === letter).length;
+            if (actualCount < minCount) {
+                return { valid: false, message: `${letter} harfi kullanılmalı!` };
             }
         }
     }
@@ -658,9 +686,6 @@ function checkPuzzleResult(guess, evaluation, rowIndex) {
         state.gamesWon++;
         state.guessDistribution[guessCount] = (state.guessDistribution[guessCount] || 0) + 1;
 
-        // Update streak
-        updateStreak(true);
-
         // Is this a city puzzle?
         if (state.activeCityId) {
             state.conqueredCities[state.activeCityId] = {
@@ -671,10 +696,11 @@ function checkPuzzleResult(guess, evaluation, rowIndex) {
             };
         }
 
-        // Is this the daily puzzle?
+        // Is this the daily puzzle? Streak sadece günlük bulmacada güncellenir
         if (state.dailyDate === getTodayStr() && !state.dailyComplete) {
             state.dailyComplete = true;
             state.dailyWon = true;
+            updateStreak(true);
         }
 
         save();
@@ -720,11 +746,12 @@ function checkPuzzleResult(guess, evaluation, rowIndex) {
         currentPuzzleComplete = true;
 
         state.gamesPlayed++;
-        updateStreak(false);
 
+        // Streak sadece günlük bulmacada kırılır
         if (state.dailyDate === getTodayStr() && !state.dailyComplete) {
             state.dailyComplete = true;
             state.dailyWon = false;
+            updateStreak(false);
         }
 
         save();
@@ -768,7 +795,9 @@ function updateStreak(won) {
         // Check streak rewards
         checkStreakRewards();
     } else {
-        // Loss doesn't break streak (only missing a day does)
+        // Günlük bulmacada kaybetmek seriyi kırar
+        state.currentStreak = 0;
+        state.lastPlayDate = today;
     }
 }
 
