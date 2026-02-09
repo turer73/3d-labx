@@ -94,6 +94,7 @@ export const GET: APIRoute = async ({ request }) => {
     { path: "/magaza", priority: "0.8", changefreq: "weekly" },
     { path: "/hakkimizda", priority: "0.5", changefreq: "monthly" },
     { path: "/iletisim", priority: "0.5", changefreq: "monthly" },
+    { path: "/oyunlar", priority: "0.7", changefreq: "weekly" },
     { path: "/idle-kingdom", priority: "0.6", changefreq: "monthly" },
     { path: "/kelime-fethi", priority: "0.6", changefreq: "monthly" },
   ];

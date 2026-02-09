@@ -1,0 +1,798 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+import { getLanguage, type Language } from "../../lib/api";
+
+export const prerender = false;
+
+const lang = getLanguage(Astro.request);
+
+const t: Record<Language, {
+  pageTitle: string;
+  pageDesc: string;
+  heroTitle: string;
+  heroDesc: string;
+  playNow: string;
+  comingSoon: string;
+  newBadge: string;
+  players: string;
+  categories: { all: string; puzzle: string; strategy: string; casual: string };
+  footer: string;
+}> = {
+  tr: {
+    pageTitle: "Oyunlar - 3D-labX | Eğlenceli Oyunlar",
+    pageDesc: "3D-labX oyun merkezi. Kelime bulmaca, strateji ve eğlenceli oyunlarla mola ver!",
+    heroTitle: "Oyun Merkezi",
+    heroDesc: "Mola ver, eğlen, beynini çalıştır!",
+    playNow: "Oyna",
+    comingSoon: "Yakında",
+    newBadge: "YENİ",
+    players: "oyuncu",
+    categories: { all: "Tümü", puzzle: "Bulmaca", strategy: "Strateji", casual: "Eğlence" },
+    footer: "Daha fazla oyun yakında ekleniyor...",
+  },
+  en: {
+    pageTitle: "Games - 3D-labX | Fun Games",
+    pageDesc: "3D-labX game center. Take a break with word puzzles, strategy and fun games!",
+    heroTitle: "Game Center",
+    heroDesc: "Take a break, have fun, exercise your brain!",
+    playNow: "Play",
+    comingSoon: "Coming Soon",
+    newBadge: "NEW",
+    players: "players",
+    categories: { all: "All", puzzle: "Puzzle", strategy: "Strategy", casual: "Casual" },
+    footer: "More games coming soon...",
+  },
+  de: {
+    pageTitle: "Spiele - 3D-labX | Lustige Spiele",
+    pageDesc: "3D-labX Spielzentrum. Machen Sie eine Pause mit Worträtseln, Strategie und lustigen Spielen!",
+    heroTitle: "Spielzentrum",
+    heroDesc: "Mach Pause, hab Spaß, trainiere dein Gehirn!",
+    playNow: "Spielen",
+    comingSoon: "Demnächst",
+    newBadge: "NEU",
+    players: "Spieler",
+    categories: { all: "Alle", puzzle: "Rätsel", strategy: "Strategie", casual: "Casual" },
+    footer: "Weitere Spiele kommen bald...",
+  },
+};
+
+const tx = t[lang];
+
+// Oyun verileri
+const games = [
+  {
+    id: "kelime-fethi",
+    icon: "🔤",
+    title: "Kelime Fethi",
+    desc: { tr: "Türkiye haritasını kelime bulmacalarıyla fethet! 81 şehir, günlük bulmaca.", en: "Conquer Turkey's map with word puzzles! 81 cities, daily puzzle.", de: "Erobere die Türkei-Karte mit Worträtseln! 81 Städte, tägliches Rätsel." },
+    category: "puzzle",
+    url: "/kelime-fethi/",
+    color: "#16a34a",
+    gradient: "linear-gradient(135deg, #16a34a, #15803d)",
+    badge: tx.newBadge,
+    features: { tr: ["81 Şehir", "Günlük Bulmaca", "Seri Sistemi"], en: ["81 Cities", "Daily Puzzle", "Streak System"], de: ["81 Städte", "Tägliches Rätsel", "Streak-System"] },
+    active: true,
+  },
+  {
+    id: "tikla-fethet",
+    icon: "🏰",
+    title: "Tıkla Fethet",
+    desc: { tr: "Tıkla, inşa et, krallığını büyüt! İdle clicker strateji oyunu.", en: "Click, build, grow your kingdom! Idle clicker strategy game.", de: "Klicke, baue, erweitere dein Königreich! Idle Clicker Strategiespiel." },
+    category: "strategy",
+    url: "/idle-kingdom/",
+    color: "#f59e0b",
+    gradient: "linear-gradient(135deg, #f59e0b, #d97706)",
+    badge: null,
+    features: { tr: ["12 Bina", "10 Kahraman", "Boss Savaşları"], en: ["12 Buildings", "10 Heroes", "Boss Fights"], de: ["12 Gebäude", "10 Helden", "Bosskämpfe"] },
+    active: true,
+  },
+  {
+    id: "coming-1",
+    icon: "🧩",
+    title: { tr: "Puzzle Macerası", en: "Puzzle Adventure", de: "Puzzle-Abenteuer" },
+    desc: { tr: "3D baskı temalı bulmaca oyunu. Yakında!", en: "3D printing themed puzzle game. Coming soon!", de: "3D-Druck-Puzzlespiel. Demnächst!" },
+    category: "puzzle",
+    url: null,
+    color: "#8b5cf6",
+    gradient: "linear-gradient(135deg, #8b5cf6, #7c3aed)",
+    badge: null,
+    features: null,
+    active: false,
+  },
+  {
+    id: "coming-2",
+    icon: "🎯",
+    title: { tr: "Hız Testi", en: "Speed Challenge", de: "Geschwindigkeitstest" },
+    desc: { tr: "Reflekslerini test et! Yakında!", en: "Test your reflexes! Coming soon!", de: "Teste deine Reflexe! Demnächst!" },
+    category: "casual",
+    url: null,
+    color: "#ef4444",
+    gradient: "linear-gradient(135deg, #ef4444, #dc2626)",
+    badge: null,
+    features: null,
+    active: false,
+  },
+];
+
+function getGameTitle(game: any): string {
+  if (typeof game.title === 'string') return game.title;
+  return game.title[lang] || game.title.tr;
+}
+function getGameDesc(game: any): string {
+  return game.desc[lang] || game.desc.tr;
+}
+function getGameFeatures(game: any): string[] | null {
+  if (!game.features) return null;
+  return game.features[lang] || game.features.tr;
+}
+---
+
+<BaseLayout
+  title={tx.pageTitle}
+  description={tx.pageDesc}
+  lang={lang}
+>
+  <Header />
+
+  <main class="games-page">
+    <!-- Animated background -->
+    <div class="games-bg">
+      <canvas id="bg-canvas"></canvas>
+      <div class="floating-emojis" id="floating-emojis"></div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="games-hero">
+      <div class="hero-glow"></div>
+      <h1 class="games-hero-title">
+        <span class="title-icon">🎮</span>
+        {tx.heroTitle}
+      </h1>
+      <p class="games-hero-desc">{tx.heroDesc}</p>
+
+      <!-- Category Filter -->
+      <div class="category-filter">
+        <button class="cat-btn active" data-cat="all">{tx.categories.all}</button>
+        <button class="cat-btn" data-cat="puzzle">🧩 {tx.categories.puzzle}</button>
+        <button class="cat-btn" data-cat="strategy">🏰 {tx.categories.strategy}</button>
+        <button class="cat-btn" data-cat="casual">🎯 {tx.categories.casual}</button>
+      </div>
+    </section>
+
+    <!-- Games Grid -->
+    <section class="games-grid-section">
+      <div class="games-grid">
+        {games.map((game) => (
+          <div class={`game-card ${game.active ? '' : 'coming-soon'}`} data-category={game.category} style={`--card-color: ${game.color}; --card-gradient: ${game.gradient};`}>
+
+            {/* Glow effect */}
+            <div class="card-glow"></div>
+
+            {/* Badge */}
+            {game.badge && <span class="game-badge">{game.badge}</span>}
+            {!game.active && <span class="game-badge soon">{tx.comingSoon}</span>}
+
+            {/* Icon */}
+            <div class="game-icon-wrap">
+              <div class="game-icon">{game.icon}</div>
+              <div class="icon-ring"></div>
+            </div>
+
+            {/* Info */}
+            <h2 class="game-title">{getGameTitle(game)}</h2>
+            <p class="game-desc">{getGameDesc(game)}</p>
+
+            {/* Features */}
+            {getGameFeatures(game) && (
+              <div class="game-features">
+                {getGameFeatures(game)!.map(f => (
+                  <span class="feature-tag">{f}</span>
+                ))}
+              </div>
+            )}
+
+            {/* Action */}
+            {game.active ? (
+              <a href={game.url} class="game-play-btn">
+                <span class="play-icon">▶</span>
+                {tx.playNow}
+              </a>
+            ) : (
+              <div class="game-coming">
+                <span class="lock-icon">🔒</span>
+                {tx.comingSoon}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <div class="games-footer">
+      <p>{tx.footer}</p>
+      <div class="footer-decoration">
+        <span>🎮</span><span>🎯</span><span>🧩</span><span>🏆</span><span>⭐</span>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  /* ===== GAMES PAGE ===== */
+  .games-page {
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    padding-bottom: 80px;
+  }
+
+  /* ===== ANIMATED BACKGROUND ===== */
+  .games-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  #bg-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.4;
+  }
+
+  .floating-emojis {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .floating-emoji {
+    position: absolute;
+    font-size: 1.5rem;
+    opacity: 0.15;
+    animation: floatEmoji linear infinite;
+    pointer-events: none;
+    filter: blur(0.5px);
+  }
+
+  @keyframes floatEmoji {
+    0% {
+      transform: translateY(100vh) rotate(0deg) scale(0.5);
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.15;
+    }
+    90% {
+      opacity: 0.15;
+    }
+    100% {
+      transform: translateY(-100px) rotate(360deg) scale(1.2);
+      opacity: 0;
+    }
+  }
+
+  /* ===== HERO ===== */
+  .games-hero {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 120px 20px 40px;
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+    animation: heroGlowPulse 4s ease-in-out infinite;
+  }
+
+  @keyframes heroGlowPulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+  }
+
+  .games-hero-title {
+    font-size: 2.8rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #f59e0b, #ef4444, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .title-icon {
+    font-size: 2.5rem;
+    -webkit-text-fill-color: initial;
+    animation: titleBounce 2s ease-in-out infinite;
+  }
+
+  @keyframes titleBounce {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-8px) rotate(-5deg); }
+    75% { transform: translateY(-4px) rotate(5deg); }
+  }
+
+  .games-hero-desc {
+    font-size: 1.1rem;
+    color: var(--text-muted, #94a3b8);
+    margin-bottom: 28px;
+  }
+
+  /* ===== CATEGORY FILTER ===== */
+  .category-filter {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .cat-btn {
+    background: var(--bg-card, #1e293b);
+    color: var(--text-muted, #94a3b8);
+    border: 1px solid var(--border-soft, rgba(255,255,255,0.08));
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .cat-btn:hover {
+    border-color: rgba(245, 158, 11, 0.3);
+    color: #f59e0b;
+    transform: translateY(-2px);
+  }
+
+  .cat-btn.active {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(234, 179, 8, 0.1));
+    border-color: rgba(245, 158, 11, 0.5);
+    color: #f59e0b;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.15);
+  }
+
+  /* ===== GAMES GRID ===== */
+  .games-grid-section {
+    position: relative;
+    z-index: 1;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+  }
+
+  /* ===== GAME CARD ===== */
+  .game-card {
+    position: relative;
+    background: var(--bg-card, #1e293b);
+    border: 1px solid var(--border-soft, rgba(255,255,255,0.08));
+    border-radius: 24px;
+    padding: 28px 24px;
+    text-align: center;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: default;
+  }
+
+  .game-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: var(--card-color, #f59e0b);
+    box-shadow:
+      0 20px 40px rgba(0, 0, 0, 0.3),
+      0 0 30px color-mix(in srgb, var(--card-color) 15%, transparent);
+  }
+
+  .game-card.coming-soon {
+    opacity: 0.6;
+  }
+
+  .game-card.coming-soon:hover {
+    transform: translateY(-4px);
+    opacity: 0.75;
+  }
+
+  /* Card Glow */
+  .card-glow {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, color-mix(in srgb, var(--card-color) 6%, transparent) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+  }
+
+  .game-card:hover .card-glow {
+    opacity: 1;
+  }
+
+  /* Badge */
+  .game-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: #fff;
+    animation: badgePulse 2s ease-in-out infinite;
+    z-index: 2;
+  }
+
+  .game-badge.soon {
+    background: linear-gradient(135deg, #64748b, #475569);
+    animation: none;
+  }
+
+  @keyframes badgePulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(245, 158, 11, 0.3); }
+    50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.6); }
+  }
+
+  /* Icon */
+  .game-icon-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .game-icon {
+    font-size: 3.5rem;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+  }
+
+  .game-card:hover .game-icon {
+    transform: scale(1.15) rotate(5deg);
+  }
+
+  .icon-ring {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border: 2px solid var(--card-color);
+    border-radius: 50%;
+    opacity: 0;
+    transition: all 0.4s;
+    animation: none;
+  }
+
+  .game-card:hover .icon-ring {
+    opacity: 0.3;
+    animation: ringPulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes ringPulse {
+    0%, 100% { transform: scale(1); opacity: 0.3; }
+    50% { transform: scale(1.3); opacity: 0; }
+  }
+
+  /* Title & Desc */
+  .game-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--text-main, #f1f5f9);
+    margin-bottom: 8px;
+    transition: color 0.3s;
+  }
+
+  .game-card:hover .game-title {
+    color: var(--card-color);
+  }
+
+  .game-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted, #94a3b8);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  /* Features */
+  .game-features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+
+  .feature-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--card-color) 12%, transparent);
+    color: var(--card-color);
+    border: 1px solid color-mix(in srgb, var(--card-color) 20%, transparent);
+  }
+
+  /* Play Button */
+  .game-play-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 32px;
+    border-radius: 14px;
+    background: var(--card-gradient);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px color-mix(in srgb, var(--card-color) 30%, transparent);
+  }
+
+  .game-play-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 8px 25px color-mix(in srgb, var(--card-color) 40%, transparent);
+  }
+
+  .play-icon {
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+  }
+
+  /* Coming Soon */
+  .game-coming {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    border-radius: 12px;
+    background: rgba(100, 116, 139, 0.15);
+    color: #64748b;
+    font-weight: 600;
+    font-size: 0.85rem;
+    border: 1px solid rgba(100, 116, 139, 0.2);
+  }
+
+  .lock-icon { font-size: 0.9rem; }
+
+  /* ===== FOOTER ===== */
+  .games-footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 50px 20px 30px;
+    color: var(--text-muted, #64748b);
+    font-size: 0.9rem;
+  }
+
+  .footer-decoration {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 1.5rem;
+    opacity: 0.3;
+  }
+
+  .footer-decoration span {
+    animation: footerFloat 3s ease-in-out infinite;
+  }
+  .footer-decoration span:nth-child(2) { animation-delay: 0.3s; }
+  .footer-decoration span:nth-child(3) { animation-delay: 0.6s; }
+  .footer-decoration span:nth-child(4) { animation-delay: 0.9s; }
+  .footer-decoration span:nth-child(5) { animation-delay: 1.2s; }
+
+  @keyframes footerFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  /* Transition for filter */
+  .game-card[data-hidden="true"] {
+    display: none;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 640px) {
+    .games-hero { padding: 100px 16px 30px; }
+    .games-hero-title { font-size: 2rem; }
+    .title-icon { font-size: 1.8rem; }
+    .games-grid { grid-template-columns: 1fr; gap: 16px; }
+    .game-card { padding: 24px 20px; }
+    .category-filter { gap: 6px; }
+    .cat-btn { padding: 6px 14px; font-size: 0.8rem; }
+  }
+
+  @media (min-width: 1200px) {
+    .games-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ===== DARK/LIGHT THEME ===== */
+  :global([data-theme="light"]) .games-page {
+    --bg-card: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-soft: rgba(0,0,0,0.08);
+  }
+
+  :global([data-theme="light"]) .game-card {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  }
+
+  :global([data-theme="light"]) .game-card:hover {
+    box-shadow: 0 20px 40px rgba(0,0,0,0.12), 0 0 30px color-mix(in srgb, var(--card-color) 10%, transparent);
+  }
+
+  :global([data-theme="light"]) #bg-canvas {
+    opacity: 0.2;
+  }
+
+  :global([data-theme="light"]) .floating-emoji {
+    opacity: 0.08;
+  }
+
+  :global([data-theme="light"]) .cat-btn {
+    background: #f1f5f9;
+    color: #475569;
+    border-color: #e2e8f0;
+  }
+
+  :global([data-theme="light"]) .hero-glow {
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.04) 0%, transparent 70%);
+  }
+</style>
+
+<script>
+  // ===== Floating Emojis Background =====
+  const emojiContainer = document.getElementById('floating-emojis');
+  const emojis = ['🎮', '🏆', '⭐', '🎯', '🧩', '🔥', '💎', '🎲', '🎪', '🏰', '🔤', '🎉', '🎈', '🌟', '✨', '💫'];
+
+  function spawnEmoji() {
+    if (!emojiContainer) return;
+    const el = document.createElement('span');
+    el.className = 'floating-emoji';
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    el.style.left = Math.random() * 100 + '%';
+    el.style.fontSize = (0.8 + Math.random() * 1.5) + 'rem';
+    el.style.animationDuration = (8 + Math.random() * 12) + 's';
+    el.style.animationDelay = Math.random() * 2 + 's';
+    emojiContainer.appendChild(el);
+
+    // Remove after animation
+    const dur = parseFloat(el.style.animationDuration) * 1000 + parseFloat(el.style.animationDelay) * 1000;
+    setTimeout(() => el.remove(), dur + 500);
+  }
+
+  // Spawn initial batch
+  for (let i = 0; i < 12; i++) {
+    setTimeout(spawnEmoji, i * 400);
+  }
+  // Keep spawning
+  setInterval(spawnEmoji, 2500);
+
+  // ===== Canvas Starfield Background =====
+  const canvas = document.getElementById('bg-canvas') as HTMLCanvasElement;
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    let stars: { x: number; y: number; r: number; speed: number; hue: number; alpha: number }[] = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function initStars() {
+      stars = [];
+      const count = Math.min(80, Math.floor(canvas.width * canvas.height / 12000));
+      for (let i = 0; i < count; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          r: 0.5 + Math.random() * 2,
+          speed: 0.1 + Math.random() * 0.4,
+          hue: Math.random() > 0.5 ? 40 : (Math.random() > 0.5 ? 150 : 270),
+          alpha: 0.1 + Math.random() * 0.4,
+        });
+      }
+    }
+
+    function drawStars() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      stars.forEach(star => {
+        star.y -= star.speed;
+        if (star.y < -5) {
+          star.y = canvas.height + 5;
+          star.x = Math.random() * canvas.width;
+        }
+
+        // Twinkle
+        star.alpha += (Math.random() - 0.5) * 0.02;
+        star.alpha = Math.max(0.05, Math.min(0.5, star.alpha));
+
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${star.hue}, 80%, 70%, ${star.alpha})`;
+        ctx.fill();
+
+        // Glow
+        if (star.r > 1.2) {
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.r * 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${star.hue}, 80%, 70%, ${star.alpha * 0.15})`;
+          ctx.fill();
+        }
+      });
+
+      requestAnimationFrame(drawStars);
+    }
+
+    resizeCanvas();
+    initStars();
+    drawStars();
+    window.addEventListener('resize', () => { resizeCanvas(); initStars(); });
+  }
+
+  // ===== Category Filter =====
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const cat = (btn as HTMLElement).dataset.cat;
+      document.querySelectorAll('.game-card').forEach(card => {
+        const cardEl = card as HTMLElement;
+        if (cat === 'all' || cardEl.dataset.category === cat) {
+          cardEl.removeAttribute('data-hidden');
+          cardEl.style.display = '';
+        } else {
+          cardEl.setAttribute('data-hidden', 'true');
+          cardEl.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // ===== Card hover tilt effect =====
+  document.querySelectorAll('.game-card').forEach(card => {
+    const el = card as HTMLElement;
+    el.addEventListener('mousemove', (e: MouseEvent) => {
+      const rect = el.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      el.style.transform = `translateY(-8px) scale(1.02) perspective(600px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg)`;
+    });
+    el.addEventListener('mouseleave', () => {
+      el.style.transform = '';
+    });
+  });
+</script>
