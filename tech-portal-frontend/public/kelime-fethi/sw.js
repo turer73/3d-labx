@@ -3,7 +3,7 @@
 // Offline-first caching strategy for PWA
 // ============================================================
 
-const CACHE_NAME = 'kelime-fethi-v3';
+const CACHE_NAME = 'kelime-fethi-v4';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
