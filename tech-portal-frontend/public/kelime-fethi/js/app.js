@@ -75,6 +75,15 @@ setSwitchViewFn(switchView);
 // ===== UI UPDATE =====
 function updateUI() {
     document.getElementById('streak-indicator').textContent = `🔥 ${state.currentStreak}`;
+    // Animated streak indicator classes
+    const streakEl = document.getElementById('streak-indicator');
+    if (streakEl) {
+        streakEl.classList.remove('streak-3', 'streak-7', 'streak-14', 'streak-30');
+        if (state.currentStreak >= 30) streakEl.classList.add('streak-30');
+        else if (state.currentStreak >= 14) streakEl.classList.add('streak-14');
+        else if (state.currentStreak >= 7) streakEl.classList.add('streak-7');
+        else if (state.currentStreak >= 3) streakEl.classList.add('streak-3');
+    }
     document.getElementById('score-display').textContent = `⭐ ${state.totalScore}`;
     updateSoundButton();
     updateHintDisplay();
@@ -205,16 +214,24 @@ function initEventListeners() {
 async function init() {
     console.log('[Kelime Fethi] v2.0 Modüler — başlatılıyor...');
 
+    // Update splash progress
+    const splashProgress = document.getElementById('splash-progress');
+    const updateSplash = (pct) => { if (splashProgress) splashProgress.style.width = pct + '%'; };
+    updateSplash(10);
+
     // Load saved state
     loadSave();
+    updateSplash(30);
 
     // Load game data
     await loadGameData();
+    updateSplash(60);
 
     // Set Turkey map data from separate file
     // TURKEY_MAP is imported from words.js but we need to set it
     // The map data is now in turkey-map-data.js
     Object.assign(TURKEY_MAP, TURKEY_MAP_DATA);
+    updateSplash(80);
 
     // Init systems
     SFX.init();
@@ -230,6 +247,7 @@ async function init() {
     // Render
     renderMap();
     updateUI();
+    updateSplash(100);
 
     // Init icons
     initIcons();
@@ -254,6 +272,12 @@ async function init() {
     if (!state.tutorialDone) {
         setTimeout(showTutorial, 500);
     }
+
+    // Hide splash screen
+    setTimeout(() => {
+        const splash = document.getElementById('splash-screen');
+        if (splash) splash.classList.add('hidden');
+    }, 400);
 
     console.log('[Kelime Fethi] Hazır! ✅');
 }
