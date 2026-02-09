@@ -841,6 +841,7 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
+    const pathParts = path.split('/');
     const method = request.method;
 
     // CORS Preflight
