@@ -11,7 +11,7 @@
     <title>Idle Kingdom</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/icon-192.svg">
-    <link rel="stylesheet" href="style.css?v=8">
+    <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
     <!-- ===== TOP BAR - Resources ===== -->
@@ -37,6 +37,7 @@
             </div>
         </div>
         <span id="streak-indicator">🔥 0 gün</span>
+        <button id="btn-cloud-save" class="cloud-btn" title="Bulut Kayıt">☁️</button>
         <button id="btn-sound" class="sound-btn" title="Ses Aç/Kapat">🔊</button>
     </header>
 
@@ -268,14 +269,40 @@
         </div>
     </div>
 
+    <!-- ===== CLOUD SAVE OVERLAY ===== -->
+    <div id="cloud-save-overlay" class="overlay hidden">
+        <div class="overlay-content cloud-save-content">
+            <h2>☁️ Bulut Kayıt</h2>
+            <p id="cloud-status">Kontrol ediliyor...</p>
+            <div id="cloud-info"></div>
+            <div class="cloud-pin-row">
+                <label for="cloud-pin">🔑 PIN (4 haneli):</label>
+                <input type="password" id="cloud-pin" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="••••" autocomplete="off">
+            </div>
+            <div id="cloud-msg" class="cloud-msg"></div>
+            <div class="cloud-actions">
+                <button id="btn-cloud-upload" class="btn-gold">⬆️ Buluta Kaydet</button>
+                <button id="btn-cloud-download" class="btn-ghost">⬇️ Buluttan Yükle</button>
+            </div>
+            <div class="cloud-note">
+                PIN'ini unutma! Farklı cihazlardan aynı kayda erişmek için
+                aynı Player ID ve PIN kullan.
+            </div>
+            <div class="cloud-player-id">
+                <small>Player ID: <span id="cloud-player-id-display"></span></small>
+            </div>
+            <button id="btn-cloud-close" class="btn-ghost cloud-close-btn">Kapat</button>
+        </div>
+    </div>
+
     <!-- ===== FLOATING TEXTS CONTAINER ===== -->
     <div id="float-container"></div>
 
     <!-- ===== GOLD RAIN CANVAS ===== -->
     <canvas id="particle-canvas"></canvas>
 
-    <script src="assets/icons.js?v=8"></script>
-    <script src="game.js?v=8"></script>
+    <script src="assets/icons.js?v=9"></script>
+    <script src="game.js?v=9"></script>
     <script>
         // Register Service Worker for PWA
         if ('serviceWorker' in navigator) {

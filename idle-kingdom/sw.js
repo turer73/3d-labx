@@ -3,13 +3,13 @@
 // Offline-first caching strategy for PWA
 // ============================================================
 
-const CACHE_NAME = 'idle-kingdom-v8';
+const CACHE_NAME = 'idle-kingdom-v9';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
-    './style.css?v=7',
-    './game.js?v=7',
-    './assets/icons.js?v=7',
+    './style.css?v=9',
+    './game.js?v=9',
+    './assets/icons.js?v=9',
     './assets/icon-192.svg',
     './assets/icon-512.svg',
     './manifest.json'

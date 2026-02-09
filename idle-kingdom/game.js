@@ -665,6 +665,7 @@ const state = {
     gemBossMult: 1,        // gem reward multiplier from bosses
     phoenixTimer: 0,       // phoenix hero cooldown
     phoenixActive: false,  // phoenix burst active
+    startTime: Date.now(), // session start time for play time tracking
 };
 
 // ===== DOM CACHE =====
@@ -1857,6 +1858,197 @@ function load() {
     }
 }
 
+// ===== CLOUD SAVE SYSTEM =====
+const CLOUD_API = 'https://tech-portal-api.turgut-d01.workers.dev/api/game';
+const PLAYER_ID_KEY = 'idle_kingdom_player_id';
+
+function getPlayerId() {
+    let id = localStorage.getItem(PLAYER_ID_KEY);
+    if (!id) {
+        id = 'ik_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 10);
+        localStorage.setItem(PLAYER_ID_KEY, id);
+    }
+    return id;
+}
+
+const CloudSave = {
+    busy: false,
+    lastSync: 0,
+
+    // Show cloud save overlay
+    show() {
+        const overlay = document.getElementById('cloud-save-overlay');
+        if (!overlay) return;
+        overlay.classList.remove('hidden');
+        this.checkStatus();
+    },
+
+    hide() {
+        const overlay = document.getElementById('cloud-save-overlay');
+        if (overlay) overlay.classList.add('hidden');
+    },
+
+    // Check if cloud save exists
+    async checkStatus() {
+        const statusEl = document.getElementById('cloud-status');
+        const infoEl = document.getElementById('cloud-info');
+        if (!statusEl) return;
+
+        try {
+            statusEl.textContent = 'Kontrol ediliyor...';
+            const res = await fetch(`${CLOUD_API}/check`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ playerId: getPlayerId() })
+            });
+            const data = await res.json();
+
+            if (data.exists) {
+                const date = new Date(data.updatedAt).toLocaleString('tr-TR');
+                statusEl.innerHTML = `☁️ Bulut kaydı mevcut`;
+                infoEl.innerHTML = `
+                    <div class="cloud-detail">Son kayıt: ${date}</div>
+                    <div class="cloud-detail">Altın: ${fmt(data.totalGold || 0)} ⭐ ${data.prestigeStars || 0}</div>
+                `;
+            } else {
+                statusEl.innerHTML = `☁️ Bulut kaydı yok`;
+                infoEl.innerHTML = `<div class="cloud-detail">İlk kez kayıt oluşturabilirsin</div>`;
+            }
+        } catch (e) {
+            statusEl.textContent = '⚠️ Bağlantı hatası';
+            infoEl.innerHTML = '';
+        }
+    },
+
+    // Save to cloud
+    async saveToCloud() {
+        if (this.busy) return;
+        const pinInput = document.getElementById('cloud-pin');
+        const pin = pinInput ? pinInput.value : '';
+        if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin)) {
+            this.showMsg('❌ 4 haneli PIN gir!', 'error');
+            return;
+        }
+
+        this.busy = true;
+        this.showMsg('☁️ Kaydediliyor...', 'info');
+
+        try {
+            // Save locally first
+            save();
+            const saveData = JSON.stringify(state);
+
+            const res = await fetch(`${CLOUD_API}/save`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    playerId: getPlayerId(),
+                    pin: pin,
+                    saveData: saveData,
+                    gameVersion: '3.1',
+                    totalGold: state.totalGold || 0,
+                    prestigeStars: state.prestigeStars || 0,
+                    playTime: Math.floor((Date.now() - (state.startTime || Date.now())) / 1000)
+                })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                this.showMsg('✅ Buluta kaydedildi!', 'success');
+                this.lastSync = Date.now();
+                SFX.achievement();
+                this.checkStatus();
+            } else {
+                this.showMsg('❌ ' + (data.error || 'Kayıt hatası'), 'error');
+                if (data.code === 'WRONG_PIN') {
+                    Haptic.error();
+                }
+            }
+        } catch (e) {
+            this.showMsg('❌ Bağlantı hatası', 'error');
+        }
+        this.busy = false;
+    },
+
+    // Load from cloud
+    async loadFromCloud() {
+        if (this.busy) return;
+        const pinInput = document.getElementById('cloud-pin');
+        const pin = pinInput ? pinInput.value : '';
+        if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin)) {
+            this.showMsg('❌ 4 haneli PIN gir!', 'error');
+            return;
+        }
+
+        this.busy = true;
+        this.showMsg('☁️ Yükleniyor...', 'info');
+
+        try {
+            const res = await fetch(`${CLOUD_API}/load`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    playerId: getPlayerId(),
+                    pin: pin
+                })
+            });
+
+            const data = await res.json();
+            if (data.success && data.saveData) {
+                const saved = JSON.parse(data.saveData);
+                for (const key in saved) {
+                    if (saved[key] !== undefined) state[key] = saved[key];
+                }
+                // Re-run load safety checks
+                if (!state.buildings) state.buildings = {};
+                if (!state.upgrades) state.upgrades = {};
+                if (!state.buildingMult) state.buildingMult = {};
+                if (!state.heroes) state.heroes = {};
+                if (!state.achievements) state.achievements = {};
+                if (typeof state.totalClicks !== 'number') state.totalClicks = 0;
+                if (typeof state.bossIndex !== 'number') state.bossIndex = 0;
+                if (typeof state.comboCount !== 'number') state.comboCount = 0;
+                if (typeof state.maxCombo !== 'number') state.maxCombo = 0;
+                if (typeof state.autoTapRate !== 'number') state.autoTapRate = 0;
+                if (typeof state.critDmgMult !== 'number') state.critDmgMult = 3;
+                if (typeof state.gemBossMult !== 'number') state.gemBossMult = 1;
+                state.phoenixActive = false;
+                state.flashSaleActive = false;
+                state.flashSale = null;
+                state.prestigeMult = getPrestigeMult(state.prestigeStars);
+
+                reapplyUpgrades();
+                save(); // Save locally too
+                renderAll();
+                updateStreakDisplay();
+
+                this.showMsg('✅ Buluttan yüklendi!', 'success');
+                SFX.prestige();
+                Haptic.achievement();
+                this.lastSync = Date.now();
+            } else {
+                this.showMsg('❌ ' + (data.error || 'Yükleme hatası'), 'error');
+                if (data.code === 'WRONG_PIN') {
+                    Haptic.error();
+                }
+            }
+        } catch (e) {
+            this.showMsg('❌ Bağlantı hatası', 'error');
+        }
+        this.busy = false;
+    },
+
+    showMsg(text, type) {
+        const msgEl = document.getElementById('cloud-msg');
+        if (!msgEl) return;
+        msgEl.textContent = text;
+        msgEl.className = 'cloud-msg ' + type;
+        if (type === 'success' || type === 'error') {
+            setTimeout(() => { msgEl.textContent = ''; msgEl.className = 'cloud-msg'; }, 3000);
+        }
+    }
+};
+
 function reapplyUpgrades() {
     state.tapMult = 1;
     state.globalMult = 1;
@@ -2168,6 +2360,20 @@ function init() {
                 }
             } catch(e) {}
         }
+
+        // Cloud Save button handlers
+        const btnCloudSave = document.getElementById('btn-cloud-save');
+        if (btnCloudSave) btnCloudSave.addEventListener('click', () => {
+            const pidDisplay = document.getElementById('cloud-player-id-display');
+            if (pidDisplay) pidDisplay.textContent = getPlayerId();
+            CloudSave.show();
+        });
+        const btnCloudUpload = document.getElementById('btn-cloud-upload');
+        if (btnCloudUpload) btnCloudUpload.addEventListener('click', () => CloudSave.saveToCloud());
+        const btnCloudDownload = document.getElementById('btn-cloud-download');
+        if (btnCloudDownload) btnCloudDownload.addEventListener('click', () => CloudSave.loadFromCloud());
+        const btnCloudClose = document.getElementById('btn-cloud-close');
+        if (btnCloudClose) btnCloudClose.addEventListener('click', () => CloudSave.hide());
 
         // Resume audio on first touch
         document.addEventListener('click', () => { SFX.resume(); if (SFX.enabled) SFX.startAmbient(); }, { once: true });

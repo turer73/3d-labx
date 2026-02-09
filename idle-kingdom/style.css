@@ -1370,6 +1370,22 @@ html, body {
 #btn-daily-claim:active { transform: scale(0.97); }
 
 /* ===== STREAK INDICATOR (Top bar) ===== */
+.cloud-btn {
+    position: absolute;
+    top: 2px;
+    right: 115px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    opacity: 0.7;
+    padding: 4px 6px;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 10;
+}
+.cloud-btn:hover { opacity: 1; }
+.cloud-btn:active { transform: scale(1.15); }
+
 .sound-btn {
     position: absolute;
     top: 2px;
@@ -1731,6 +1747,102 @@ html, body {
 @keyframes tutLabelPop {
     0% { transform: translateX(-50%) scale(0); opacity: 0; }
     100% { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+/* ===== CLOUD SAVE OVERLAY ===== */
+.cloud-save-content {
+    text-align: center;
+    max-width: 320px;
+    margin: 0 auto;
+}
+.cloud-save-content h2 {
+    margin-bottom: 8px;
+    font-size: 1.3rem;
+    color: var(--gold);
+}
+#cloud-status {
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+    color: var(--text);
+}
+#cloud-info {
+    margin-bottom: 12px;
+    min-height: 30px;
+}
+.cloud-detail {
+    font-size: 0.8rem;
+    color: var(--text2);
+    margin: 2px 0;
+}
+.cloud-pin-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 12px 0;
+}
+.cloud-pin-row label {
+    font-size: 0.85rem;
+    color: var(--text2);
+}
+#cloud-pin {
+    width: 80px;
+    padding: 8px 12px;
+    font-size: 1.2rem;
+    text-align: center;
+    letter-spacing: 6px;
+    background: var(--bg2);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+}
+#cloud-pin:focus {
+    border-color: var(--gold);
+}
+.cloud-msg {
+    font-size: 0.85rem;
+    min-height: 22px;
+    margin: 6px 0;
+    transition: all 0.3s;
+}
+.cloud-msg.success { color: #4ade80; }
+.cloud-msg.error { color: #f87171; }
+.cloud-msg.info { color: var(--gold); }
+.cloud-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 12px 0 8px;
+}
+.cloud-actions .btn-gold,
+.cloud-actions .btn-ghost {
+    flex: 1;
+    max-width: 160px;
+    font-size: 0.85rem;
+    padding: 10px 8px;
+}
+.cloud-note {
+    font-size: 0.72rem;
+    color: var(--text2);
+    opacity: 0.7;
+    margin: 8px 0 4px;
+    line-height: 1.4;
+}
+.cloud-player-id {
+    margin: 6px 0;
+}
+.cloud-player-id small {
+    font-size: 0.7rem;
+    color: var(--text2);
+    opacity: 0.5;
+    word-break: break-all;
+}
+.cloud-close-btn {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    padding: 8px 20px;
 }
 
 /* ===== RESPONSIVE ===== */

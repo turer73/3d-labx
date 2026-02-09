@@ -85,7 +85,8 @@ const ALLOWED_ORIGINS = [
   "https://tech-portal.pages.dev",
   "https://tech-portal-1kj.pages.dev",
   "http://localhost:4321",
-  "http://localhost:3000"
+  "http://localhost:3000",
+  "http://localhost:4444"
 ];
 
 // Dynamic origin check for Pages preview deployments
@@ -2404,6 +2405,7 @@ Content: ${(sourceContent || '').substring(0, 4000)}`;
         }
 
         // Admin: Tek Post Çeviri (POST /admin/translate/:id)
+        // Uzun içerikleri parça parça çevirir
         if (path.startsWith("/admin/translate/") && method === "POST") {
           const id = validateId(path.replace("/admin/translate/", ""));
           if (!id) return errorResponse("Invalid ID", 400, "INVALID_ID");
@@ -2423,45 +2425,173 @@ Content: ${(sourceContent || '').substring(0, 4000)}`;
           if (!post.title_tr) return errorResponse("No Turkish content to translate", 400, "NO_CONTENT");
 
           const langNames = { en: "English", de: "German" };
-          const prompt = `Translate the following Turkish text to ${langNames[targetLang]}. Return ONLY valid JSON.
+          const langInstructions = {
+            en: "Write naturally in English. Use English vocabulary and grammar.",
+            de: "Schreibe auf Deutsch. Verwende deutsche Vokabeln, Grammatik und Umlaute (ä, ö, ü, ß). Der gesamte Text MUSS auf Deutsch sein."
+          };
+          const content = post.content_tr || '';
+          const CHUNK_SIZE = 6000; // Her parça için maksimum karakter
 
+          // Kısa içerik: tek seferde çevir
+          if (content.length <= CHUNK_SIZE) {
+            const prompt = `You are a professional translator. Translate the following Turkish text to ${langNames[targetLang]}.
+
+CRITICAL INSTRUCTIONS:
+1. ${langInstructions[targetLang]}
+2. The title MUST be in ${langNames[targetLang]} - never leave it in Turkish or English
+3. The summary MUST be in ${langNames[targetLang]} - never leave it in Turkish or English
+4. Preserve ALL HTML tags exactly as they are
+5. Return ONLY valid JSON, no markdown code blocks
+
+Expected JSON format:
 {
-  "title": "Translated title",
-  "summary": "Translated summary",
-  "content": "Translated content (preserve HTML)"
+  "title": "${targetLang === 'de' ? 'Deutscher Titel hier' : 'English title here'}",
+  "summary": "${targetLang === 'de' ? 'Deutsche Zusammenfassung hier (max 200 Zeichen)' : 'English summary here (max 200 chars)'}",
+  "content": "Translated HTML content"
 }
 
-Turkish:
+Turkish source:
 Title: ${post.title_tr}
 Summary: ${post.summary_tr || ''}
-Content: ${(post.content_tr || '').substring(0, 4000)}`;
+Content: ${content}`;
 
-          const aiText = await generateWithAI(env, prompt);
-          if (!aiText) return errorResponse("AI translation failed", 500, "AI_ERROR");
+            const aiText = await generateWithAI(env, prompt);
+            if (!aiText) return errorResponse("AI translation failed", 500, "AI_ERROR");
 
-          const parsed = parseAIJson(aiText);
-          if (!parsed || !validateTranslationResponse(parsed)) {
-            return errorResponse("AI response format invalid", 500, "PARSE_ERROR");
+            const parsed = parseAIJson(aiText);
+            if (!parsed || !validateTranslationResponse(parsed)) {
+              return errorResponse("AI response format invalid", 500, "PARSE_ERROR");
+            }
+
+            await env.DB.prepare(`
+              UPDATE posts SET title_${targetLang} = ?, summary_${targetLang} = ?, content_${targetLang} = ?
+              WHERE id = ?
+            `).bind(
+              sanitizeString(parsed.title, 500),
+              sanitizeString(parsed.summary || '', 1000),
+              sanitizeString(parsed.content || '', 50000),
+              id
+            ).run();
+
+            await logAdminAction(env, request, "translate", id, { lang: targetLang });
+
+            return jsonResponse({
+              success: true,
+              id,
+              lang: targetLang,
+              title: parsed.title,
+              summary: parsed.summary || ''
+            });
           }
+
+          // Uzun içerik: parça parça çevir
+          // Önce title ve summary'yi çevir
+          const headerPrompt = `You are a professional translator. Translate the following Turkish text to ${langNames[targetLang]}.
+
+CRITICAL INSTRUCTIONS:
+1. ${langInstructions[targetLang]}
+2. The title MUST be completely in ${langNames[targetLang]} - NEVER leave any Turkish or English words
+3. The summary MUST be completely in ${langNames[targetLang]} - NEVER leave any Turkish or English words
+4. Return ONLY valid JSON, no markdown code blocks
+
+Expected JSON format:
+{
+  "title": "${targetLang === 'de' ? 'Vollständig deutscher Titel' : 'Completely English title'}",
+  "summary": "${targetLang === 'de' ? 'Vollständig deutsche Zusammenfassung (max 200 Zeichen)' : 'Completely English summary (max 200 chars)'}"
+}
+
+Turkish source:
+Title: ${post.title_tr}
+Summary: ${post.summary_tr || ''}`;
+
+          const headerText = await generateWithAI(env, headerPrompt);
+          if (!headerText) return errorResponse("AI translation failed for header", 500, "AI_ERROR");
+
+          const headerParsed = parseAIJson(headerText);
+          if (!headerParsed || !headerParsed.title) {
+            return errorResponse("AI header response invalid", 500, "PARSE_ERROR");
+          }
+
+          // İçeriği HTML bölümlerine göre ayır (div, section vb.)
+          const chunks = [];
+          let remaining = content;
+
+          // Akıllı bölme: </div>, </section>, </p> gibi kapanış tag'larında böl
+          while (remaining.length > 0) {
+            if (remaining.length <= CHUNK_SIZE) {
+              chunks.push(remaining);
+              break;
+            }
+
+            // CHUNK_SIZE civarında bir bölme noktası bul
+            let splitPoint = CHUNK_SIZE;
+            const searchArea = remaining.substring(CHUNK_SIZE - 500, CHUNK_SIZE + 500);
+
+            // Öncelik sırası: </div>, </section>, </p>, </li>, </ul>, </ol>
+            const breakPoints = ['</div>', '</section>', '</p>', '</li>', '</ul>', '</ol>', '</h2>', '</h3>'];
+            for (const bp of breakPoints) {
+              const idx = searchArea.lastIndexOf(bp);
+              if (idx !== -1) {
+                splitPoint = CHUNK_SIZE - 500 + idx + bp.length;
+                break;
+              }
+            }
+
+            chunks.push(remaining.substring(0, splitPoint));
+            remaining = remaining.substring(splitPoint);
+          }
+
+          // Her parçayı çevir
+          const translatedChunks = [];
+          for (let i = 0; i < chunks.length; i++) {
+            const chunkPrompt = `You are a professional translator. Translate this HTML content from Turkish to ${langNames[targetLang]}.
+
+CRITICAL INSTRUCTIONS:
+1. ${langInstructions[targetLang]}
+2. Translate ALL text content to ${langNames[targetLang]}
+3. Preserve ALL HTML tags exactly as they are (do not translate tag names or attributes)
+4. Return ONLY the translated HTML, no JSON wrapper, no markdown code blocks
+
+Turkish HTML (part ${i + 1}/${chunks.length}):
+${chunks[i]}`;
+
+            const chunkText = await generateWithAI(env, chunkPrompt);
+            if (chunkText) {
+              // AI bazen ```html wrapper ekleyebilir, temizle
+              let cleaned = chunkText.replace(/```html\n?|\n?```/g, '').trim();
+              translatedChunks.push(cleaned);
+            } else {
+              // Çeviri başarısız olursa orijinali kullan
+              translatedChunks.push(chunks[i]);
+            }
+
+            // Rate limit
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+
+          const finalContent = translatedChunks.join('\n');
 
           await env.DB.prepare(`
             UPDATE posts SET title_${targetLang} = ?, summary_${targetLang} = ?, content_${targetLang} = ?
             WHERE id = ?
           `).bind(
-            sanitizeString(parsed.title, 500),
-            sanitizeString(parsed.summary || '', 1000),
-            sanitizeString(parsed.content || '', 50000),
+            sanitizeString(headerParsed.title, 500),
+            sanitizeString(headerParsed.summary || '', 1000),
+            sanitizeString(finalContent, 100000),
             id
           ).run();
 
-          await logAdminAction(env, request, "translate", id, { lang: targetLang });
+          await logAdminAction(env, request, "translate", id, { lang: targetLang, chunks: chunks.length });
 
           return jsonResponse({
             success: true,
             id,
             lang: targetLang,
-            title: parsed.title,
-            summary: parsed.summary || ''
+            title: headerParsed.title,
+            summary: headerParsed.summary || '',
+            chunks: chunks.length,
+            originalLength: content.length,
+            translatedLength: finalContent.length
           });
         }
 
@@ -6148,6 +6278,199 @@ ${text}`;
         } catch (error) {
           console.error("Translation error:", error);
           return errorResponse("Çeviri sırasında hata oluştu: " + error.message, 500, "TRANSLATION_ERROR");
+        }
+      }
+
+      // ================================
+      // 🎮 GAME CLOUD SAVE ENDPOINTS
+      // ================================
+
+      // --- Simple PIN hash (not crypto-grade, but sufficient for game saves) ---
+      function hashPin(pin, salt) {
+        let hash = 0;
+        const str = pin + ':' + salt;
+        for (let i = 0; i < str.length; i++) {
+          const char = str.charCodeAt(i);
+          hash = ((hash << 5) - hash) + char;
+          hash = hash & hash; // Convert to 32bit integer
+        }
+        return 'ph_' + Math.abs(hash).toString(36);
+      }
+
+      // POST /api/game/save — Save game to cloud
+      if (path === "/api/game/save" && method === "POST") {
+        try {
+          const body = await request.json();
+          const { playerId, pin, saveData, gameVersion, totalGold, prestigeStars, playTime } = body;
+
+          // Validation
+          if (!playerId || !pin || !saveData) {
+            return errorResponse("playerId, pin ve saveData gerekli", 400, "INVALID_INPUT", request);
+          }
+          if (typeof pin !== 'string' || pin.length !== 4 || !/^\d{4}$/.test(pin)) {
+            return errorResponse("PIN 4 haneli rakam olmalı", 400, "INVALID_PIN", request);
+          }
+          if (typeof playerId !== 'string' || playerId.length < 8 || playerId.length > 64) {
+            return errorResponse("Geçersiz playerId", 400, "INVALID_PLAYER_ID", request);
+          }
+          // Save data size check (max 500KB)
+          const saveStr = typeof saveData === 'string' ? saveData : JSON.stringify(saveData);
+          if (saveStr.length > 512000) {
+            return errorResponse("Save verisi çok büyük (max 500KB)", 400, "SAVE_TOO_LARGE", request);
+          }
+
+          const pinHash = hashPin(pin, playerId);
+
+          // Check if save already exists
+          const existing = await env.DB.prepare(
+            "SELECT id, pin_hash FROM game_saves WHERE player_id = ?"
+          ).bind(playerId).first();
+
+          if (existing) {
+            // Verify PIN matches
+            if (existing.pin_hash !== pinHash) {
+              return errorResponse("Yanlış PIN", 403, "WRONG_PIN", request);
+            }
+            // Update existing save
+            await env.DB.prepare(`
+              UPDATE game_saves
+              SET save_data = ?, game_version = ?, total_gold = ?, prestige_stars = ?, play_time = ?
+              WHERE player_id = ?
+            `).bind(saveStr, gameVersion || '3.1', totalGold || 0, prestigeStars || 0, playTime || 0, playerId).run();
+          } else {
+            // Create new save
+            await env.DB.prepare(`
+              INSERT INTO game_saves (player_id, pin_hash, save_data, game_version, total_gold, prestige_stars, play_time)
+              VALUES (?, ?, ?, ?, ?, ?, ?)
+            `).bind(playerId, pinHash, saveStr, gameVersion || '3.1', totalGold || 0, prestigeStars || 0, playTime || 0).run();
+          }
+
+          return jsonResponse({
+            success: true,
+            message: existing ? "Bulut kaydı güncellendi" : "Bulut kaydı oluşturuldu",
+            isNew: !existing,
+            updatedAt: new Date().toISOString()
+          }, 200, 0, request);
+
+        } catch (error) {
+          console.error("Game save error:", error);
+          return errorResponse("Kayıt hatası: " + error.message, 500, "SAVE_ERROR", request);
+        }
+      }
+
+      // POST /api/game/load — Load game from cloud
+      if (path === "/api/game/load" && method === "POST") {
+        try {
+          const body = await request.json();
+          const { playerId, pin } = body;
+
+          if (!playerId || !pin) {
+            return errorResponse("playerId ve pin gerekli", 400, "INVALID_INPUT", request);
+          }
+          if (typeof pin !== 'string' || pin.length !== 4 || !/^\d{4}$/.test(pin)) {
+            return errorResponse("PIN 4 haneli rakam olmalı", 400, "INVALID_PIN", request);
+          }
+
+          const pinHash = hashPin(pin, playerId);
+
+          const save = await env.DB.prepare(
+            "SELECT save_data, game_version, total_gold, prestige_stars, play_time, updated_at FROM game_saves WHERE player_id = ?"
+          ).bind(playerId).first();
+
+          if (!save) {
+            return errorResponse("Bulut kaydı bulunamadı", 404, "SAVE_NOT_FOUND", request);
+          }
+
+          // Verify PIN
+          const existingPin = await env.DB.prepare(
+            "SELECT pin_hash FROM game_saves WHERE player_id = ?"
+          ).bind(playerId).first();
+
+          if (existingPin.pin_hash !== pinHash) {
+            return errorResponse("Yanlış PIN", 403, "WRONG_PIN", request);
+          }
+
+          return jsonResponse({
+            success: true,
+            saveData: save.save_data,
+            gameVersion: save.game_version,
+            totalGold: save.total_gold,
+            prestigeStars: save.prestige_stars,
+            playTime: save.play_time,
+            updatedAt: save.updated_at
+          }, 200, 0, request);
+
+        } catch (error) {
+          console.error("Game load error:", error);
+          return errorResponse("Yükleme hatası: " + error.message, 500, "LOAD_ERROR", request);
+        }
+      }
+
+      // POST /api/game/check — Check if cloud save exists (no PIN needed)
+      if (path === "/api/game/check" && method === "POST") {
+        try {
+          const body = await request.json();
+          const { playerId } = body;
+
+          if (!playerId) {
+            return errorResponse("playerId gerekli", 400, "INVALID_INPUT", request);
+          }
+
+          const save = await env.DB.prepare(
+            "SELECT game_version, total_gold, prestige_stars, play_time, updated_at FROM game_saves WHERE player_id = ?"
+          ).bind(playerId).first();
+
+          return jsonResponse({
+            exists: !!save,
+            ...(save ? {
+              gameVersion: save.game_version,
+              totalGold: save.total_gold,
+              prestigeStars: save.prestige_stars,
+              playTime: save.play_time,
+              updatedAt: save.updated_at
+            } : {})
+          }, 200, 0, request);
+
+        } catch (error) {
+          console.error("Game check error:", error);
+          return errorResponse("Kontrol hatası: " + error.message, 500, "CHECK_ERROR", request);
+        }
+      }
+
+      // DELETE /api/game/save — Delete cloud save
+      if (path === "/api/game/save" && method === "DELETE") {
+        try {
+          const body = await request.json();
+          const { playerId, pin } = body;
+
+          if (!playerId || !pin) {
+            return errorResponse("playerId ve pin gerekli", 400, "INVALID_INPUT", request);
+          }
+
+          const pinHash = hashPin(pin, playerId);
+
+          const existing = await env.DB.prepare(
+            "SELECT pin_hash FROM game_saves WHERE player_id = ?"
+          ).bind(playerId).first();
+
+          if (!existing) {
+            return errorResponse("Bulut kaydı bulunamadı", 404, "SAVE_NOT_FOUND", request);
+          }
+
+          if (existing.pin_hash !== pinHash) {
+            return errorResponse("Yanlış PIN", 403, "WRONG_PIN", request);
+          }
+
+          await env.DB.prepare("DELETE FROM game_saves WHERE player_id = ?").bind(playerId).run();
+
+          return jsonResponse({
+            success: true,
+            message: "Bulut kaydı silindi"
+          }, 200, 0, request);
+
+        } catch (error) {
+          console.error("Game delete error:", error);
+          return errorResponse("Silme hatası: " + error.message, 500, "DELETE_ERROR", request);
         }
       }
 
