@@ -97,7 +97,7 @@ const categoryInfo: Record<string, {name: string, color: string, icon: string}> 
 const catData = categoryInfo[post?.category] || { name: "News", color: "#22c55e", icon: "📰" };
 ---
 
-<BaseLayout title={title} hreflangUrls={hreflangUrls}>
+<BaseLayout title={title} description={post?.summary || ''} image={post?.image_url || '/placeholders/3d-baski.svg'} publishedTime={post?.created_at} article={!!post} hreflangUrls={hreflangUrls} category={post?.category || '3d-baski'}>
   <Header />
   {fetchError && (
     <main class="error-page">

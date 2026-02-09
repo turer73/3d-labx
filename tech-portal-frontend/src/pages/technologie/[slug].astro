@@ -61,7 +61,7 @@ const formattedDate = post?.created_at ? new Date(post.created_at).toLocaleDateS
 const catData = { name: "Technologie", color: "#8b5cf6", icon: "💻" };
 ---
 
-<BaseLayout title={title}>
+<BaseLayout title={title} description={post?.summary || ''} image={post?.image_url || '/placeholders/teknoloji.svg'} publishedTime={post?.created_at} article={!!post} category={post?.category || 'teknoloji'}>
   <Header />
   {!post && <main class="error-page"><h1>{t.article.notFound}</h1><a href="/">{t.article.backToHome}</a></main>}
   {post && (

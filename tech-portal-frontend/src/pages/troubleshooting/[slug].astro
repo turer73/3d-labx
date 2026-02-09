@@ -85,7 +85,7 @@ const formattedDate = post?.created_at
   : "";
 ---
 
-<BaseLayout title={title}>
+<BaseLayout title={title} description={post?.summary || ''} image={post?.image_url || '/placeholders/sorun-cozumleri.svg'} publishedTime={post?.created_at} article={!!post} category={post?.category || 'sorun-cozumleri'}>
   <Header />
 
   {fetchError && (

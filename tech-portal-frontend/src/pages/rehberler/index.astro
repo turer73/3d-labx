@@ -574,11 +574,9 @@ const schemaData = {
             <div class="posts-grid">
               {catPosts.slice(0, 6).map((post, i) => (
                 <a href={`/rehberler/${post.slug}`} class={`post-card ${i === 0 ? 'featured' : ''}`} style={`--cat-color: ${cat.color}`}>
-                  {post.image_url && (
-                    <div class="post-image">
-                      <img src={post.image_url} alt={getTitle(post)} loading="lazy" />
-                    </div>
-                  )}
+                  <div class="post-image">
+                    <img src={post.image_url || '/placeholders/rehberler.svg'} alt={getTitle(post)} loading="lazy" />
+                  </div>
                   <div class="post-content">
                     {post.is_featured === 1 && (
                       <span class="post-badge">{t.featured}</span>
@@ -627,11 +625,9 @@ const schemaData = {
           <div class="posts-grid">
             {categorizedPosts.other.map((post, i) => (
               <a href={`/rehberler/${post.slug}`} class={`post-card ${i === 0 ? 'featured' : ''}`}>
-                {post.image_url && (
-                  <div class="post-image">
-                    <img src={post.image_url} alt={getTitle(post)} loading="lazy" />
-                  </div>
-                )}
+                <div class="post-image">
+                  <img src={post.image_url || '/placeholders/rehberler.svg'} alt={getTitle(post)} loading="lazy" />
+                </div>
                 <div class="post-content">
                   <h3>{getTitle(post)}</h3>
                   <p>{getSummary(post)}</p>

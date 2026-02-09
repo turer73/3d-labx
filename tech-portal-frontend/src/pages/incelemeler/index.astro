@@ -188,11 +188,9 @@ const dateLocale = lang === 'tr' ? 'tr-TR' : lang === 'de' ? 'de-DE' : 'en-US';
         <div class="posts-grid" id="posts-grid">
           {posts.map((post) => (
             <article class={`post-card ${post.is_featured ? 'featured' : ''}`}>
-              {post.image_url && (
-                <a href={`/incelemeler/${post.slug}`} class="post-image">
-                  <img src={post.image_url} alt={getTitle(post)} loading="lazy" />
-                </a>
-              )}
+              <a href={`/incelemeler/${post.slug}`} class="post-image">
+                <img src={post.image_url || '/placeholders/incelemeler.svg'} alt={getTitle(post)} loading="lazy" />
+              </a>
               <div class="post-content">
                 {post.is_featured === 1 && (
                   <span class="badge badge-review">{t.detailedReview}</span>
@@ -258,9 +256,7 @@ const dateLocale = lang === 'tr' ? 'tr-TR' : lang === 'de' ? 'de-DE' : 'en-US';
     const article = document.createElement('article');
     article.className = 'post-card' + (post.is_featured ? ' featured' : '');
 
-    const imgHtml = post.image_url
-      ? `<a href="/incelemeler/${post.slug}" class="post-image"><img src="${post.image_url}" alt="${title}" loading="lazy" /></a>`
-      : '';
+    const imgHtml = `<a href="/incelemeler/${post.slug}" class="post-image"><img src="${post.image_url || '/placeholders/incelemeler.svg'}" alt="${title}" loading="lazy" /></a>`;
 
     const badgeHtml = post.is_featured
       ? `<span class="badge badge-review">${detailedReviewText}</span>`

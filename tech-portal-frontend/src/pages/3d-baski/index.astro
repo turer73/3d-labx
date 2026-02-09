@@ -197,7 +197,7 @@ const gridPosts = posts.slice(2);
               {heroPosts[0] && (
                 <a href={`/3d-baski/${heroPosts[0].slug}`} class="hero-card hero-main">
                   <div class="hero-image">
-                    {heroPosts[0].image_url && <img src={heroPosts[0].image_url} alt={heroPosts[0].title_tr || heroPosts[0].title} />}
+                    <img src={heroPosts[0].image_url || '/placeholders/3d-baski.svg'} alt={heroPosts[0].title_tr || heroPosts[0].title} loading="eager" />
                     <div class="hero-overlay"></div>
                   </div>
                   <div class="hero-content">
@@ -220,7 +220,7 @@ const gridPosts = posts.slice(2);
               {heroPosts[1] && (
                 <a href={`/3d-baski/${heroPosts[1].slug}`} class="hero-card hero-side">
                   <div class="hero-image">
-                    {heroPosts[1].image_url && <img src={heroPosts[1].image_url} alt={heroPosts[1].title_tr || heroPosts[1].title} />}
+                    <img src={heroPosts[1].image_url || '/placeholders/3d-baski.svg'} alt={heroPosts[1].title_tr || heroPosts[1].title} loading="eager" />
                     <div class="hero-overlay"></div>
                   </div>
                   <div class="hero-content">
@@ -247,11 +247,9 @@ const gridPosts = posts.slice(2);
                 class={`bento-card ${post.is_featured ? 'featured' : ''} ${index === 0 ? 'bento-wide' : ''}`}
                 data-post-id={post.id}
               >
-                {post.image_url && (
-                  <div class="bento-image">
-                    <img src={post.image_url} alt={post.title_tr || post.title} loading="lazy" />
-                  </div>
-                )}
+                <div class="bento-image">
+                  <img src={post.image_url || '/placeholders/3d-baski.svg'} alt={post.title_tr || post.title} loading="lazy" />
+                </div>
                 <div class="bento-content">
                   {post.is_featured === 1 && (
                     <span class="bento-badge">{t.featured}</span>

@@ -84,8 +84,10 @@ export const GET: APIRoute = async ({ request }) => {
     { path: "/incelemeler", priority: "0.8", changefreq: "weekly" },
     { path: "/topluluk", priority: "0.8", changefreq: "daily" },
     { path: "/filamentler", priority: "0.8", changefreq: "weekly" },
+    { path: "/magaza", priority: "0.8", changefreq: "weekly" },
     { path: "/hakkimizda", priority: "0.5", changefreq: "monthly" },
     { path: "/iletisim", priority: "0.5", changefreq: "monthly" },
+    { path: "/idle-kingdom", priority: "0.6", changefreq: "monthly" },
   ];
 
   // Marka bazlı sorun giderme rehberleri (yüksek öncelikli)

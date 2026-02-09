@@ -272,11 +272,7 @@ const brands = [
             <article class={`post-card ${index === 0 ? 'large' : ''}`} itemscope itemtype="https://schema.org/Article">
               <a href={`/sorun-cozumleri/${post.slug}`} class="post-image-link">
                 <div class="post-image">
-                  {post.image_url ? (
-                    <img src={post.image_url} alt={getTitle(post)} loading="lazy" itemprop="image" />
-                  ) : (
-                    <div class="post-image-placeholder"></div>
-                  )}
+                  <img src={post.image_url || '/placeholders/sorun-cozumleri.svg'} alt={getTitle(post)} loading="lazy" itemprop="image" />
                   <div class="post-image-overlay">
                     <h3 class="post-image-title" itemprop="headline">{getTitle(post)}</h3>
                     {post.created_at && (
@@ -355,10 +351,7 @@ const brands = [
     article.setAttribute('itemscope', '');
     article.setAttribute('itemtype', 'https://schema.org/Article');
 
-    const imgSrc = post.image_url || '';
-    const imgHtml = imgSrc
-      ? `<img src="${imgSrc}" alt="${title}" loading="lazy" itemprop="image" />`
-      : `<div class="post-image-placeholder"></div>`;
+    const imgHtml = `<img src="${post.image_url || '/placeholders/sorun-cozumleri.svg'}" alt="${title}" loading="lazy" itemprop="image" />`;
 
     const dateHtml = post.created_at
       ? `<time class="post-image-date" datetime="${post.created_at}" itemprop="datePublished">${formatDate(post.created_at)}</time>`

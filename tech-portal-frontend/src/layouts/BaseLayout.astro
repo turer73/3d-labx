@@ -24,6 +24,7 @@ interface Props {
   breadcrumbs?: BreadcrumbItem[];
   lang?: Language;
   hreflangUrls?: HreflangUrls;
+  category?: string;
 }
 
 // Auto-detect language from subdomain if not provided
@@ -39,6 +40,7 @@ const {
   breadcrumbs,
   lang = detectedLang,
   hreflangUrls,
+  category,
 } = Astro.props;
 
 // Hreflang URLs - özel URL verilmişse kullan, yoksa aynı path'i kullan
@@ -232,17 +234,18 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
     })} />
 
     <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json" set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": article ? "Article" : "WebSite",
-      "name": metaTitle,
-      "description": metaDescription,
-      "url": canonicalURL.href,
-      "inLanguage": lang === "tr" ? "tr-TR" : lang === "en" ? "en-US" : "de-DE",
-      ...(article ? {
+    <script type="application/ld+json" set:html={JSON.stringify(
+      article ? {
+        "@context": "https://schema.org",
+        "@type": category === "incelemeler" ? "Review" : category === "3d-baski" || category === "teknoloji" || category === "yapay-zeka" ? "NewsArticle" : category === "rehberler" ? "TechArticle" : "Article",
         "headline": metaTitle,
+        "name": metaTitle,
+        "description": metaDescription,
+        "url": canonicalURL.href,
         "image": ogImage,
+        "inLanguage": lang === "tr" ? "tr-TR" : lang === "en" ? "en-US" : "de-DE",
         "datePublished": publishedTime,
+        "dateModified": publishedTime,
         "author": {
           "@type": "Organization",
           "name": "3D-labX",
@@ -254,17 +257,46 @@ const finalBreadcrumbs = breadcrumbs || (pathParts.length > 0 ? autoBreadcrumbs 
           "url": "https://3d-labx.com",
           "logo": {
             "@type": "ImageObject",
-            "url": "https://3d-labx.com/favicon.svg"
+            "url": "https://3d-labx.com/favicon.svg",
+            "width": 512,
+            "height": 512
           }
-        }
+        },
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": canonicalURL.href
+        },
+        ...(category === "incelemeler" ? {
+          "itemReviewed": {
+            "@type": "Product",
+            "name": metaTitle.replace(" İncelemesi", "").replace(" Review", "").replace(" Bewertung", "").replace(" – 3D-labX", "")
+          },
+          "reviewRating": {
+            "@type": "Rating",
+            "bestRating": "5"
+          },
+          "author": {
+            "@type": "Person",
+            "name": "Turer"
+          }
+        } : {}),
+        ...(category === "rehberler" || category === "sorun-cozumleri" ? {
+          "proficiencyLevel": category === "sorun-cozumleri" ? "Beginner" : "Intermediate"
+        } : {})
       } : {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": metaTitle,
+        "description": metaDescription,
+        "url": canonicalURL.href,
+        "inLanguage": lang === "tr" ? "tr-TR" : lang === "en" ? "en-US" : "de-DE",
         "potentialAction": {
           "@type": "SearchAction",
           "target": `${langBaseUrls[lang]}/search?q={search_term_string}`,
           "query-input": "required name=search_term_string"
         }
-      })
-    })} />
+      }
+    )} />
 
     {/* BreadcrumbList Structured Data */}
     {finalBreadcrumbs && finalBreadcrumbs.length > 1 && (
