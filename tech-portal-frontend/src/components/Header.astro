@@ -552,6 +552,13 @@ const urls = {
     z-index: 100;
     padding: 20px 0;
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  :root[data-theme="light"] .site-header {
+    background: rgba(255, 255, 255, 0.85);
   }
 
   /* When announcement is hidden */
@@ -594,7 +601,13 @@ const urls = {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 32px;
+    gap: 16px;
+  }
+
+  @media (min-width: 1440px) {
+    .header-inner {
+      gap: 32px;
+    }
   }
 
   /* Logo */
@@ -638,26 +651,43 @@ const urls = {
   .desktop-nav {
     display: none;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    flex-shrink: 1;
+    min-width: 0;
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: 1440px) {
+    .desktop-nav {
+      gap: 8px;
+    }
+  }
+
+  @media (min-width: 1280px) {
     .desktop-nav {
       display: flex;
     }
   }
 
   .desktop-nav a {
-    padding: 10px 20px;
-    font-size: 0.9rem;
+    padding: 8px 14px;
+    font-size: 0.8rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     color: var(--text-muted);
     text-decoration: none;
-    border-radius: 12px;
+    border-radius: 10px;
     transition: all 0.3s ease;
     white-space: nowrap;
+  }
+
+  @media (min-width: 1440px) {
+    .desktop-nav a {
+      padding: 10px 20px;
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      border-radius: 12px;
+    }
   }
 
   .desktop-nav a:hover {
@@ -1035,7 +1065,7 @@ const urls = {
     z-index: 101;
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: 1280px) {
     .mobile-menu-toggle {
       display: none;
     }
