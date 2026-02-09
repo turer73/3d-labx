@@ -66,7 +66,7 @@ const urls = {
       <a href={urls.reviews} class={`nav-btn nav-btn-cyan ${currentPath.startsWith("/incelemeler") ? "active" : ""}`}>{t.nav.reviews}</a>
       <div class="nav-dropdown-wrapper">
         <a href="/topluluk" class={`nav-btn nav-btn-purple ${currentPath.startsWith("/topluluk") ? "active" : ""}`}>
-          {t.nav.community}
+          {t.nav.community}<span class="beta-badge">BETA</span>
           <svg class="dropdown-chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
         </a>
         <div class="nav-dropdown">
@@ -88,7 +88,7 @@ const urls = {
           </a>
         </div>
       </div>
-      <a href="https://magaza.3d-labx.com" class="nav-btn nav-btn-green" target="_blank">{t.nav.store}</a>
+      <a href="https://magaza.3d-labx.com" class="nav-btn nav-btn-green" target="_blank">{t.nav.store}<span class="beta-badge">BETA</span></a>
       <a href="/idle-kingdom/" class="nav-btn nav-btn-game">🎮 {t.nav.games}</a>
     </nav>
 
@@ -180,11 +180,11 @@ const urls = {
       <a href="/3d-baski/malzemeler" class="mobile-sub-link">🧵 {t.nav.filamentTypes}</a>
       <a href="/filamentler" class="mobile-sub-link">🇹🇷 {t.nav.localBrands}</a>
       <a href={urls.reviews} class={currentPath.startsWith("/incelemeler") ? "active" : ""}>{t.nav.reviews}</a>
-      <a href="/topluluk" class={currentPath.startsWith("/topluluk") ? "active" : ""}>{t.nav.community}</a>
+      <a href="/topluluk" class={currentPath.startsWith("/topluluk") ? "active" : ""}>{t.nav.community}<span class="beta-badge">BETA</span></a>
       <a href="/topluluk/projeler" class="mobile-sub-link">🎨 {t.nav.iAlsoPrinted}</a>
       <a href="/topluluk/basarisizliklar" class="mobile-sub-link">🔥 {t.nav.failGallery}</a>
       <a href="/topluluk/harita" class="mobile-sub-link">🗺️ {t.nav.makerMap}</a>
-      <a href="https://magaza.3d-labx.com" target="_blank">🛒 {t.nav.store}</a>
+      <a href="https://magaza.3d-labx.com" target="_blank">🛒 {t.nav.store}<span class="beta-badge">BETA</span></a>
       <a href="/idle-kingdom/" class="mobile-game-link">🎮 {t.nav.games}</a>
       <a href="/iletisim" class={currentPath.startsWith("/iletisim") ? "active" : ""}>{t.nav.contact}</a>
     </nav>
@@ -751,6 +751,29 @@ const urls = {
     background: linear-gradient(135deg, #22C55E, #10B981);
     color: white;
     border-color: transparent;
+  }
+
+  /* Beta Badge */
+  .beta-badge {
+    display: inline-block;
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 1px 5px;
+    margin-left: 4px;
+    border-radius: 4px;
+    background: linear-gradient(135deg, #F59E0B, #EF4444);
+    color: #fff !important;
+    line-height: 1.4;
+    vertical-align: super;
+    text-transform: uppercase;
+    animation: betaPulse 2s ease-in-out infinite;
+    box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
+  }
+
+  @keyframes betaPulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 6px rgba(245, 158, 11, 0.4); }
+    50% { opacity: 0.85; box-shadow: 0 0 10px rgba(245, 158, 11, 0.6); }
   }
 
   /* Gold/Amber - Oyunlar */
