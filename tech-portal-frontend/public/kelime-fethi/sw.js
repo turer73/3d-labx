@@ -1,17 +1,32 @@
 // ============================================================
-// KELIME FETHI — Service Worker v3.0
+// KELIME FETHI — Service Worker v4.0
 // Offline-first caching strategy for PWA
+// Modular architecture support
 // ============================================================
 
-const CACHE_NAME = 'kelime-fethi-v4';
+const CACHE_NAME = 'kelime-fethi-v6';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
-    './style.css?v=3',
-    './game.js?v=3',
+    './style.css?v=4',
+    './js/app.js?v=5',
+    './js/config.js',
+    './js/utils.js',
+    './js/haptic.js',
+    './js/sound.js',
+    './js/particles.js',
+    './js/state.js',
+    './js/words.js',
+    './js/map.js',
+    './js/puzzle.js',
+    './js/keyboard.js',
+    './js/stats.js',
+    './js/cloud.js',
+    './js/tutorial.js',
+    './js/turkey-map-data.js',
     './assets/icon-192.svg',
     './assets/icon-512.svg',
-    './assets/icons.js?v=2',
+    './assets/icons.js?v=3',
     './manifest.json',
     './data/words.json',
     './data/cities.json',
@@ -62,7 +77,7 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // All other assets — cache-first
+    // All other assets — cache-first with network fallback
     event.respondWith(
         caches.match(event.request)
             .then(cached => {
