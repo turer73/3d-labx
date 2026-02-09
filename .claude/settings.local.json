@@ -101,7 +101,26 @@
       "Bash(for slug in \"3d-yaziciya-beyin-nakli-hic-bilmeyenler-i-cin-klipper-nedir-ve-ne-gerekir-mkz9kxq1\" \"sifirdan-zirveye-klipper-kurulum-rehberi-kiauh-yontemi-mkzk8u26\" \"hiz-canavari-klipper-input-shaping-ve-pressure-advance-ayarlari-nasil-yapilir-ml0y1c07\" \"ender-3-ve-diger-fdm-yazicilar-i-cin-klipper-firmware-kurulum-rehberi-mkx4tr0f\")",
       "Bash(find:*)",
       "Bash(__NEW_LINE_ffba9a8645d20e83__ sed -i 's/ as HTMLDivElement//g; s/ as HTMLSpanElement//g' admin/index.astro admin/new.astro)",
-      "Bash(__NEW_LINE_ffba9a8645d20e83__ echo \"Done\")"
+      "Bash(__NEW_LINE_ffba9a8645d20e83__ echo \"Done\")",
+      "WebFetch(domain:de.3d-labx.com)",
+      "Bash(__NEW_LINE_1173e94b91b38cc7__ echo -e \"\\\\n\\\\n=== 2. Almanca site URL yapısı ===\")",
+      "Bash(__NEW_LINE_1173e94b91b38cc7__ echo -e \"\\\\n\\\\n=== 3. İngilizce site URL yapısı ===\")",
+      "Bash(__NEW_LINE_3ecc67f46d493486__ echo -e \"\\\\n\\\\n=== API''den dönen içerik - Almanca ===\")",
+      "Bash(__NEW_LINE_4cd574d50819f407__ echo -e \"\\\\n\\\\n=== API''den dönen içerik - İngilizce ===\")",
+      "Bash(__NEW_LINE_0619f19714ff795d__ echo \"=== Almanca içerik ===\")",
+      "Bash(__NEW_LINE_70ce4ec46a13ee2e__ echo \"=== İngilizce içerik ===\")",
+      "Bash(__NEW_LINE_67a7d1eeb540263b__ echo \"=== İngilizce API yanıtı ===\")",
+      "Bash(du:*)",
+      "WebFetch(domain:magaza.3d-labx.com)",
+      "Bash(openclaw:*)",
+      "Bash(npx serve -l 3333 -s .)",
+      "Bash(start http://localhost:3333)",
+      "Bash(npx serve:*)",
+      "Bash(netstat:*)",
+      "Bash(timeout:*)",
+      "Bash(ping:*)",
+      "Bash(taskkill:*)",
+      "Bash(bash:*)"
     ],
     "deny": []
   }
