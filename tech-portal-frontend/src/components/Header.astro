@@ -174,16 +174,32 @@ const urls = {
   <div class="mobile-menu">
     <nav class="mobile-nav">
       <a href="/" class={currentPath === "/" ? "active" : ""}>{t.nav.home}</a>
-      <a href={urls.news} class={currentPath.startsWith("/3d-baski") ? "active" : ""}>{t.nav.printing3d}</a>
-      <a href={urls.guides} class="mobile-sub-link">📚 {t.nav.guides}</a>
-      <a href={urls.troubleshooting} class="mobile-sub-link">🔧 {t.nav.troubleshooting}</a>
-      <a href="/3d-baski/malzemeler" class="mobile-sub-link">🧵 {t.nav.filamentTypes}</a>
-      <a href="/filamentler" class="mobile-sub-link">🇹🇷 {t.nav.localBrands}</a>
+      <div class="mobile-accordion">
+        <button class="mobile-accordion-toggle" type="button">
+          {t.nav.printing3d}
+          <svg class="accordion-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="mobile-accordion-panel">
+          <a href={urls.news} class="mobile-sub-link">📰 {t.nav.news}</a>
+          <a href={urls.guides} class="mobile-sub-link">📚 {t.nav.guides}</a>
+          <a href={urls.troubleshooting} class="mobile-sub-link">🔧 {t.nav.troubleshooting}</a>
+          <a href="/3d-baski/malzemeler" class="mobile-sub-link">🧵 {t.nav.filamentTypes}</a>
+          <a href="/filamentler" class="mobile-sub-link">🇹🇷 {t.nav.localBrands}</a>
+        </div>
+      </div>
       <a href={urls.reviews} class={currentPath.startsWith("/incelemeler") ? "active" : ""}>{t.nav.reviews}</a>
-      <a href="/topluluk" class={currentPath.startsWith("/topluluk") ? "active" : ""}>{t.nav.community}<span class="beta-badge">BETA</span></a>
-      <a href="/topluluk/projeler" class="mobile-sub-link">🎨 {t.nav.iAlsoPrinted}</a>
-      <a href="/topluluk/basarisizliklar" class="mobile-sub-link">🔥 {t.nav.failGallery}</a>
-      <a href="/topluluk/harita" class="mobile-sub-link">🗺️ {t.nav.makerMap}</a>
+      <div class="mobile-accordion">
+        <button class="mobile-accordion-toggle" type="button">
+          {t.nav.community}<span class="beta-badge">BETA</span>
+          <svg class="accordion-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="mobile-accordion-panel">
+          <a href="/topluluk/forum" class="mobile-sub-link">💬 {t.nav.forum}</a>
+          <a href="/topluluk/projeler" class="mobile-sub-link">🎨 {t.nav.iAlsoPrinted}</a>
+          <a href="/topluluk/basarisizliklar" class="mobile-sub-link">🔥 {t.nav.failGallery}</a>
+          <a href="/topluluk/harita" class="mobile-sub-link">🗺️ {t.nav.makerMap}</a>
+        </div>
+      </div>
       <a href="https://magaza.3d-labx.com" target="_blank">🛒 {t.nav.store}<span class="beta-badge">BETA</span></a>
       <a href="/oyunlar/" class="mobile-game-link">🎮 {t.nav.games}</a>
       <a href="/iletisim" class={currentPath.startsWith("/iletisim") ? "active" : ""}>{t.nav.contact}</a>
@@ -253,11 +269,24 @@ const urls = {
     toggle.setAttribute('aria-expanded', String(isOpen));
   });
 
+  // Mobile accordion toggles
+  document.querySelectorAll('.mobile-accordion-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const accordion = btn.parentElement;
+      const wasOpen = accordion?.classList.contains('open');
+      // Close all accordions
+      document.querySelectorAll('.mobile-accordion').forEach(a => a.classList.remove('open'));
+      // Toggle clicked one
+      if (!wasOpen) accordion?.classList.add('open');
+    });
+  });
+
   // Close on page change
   document.addEventListener('astro:after-swap', () => {
     mobileMenu?.classList.remove('open');
     toggle?.classList.remove('active');
     toggle?.setAttribute('aria-expanded', 'false');
+    document.querySelectorAll('.mobile-accordion').forEach(a => a.classList.remove('open'));
   });
 
   // Theme toggle
@@ -1159,6 +1188,56 @@ const urls = {
   .mobile-nav a.mobile-sub-link:hover {
     color: #F97316;
     background: rgba(249, 115, 22, 0.1);
+  }
+
+  /* Mobile Accordion */
+  .mobile-accordion {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobile-accordion-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 16px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    background: none;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+  }
+
+  .mobile-accordion-toggle:hover {
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--accent);
+  }
+
+  .accordion-chevron {
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+    opacity: 0.5;
+  }
+
+  .mobile-accordion.open .accordion-chevron {
+    transform: rotate(180deg);
+  }
+
+  .mobile-accordion-panel {
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    padding-left: 8px;
+    overflow: hidden;
+  }
+
+  .mobile-accordion.open .mobile-accordion-panel {
+    display: flex;
   }
 
   .mobile-search {
