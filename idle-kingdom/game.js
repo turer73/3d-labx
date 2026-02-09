@@ -15,6 +15,26 @@ function fmt(n) {
     return Math.floor(n).toString();
 }
 
+// ===== HAPTIC FEEDBACK (Vibration API) =====
+const Haptic = {
+    enabled: true,
+    _vib(pattern) {
+        if (!this.enabled || !navigator.vibrate) return;
+        try { navigator.vibrate(pattern); } catch(e) {}
+    },
+    tap()       { this._vib(8); },
+    critTap()   { this._vib([15, 30, 15]); },
+    buy()       { this._vib(12); },
+    bossHit()   { this._vib(6); },
+    bossWin()   { this._vib([30, 50, 30, 50, 60]); },
+    bossLose()  { this._vib([80, 40, 120]); },
+    jackpot()   { this._vib([20, 30, 20, 30, 40, 30, 60]); },
+    prestige()  { this._vib([40, 60, 40, 60, 80]); },
+    achievement(){ this._vib([15, 40, 25]); },
+    combo()     { this._vib(5); },
+    error()     { this._vib([40, 20, 40]); },
+};
+
 // ===== ENHANCED SOUND SYSTEM =====
 const SFX = {
     ctx: null,
@@ -79,21 +99,24 @@ const SFX = {
         freqs.forEach(f => this._play(f, type, dur, vol / freqs.length));
     },
 
-    // --- GAME SOUNDS ---
+    // --- GAME SOUNDS (with haptic feedback) ---
     tap() {
         this._play(800, 'sine', 0.05, 0.07, 0, 2000);
         this._noise(0.02, 0.02, 5000);
+        Haptic.tap();
     },
     critTap() {
         this._play(1000, 'sine', 0.06, 0.1);
         this._play(1500, 'sine', 0.04, 0.07);
         this._noise(0.04, 0.04, 6000);
         this._play(2000, 'triangle', 0.03, 0.04);
+        Haptic.critTap();
     },
     buy() {
         this._play(523, 'sine', 0.06, 0.08, 0, 3000);
         setTimeout(() => this._play(784, 'sine', 0.06, 0.06, 0, 3000), 40);
         this._noise(0.03, 0.015, 2000);
+        Haptic.buy();
     },
     upgrade() {
         [440, 554, 659, 880].forEach((f, i) =>
@@ -104,9 +127,9 @@ const SFX = {
     bossHit() {
         this._play(120, 'square', 0.04, 0.05, 0, 500);
         this._noise(0.03, 0.03, 800);
+        Haptic.bossHit();
     },
     bossWin() {
-        // Triumphant fanfare with harmony
         const fanfare = [523, 659, 784, 1047, 1319];
         fanfare.forEach((f, i) => {
             setTimeout(() => {
@@ -116,15 +139,16 @@ const SFX = {
         });
         setTimeout(() => this._chord([1047, 1319, 1568], 'sine', 0.4, 0.1), 550);
         setTimeout(() => this._noise(0.1, 0.02, 3000), 500);
+        Haptic.bossWin();
     },
     bossLose() {
         this._play(300, 'sawtooth', 0.2, 0.06, 0, 600);
         setTimeout(() => this._play(200, 'sawtooth', 0.25, 0.05, 0, 400), 120);
         setTimeout(() => this._play(120, 'sawtooth', 0.3, 0.04, 0, 300), 260);
         this._noise(0.15, 0.03, 400);
+        Haptic.bossLose();
     },
     prestige() {
-        // Magical ascending with shimmer
         [880, 1047, 1175, 1319, 1568, 1760].forEach((f, i) => {
             setTimeout(() => {
                 this._play(f, 'sine', 0.3, 0.08);
@@ -133,6 +157,7 @@ const SFX = {
         });
         setTimeout(() => this._chord([1568, 1976, 2349], 'sine', 0.5, 0.08), 600);
         setTimeout(() => this._noise(0.2, 0.02, 6000), 550);
+        Haptic.prestige();
     },
     achievement() {
         [659, 784, 988, 1175, 1319].forEach((f, i) =>
@@ -142,6 +167,7 @@ const SFX = {
             }, i * 70)
         );
         setTimeout(() => this._noise(0.08, 0.015, 5000), 300);
+        Haptic.achievement();
     },
     lucky() {
         // Magical sparkle ascending
@@ -150,16 +176,15 @@ const SFX = {
         );
     },
     combo() {
-        // Rising pitch based on combo count (connected from caller)
         this._play(800 + Math.random() * 400, 'sine', 0.03, 0.05);
+        Haptic.combo();
     },
     comboMilestone() {
-        // Every 10 combos
         this._chord([1047, 1319, 1568], 'sine', 0.15, 0.08);
         this._noise(0.04, 0.02, 4000);
+        Haptic.critTap();
     },
     jackpot() {
-        // Slot machine celebration
         [784, 988, 1175].forEach((f, i) =>
             setTimeout(() => {
                 this._play(f, 'sine', 0.15, 0.08);
@@ -168,6 +193,7 @@ const SFX = {
         );
         setTimeout(() => this._chord([1175, 1480, 1760], 'sine', 0.3, 0.1), 200);
         setTimeout(() => this._noise(0.08, 0.025, 5000), 250);
+        Haptic.jackpot();
     },
     flashSale() {
         // Urgent notification
@@ -185,6 +211,7 @@ const SFX = {
     error() {
         this._play(200, 'square', 0.08, 0.04, 0, 600);
         this._play(180, 'square', 0.06, 0.03, 0, 500);
+        Haptic.error();
     },
     // Background ambient hum (subtle)
     _ambientNode: null,
