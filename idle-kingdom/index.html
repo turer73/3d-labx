@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#F59E0B">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Idle Kingdom">
+    <meta name="description" content="Krallığını inşa et, kahramanlarını topla, bossları yen! Türkçe idle oyun.">
+    <title>Idle Kingdom</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icon-192.svg">
+    <link rel="stylesheet" href="style.css?v=8">
+</head>
+<body>
+    <!-- ===== TOP BAR - Resources ===== -->
+    <header id="top-bar">
+        <div class="resource" id="res-gold">
+            <span class="res-icon" id="res-gold-icon"></span>
+            <div class="res-info">
+                <span class="res-amount" id="gold-amount">0</span>
+                <span class="res-rate" id="gold-rate">+0/s</span>
+            </div>
+        </div>
+        <div class="resource" id="res-gems">
+            <span class="res-icon" id="res-gem-icon"></span>
+            <div class="res-info">
+                <span class="res-amount" id="gems-amount">0</span>
+            </div>
+        </div>
+        <div class="resource" id="res-prestige">
+            <span class="res-icon" id="res-star-icon"></span>
+            <div class="res-info">
+                <span class="res-amount" id="prestige-amount">0</span>
+                <span class="res-rate" id="prestige-mult">x1.00</span>
+            </div>
+        </div>
+        <span id="streak-indicator">🔥 0 gün</span>
+        <button id="btn-sound" class="sound-btn" title="Ses Aç/Kapat">🔊</button>
+    </header>
+
+    <!-- ===== MAIN AREA ===== -->
+    <main id="game-area">
+        <!-- Kingdom Visual -->
+        <section id="kingdom-view">
+            <div id="kingdom-title">
+                <h1 id="kingdom-name">Idle Kingdom</h1>
+                <span id="kingdom-level">Seviye 1</span>
+            </div>
+            <!-- Kingdom Scene - visual buildings -->
+            <div id="kingdom-scene">
+                <div id="kingdom-ground"></div>
+                <div id="kingdom-buildings-visual"></div>
+            </div>
+            <div id="tap-area">
+                <div id="tap-circle">
+                    <span id="tap-icon"></span>
+                    <span id="tap-text">Dokun!</span>
+                </div>
+                <div id="tap-particles"></div>
+            </div>
+            <div id="dps-display">
+                <span id="dps-label">Güç:</span>
+                <span id="dps-value">0</span>
+                <span id="dps-suffix">/s</span>
+            </div>
+        </section>
+
+        <!-- Lucky Event Banner -->
+        <div id="lucky-event" class="hidden">
+            <span id="lucky-icon">🍀</span>
+            <span id="lucky-text">Altın Yağmuru! x5 üretim 10 saniye!</span>
+            <div id="lucky-timer-bar"><div id="lucky-timer-fill"></div></div>
+        </div>
+
+        <!-- Flash Sale Banner (Scarcity/FOMO) -->
+        <div id="flash-sale" class="hidden">
+            <span class="sale-icon">🏷️</span>
+            <div class="sale-info">
+                <div class="sale-title">⚡ FLASH SATIŞ!</div>
+                <div class="sale-desc" id="sale-desc">Tüm üretim x2 — 30 saniye!</div>
+                <div>
+                    <span class="sale-original" id="sale-original">100 💎</span>
+                    <span class="sale-price" id="sale-price">30 💎</span>
+                </div>
+            </div>
+            <div>
+                <span class="sale-timer" id="sale-timer">30s</span>
+            </div>
+            <div class="sale-timer-bar"><div class="sale-timer-fill" id="sale-timer-fill"></div></div>
+        </div>
+
+        <!-- Next Milestone -->
+        <section id="milestone-bar">
+            <div id="milestone-info">
+                <span id="milestone-label">Sonraki:</span>
+                <span id="milestone-target">🌾 Çiftlik Aç</span>
+            </div>
+            <div id="milestone-progress">
+                <div id="milestone-fill"></div>
+            </div>
+        </section>
+
+        <!-- Mini Stats -->
+        <section id="mini-stats">
+            <div class="mini-stat">
+                <span class="stat-value" id="stat-gps">0</span>
+                <span class="stat-label">Altın/s</span>
+            </div>
+            <div class="mini-stat">
+                <span class="stat-value" id="stat-tap">1</span>
+                <span class="stat-label">Dokunuş</span>
+            </div>
+            <div class="mini-stat">
+                <span class="stat-value" id="stat-clicks">0</span>
+                <span class="stat-label">Tıklama</span>
+            </div>
+            <div class="mini-stat">
+                <span class="stat-value" id="stat-boss">1</span>
+                <span class="stat-label">Boss</span>
+            </div>
+        </section>
+
+        <!-- Boss Battle Bar -->
+        <section id="boss-section" class="hidden">
+            <div id="boss-info">
+                <span id="boss-name">Goblin Şef</span>
+                <span id="boss-timer">30s</span>
+            </div>
+            <div id="boss-hp-bar">
+                <div id="boss-hp-fill"></div>
+                <span id="boss-hp-text">1000 / 1000</span>
+            </div>
+        </section>
+
+        <!-- Boss Preview (when not in battle) -->
+        <section id="boss-preview">
+            <div id="boss-preview-icon"></div>
+            <div id="boss-preview-info">
+                <span id="boss-preview-name">Sıradaki: Goblin Şef</span>
+                <span id="boss-preview-hp">HP: 500</span>
+            </div>
+            <button id="btn-fight-boss" class="btn-boss"><span class="nav-icon-svg" id="fight-icon"></span> Savaş!</button>
+        </section>
+
+        <!-- Achievements Banner -->
+        <section id="achievements-banner" class="hidden">
+            <div id="achievement-popup">
+                <span id="achievement-icon">🏆</span>
+                <div id="achievement-info">
+                    <span id="achievement-title">Başarım!</span>
+                    <span id="achievement-desc">İlk dokunuş!</span>
+                </div>
+                <span id="achievement-reward">+10 💎</span>
+            </div>
+        </section>
+
+        <!-- Heroes Panel -->
+        <section id="heroes-panel" style="display:none;">
+            <div class="panel-header">
+                <h2><span id="ph-heroes-icon"></span> Kahramanlar</h2>
+                <span id="heroes-count">0 / 6</span>
+            </div>
+            <div id="heroes-list">
+                <!-- Dynamically filled -->
+            </div>
+        </section>
+
+        <!-- Buildings Panel -->
+        <section id="buildings-panel">
+            <div class="panel-header">
+                <h2><span id="ph-buildings-icon"></span> Binalar</h2>
+                <span id="buildings-count">0 / 8</span>
+            </div>
+            <div id="buildings-list">
+                <!-- Dynamically filled -->
+            </div>
+        </section>
+
+        <!-- Upgrades Panel -->
+        <section id="upgrades-panel" style="display:none;">
+            <div class="panel-header">
+                <h2><span id="ph-upgrades-icon"></span> Geliştirmeler</h2>
+            </div>
+            <div id="upgrades-list">
+                <!-- Dynamically filled -->
+            </div>
+        </section>
+
+        <!-- Achievements Panel -->
+        <section id="achievements-panel" style="display:none;">
+            <div class="panel-header">
+                <h2><span id="ph-achievements-icon"></span> Başarımlar</h2>
+                <span id="achievements-progress">0 / 20</span>
+            </div>
+            <div id="achievements-list">
+                <!-- Dynamically filled -->
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== BOTTOM NAV ===== -->
+    <nav id="bottom-nav">
+        <button class="nav-btn active" data-tab="buildings">
+            <span class="nav-icon" id="nav-icon-buildings"></span>
+            <span class="nav-label">Bina</span>
+        </button>
+        <button class="nav-btn" data-tab="heroes">
+            <span class="nav-icon" id="nav-icon-heroes"></span>
+            <span class="nav-label">Asker</span>
+        </button>
+        <button class="nav-btn" data-tab="upgrades">
+            <span class="nav-icon" id="nav-icon-upgrades"></span>
+            <span class="nav-label">Güç</span>
+        </button>
+        <button class="nav-btn" data-tab="achievements">
+            <span class="nav-icon" id="nav-icon-achievements"></span>
+            <span class="nav-label">Ödül</span>
+        </button>
+        <button class="nav-btn" data-tab="prestige">
+            <span class="nav-icon" id="nav-icon-prestige"></span>
+            <span class="nav-label">Yıldız</span>
+        </button>
+    </nav>
+
+    <!-- ===== PRESTIGE OVERLAY ===== -->
+    <div id="prestige-overlay" class="overlay hidden">
+        <div class="overlay-content">
+            <h2>⭐ Prestige</h2>
+            <p>Krallığını sıfırla, kalıcı bonus kazan!</p>
+            <div id="prestige-preview">
+                <div class="prestige-stat">
+                    <span>Kazanılacak Yıldız:</span>
+                    <span id="prestige-earn">0</span>
+                </div>
+                <div class="prestige-stat">
+                    <span>Yeni Çarpan:</span>
+                    <span id="prestige-new-mult">x1.00</span>
+                </div>
+            </div>
+            <button id="btn-prestige" class="btn-gold" disabled>Prestige Yap</button>
+            <button id="btn-prestige-close" class="btn-ghost">Vazgeç</button>
+        </div>
+    </div>
+
+    <!-- ===== DAILY REWARD ===== -->
+    <div id="daily-reward-overlay" class="hidden">
+        <div id="daily-reward-content">
+            <h2>🎁 Günlük Ödül</h2>
+            <div class="daily-subtitle">Her gün gir, daha büyük ödüller kazan!</div>
+            <div id="daily-streak-display">🔥 1. Gün Serisi</div>
+            <div class="daily-days" id="daily-days">
+                <!-- Dynamically filled -->
+            </div>
+            <button id="btn-daily-claim">Ödülü Al!</button>
+        </div>
+    </div>
+
+    <!-- ===== OFFLINE POPUP ===== -->
+    <div id="offline-popup" class="overlay hidden">
+        <div class="overlay-content">
+            <h2>🌙 Hoşgeldin!</h2>
+            <p>Yokken kazandın:</p>
+            <div id="offline-earnings" class="big-number">+0</div>
+            <span id="offline-time">0 dakika</span>
+            <button id="btn-offline-ok" class="btn-gold">Topla!</button>
+        </div>
+    </div>
+
+    <!-- ===== FLOATING TEXTS CONTAINER ===== -->
+    <div id="float-container"></div>
+
+    <!-- ===== GOLD RAIN CANVAS ===== -->
+    <canvas id="particle-canvas"></canvas>
+
+    <script src="assets/icons.js?v=8"></script>
+    <script src="game.js?v=8"></script>
+    <script>
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('[PWA] SW registered:', reg.scope))
+                    .catch(err => console.log('[PWA] SW registration failed:', err));
+            });
+        }
+    </script>
+</body>
+</html>

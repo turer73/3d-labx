@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)" rx="51.2"/>
+  <circle cx="256" cy="256" r="215.04" fill="none" stroke="#F59E0B" stroke-width="20.48"/>
+  <g transform="translate(256, 215.04)">
+    <polygon points="-112.64,46.08,-112.64,-35.84,-56.32,0,0,-92.16,56.32,0,112.64,-35.84,112.64,46.08" fill="#FBBF24"/>
+    <circle cx="0" cy="-15.36" r="13.312" fill="#EF4444"/>
+    <circle cx="-56.32" cy="5.12" r="9.216" fill="#3B82F6"/>
+    <circle cx="56.32" cy="5.12" r="9.216" fill="#3B82F6"/>
+  </g>
+  <text x="256" y="368.64" text-anchor="middle" font-family="Arial,sans-serif" font-size="51.2" font-weight="bold" fill="#F59E0B">IDLE</text>
+  <text x="256" y="435.2" text-anchor="middle" font-family="Arial,sans-serif" font-size="40.96" font-weight="bold" fill="#FBBF24">KINGDOM</text>
+</svg>
