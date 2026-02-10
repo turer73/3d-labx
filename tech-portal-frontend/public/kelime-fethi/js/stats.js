@@ -6,6 +6,7 @@ import { MAX_GUESSES, REGION_COLORS } from './config.js';
 import { state } from './state.js';
 import { REGIONS } from './words.js';
 import { getRegionProgress, isRegionUnlocked } from './map.js';
+import { renderAchievements } from './achievements.js';
 
 export function updateStats() {
     const el = (id) => document.getElementById(id);
@@ -62,4 +63,7 @@ export function updateStats() {
             regionEl.appendChild(row);
         });
     }
+
+    // Render achievements section
+    renderAchievements();
 }

@@ -1,5 +1,5 @@
 // ============================================================
-// KELIME FETHI v2.0 — Main Application Entry
+// KELIME FETHI v2.1 — Main Application Entry
 // Modular Architecture
 // ============================================================
 
@@ -20,6 +20,7 @@ import {
 import { showTutorial, nextTutorialStep } from './tutorial.js';
 import { getTodayStr as getToday } from './words.js';
 import { TURKEY_MAP_DATA } from './turkey-map-data.js';
+import { checkAchievements } from './achievements.js';
 
 // ===== ICON INTEGRATION =====
 function initIcons() {
@@ -90,6 +91,10 @@ function updateUI() {
     updateMapProgress();
     updateDailyCountdown();
     updateStats();
+
+    // Update freeze count display
+    const freezeEl = document.getElementById('freeze-count');
+    if (freezeEl) freezeEl.textContent = state.streakFreezeCount || 0;
 }
 
 // Register updateUI callback
@@ -98,6 +103,15 @@ setUpdateUICallback(updateUI);
 function updateSoundButton() {
     const btn = document.getElementById('btn-sound');
     if (btn) btn.textContent = SFX.enabled ? '🔊' : '🔇';
+}
+
+// ===== COLORBLIND MODE =====
+function applyColorblindMode() {
+    if (state.colorblindMode) {
+        document.body.classList.add('colorblind-mode');
+    } else {
+        document.body.classList.remove('colorblind-mode');
+    }
 }
 
 // ===== DAILY COUNTDOWN (Turkey timezone UTC+3) =====
@@ -125,11 +139,84 @@ function updateDailyCountdown() {
     }
 }
 
+// ===== STREAK RECOVERY =====
+function checkStreakRecovery() {
+    if (state.currentStreak <= 0) return;
+
+    const today = getToday();
+    if (!state.lastPlayDate) return;
+
+    const lastDate = new Date(state.lastPlayDate);
+    const todayDate = new Date(today);
+    const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+
+    // If missed exactly 1 day and have freeze available
+    if (diffDays === 2 && state.streakFreezeCount > 0) {
+        showStreakRecoveryDialog();
+    }
+}
+
+function showStreakRecoveryDialog() {
+    const existing = document.querySelector('.streak-recovery-dialog');
+    if (existing) existing.remove();
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'overlay';
+    backdrop.id = 'streak-recovery-backdrop';
+
+    const dialog = document.createElement('div');
+    dialog.className = 'streak-recovery-dialog';
+    dialog.innerHTML = `
+        <div style="font-size:3rem;margin-bottom:8px;">❄️</div>
+        <div class="streak-lost">🔥 ${state.currentStreak} gün</div>
+        <h2>Serin Tehlikede!</h2>
+        <p>Dünkü bulmacayı kaçırdın! Seri dondurma kullanarak serini koru.</p>
+        <p style="font-size:0.75rem;color:var(--text3);">${state.streakFreezeCount} dondurma hakkın var</p>
+        <div class="streak-recovery-actions">
+            <button class="freeze-btn" id="btn-use-freeze">❄️ Dondur</button>
+            <button class="skip-btn" id="btn-skip-freeze">Vazgeç</button>
+        </div>
+    `;
+
+    backdrop.appendChild(dialog);
+    document.body.appendChild(backdrop);
+
+    document.getElementById('btn-use-freeze').addEventListener('click', () => {
+        state.streakFreezeCount--;
+        state.lastStreakFreeze = getToday();
+        // Set lastPlayDate to yesterday so the streak continues
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        state.lastPlayDate = yesterday.toISOString().split('T')[0];
+        save();
+        showToast('❄️ Seri donduruldu! Serin devam ediyor.', 3000);
+        backdrop.remove();
+        updateUI();
+    });
+
+    document.getElementById('btn-skip-freeze').addEventListener('click', () => {
+        backdrop.remove();
+    });
+}
+
+// Award streak freeze on milestones
+export function awardStreakFreeze() {
+    const freezeMilestones = [7, 14, 21, 30, 50, 75, 100];
+    if (freezeMilestones.includes(state.currentStreak)) {
+        state.streakFreezeCount = (state.streakFreezeCount || 0) + 1;
+        save();
+        setTimeout(() => {
+            showToast(`❄️ Seri dondurma kazandın! (${state.streakFreezeCount} hak)`, 3000);
+        }, 2000);
+    }
+}
+
 // ===== SETTINGS =====
 function initSettings() {
     const hardEl = document.getElementById('setting-hard-mode');
     const soundEl = document.getElementById('setting-sound');
     const hapticEl = document.getElementById('setting-haptic');
+    const colorblindEl = document.getElementById('setting-colorblind');
 
     if (hardEl) {
         hardEl.checked = state.hardMode;
@@ -156,6 +243,16 @@ function initSettings() {
             state.hapticEnabled = hapticEl.checked;
             Haptic.enabled = state.hapticEnabled;
             save();
+        });
+    }
+
+    if (colorblindEl) {
+        colorblindEl.checked = state.colorblindMode;
+        colorblindEl.addEventListener('change', () => {
+            state.colorblindMode = colorblindEl.checked;
+            applyColorblindMode();
+            save();
+            showToast(state.colorblindMode ? '🎨 Renk körü modu açık' : 'Renk körü modu kapalı');
         });
     }
 
@@ -213,7 +310,7 @@ function initEventListeners() {
 
 // ===== MAIN INIT =====
 async function init() {
-    console.log('[Kelime Fethi] v2.0 Modüler — başlatılıyor...');
+    console.log('[Kelime Fethi] v2.1 — başlatılıyor...');
 
     // Update splash progress
     const splashProgress = document.getElementById('splash-progress');
@@ -229,14 +326,15 @@ async function init() {
     updateSplash(60);
 
     // Set Turkey map data from separate file
-    // TURKEY_MAP is imported from words.js but we need to set it
-    // The map data is now in turkey-map-data.js
     Object.assign(TURKEY_MAP, TURKEY_MAP_DATA);
     updateSplash(80);
 
     // Init systems
     SFX.init();
     Particles.init();
+
+    // Apply colorblind mode from saved state
+    applyColorblindMode();
 
     // Init UI
     initVirtualKeyboard();
@@ -263,7 +361,7 @@ async function init() {
     // Auto-save every 60 seconds
     setInterval(save, 60000);
 
-    // Streak warning
+    // Streak warning + recovery check
     if (state.currentStreak > 0) {
         const today = getToday();
         if (state.dailyDate !== today || !state.dailyComplete) {
@@ -271,6 +369,8 @@ async function init() {
                 showToast(`🔥 ${state.currentStreak} günlük serini kaybetme!`, 4000);
             }, 2000);
         }
+        // Check if streak needs recovery
+        setTimeout(checkStreakRecovery, 1500);
     }
 
     // Handle URL shortcuts (from manifest shortcuts)

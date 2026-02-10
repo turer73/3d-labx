@@ -11,6 +11,7 @@ import { state, save } from './state.js';
 import { evaluateGuess, validateGuess, getDailyWord, getTodayStr, getDayNumber, clearEvalCache, CITIES, REGIONS } from './words.js';
 import { renderMap, getConqueredCount, setOnCityClickCallback, playCityConquestAnimation, checkRegionUnlock } from './map.js';
 import { updateStats } from './stats.js';
+import { checkAchievements, trackNoHintWin, trackQuickWin } from './achievements.js';
 
 let currentInput = '';
 let isAnimating = false;
@@ -249,6 +250,10 @@ function checkPuzzleResult(guess, evaluation, rowIndex) {
             updateStreak(true);
         }
 
+        // Track achievement helpers
+        trackNoHintWin(state.hintUsedThisGame);
+        trackQuickWin(guessCount);
+
         save();
 
         setTimeout(() => {
@@ -281,6 +286,16 @@ function checkPuzzleResult(guess, evaluation, rowIndex) {
             }
 
             updateUI();
+
+            // Check achievements after win
+            setTimeout(() => {
+                checkAchievements({
+                    guessCount,
+                    won: true,
+                    hasBonus,
+                    regionComplete: false,
+                });
+            }, 600);
 
             if (state.activeCityId) {
                 renderMap();
@@ -351,6 +366,16 @@ function checkStreakRewards() {
         setTimeout(() => {
             showToast(reward.message, 4000);
         }, 1500);
+    }
+
+    // Award streak freeze at milestones
+    const freezeMilestones = [7, 14, 21, 30, 50, 75, 100];
+    if (freezeMilestones.includes(state.currentStreak)) {
+        state.streakFreezeCount = (state.streakFreezeCount || 0) + 1;
+        save();
+        setTimeout(() => {
+            showToast(`❄️ Seri dondurma kazandın! (${state.streakFreezeCount} hak)`, 3500);
+        }, 5500);
     }
 }
 
@@ -456,6 +481,7 @@ export function useHint() {
     const revealedLetter = targetChars[pos];
 
     state.hints--;
+    state.hintUsedThisGame = true;
     SFX.hint();
     showToast(`${pos + 1}. harf: ${revealedLetter}`);
     updateHintDisplay();
@@ -477,6 +503,7 @@ export function startCityPuzzle(cityId, switchViewFn) {
     state.activeCityId = cityId;
     state.activeCityWord = word;
     state.activeCityGuesses = [];
+    state.hintUsedThisGame = false;
     currentInput = '';
     currentPuzzleComplete = false;
     keyboardState = {};
@@ -520,6 +547,7 @@ export function startDailyPuzzle(switchViewFn) {
     state.activeCityId = null;
     state.activeCityWord = state.dailyWord;
     state.activeCityGuesses = state.dailyGuesses;
+    state.hintUsedThisGame = false;
     currentInput = '';
     currentPuzzleComplete = state.dailyComplete;
     keyboardState = {};

@@ -1896,3 +1896,302 @@ body::before {
     from { opacity: 0; transform: translateY(4px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* ============================================================
+   ACHIEVEMENT SYSTEM STYLES
+   ============================================================ */
+
+/* Achievement list in stats */
+.achievements-list {
+    margin-bottom: 24px;
+}
+
+.ach-progress-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.ach-count {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--gold);
+    min-width: 40px;
+}
+
+.ach-progress-bar {
+    flex: 1;
+    height: 6px;
+    background: rgba(31, 41, 55, 0.6);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.ach-progress-fill {
+    height: 100%;
+    background: var(--gradient-gold);
+    border-radius: 3px;
+    transition: width 0.6s ease;
+}
+
+.ach-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(17, 24, 39, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    margin-bottom: 6px;
+    opacity: 0.5;
+    transition: opacity 0.3s, transform 0.2s, background 0.3s;
+}
+
+.ach-item.unlocked {
+    opacity: 1;
+    background: rgba(22, 163, 74, 0.06);
+    border-color: rgba(22, 163, 74, 0.15);
+}
+
+.ach-item:hover {
+    transform: translateX(4px);
+}
+
+.ach-icon {
+    font-size: 1.5rem;
+    min-width: 32px;
+    text-align: center;
+}
+
+.ach-info {
+    flex: 1;
+}
+
+.ach-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.ach-desc {
+    font-size: 0.72rem;
+    color: var(--text3);
+    margin-top: 1px;
+}
+
+.ach-check {
+    font-size: 1rem;
+}
+
+/* Achievement tier colors */
+.ach-item.ach-diamond.unlocked { border-color: rgba(168, 85, 247, 0.3); background: rgba(168, 85, 247, 0.08); }
+.ach-item.ach-diamond .ach-name { color: #a855f7; }
+.ach-item.ach-gold.unlocked { border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.08); }
+.ach-item.ach-gold .ach-name { color: #f59e0b; }
+.ach-item.ach-silver.unlocked { border-color: rgba(148, 163, 184, 0.3); background: rgba(148, 163, 184, 0.08); }
+
+.ach-item.hidden-ach { opacity: 0.35; }
+
+/* Achievement popup notification */
+.achievement-popup {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    z-index: 500;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.98), rgba(17, 24, 39, 0.98));
+    border: 2px solid rgba(245, 158, 11, 0.4);
+    border-radius: 16px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 40px rgba(245, 158, 11, 0.15);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    min-width: 280px;
+    backdrop-filter: blur(12px);
+}
+
+.achievement-popup.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.achievement-popup.hiding {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-30px);
+}
+
+.achievement-popup.achievement-diamond { border-color: rgba(168, 85, 247, 0.5); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 40px rgba(168, 85, 247, 0.2); }
+.achievement-popup.achievement-gold { border-color: rgba(245, 158, 11, 0.5); }
+.achievement-popup.achievement-silver { border-color: rgba(148, 163, 184, 0.4); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); }
+.achievement-popup.achievement-bronze { border-color: rgba(180, 130, 80, 0.4); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); }
+
+.ach-popup-icon {
+    font-size: 2rem;
+    animation: achIconBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+}
+
+@keyframes achIconBounce {
+    0% { transform: scale(0) rotate(-20deg); }
+    60% { transform: scale(1.3) rotate(5deg); }
+    100% { transform: scale(1) rotate(0); }
+}
+
+.ach-popup-info { flex: 1; }
+
+.ach-popup-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    font-weight: 700;
+}
+
+.ach-popup-name {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.ach-popup-desc {
+    font-size: 0.75rem;
+    color: var(--text3);
+}
+
+/* ============================================================
+   COLORBLIND MODE
+   ============================================================ */
+body.colorblind-mode .tile.correct,
+body.colorblind-mode .key.correct {
+    background: linear-gradient(135deg, #1d4ed8, #3b82f6) !important;
+    box-shadow: 0 0 14px rgba(59, 130, 246, 0.35) !important;
+}
+
+body.colorblind-mode .tile.present,
+body.colorblind-mode .key.present {
+    background: linear-gradient(135deg, #c2410c, #ea580c) !important;
+    box-shadow: 0 0 14px rgba(234, 88, 12, 0.3) !important;
+}
+
+/* Add pattern indicators for colorblind */
+body.colorblind-mode .tile.correct::before {
+    content: '✓';
+    position: absolute;
+    top: 2px;
+    right: 3px;
+    font-size: 0.55rem;
+    opacity: 0.7;
+}
+
+body.colorblind-mode .tile.present::before {
+    content: '○';
+    position: absolute;
+    top: 2px;
+    right: 3px;
+    font-size: 0.55rem;
+    opacity: 0.7;
+}
+
+body.colorblind-mode .tile.absent::before {
+    content: '✗';
+    position: absolute;
+    top: 2px;
+    right: 3px;
+    font-size: 0.55rem;
+    opacity: 0.5;
+}
+
+/* ============================================================
+   STREAK FREEZE INFO
+   ============================================================ */
+.streak-freeze-info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+    color: var(--text2);
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    padding: 4px 12px;
+    border-radius: 8px;
+}
+
+.streak-freeze-info #freeze-count {
+    font-weight: 800;
+    color: #3b82f6;
+}
+
+/* ============================================================
+   STREAK RECOVERY DIALOG
+   ============================================================ */
+.streak-recovery-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    z-index: 500;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.98), rgba(17, 24, 39, 0.98));
+    border: 2px solid rgba(59, 130, 246, 0.4);
+    border-radius: 24px;
+    padding: 28px;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(59, 130, 246, 0.2);
+    animation: regionUnlock 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    min-width: 300px;
+}
+
+.streak-recovery-dialog h2 {
+    font-size: 1.3rem;
+    margin-bottom: 8px;
+    color: var(--text);
+}
+
+.streak-recovery-dialog p {
+    font-size: 0.85rem;
+    color: var(--text2);
+    margin-bottom: 16px;
+}
+
+.streak-recovery-dialog .streak-lost {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--red);
+    margin-bottom: 4px;
+}
+
+.streak-recovery-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.freeze-btn {
+    background: var(--gradient-blue);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.freeze-btn:hover { box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4); transform: translateY(-1px); }
+.freeze-btn:active { transform: scale(0.95); }
+
+.skip-btn {
+    background: var(--card);
+    color: var(--text2);
+    border: 1px solid var(--border2);
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.skip-btn:hover { border-color: var(--border2); }

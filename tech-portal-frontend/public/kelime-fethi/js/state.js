@@ -31,7 +31,14 @@ export const DEFAULT_STATE = {
     tutorialDone: false,
     startTime: Date.now(),
     lastSave: Date.now(),
-    version: '2.0',
+    achievements: {},
+    noHintWins: 0,
+    quickWins: 0,
+    hintUsedThisGame: false,
+    colorblindMode: false,
+    streakFreezeCount: 0,
+    lastStreakFreeze: null,
+    version: '2.1',
 };
 
 // Reactive state with deep clone
@@ -85,11 +92,19 @@ function ensureStateIntegrity() {
     }
     if (!Array.isArray(state.dailyGuesses)) state.dailyGuesses = [];
     if (!Array.isArray(state.activeCityGuesses)) state.activeCityGuesses = [];
+    if (!state.achievements || typeof state.achievements !== 'object') state.achievements = {};
+
+    // Ensure new numeric fields
+    ['noHintWins', 'quickWins', 'streakFreezeCount'].forEach(k => {
+        if (typeof state[k] !== 'number' || isNaN(state[k])) state[k] = 0;
+    });
+    if (typeof state.hintUsedThisGame !== 'boolean') state.hintUsedThisGame = false;
+    if (typeof state.colorblindMode !== 'boolean') state.colorblindMode = false;
 
     // Version migration
-    if (state.version !== '2.0') {
-        state.version = '2.0';
-        console.log('[KF] State migrated to v2.0');
+    if (state.version !== '2.1') {
+        state.version = '2.1';
+        console.log('[KF] State migrated to v2.1');
     }
 }
 
