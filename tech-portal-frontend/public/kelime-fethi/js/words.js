@@ -16,7 +16,31 @@ export let TURKEY_MAP = {};
 // FIX: Use Set for O(1) word lookup instead of Array.includes O(n)
 let WORD_SET = new Set();
 
+// ===== Offline Data Cache =====
+const DATA_CACHE_KEY = 'kf_data_cache';
+
+function cacheGameData(wordsData, citiesData) {
+    try {
+        localStorage.setItem(DATA_CACHE_KEY, JSON.stringify({
+            words: wordsData,
+            cities: citiesData,
+            cachedAt: Date.now()
+        }));
+    } catch (e) { /* localStorage full — ignore */ }
+}
+
+function loadCachedData() {
+    try {
+        const raw = localStorage.getItem(DATA_CACHE_KEY);
+        if (!raw) return null;
+        return JSON.parse(raw);
+    } catch (e) { return null; }
+}
+
 export async function loadGameData() {
+    let wordsData = null;
+    let citiesData = null;
+
     try {
         const [wordsRes, citiesRes] = await Promise.all([
             fetch('./data/words.json'),
@@ -24,25 +48,46 @@ export async function loadGameData() {
         ]);
 
         if (wordsRes.ok) {
-            const wordsData = await wordsRes.json();
-            WORDS = wordsData.words || [];
-            DAILY_WORDS = wordsData.daily || [];
-            WORD_SET = new Set(WORDS); // Create Set for fast lookup
-            console.log(`[Kelime Fethi] ${WORDS.length} kelime, ${DAILY_WORDS.length} günlük kelime yüklendi`);
-        } else {
-            console.warn('[Kelime Fethi] words.json yüklenemedi');
+            wordsData = await wordsRes.json();
+        }
+        if (citiesRes.ok) {
+            citiesData = await citiesRes.json();
         }
 
-        if (citiesRes.ok) {
-            const citiesData = await citiesRes.json();
-            CITIES = citiesData.cities || [];
-            REGIONS = citiesData.regions || [];
-            console.log(`[Kelime Fethi] ${CITIES.length} şehir, ${REGIONS.length} bölge yüklendi`);
-        } else {
-            console.warn('[Kelime Fethi] cities.json yüklenemedi');
+        // Cache successful fetch for offline use
+        if (wordsData && citiesData) {
+            cacheGameData(wordsData, citiesData);
         }
     } catch (e) {
-        console.error('[Kelime Fethi] Veri yükleme hatası:', e);
+        console.warn('[Kelime Fethi] Ağ hatası, önbellek deneniyor...', e.message);
+    }
+
+    // Fallback to cached data if fetch failed
+    if (!wordsData || !citiesData) {
+        const cached = loadCachedData();
+        if (cached) {
+            if (!wordsData) wordsData = cached.words;
+            if (!citiesData) citiesData = cached.cities;
+            console.log('[Kelime Fethi] Önbellekten yüklendi');
+        }
+    }
+
+    // Apply data
+    if (wordsData) {
+        WORDS = wordsData.words || [];
+        DAILY_WORDS = wordsData.daily || [];
+        WORD_SET = new Set(WORDS);
+        console.log(`[Kelime Fethi] ${WORDS.length} kelime, ${DAILY_WORDS.length} günlük kelime yüklendi`);
+    } else {
+        console.error('[Kelime Fethi] Kelime verisi yüklenemedi! Çevrimdışı ve önbellek boş.');
+    }
+
+    if (citiesData) {
+        CITIES = citiesData.cities || [];
+        REGIONS = citiesData.regions || [];
+        console.log(`[Kelime Fethi] ${CITIES.length} şehir, ${REGIONS.length} bölge yüklendi`);
+    } else {
+        console.error('[Kelime Fethi] Şehir verisi yüklenemedi!');
     }
 }
 

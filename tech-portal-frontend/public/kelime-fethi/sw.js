@@ -5,7 +5,7 @@
 // ============================================================
 
 // BUILD_TS will be updated by deploy script or manually
-const BUILD_TS = '20250210';
+const BUILD_TS = '20250210b';
 const CACHE_NAME = `kelime-fethi-${BUILD_TS}`;
 
 const ASSETS_TO_CACHE = [
@@ -29,6 +29,7 @@ const ASSETS_TO_CACHE = [
     './js/turkey-map-data.js',
     './assets/icon-192.svg',
     './assets/icon-512.svg',
+    './assets/og-image.svg',
     './assets/icons.js?v=3',
     './manifest.json',
     './data/words.json',
