@@ -376,6 +376,53 @@ body::before {
     stroke-linejoin: round;
     filter: drop-shadow(0 0.5px 1px rgba(0,0,0,0.4));
     cursor: pointer;
+    transition: font-size 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                fill 0.2s ease,
+                filter 0.2s ease,
+                stroke-width 0.2s ease;
+}
+
+/* Label hover — grow */
+.city-label:hover {
+    font-size: 9px;
+    fill: #fbbf24;
+    stroke-width: 1.8px;
+    filter: drop-shadow(0 1px 3px rgba(251, 191, 36, 0.5));
+}
+
+/* Label active/focused — biggest, green glow */
+.city-label.label-active {
+    font-size: 11px;
+    fill: #22c55e;
+    stroke-width: 2px;
+    filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.6))
+           drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+    /* Bring to front via z-order trick */
+}
+
+/* Conquered city label — gold tint */
+.city-label.label-conquered {
+    fill: #fbbf24;
+    filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.4));
+}
+
+/* Locked city label — dim */
+.city-label.label-locked {
+    fill: rgba(255, 255, 255, 0.3);
+    stroke: rgba(0, 0, 0, 0.4);
+    stroke-width: 0.8px;
+    filter: none;
+}
+
+/* Label pop-in animation */
+@keyframes labelPopIn {
+    0% { font-size: 6.5px; }
+    50% { font-size: 14px; }
+    100% { font-size: 11px; }
+}
+
+.city-label.label-pop {
+    animation: labelPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* Region Selector */

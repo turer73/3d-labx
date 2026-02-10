@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelime Fethi — Harita Label Düzenleyici</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0e1a;
+            color: #f1f5f9;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* === TOP TOOLBAR === */
+        #toolbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+            z-index: 100;
+        }
+        #toolbar h1 {
+            font-size: 1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-right: auto;
+        }
+        .tb-btn {
+            background: rgba(30, 41, 59, 0.8);
+            color: #94a3b8;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tb-btn:hover { background: rgba(30, 41, 59, 1); color: #f1f5f9; }
+        .tb-btn.primary {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            color: white;
+            border-color: transparent;
+        }
+        .tb-btn.primary:hover { filter: brightness(1.1); }
+        .tb-btn.danger { border-color: rgba(239,68,68,0.3); color: #ef4444; }
+
+        /* === MAIN AREA === */
+        #main {
+            display: flex;
+            height: calc(100vh - 56px);
+            margin-top: 56px;
+        }
+
+        /* === LEFT: MAP SVG === */
+        #map-area {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: #0f172a;
+        }
+        #map-svg {
+            width: 100%;
+            height: 100%;
+        }
+        #map-svg path {
+            fill: #475569;
+            stroke: rgba(0,0,0,0.5);
+            stroke-width: 0.8;
+            cursor: pointer;
+            transition: fill 0.2s;
+        }
+        #map-svg path:hover {
+            fill: #64748b;
+        }
+        #map-svg path.selected {
+            fill: #3b82f6 !important;
+            filter: drop-shadow(0 0 6px rgba(59,130,246,0.5));
+        }
+
+        /* Labels */
+        #map-svg .city-label {
+            font-size: 6.5px;
+            font-family: 'Segoe UI', sans-serif;
+            fill: #ffffff;
+            text-anchor: middle;
+            font-weight: 800;
+            paint-order: stroke;
+            stroke: rgba(0,0,0,0.85);
+            stroke-width: 1.2px;
+            stroke-linejoin: round;
+            cursor: grab;
+            pointer-events: all;
+            user-select: none;
+            transition: font-size 0.2s, fill 0.2s;
+        }
+        #map-svg .city-label:hover {
+            font-size: 9px;
+            fill: #fbbf24;
+            filter: drop-shadow(0 0 4px rgba(251,191,36,0.5));
+        }
+        #map-svg .city-label.dragging {
+            font-size: 9px;
+            fill: #22c55e;
+            cursor: grabbing;
+            filter: drop-shadow(0 0 6px rgba(34,197,94,0.6));
+        }
+        #map-svg .city-label.selected {
+            font-size: 9px;
+            fill: #3b82f6;
+            filter: drop-shadow(0 0 5px rgba(59,130,246,0.5));
+        }
+
+        /* Crosshair guide */
+        .crosshair-h, .crosshair-v {
+            stroke: rgba(59,130,246,0.3);
+            stroke-width: 0.3;
+            stroke-dasharray: 2,2;
+            pointer-events: none;
+            display: none;
+        }
+        .crosshair-h.active, .crosshair-v.active { display: block; }
+
+        /* === RIGHT: PANEL === */
+        #panel {
+            width: 320px;
+            background: rgba(17, 24, 39, 0.98);
+            border-left: 1px solid rgba(255,255,255,0.08);
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        /* Search */
+        #search-box {
+            width: 100%;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #f1f5f9;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            outline: none;
+            margin-bottom: 12px;
+        }
+        #search-box:focus { border-color: rgba(59,130,246,0.5); }
+        #search-box::placeholder { color: #64748b; }
+
+        /* City list */
+        .city-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            transition: background 0.15s;
+            gap: 8px;
+        }
+        .city-item:hover { background: rgba(30, 41, 59, 0.6); }
+        .city-item.active { background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.3); }
+        .city-item .city-name { font-weight: 600; flex: 1; }
+        .city-item .city-id { color: #64748b; font-size: 0.72rem; min-width: 30px; }
+        .city-item .city-coords {
+            color: #94a3b8;
+            font-size: 0.7rem;
+            font-family: 'Courier New', monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .city-item .no-label {
+            color: #ef4444;
+            font-size: 0.68rem;
+            font-style: italic;
+        }
+
+        /* Status bar */
+        #status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 320px;
+            height: 32px;
+            background: rgba(17, 24, 39, 0.95);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 0.72rem;
+            color: #64748b;
+            gap: 20px;
+            z-index: 50;
+        }
+        #status-bar .stat { color: #94a3b8; }
+        #status-bar .changed { color: #f59e0b; }
+
+        /* Edit popup */
+        #edit-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: rgba(17, 24, 39, 0.98);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 16px;
+            padding: 24px;
+            z-index: 500;
+            min-width: 300px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+            display: none;
+            backdrop-filter: blur(12px);
+        }
+        #edit-popup.visible { display: block; transform: translate(-50%, -50%) scale(1); transition: transform 0.2s; }
+        #edit-popup h3 { font-size: 1rem; margin-bottom: 16px; color: #f1f5f9; }
+        #edit-popup label { display: block; font-size: 0.78rem; color: #94a3b8; margin-bottom: 4px; }
+        #edit-popup input {
+            width: 100%;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #f1f5f9;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            outline: none;
+            margin-bottom: 12px;
+        }
+        #edit-popup .popup-btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+
+        /* Toast */
+        #toast {
+            position: fixed;
+            bottom: 48px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(30, 41, 59, 0.95);
+            color: #f1f5f9;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 600;
+            pointer-events: none;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* Info panel for selected city */
+        #selected-info {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            display: none;
+        }
+        #selected-info.visible { display: block; }
+        #selected-info h4 { font-size: 0.9rem; margin-bottom: 8px; color: #3b82f6; }
+        #selected-info .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 0.8rem;
+        }
+        #selected-info .info-label { color: #64748b; }
+        #selected-info .info-value {
+            font-family: 'Courier New', monospace;
+            color: #f1f5f9;
+            background: rgba(0,0,0,0.3);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+        }
+
+        /* Keyboard shortcuts */
+        #shortcuts-help {
+            position: fixed;
+            bottom: 40px;
+            right: 336px;
+            background: rgba(17,24,39,0.95);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 0.72rem;
+            color: #64748b;
+            line-height: 1.6;
+            z-index: 50;
+        }
+        .kbd {
+            background: rgba(255,255,255,0.08);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #94a3b8;
+            font-size: 0.7rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOOLBAR -->
+    <div id="toolbar">
+        <h1>🗺️ Harita Label Düzenleyici</h1>
+        <span id="change-count" style="color:#64748b;font-size:0.78rem;"></span>
+        <button class="tb-btn" onclick="resetAll()">Sıfırla</button>
+        <button class="tb-btn" onclick="undoChange()">↩ Geri Al</button>
+        <button class="tb-btn primary" onclick="exportData()">💾 Kaydet (Export)</button>
+    </div>
+
+    <!-- MAIN -->
+    <div id="main">
+        <!-- MAP -->
+        <div id="map-area">
+            <svg id="map-svg" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
+                <!-- Crosshairs -->
+                <line class="crosshair-h" x1="0" y1="0" x2="900" y2="0"/>
+                <line class="crosshair-v" x1="0" y1="0" x2="0" y2="600"/>
+            </svg>
+        </div>
+
+        <!-- PANEL -->
+        <div id="panel">
+            <input type="text" id="search-box" placeholder="🔍 İl ara... (Adana, İstanbul, vb.)">
+
+            <div id="selected-info">
+                <h4 id="si-name">—</h4>
+                <div class="info-row">
+                    <span class="info-label">ID</span>
+                    <span class="info-value" id="si-id">—</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Label X</span>
+                    <span class="info-value" id="si-x">—</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Label Y</span>
+                    <span class="info-value" id="si-y">—</span>
+                </div>
+                <div style="display:flex;gap:6px;margin-top:10px;">
+                    <button class="tb-btn" onclick="nudgeLabel(-1,0)" style="flex:1">← Sol</button>
+                    <button class="tb-btn" onclick="nudgeLabel(1,0)" style="flex:1">Sağ →</button>
+                    <button class="tb-btn" onclick="nudgeLabel(0,-1)" style="flex:1">↑ Yukarı</button>
+                    <button class="tb-btn" onclick="nudgeLabel(0,1)" style="flex:1">↓ Aşağı</button>
+                </div>
+                <div style="display:flex;gap:6px;margin-top:6px;">
+                    <button class="tb-btn" onclick="centerLabel()" style="flex:1">Merkeze Al</button>
+                    <button class="tb-btn danger" onclick="removeLabel()" style="flex:1">Label Sil</button>
+                </div>
+            </div>
+
+            <div id="city-list"></div>
+        </div>
+    </div>
+
+    <!-- STATUS BAR -->
+    <div id="status-bar">
+        <span>Toplam: <span class="stat" id="sb-total">0</span> il</span>
+        <span>Label'lı: <span class="stat" id="sb-labeled">0</span></span>
+        <span>Label'sız: <span class="stat" id="sb-nolabel">0</span></span>
+        <span class="changed" id="sb-changes"></span>
+    </div>
+
+    <!-- SHORTCUTS -->
+    <div id="shortcuts-help">
+        <b>Kısayollar:</b><br>
+        <kbd class="kbd">Sürükle</kbd> Label'ı taşı<br>
+        <kbd class="kbd">Tıkla</kbd> İl'i seç<br>
+        <kbd class="kbd">C</kbd> Label'ı merkeze al<br>
+        <kbd class="kbd">←→↑↓</kbd> Label'ı 1px kaydır<br>
+        <kbd class="kbd">Shift+←→↑↓</kbd> 5px kaydır<br>
+        <kbd class="kbd">Ctrl+Z</kbd> Geri al<br>
+        <kbd class="kbd">Ctrl+S</kbd> Export
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast"></div>
+
+    <script type="module">
+        import { TURKEY_MAP_DATA } from './js/turkey-map-data.js';
+
+        // ===== STATE =====
+        let paths = JSON.parse(JSON.stringify(TURKEY_MAP_DATA.paths));
+        let selectedCityId = null;
+        let dragTarget = null;
+        let dragStartSVGPos = null;
+        let changeHistory = [];
+        let changeCount = 0;
+
+        // ===== SVG HELPERS =====
+        const svgEl = document.getElementById('map-svg');
+        const crossH = svgEl.querySelector('.crosshair-h');
+        const crossV = svgEl.querySelector('.crosshair-v');
+
+        function screenToSVG(clientX, clientY) {
+            const pt = svgEl.createSVGPoint();
+            pt.x = clientX;
+            pt.y = clientY;
+            const svgPt = pt.matrixTransform(svgEl.getScreenCTM().inverse());
+            return { x: Math.round(svgPt.x * 10) / 10, y: Math.round(svgPt.y * 10) / 10 };
+        }
+
+        // ===== RENDER MAP =====
+        function renderMap() {
+            // Clear existing (keep crosshairs)
+            svgEl.querySelectorAll('path, text.city-label').forEach(el => el.remove());
+
+            paths.forEach(p => {
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', p.d);
+                path.setAttribute('id', `path-${p.id}`);
+                path.dataset.cityId = p.id;
+                if (p.id === selectedCityId) path.classList.add('selected');
+
+                path.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectCity(p.id);
+                });
+                svgEl.insertBefore(path, crossH);
+            });
+
+            // Render labels on top
+            paths.forEach(p => {
+                if (p.labelX != null && p.labelY != null) {
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('x', p.labelX);
+                    text.setAttribute('y', p.labelY);
+                    text.setAttribute('class', 'city-label');
+                    text.dataset.cityId = p.id;
+                    text.textContent = p.name;
+                    if (p.id === selectedCityId) text.classList.add('selected');
+
+                    // Drag events
+                    text.addEventListener('mousedown', (e) => startDrag(e, p.id));
+                    text.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        selectCity(p.id);
+                    });
+
+                    svgEl.appendChild(text);
+                }
+            });
+
+            updateStatusBar();
+        }
+
+        // ===== DRAG & DROP =====
+        function startDrag(e, cityId) {
+            e.preventDefault();
+            e.stopPropagation();
+            selectCity(cityId);
+            dragTarget = cityId;
+
+            const label = svgEl.querySelector(`text[data-city-id="${cityId}"]`);
+            if (label) label.classList.add('dragging');
+
+            crossH.classList.add('active');
+            crossV.classList.add('active');
+        }
+
+        svgEl.addEventListener('mousemove', (e) => {
+            if (!dragTarget) return;
+
+            const pos = screenToSVG(e.clientX, e.clientY);
+            const p = paths.find(p => p.id === dragTarget);
+            if (!p) return;
+
+            // Save for undo
+            if (!dragStartSVGPos) {
+                dragStartSVGPos = { x: p.labelX, y: p.labelY };
+            }
+
+            p.labelX = pos.x;
+            p.labelY = pos.y;
+
+            // Update label position directly (no re-render)
+            const label = svgEl.querySelector(`text[data-city-id="${dragTarget}"]`);
+            if (label) {
+                label.setAttribute('x', pos.x);
+                label.setAttribute('y', pos.y);
+            }
+
+            // Crosshairs
+            crossH.setAttribute('y1', pos.y);
+            crossH.setAttribute('y2', pos.y);
+            crossV.setAttribute('x1', pos.x);
+            crossV.setAttribute('x2', pos.x);
+
+            updateSelectedInfo();
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (dragTarget && dragStartSVGPos) {
+                const p = paths.find(p => p.id === dragTarget);
+                if (p) {
+                    pushUndo(dragTarget, 'move', dragStartSVGPos, { x: p.labelX, y: p.labelY });
+                }
+            }
+
+            if (dragTarget) {
+                const label = svgEl.querySelector(`text[data-city-id="${dragTarget}"]`);
+                if (label) label.classList.remove('dragging');
+            }
+
+            dragTarget = null;
+            dragStartSVGPos = null;
+            crossH.classList.remove('active');
+            crossV.classList.remove('active');
+        });
+
+        // Click on path to add label if none exists
+        svgEl.addEventListener('click', (e) => {
+            if (e.target.tagName === 'path') {
+                const cityId = parseInt(e.target.dataset.cityId);
+                const p = paths.find(p => p.id === cityId);
+                if (p && p.labelX == null) {
+                    // Place label at center of path bbox
+                    const bbox = e.target.getBBox();
+                    p.labelX = Math.round((bbox.x + bbox.width / 2) * 10) / 10;
+                    p.labelY = Math.round((bbox.y + bbox.height / 2) * 10) / 10;
+                    pushUndo(cityId, 'add', null, { x: p.labelX, y: p.labelY });
+                    renderMap();
+                    selectCity(cityId);
+                    showToast(`${p.name} label eklendi`);
+                }
+            }
+        });
+
+        // ===== CITY SELECTION =====
+        function selectCity(cityId) {
+            selectedCityId = cityId;
+
+            // Update SVG selection
+            svgEl.querySelectorAll('path.selected, text.selected').forEach(el => el.classList.remove('selected'));
+            const path = svgEl.querySelector(`#path-${cityId}`);
+            if (path) path.classList.add('selected');
+            const label = svgEl.querySelector(`text[data-city-id="${cityId}"]`);
+            if (label) label.classList.add('selected');
+
+            // Update panel
+            document.querySelectorAll('.city-item.active').forEach(el => el.classList.remove('active'));
+            const item = document.querySelector(`.city-item[data-id="${cityId}"]`);
+            if (item) {
+                item.classList.add('active');
+                item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
+
+            updateSelectedInfo();
+        }
+
+        function updateSelectedInfo() {
+            const infoEl = document.getElementById('selected-info');
+            if (!selectedCityId) {
+                infoEl.classList.remove('visible');
+                return;
+            }
+            const p = paths.find(p => p.id === selectedCityId);
+            if (!p) return;
+
+            infoEl.classList.add('visible');
+            document.getElementById('si-name').textContent = `📍 ${p.name}`;
+            document.getElementById('si-id').textContent = p.id;
+            document.getElementById('si-x').textContent = p.labelX != null ? p.labelX : '—';
+            document.getElementById('si-y').textContent = p.labelY != null ? p.labelY : '—';
+        }
+
+        // ===== CITY LIST =====
+        function renderCityList(filter = '') {
+            const listEl = document.getElementById('city-list');
+            const normalizedFilter = filter.toLowerCase().replace(/i/g, 'İ').replace(/ı/g, 'I');
+
+            let filtered = paths;
+            if (filter) {
+                const lf = filter.toLowerCase();
+                filtered = paths.filter(p =>
+                    p.name.toLowerCase().includes(lf) ||
+                    p.id.toString().includes(filter)
+                );
+            }
+
+            // Sort alphabetically
+            filtered.sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+
+            listEl.innerHTML = filtered.map(p => {
+                const hasLabel = p.labelX != null && p.labelY != null;
+                const coordsHtml = hasLabel
+                    ? `<span class="city-coords">${p.labelX}, ${p.labelY}</span>`
+                    : `<span class="no-label">label yok</span>`;
+
+                return `<div class="city-item ${p.id === selectedCityId ? 'active' : ''}"
+                             data-id="${p.id}"
+                             onclick="window._selectCity(${p.id})">
+                    <span class="city-id">#${p.id}</span>
+                    <span class="city-name">${p.name}</span>
+                    ${coordsHtml}
+                </div>`;
+            }).join('');
+        }
+
+        window._selectCity = selectCity;
+
+        // ===== NUDGE =====
+        window.nudgeLabel = function(dx, dy) {
+            if (!selectedCityId) return;
+            const p = paths.find(p => p.id === selectedCityId);
+            if (!p || p.labelX == null) return;
+
+            const oldX = p.labelX, oldY = p.labelY;
+            p.labelX = Math.round((p.labelX + dx) * 10) / 10;
+            p.labelY = Math.round((p.labelY + dy) * 10) / 10;
+
+            const label = svgEl.querySelector(`text[data-city-id="${selectedCityId}"]`);
+            if (label) {
+                label.setAttribute('x', p.labelX);
+                label.setAttribute('y', p.labelY);
+            }
+            pushUndo(selectedCityId, 'move', { x: oldX, y: oldY }, { x: p.labelX, y: p.labelY });
+            updateSelectedInfo();
+        };
+
+        window.centerLabel = function() {
+            if (!selectedCityId) return;
+            const p = paths.find(p => p.id === selectedCityId);
+            if (!p) return;
+
+            const pathEl = svgEl.querySelector(`#path-${selectedCityId}`);
+            if (!pathEl) return;
+
+            const bbox = pathEl.getBBox();
+            const oldX = p.labelX, oldY = p.labelY;
+            p.labelX = Math.round((bbox.x + bbox.width / 2) * 10) / 10;
+            p.labelY = Math.round((bbox.y + bbox.height / 2) * 10) / 10;
+
+            pushUndo(selectedCityId, 'move', { x: oldX, y: oldY }, { x: p.labelX, y: p.labelY });
+            renderMap();
+            showToast(`${p.name} merkeze alındı`);
+        };
+
+        window.removeLabel = function() {
+            if (!selectedCityId) return;
+            const p = paths.find(p => p.id === selectedCityId);
+            if (!p || p.labelX == null) return;
+
+            const old = { x: p.labelX, y: p.labelY };
+            p.labelX = undefined;
+            p.labelY = undefined;
+            pushUndo(selectedCityId, 'remove', old, null);
+            renderMap();
+            renderCityList(document.getElementById('search-box').value);
+            showToast(`${p.name} label silindi`);
+        };
+
+        // ===== UNDO =====
+        function pushUndo(cityId, type, from, to) {
+            changeHistory.push({ cityId, type, from, to });
+            changeCount++;
+            updateStatusBar();
+        }
+
+        window.undoChange = function() {
+            if (changeHistory.length === 0) { showToast('Geri alınacak değişiklik yok'); return; }
+            const last = changeHistory.pop();
+            const p = paths.find(p => p.id === last.cityId);
+            if (!p) return;
+
+            if (last.type === 'move' || last.type === 'remove') {
+                if (last.from) {
+                    p.labelX = last.from.x;
+                    p.labelY = last.from.y;
+                }
+            } else if (last.type === 'add') {
+                p.labelX = undefined;
+                p.labelY = undefined;
+            }
+
+            changeCount--;
+            renderMap();
+            renderCityList(document.getElementById('search-box').value);
+            selectCity(last.cityId);
+            showToast('Geri alındı');
+        };
+
+        window.resetAll = function() {
+            if (!confirm('Tüm değişiklikler geri alınacak! Emin misiniz?')) return;
+            paths = JSON.parse(JSON.stringify(TURKEY_MAP_DATA.paths));
+            changeHistory = [];
+            changeCount = 0;
+            selectedCityId = null;
+            renderMap();
+            renderCityList('');
+            showToast('Tüm değişiklikler sıfırlandı');
+        };
+
+        // ===== EXPORT =====
+        window.exportData = function() {
+            // Generate turkey-map-data.js content
+            let output = `// ============================================================\n`;
+            output += `// KELIME FETHI v2.0 — Turkey Map SVG Data\n`;
+            output += `// 81 provinces SVG path data\n`;
+            output += `// ============================================================\n\n`;
+            output += `export const TURKEY_MAP_DATA = {\n`;
+            output += `    viewBox: '0 0 900 600',\n`;
+            output += `    paths: [\n`;
+
+            // Group by region comments
+            const regionOrder = ['Marmara', 'Ege', 'Akdeniz', 'İç Anadolu', 'Karadeniz', 'Doğu Anadolu', 'Güneydoğu Anadolu'];
+            const regionGroups = {};
+
+            // Build original order from TURKEY_MAP_DATA
+            let currentRegion = null;
+            const orderedPaths = [];
+
+            // Use original data to maintain order and region comments
+            TURKEY_MAP_DATA.paths.forEach((origP, idx) => {
+                const p = paths.find(pp => pp.id === origP.id) || origP;
+                orderedPaths.push(p);
+            });
+
+            // Find region comment positions from original file
+            // We'll reconstruct with similar structure
+            let lastIdx = 0;
+            orderedPaths.forEach((p, idx) => {
+                let labelPart = '';
+                if (p.labelX != null && p.labelY != null) {
+                    labelPart = `, labelX: ${p.labelX}, labelY: ${p.labelY}`;
+                }
+                const comma = idx < orderedPaths.length - 1 ? ',' : '';
+                output += `        { id: ${p.id}, name: '${p.name.replace(/'/g, "\\'")}', d: '${p.d}'${labelPart} }${comma}\n`;
+            });
+
+            output += `    ]\n`;
+            output += `};\n`;
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(output).then(() => {
+                showToast('✅ Panoya kopyalandı! turkey-map-data.js dosyasına yapıştırın');
+            }).catch(() => {
+                // Fallback: download
+                const blob = new Blob([output], { type: 'text/javascript' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'turkey-map-data.js';
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('✅ turkey-map-data.js indirildi!');
+            });
+        };
+
+        // ===== KEYBOARD =====
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+Z = undo
+            if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undoChange(); return; }
+            // Ctrl+S = export
+            if (e.ctrlKey && e.key === 's') { e.preventDefault(); exportData(); return; }
+            // C = center
+            if (e.key === 'c' && e.target.tagName !== 'INPUT') { centerLabel(); return; }
+
+            // Arrow keys = nudge
+            if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key) && e.target.tagName !== 'INPUT') {
+                e.preventDefault();
+                const step = e.shiftKey ? 5 : 1;
+                const dx = e.key === 'ArrowLeft' ? -step : e.key === 'ArrowRight' ? step : 0;
+                const dy = e.key === 'ArrowUp' ? -step : e.key === 'ArrowDown' ? step : 0;
+                nudgeLabel(dx, dy);
+            }
+        });
+
+        // ===== SEARCH =====
+        document.getElementById('search-box').addEventListener('input', (e) => {
+            renderCityList(e.target.value);
+        });
+
+        // ===== STATUS BAR =====
+        function updateStatusBar() {
+            const labeled = paths.filter(p => p.labelX != null).length;
+            document.getElementById('sb-total').textContent = paths.length;
+            document.getElementById('sb-labeled').textContent = labeled;
+            document.getElementById('sb-nolabel').textContent = paths.length - labeled;
+            document.getElementById('sb-changes').textContent = changeCount > 0 ? `${changeCount} değişiklik` : '';
+            document.getElementById('change-count').textContent = changeCount > 0 ? `(${changeCount} değişiklik)` : '';
+        }
+
+        // ===== TOAST =====
+        function showToast(msg) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 2000);
+        }
+        window.showToast = showToast;
+
+        // ===== INIT =====
+        renderMap();
+        renderCityList('');
+        updateStatusBar();
+    </script>
+</body>
+</html>

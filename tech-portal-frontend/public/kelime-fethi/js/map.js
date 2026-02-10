@@ -93,13 +93,51 @@ export function renderMap() {
             text.setAttribute('x', pathData.labelX);
             text.setAttribute('y', pathData.labelY);
             text.setAttribute('class', 'city-label');
+            text.dataset.cityId = pathData.id;
             text.textContent = pathData.name;
-            text.addEventListener('click', () => onCityClick(pathData.id));
+
+            // Add status class for label styling
+            if (conquered) {
+                text.classList.add('label-conquered');
+            } else if (!available) {
+                text.classList.add('label-locked');
+            }
+
+            text.addEventListener('click', (e) => {
+                e.stopPropagation();
+                highlightCityLabel(pathData.id);
+                onCityClick(pathData.id);
+            });
             mapEl.appendChild(text);
         }
     });
 
     updateMapProgress();
+}
+
+// Highlight city label — grows and comes to front
+let _activeLabel = null;
+export function highlightCityLabel(cityId) {
+    const mapEl = document.getElementById('turkey-map');
+    if (!mapEl) return;
+
+    // Remove previous active label
+    if (_activeLabel) {
+        _activeLabel.classList.remove('label-active', 'label-pop');
+    }
+
+    const label = mapEl.querySelector(`.city-label[data-city-id="${cityId}"]`);
+    if (!label) return;
+
+    // Bring label to front by re-appending it
+    mapEl.appendChild(label);
+
+    // Add active + pop animation class
+    label.classList.add('label-active', 'label-pop');
+    _activeLabel = label;
+
+    // Remove pop animation after it finishes (keep active state)
+    setTimeout(() => label.classList.remove('label-pop'), 400);
 }
 
 export function updateMapProgress() {
@@ -116,6 +154,9 @@ export function updateMapProgress() {
 function onCityClick(cityId) {
     const city = CITIES.find(c => c.id === cityId);
     if (!city) return;
+
+    // Always highlight the label when clicking
+    highlightCityLabel(cityId);
 
     if (isCityConquered(cityId)) {
         const data = state.conqueredCities[cityId];
