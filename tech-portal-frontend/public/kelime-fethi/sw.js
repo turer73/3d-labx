@@ -5,7 +5,7 @@
 // ============================================================
 
 // BUILD_TS will be updated by deploy script or manually
-const BUILD_TS = '20250211a';
+const BUILD_TS = '20250211b';
 const CACHE_NAME = `kelime-fethi-${BUILD_TS}`;
 
 const ASSETS_TO_CACHE = [
