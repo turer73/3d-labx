@@ -1,0 +1,240 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+  <defs>
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#16a34a"/>
+      <stop offset="100%" style="stop-color:#22c55e"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f59e0b"/>
+      <stop offset="100%" style="stop-color:#fbbf24"/>
+    </linearGradient>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f1629"/>
+      <stop offset="100%" style="stop-color:#0a0e1a"/>
+    </linearGradient>
+    <linearGradient id="barGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#16a34a"/>
+      <stop offset="100%" style="stop-color:#22c55e"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+    <clipPath id="roundCard">
+      <rect x="40" y="310" width="1000" height="120" rx="16"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1080" height="1920" fill="url(#bgGrad)"/>
+
+  <!-- Status bar area -->
+  <rect width="1080" height="44" fill="#0a0e1a" opacity="0.8"/>
+  <text x="50" y="32" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="24" font-weight="500">9:41</text>
+  <text x="1030" y="32" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="24" font-weight="500" text-anchor="end">100%</text>
+
+  <!-- Top App Bar -->
+  <rect y="44" width="1080" height="100" fill="#111827" opacity="0.95"/>
+  <rect y="143" width="1080" height="1" fill="#1e293b" opacity="0.5"/>
+
+  <!-- App Title -->
+  <text x="540" y="110" fill="url(#greenGrad)" font-family="system-ui, sans-serif" font-size="42" font-weight="800" text-anchor="middle" letter-spacing="1">Kelime Fethi</text>
+
+  <!-- Streak and Score -->
+  <rect x="40" y="64" width="120" height="52" rx="26" fill="#1e293b"/>
+  <text x="100" y="98" fill="#f59e0b" font-family="system-ui, sans-serif" font-size="28" text-anchor="middle" font-weight="700">5</text>
+  <text x="68" y="99" font-size="26">&#x1F525;</text>
+
+  <rect x="920" y="64" width="120" height="52" rx="26" fill="#1e293b"/>
+  <text x="980" y="98" fill="#fbbf24" font-family="system-ui, sans-serif" font-size="28" text-anchor="middle" font-weight="700">1250</text>
+  <text x="932" y="99" font-size="22">&#x2B50;</text>
+
+  <!-- Daily Banner -->
+  <rect x="40" y="170" width="1000" height="80" rx="16" fill="#1e293b" filter="url(#shadow)"/>
+  <rect x="40" y="170" width="6" height="80" rx="3" fill="url(#goldGrad)"/>
+  <text x="80" y="222" fill="#f59e0b" font-family="system-ui, sans-serif" font-size="34" font-weight="700">&#x1F4C5; Gunluk Bulmaca</text>
+  <text x="990" y="218" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="24" text-anchor="end">Bugun</text>
+  <rect x="900" y="200" width="100" height="36" rx="18" fill="#f59e0b" opacity="0.15"/>
+  <text x="950" y="225" fill="#f59e0b" font-family="system-ui, sans-serif" font-size="22" font-weight="600" text-anchor="middle">Oyna</text>
+
+  <!-- Progress Section -->
+  <rect x="40" y="280" width="1000" height="100" rx="16" fill="#111827" filter="url(#shadow)"/>
+  <text x="80" y="330" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="28" font-weight="600">12 / 81 sehir fethedildi</text>
+  <text x="960" y="330" fill="#22c55e" font-family="system-ui, sans-serif" font-size="28" font-weight="700" text-anchor="end">%15</text>
+
+  <!-- Progress bar background -->
+  <rect x="80" y="348" width="920" height="12" rx="6" fill="#1e293b"/>
+  <!-- Progress bar fill -->
+  <rect x="80" y="348" width="136" height="12" rx="6" fill="url(#barGrad)"/>
+
+  <!-- Map Container -->
+  <rect x="30" y="410" width="1020" height="1100" rx="24" fill="#111827" opacity="0.6" filter="url(#shadow)"/>
+  <rect x="30" y="410" width="1020" height="1100" rx="24" fill="none" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- Turkey Map (simplified outline) -->
+  <g transform="translate(80, 480) scale(1.35)">
+    <!-- Main Turkey landmass outline -->
+    <path d="M 50,280
+             C 30,270 20,250 25,230
+             L 40,210 C 50,195 60,190 80,185
+             L 120,175 C 140,170 150,160 155,145
+             L 160,130 C 165,120 180,115 200,110
+             L 240,100 C 260,95 270,85 265,70
+             L 260,55 C 270,45 290,40 310,42
+             L 340,48 C 360,52 370,50 380,42
+             L 400,35 C 420,30 440,35 450,45
+             L 460,58 C 465,68 475,72 490,70
+             L 520,65 C 540,63 555,68 560,80
+             L 558,95 C 556,105 562,112 575,115
+             L 600,120 C 615,122 625,130 630,145
+             L 632,160 C 630,175 620,185 605,190
+             L 580,198 C 565,202 555,215 560,235
+             L 568,260 C 572,275 565,290 550,298
+             L 520,308 C 500,312 480,310 460,305
+             L 430,295 C 410,288 390,285 370,288
+             L 340,295 C 320,300 300,308 280,310
+             L 240,308 C 220,305 200,298 180,295
+             L 140,290 C 120,288 100,285 80,285
+             Z"
+          fill="#1e293b" stroke="#334155" stroke-width="2"/>
+
+    <!-- Eastern Turkey extension -->
+    <path d="M 575,115
+             L 610,108 C 630,104 650,108 665,118
+             L 685,135 C 695,145 700,160 695,178
+             L 688,195 C 682,210 670,220 655,225
+             L 630,232 C 615,235 605,230 600,220
+             L 595,205 C 590,195 585,190 580,198
+             L 605,190 C 620,185 630,175 632,160
+             L 630,145 C 625,130 615,122 600,120 Z"
+          fill="#1e293b" stroke="#334155" stroke-width="2"/>
+
+    <!-- Conquered provinces (green) - Marmara region -->
+    <path d="M 150,145 L 200,130 L 230,140 L 240,160 L 220,175 L 180,178 L 155,165 Z"
+          fill="#16a34a" opacity="0.7" stroke="#22c55e" stroke-width="1.5"/>
+    <!-- Istanbul area -->
+    <path d="M 175,130 L 195,118 L 210,125 L 205,140 L 185,145 Z"
+          fill="#16a34a" opacity="0.8" stroke="#22c55e" stroke-width="1.5"/>
+    <!-- Bursa area -->
+    <path d="M 200,155 L 230,148 L 250,160 L 245,178 L 215,180 Z"
+          fill="#16a34a" opacity="0.7" stroke="#22c55e" stroke-width="1.5"/>
+
+    <!-- Aegean conquered -->
+    <path d="M 100,200 L 130,190 L 155,200 L 150,225 L 120,230 L 95,220 Z"
+          fill="#16a34a" opacity="0.6" stroke="#22c55e" stroke-width="1.5"/>
+    <path d="M 130,225 L 160,218 L 175,235 L 165,255 L 140,258 Z"
+          fill="#16a34a" opacity="0.65" stroke="#22c55e" stroke-width="1.5"/>
+
+    <!-- Mediterranean conquered -->
+    <path d="M 180,265 L 215,255 L 240,265 L 235,285 L 205,290 L 178,282 Z"
+          fill="#16a34a" opacity="0.6" stroke="#22c55e" stroke-width="1.5"/>
+
+    <!-- Central Anatolia conquered -->
+    <path d="M 300,170 L 340,162 L 365,175 L 358,198 L 325,205 L 295,195 Z"
+          fill="#16a34a" opacity="0.7" stroke="#22c55e" stroke-width="1.5"/>
+    <path d="M 340,162 L 375,155 L 395,170 L 388,192 L 358,198 Z"
+          fill="#16a34a" opacity="0.65" stroke="#22c55e" stroke-width="1.5"/>
+
+    <!-- Black Sea conquered -->
+    <path d="M 350,85 L 385,78 L 410,90 L 405,108 L 375,112 L 348,102 Z"
+          fill="#16a34a" opacity="0.7" stroke="#22c55e" stroke-width="1.5"/>
+    <path d="M 410,90 L 440,85 L 460,95 L 455,112 L 428,118 L 405,108 Z"
+          fill="#16a34a" opacity="0.65" stroke="#22c55e" stroke-width="1.5"/>
+
+    <!-- Available provinces (blue) - clickable -->
+    <path d="M 245,155 L 280,145 L 305,158 L 298,180 L 268,185 L 240,175 Z"
+          fill="#3b82f6" opacity="0.5" stroke="#60a5fa" stroke-width="1.5"/>
+    <path d="M 460,100 L 495,92 L 520,105 L 515,125 L 488,130 L 458,118 Z"
+          fill="#3b82f6" opacity="0.5" stroke="#60a5fa" stroke-width="1.5"/>
+    <path d="M 520,105 L 555,98 L 575,115 L 570,135 L 542,140 L 515,125 Z"
+          fill="#3b82f6" opacity="0.5" stroke="#60a5fa" stroke-width="1.5"/>
+    <path d="M 165,255 L 200,248 L 220,260 L 215,278 L 190,282 L 162,272 Z"
+          fill="#3b82f6" opacity="0.45" stroke="#60a5fa" stroke-width="1.5"/>
+
+    <!-- Province labels for conquered -->
+    <text x="190" y="140" fill="#fff" font-family="system-ui, sans-serif" font-size="11" font-weight="700" text-anchor="middle" opacity="0.9">Istanbul</text>
+    <text x="225" y="170" fill="#fff" font-family="system-ui, sans-serif" font-size="10" font-weight="600" text-anchor="middle" opacity="0.8">Bursa</text>
+    <text x="335" y="190" fill="#fff" font-family="system-ui, sans-serif" font-size="10" font-weight="600" text-anchor="middle" opacity="0.8">Ankara</text>
+    <text x="120" y="215" fill="#fff" font-family="system-ui, sans-serif" font-size="10" font-weight="600" text-anchor="middle" opacity="0.8">Izmir</text>
+    <text x="210" y="278" fill="#fff" font-family="system-ui, sans-serif" font-size="10" font-weight="600" text-anchor="middle" opacity="0.8">Antalya</text>
+  </g>
+
+  <!-- Map Legend -->
+  <g transform="translate(60, 1420)">
+    <rect width="960" height="70" rx="12" fill="#111827" opacity="0.8"/>
+    <rect x="30" y="25" width="20" height="20" rx="4" fill="#16a34a" opacity="0.7"/>
+    <text x="60" y="42" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="22">Fethedilen</text>
+    <rect x="250" y="25" width="20" height="20" rx="4" fill="#3b82f6" opacity="0.5"/>
+    <text x="280" y="42" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="22">Mevcut</text>
+    <rect x="460" y="25" width="20" height="20" rx="4" fill="#1e293b"/>
+    <text x="490" y="42" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="22">Kilitli</text>
+    <text x="680" y="42" fill="#f59e0b" font-family="system-ui, sans-serif" font-size="22" font-weight="600">&#x1F3C6; 12 / 81</text>
+  </g>
+
+  <!-- Region Stats Cards -->
+  <g transform="translate(40, 1520)">
+    <rect width="310" height="90" rx="14" fill="#111827" filter="url(#shadow)"/>
+    <rect width="4" height="90" rx="2" fill="#22c55e"/>
+    <text x="25" y="38" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="20">Marmara</text>
+    <text x="25" y="68" fill="#22c55e" font-family="system-ui, sans-serif" font-size="28" font-weight="700">4/11</text>
+    <rect x="150" y="48" width="140" height="8" rx="4" fill="#1e293b"/>
+    <rect x="150" y="48" width="51" height="8" rx="4" fill="#22c55e"/>
+
+    <g transform="translate(345, 0)">
+      <rect width="310" height="90" rx="14" fill="#111827" filter="url(#shadow)"/>
+      <rect width="4" height="90" rx="2" fill="#3b82f6"/>
+      <text x="25" y="38" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="20">Ege</text>
+      <text x="25" y="68" fill="#3b82f6" font-family="system-ui, sans-serif" font-size="28" font-weight="700">2/8</text>
+      <rect x="150" y="48" width="140" height="8" rx="4" fill="#1e293b"/>
+      <rect x="150" y="48" width="35" height="8" rx="4" fill="#3b82f6"/>
+    </g>
+
+    <g transform="translate(690, 0)">
+      <rect width="310" height="90" rx="14" fill="#111827" filter="url(#shadow)"/>
+      <rect width="4" height="90" rx="2" fill="#f59e0b"/>
+      <text x="25" y="38" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="20">Ic Anadolu</text>
+      <text x="25" y="68" fill="#f59e0b" font-family="system-ui, sans-serif" font-size="28" font-weight="700">2/7</text>
+      <rect x="150" y="48" width="140" height="8" rx="4" fill="#1e293b"/>
+      <rect x="150" y="48" width="40" height="8" rx="4" fill="#f59e0b"/>
+    </g>
+  </g>
+
+  <!-- Bottom Navigation Bar -->
+  <rect y="1800" width="1080" height="120" fill="#111827"/>
+  <rect y="1800" width="1080" height="1" fill="#1e293b"/>
+
+  <!-- Nav items -->
+  <g transform="translate(0, 1800)">
+    <!-- Harita (active) -->
+    <g transform="translate(135, 0)">
+      <rect x="-60" y="0" width="120" height="120" fill="transparent"/>
+      <text x="0" y="50" fill="#22c55e" font-size="36" text-anchor="middle">&#x1F5FA;</text>
+      <text x="0" y="85" fill="#22c55e" font-family="system-ui, sans-serif" font-size="22" font-weight="700" text-anchor="middle">Harita</text>
+      <rect x="-30" y="4" width="60" height="3" rx="1.5" fill="#22c55e"/>
+    </g>
+    <!-- Gunluk -->
+    <g transform="translate(405, 0)">
+      <text x="0" y="50" fill="#64748b" font-size="36" text-anchor="middle">&#x1F4C5;</text>
+      <text x="0" y="85" fill="#64748b" font-family="system-ui, sans-serif" font-size="22" font-weight="500" text-anchor="middle">Gunluk</text>
+    </g>
+    <!-- Istatistik -->
+    <g transform="translate(675, 0)">
+      <text x="0" y="50" fill="#64748b" font-size="36" text-anchor="middle">&#x1F4CA;</text>
+      <text x="0" y="85" fill="#64748b" font-family="system-ui, sans-serif" font-size="22" font-weight="500" text-anchor="middle">Istatistik</text>
+    </g>
+    <!-- Ayarlar -->
+    <g transform="translate(945, 0)">
+      <text x="0" y="50" fill="#64748b" font-size="36" text-anchor="middle">&#x2699;</text>
+      <text x="0" y="85" fill="#64748b" font-family="system-ui, sans-serif" font-size="22" font-weight="500" text-anchor="middle">Ayarlar</text>
+    </g>
+  </g>
+
+  <!-- Home indicator -->
+  <rect x="410" y="1895" width="260" height="5" rx="2.5" fill="#475569"/>
+</svg>

@@ -51,6 +51,21 @@
             "icons": [{ "src": "assets/icon-192.svg", "sizes": "192x192" }]
         }
     ],
-    "screenshots": [],
+    "screenshots": [
+        {
+            "src": "assets/screenshot-map.svg",
+            "sizes": "1080x1920",
+            "type": "image/svg+xml",
+            "form_factor": "narrow",
+            "label": "Türkiye haritası - şehirleri kelimelerle fethet"
+        },
+        {
+            "src": "assets/screenshot-puzzle.svg",
+            "sizes": "1080x1920",
+            "type": "image/svg+xml",
+            "form_factor": "narrow",
+            "label": "Kelime bulmacası - Wordle tarzı Türkçe oyun"
+        }
+    ],
     "prefer_related_applications": false
 }
