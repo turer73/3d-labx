@@ -59,19 +59,38 @@ export function replaceState(newState) {
 }
 
 function ensureStateIntegrity() {
-    if (!state.conqueredCities) state.conqueredCities = {};
-    if (!state.guessDistribution) state.guessDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
-    if (typeof state.score !== 'number') state.score = 0;
-    if (typeof state.totalScore !== 'number') state.totalScore = 0;
-    if (typeof state.gamesPlayed !== 'number') state.gamesPlayed = 0;
-    if (typeof state.gamesWon !== 'number') state.gamesWon = 0;
-    if (typeof state.currentStreak !== 'number') state.currentStreak = 0;
-    if (typeof state.maxStreak !== 'number') state.maxStreak = 0;
-    if (typeof state.hints !== 'number') state.hints = 3;
-    if (typeof state.hardMode !== 'boolean') state.hardMode = false;
-    if (typeof state.soundEnabled !== 'boolean') state.soundEnabled = true;
-    if (typeof state.hapticEnabled !== 'boolean') state.hapticEnabled = true;
-    if (typeof state.tutorialDone !== 'boolean') state.tutorialDone = false;
+    // Merge missing keys from DEFAULT_STATE (forward-compatible)
+    for (const key in DEFAULT_STATE) {
+        if (state[key] === undefined || state[key] === null) {
+            state[key] = JSON.parse(JSON.stringify(DEFAULT_STATE[key]));
+        }
+    }
+
+    // Type safety — numbers
+    const nums = ['score', 'totalScore', 'gamesPlayed', 'gamesWon', 'currentStreak', 'maxStreak', 'hints'];
+    nums.forEach(k => { if (typeof state[k] !== 'number' || isNaN(state[k])) state[k] = DEFAULT_STATE[k]; });
+
+    // Clamp negative values
+    if (state.hints < 0) state.hints = 0;
+    if (state.currentStreak < 0) state.currentStreak = 0;
+
+    // Type safety — booleans
+    const bools = ['hardMode', 'soundEnabled', 'hapticEnabled', 'tutorialDone', 'dailyComplete', 'dailyWon'];
+    bools.forEach(k => { if (typeof state[k] !== 'boolean') state[k] = DEFAULT_STATE[k]; });
+
+    // Type safety — objects/arrays
+    if (!state.conqueredCities || typeof state.conqueredCities !== 'object') state.conqueredCities = {};
+    if (!state.guessDistribution || typeof state.guessDistribution !== 'object') {
+        state.guessDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+    }
+    if (!Array.isArray(state.dailyGuesses)) state.dailyGuesses = [];
+    if (!Array.isArray(state.activeCityGuesses)) state.activeCityGuesses = [];
+
+    // Version migration
+    if (state.version !== '2.0') {
+        state.version = '2.0';
+        console.log('[KF] State migrated to v2.0');
+    }
 }
 
 export function save() {

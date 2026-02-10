@@ -11,6 +11,21 @@
     <link rel="icon" type="image/svg+xml" href="assets/icon-192.svg">
     <link rel="shortcut icon" type="image/svg+xml" href="assets/icon-192.svg">
     <meta name="description" content="Türkiye haritasını kelime bulmacalarıyla fethet! Günlük bulmaca, 81 şehir, Türkçe kelime oyunu.">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://3d-labx.com/kelime-fethi/">
+    <meta property="og:title" content="Kelime Fethi — Türkiye'yi Kelimelerle Fethet!">
+    <meta property="og:description" content="Wordle tarzı Türkçe kelime oyunu. 81 şehir, günlük bulmaca, harita fethi. Serini koru, şehirleri fethet!">
+    <meta property="og:image" content="https://3d-labx.com/kelime-fethi/assets/og-image.png">
+    <meta property="og:locale" content="tr_TR">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Kelime Fethi — Türkiye'yi Kelimelerle Fethet!">
+    <meta name="twitter:description" content="Wordle tarzı Türkçe kelime oyunu. 81 şehir, günlük bulmaca, harita fethi.">
+    <meta name="twitter:image" content="https://3d-labx.com/kelime-fethi/assets/og-image.png">
+
     <title>Kelime Fethi</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/icon-192.svg">
@@ -308,8 +323,28 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('[PWA] SW registered:', reg.scope))
+                    .then(reg => {
+                        console.log('[PWA] SW registered:', reg.scope);
+                        // Check for updates periodically
+                        reg.addEventListener('updatefound', () => {
+                            const newWorker = reg.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New version available — auto-activate
+                                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                    console.log('[PWA] Yeni sürüm yüklendi, yenileniyor...');
+                                }
+                            });
+                        });
+                    })
                     .catch(err => console.log('[PWA] SW failed:', err));
+            });
+            // Reload on controller change
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!window._swReloading) {
+                    window._swReloading = true;
+                    window.location.reload();
+                }
             });
         }
     </script>

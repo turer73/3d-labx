@@ -1,10 +1,13 @@
 // ============================================================
-// KELIME FETHI — Service Worker v4.0
+// KELIME FETHI — Service Worker v5.0
 // Offline-first caching strategy for PWA
-// Modular architecture support
+// Auto-versioning with BUILD_TS
 // ============================================================
 
-const CACHE_NAME = 'kelime-fethi-v6';
+// BUILD_TS will be updated by deploy script or manually
+const BUILD_TS = '20250210';
+const CACHE_NAME = `kelime-fethi-${BUILD_TS}`;
+
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
@@ -34,6 +37,7 @@ const ASSETS_TO_CACHE = [
 
 // Install — cache core assets
 self.addEventListener('install', (event) => {
+    console.log(`[SW] Installing ${CACHE_NAME}`);
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => cache.addAll(ASSETS_TO_CACHE))
@@ -41,19 +45,23 @@ self.addEventListener('install', (event) => {
     );
 });
 
-// Activate — clean old caches
+// Activate — clean ALL old caches
 self.addEventListener('activate', (event) => {
+    console.log(`[SW] Activating ${CACHE_NAME}`);
     event.waitUntil(
         caches.keys().then(keys =>
             Promise.all(
                 keys.filter(key => key !== CACHE_NAME)
-                    .map(key => caches.delete(key))
+                    .map(key => {
+                        console.log(`[SW] Deleting old cache: ${key}`);
+                        return caches.delete(key);
+                    })
             )
         ).then(() => self.clients.claim())
     );
 });
 
-// Fetch — network-first for HTML, cache-first for assets
+// Fetch — smart caching strategy
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
@@ -62,6 +70,23 @@ self.addEventListener('fetch', (event) => {
 
     // Skip external requests (API calls etc.)
     if (url.origin !== self.location.origin) return;
+
+    // JSON data files — stale-while-revalidate (always get fresh on next load)
+    if (url.pathname.endsWith('.json') && url.pathname.includes('/data/')) {
+        event.respondWith(
+            caches.open(CACHE_NAME).then(cache =>
+                cache.match(event.request).then(cached => {
+                    const fetchPromise = fetch(event.request).then(response => {
+                        if (response.ok) cache.put(event.request, response.clone());
+                        return response;
+                    }).catch(() => cached);
+
+                    return cached || fetchPromise;
+                })
+            )
+        );
+        return;
+    }
 
     // Navigation requests (HTML) — network-first
     if (event.request.mode === 'navigate') {
@@ -92,4 +117,11 @@ self.addEventListener('fetch', (event) => {
             })
             .catch(() => new Response('Offline', { status: 503 }))
     );
+});
+
+// Listen for skip waiting message from client
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });

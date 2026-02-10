@@ -46,8 +46,14 @@ export async function loadGameData() {
     }
 }
 
-// Wordle evaluation algorithm
+// Wordle evaluation algorithm with memoization
+const _evalCache = new Map();
+const EVAL_CACHE_MAX = 500;
+
 export function evaluateGuess(guess, target) {
+    const key = guess + '|' + target;
+    if (_evalCache.has(key)) return _evalCache.get(key);
+
     const result = new Array(WORD_LENGTH).fill('absent');
     const guessArr = [...guess];
     const targetArr = [...target];
@@ -76,7 +82,19 @@ export function evaluateGuess(guess, target) {
         }
     }
 
+    // Cache result (evict oldest if full)
+    if (_evalCache.size >= EVAL_CACHE_MAX) {
+        const firstKey = _evalCache.keys().next().value;
+        _evalCache.delete(firstKey);
+    }
+    _evalCache.set(key, result);
+
     return result;
+}
+
+// Clear eval cache (on new puzzle)
+export function clearEvalCache() {
+    _evalCache.clear();
 }
 
 // FIX: O(1) word validation with Set
@@ -134,25 +152,51 @@ export function validateGuess(guess) {
     return { valid: true };
 }
 
-// Daily word selection
-export function getDailyWord() {
-    if (DAILY_WORDS.length === 0) return null;
-    const dateStr = new Date().toISOString().slice(0, 10);
-    let seed = 0;
-    for (let i = 0; i < dateStr.length; i++) {
-        seed = ((seed << 5) - seed) + dateStr.charCodeAt(i);
-        seed = seed & seed;
-    }
-    seed = Math.abs(seed);
-    return DAILY_WORDS[seed % DAILY_WORDS.length];
-}
-
+// Türkiye saatine göre bugünün tarihi (UTC+3 — TRT)
 export function getTodayStr() {
-    return new Date().toISOString().slice(0, 10);
+    const now = new Date();
+    const trTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
+    return trTime.toISOString().slice(0, 10);
 }
 
 export function getDayNumber() {
-    const start = new Date('2025-01-01');
-    const today = new Date(getTodayStr());
+    const start = new Date('2025-01-01T00:00:00Z');
+    const today = new Date(getTodayStr() + 'T00:00:00Z');
     return Math.floor((today - start) / (1000 * 60 * 60 * 24));
+}
+
+// Seeded pseudo-random number generator (Mulberry32)
+function mulberry32(seed) {
+    return function() {
+        seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+        let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+}
+
+// Generate a deterministic permutation for a given cycle
+// Ensures no repeats within DAILY_WORDS.length days
+function getDailyPermutation(cycleNum) {
+    const n = DAILY_WORDS.length;
+    const indices = Array.from({ length: n }, (_, i) => i);
+    // Seed based on cycle number — different permutation each cycle
+    const rng = mulberry32(cycleNum * 7919 + 42);
+    // Fisher-Yates shuffle with seeded RNG
+    for (let i = n - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    return indices;
+}
+
+// Daily word selection — permutation-based, no repeats within cycle
+export function getDailyWord() {
+    if (DAILY_WORDS.length === 0) return null;
+    const dayNum = getDayNumber();
+    const n = DAILY_WORDS.length;
+    const cycleNum = Math.floor(dayNum / n);
+    const dayInCycle = dayNum % n;
+    const perm = getDailyPermutation(cycleNum);
+    return DAILY_WORDS[perm[dayInCycle]];
 }

@@ -8,7 +8,7 @@ import { SFX } from './sound.js';
 import { Haptic } from './haptic.js';
 import { Particles } from './particles.js';
 import { state, save } from './state.js';
-import { evaluateGuess, validateGuess, getDailyWord, getTodayStr, getDayNumber, CITIES, REGIONS } from './words.js';
+import { evaluateGuess, validateGuess, getDailyWord, getTodayStr, getDayNumber, clearEvalCache, CITIES, REGIONS } from './words.js';
 import { renderMap, getConqueredCount, setOnCityClickCallback, playCityConquestAnimation, checkRegionUnlock } from './map.js';
 import { updateStats } from './stats.js';
 
@@ -26,20 +26,39 @@ function updateUI() {
 }
 
 // ===== RENDER: GUESS GRID =====
-export function renderGrid() {
+let _gridBuilt = false;
+
+function ensureGridBuilt() {
     const grid = document.getElementById('guess-grid');
     if (!grid) return;
+    if (_gridBuilt && grid.children.length === MAX_GUESSES) return;
 
     grid.innerHTML = '';
-
     for (let row = 0; row < MAX_GUESSES; row++) {
         const rowEl = document.createElement('div');
         rowEl.className = 'grid-row';
-
         for (let col = 0; col < WORD_LENGTH; col++) {
             const tile = document.createElement('div');
             tile.className = 'tile';
             tile.id = `tile-${row}-${col}`;
+            rowEl.appendChild(tile);
+        }
+        grid.appendChild(rowEl);
+    }
+    _gridBuilt = true;
+}
+
+export function renderGrid() {
+    ensureGridBuilt();
+
+    for (let row = 0; row < MAX_GUESSES; row++) {
+        for (let col = 0; col < WORD_LENGTH; col++) {
+            const tile = document.getElementById(`tile-${row}-${col}`);
+            if (!tile) continue;
+
+            // Reset classes
+            tile.className = 'tile';
+            tile.textContent = '';
 
             if (row < state.activeCityGuesses.length) {
                 const guess = state.activeCityGuesses[row];
@@ -52,10 +71,7 @@ export function renderGrid() {
                 tile.textContent = chars[col] || '';
                 if (chars[col]) tile.classList.add('filled');
             }
-
-            rowEl.appendChild(tile);
         }
-        grid.appendChild(rowEl);
     }
 }
 
@@ -389,6 +405,7 @@ function generateShareGrid() {
         shareText += emojiRow + '\n';
     });
 
+    shareText += '\nhttps://3d-labx.com/kelime-fethi/';
     return shareText;
 }
 
@@ -400,9 +417,9 @@ export function shareResult() {
         navigator.share({ text }).catch(() => {});
     } else {
         navigator.clipboard.writeText(text).then(() => {
-            showToast('Panoya kopyalandi!');
+            showToast('Panoya kopyalandı!');
         }).catch(() => {
-            showToast('Kopyalama basarisiz');
+            showToast('Kopyalama başarısız');
         });
     }
 }
@@ -463,6 +480,8 @@ export function startCityPuzzle(cityId, switchViewFn) {
     currentInput = '';
     currentPuzzleComplete = false;
     keyboardState = {};
+    _gridBuilt = false;
+    clearEvalCache();
 
     document.getElementById('puzzle-city-name').textContent = city.name;
     const regionData = REGIONS.find(r => r.id === city.region);
@@ -504,6 +523,8 @@ export function startDailyPuzzle(switchViewFn) {
     currentInput = '';
     currentPuzzleComplete = state.dailyComplete;
     keyboardState = {};
+    _gridBuilt = false;
+    clearEvalCache();
 
     updateKeyboardState();
 

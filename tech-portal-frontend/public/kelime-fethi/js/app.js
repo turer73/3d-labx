@@ -100,17 +100,18 @@ function updateSoundButton() {
     if (btn) btn.textContent = SFX.enabled ? '🔊' : '🔇';
 }
 
-// ===== DAILY COUNTDOWN =====
+// ===== DAILY COUNTDOWN (Turkey timezone UTC+3) =====
 function updateDailyCountdown() {
     const el = document.getElementById('daily-countdown');
     if (!el) return;
 
+    // Calculate time until midnight Turkey time (UTC+3)
     const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
+    const trNow = new Date(now.getTime() + (3 * 60 * 60 * 1000));
+    const trMidnight = new Date(trNow);
+    trMidnight.setUTCHours(24, 0, 0, 0); // Next midnight in TR time
 
-    const diff = tomorrow - now;
+    const diff = trMidnight - trNow;
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
@@ -272,8 +273,17 @@ async function init() {
         }
     }
 
+    // Handle URL shortcuts (from manifest shortcuts)
+    const urlParams = new URLSearchParams(window.location.search);
+    const startView = urlParams.get('view');
+    if (startView === 'daily') {
+        setTimeout(() => startDailyPuzzle(switchView), 600);
+    } else if (startView === 'map') {
+        // Already default
+    }
+
     // Show tutorial for first time
-    if (!state.tutorialDone) {
+    if (!state.tutorialDone && !startView) {
         setTimeout(showTutorial, 500);
     }
 
