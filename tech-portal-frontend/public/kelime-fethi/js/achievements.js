@@ -103,7 +103,7 @@ export function checkAchievements(context = {}) {
 
 // ===== NOTIFICATION =====
 function showAchievementNotification(achievement) {
-    SFX.streakReward();
+    SFX.achievement();
 
     // Create achievement popup
     const popup = document.createElement('div');

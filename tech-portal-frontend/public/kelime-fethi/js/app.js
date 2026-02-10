@@ -21,6 +21,7 @@ import { showTutorial, nextTutorialStep } from './tutorial.js';
 import { getTodayStr as getToday } from './words.js';
 import { TURKEY_MAP_DATA } from './turkey-map-data.js';
 import { checkAchievements } from './achievements.js';
+import { initAds } from './ads.js';
 
 // ===== ICON INTEGRATION =====
 function initIcons() {
@@ -189,6 +190,7 @@ function showStreakRecoveryDialog() {
         yesterday.setDate(yesterday.getDate() - 1);
         state.lastPlayDate = yesterday.toISOString().split('T')[0];
         save();
+        SFX.freeze();
         showToast('❄️ Seri donduruldu! Serin devam ediyor.', 3000);
         backdrop.remove();
         updateUI();
@@ -354,6 +356,9 @@ async function init() {
 
     // Init icons
     initIcons();
+
+    // Init ads (reward-based, non-intrusive)
+    initAds();
 
     // Daily countdown timer
     setInterval(updateDailyCountdown, 1000);

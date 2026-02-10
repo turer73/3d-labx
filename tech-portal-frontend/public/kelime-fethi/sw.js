@@ -5,14 +5,14 @@
 // ============================================================
 
 // BUILD_TS will be updated by deploy script or manually
-const BUILD_TS = '20250210c';
+const BUILD_TS = '20250210d';
 const CACHE_NAME = `kelime-fethi-${BUILD_TS}`;
 
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
-    './style.css?v=4',
-    './js/app.js?v=5',
+    './style.css?v=5',
+    './js/app.js?v=6',
     './js/config.js',
     './js/utils.js',
     './js/haptic.js',
@@ -28,9 +28,13 @@ const ASSETS_TO_CACHE = [
     './js/tutorial.js',
     './js/turkey-map-data.js',
     './js/achievements.js',
+    './js/ads.js',
     './assets/icon-192.svg',
+    './assets/icon-192.png',
     './assets/icon-512.svg',
+    './assets/icon-512.png',
     './assets/og-image.svg',
+    './assets/og-image.png',
     './assets/icons.js?v=3',
     './manifest.json',
     './data/words.json',
