@@ -55,7 +55,14 @@
         "VAPUR",
         "KÖPRÜ",
         "DENİZ",
-        "LİMAN"
+        "LİMAN",
+        "ABACI",
+        "KOMŞU",
+        "BALCI",
+        "AHLAK",
+        "AHŞAP",
+        "BAHIS",
+        "ALMAK"
       ]
     },
     {
@@ -68,7 +75,14 @@
         "KEBAP",
         "CEVİZ",
         "YEŞİL",
-        "KAYAK"
+        "KAYAK",
+        "ABACI",
+        "ACELE",
+        "AHENK",
+        "AKŞAM",
+        "ALMAK",
+        "ALTAY",
+        "ALTIN"
       ]
     },
     {
@@ -81,7 +95,14 @@
         "KONAK",
         "BETON",
         "ÇELİK",
-        "DUVAR"
+        "DUVAR",
+        "KAÇAK",
+        "FIDAN",
+        "LOKMA",
+        "ÖZLEM",
+        "MANDA",
+        "TİLKİ",
+        "KUBBE"
       ]
     },
     {
@@ -94,7 +115,14 @@
         "ORMAN",
         "KÖPRÜ",
         "ÇAYIR",
-        "BAHÇE"
+        "BAHÇE",
+        "ABACI",
+        "ACELE",
+        "ANTEP",
+        "ADRES",
+        "ADASI",
+        "BAŞKA",
+        "AYDIN"
       ]
     },
     {
@@ -107,7 +135,14 @@
         "BAĞCI",
         "SAHİL",
         "DALGA",
-        "ŞARAP"
+        "ŞARAP",
+        "YOKSA",
+        "NARLI",
+        "ARENA",
+        "SOĞUK",
+        "KAVGA",
+        "BADEM",
+        "MENBA"
       ]
     },
     {
@@ -120,7 +155,14 @@
         "MADEN",
         "GÖLET",
         "KOYUN",
-        "SAHİL"
+        "SAHİL",
+        "TAHIN",
+        "OYLUM",
+        "HİSAR",
+        "ÜCRET",
+        "RAKAM",
+        "SOYUT",
+        "GENIS"
       ]
     },
     {
@@ -133,7 +175,14 @@
         "ŞEHİT",
         "TRUVA",
         "DENİZ",
-        "SAVAŞ"
+        "SAVAŞ",
+        "ABACI",
+        "ADALE",
+        "ADRES",
+        "AHENK",
+        "DÜRÜM",
+        "AKREP",
+        "BAYIR"
       ]
     },
     {
@@ -146,7 +195,14 @@
         "SINIR",
         "CİĞER",
         "SARAY",
-        "KÖPRÜ"
+        "KÖPRÜ",
+        "ORGAN",
+        "MALİK",
+        "NAMAZ",
+        "KALAN",
+        "ÇAMLI",
+        "ÇEVİR",
+        "BASIN"
       ]
     },
     {
@@ -159,7 +215,14 @@
         "SINIR",
         "YOĞUN",
         "BEYAZ",
-        "KOYUN"
+        "KOYUN",
+        "ONBAS",
+        "BAMBU",
+        "BINAÖ",
+        "METİN",
+        "MESİR",
+        "YÜNLÜ",
+        "LİDER"
       ]
     },
     {
@@ -172,7 +235,14 @@
         "TARİH",
         "ORMAN",
         "KÖYLÜ",
-        "ÇEŞME"
+        "ÇEŞME",
+        "ABACI",
+        "ADALE",
+        "AFYON",
+        "ADALI",
+        "AHLAK",
+        "MANGA",
+        "AHENK"
       ]
     },
     {
@@ -185,7 +255,14 @@
         "ÇİÇEK",
         "BAHÇE",
         "DENİZ",
-        "ILICA"
+        "ILICA",
+        "MANAV",
+        "IMZAK",
+        "MASUM",
+        "BEKAR",
+        "YALAN",
+        "BURAK",
+        "AVANS"
       ]
     },
     {
@@ -198,7 +275,14 @@
         "BOYOZ",
         "KONAK",
         "DENİZ",
-        "PAZAR"
+        "PAZAR",
+        "ABACI",
+        "ADALE",
+        "AHLAK",
+        "ADALI",
+        "AÇLIK",
+        "YALIN",
+        "AFYON"
       ]
     },
     {
@@ -211,7 +295,14 @@
         "PAMUK",
         "BAHÇE",
         "ILICA",
-        "TARLA"
+        "TARLA",
+        "SIFRE",
+        "PERDE",
+        "LÜGAT",
+        "RAKIM",
+        "VITRI",
+        "YELPZ",
+        "İLHAM"
       ]
     },
     {
@@ -224,7 +315,14 @@
         "PAMUK",
         "BEYAZ",
         "DOKUM",
-        "HAVLU"
+        "HAVLU",
+        "LIMON",
+        "BASIK",
+        "GÖLLÜ",
+        "SARMA",
+        "HAYAT",
+        "DİLİM",
+        "YAKIT"
       ]
     },
     {
@@ -237,7 +335,14 @@
         "ORMAN",
         "ŞEKER",
         "DAĞCI",
-        "TARLA"
+        "TARLA",
+        "ABACI",
+        "ADALE",
+        "AHENK",
+        "AKREP",
+        "ADRES",
+        "AÇLIK",
+        "ARABA"
       ]
     },
     {
@@ -250,7 +355,14 @@
         "SAHİL",
         "BALCI",
         "DENİZ",
-        "ÇAMLI"
+        "ÇAMLI",
+        "TULUM",
+        "KİTAP",
+        "KALÇA",
+        "KAFIR",
+        "GÜMÜŞ",
+        "AKMAK",
+        "ANLAM"
       ]
     },
     {
@@ -263,7 +375,14 @@
         "LOKUM",
         "TAŞLI",
         "ILICA",
-        "HİSAR"
+        "HİSAR",
+        "FIDAN",
+        "UMUMI",
+        "KİLER",
+        "GEÇME",
+        "BEBEK",
+        "HELAL",
+        "ÜCRET"
       ]
     },
     {
@@ -276,7 +395,14 @@
         "SICAK",
         "ÇANAK",
         "ORMAN",
-        "HİSAR"
+        "HİSAR",
+        "MILLI",
+        "MÜZİK",
+        "HEKIM",
+        "TAKMA",
+        "DEKOR",
+        "GÜRCÜ",
+        "BAKIM"
       ]
     },
     {
@@ -289,7 +415,14 @@
         "DOKUM",
         "HALCI",
         "ŞEKER",
-        "TARLA"
+        "TARLA",
+        "LADIN",
+        "DERGI",
+        "ÇAKIL",
+        "ÇAYCI",
+        "KEMER",
+        "İNANÇ",
+        "KÜMES"
       ]
     },
     {
@@ -302,7 +435,14 @@
         "DENİZ",
         "SAHİL",
         "KUMLU",
-        "TEKNE"
+        "TEKNE",
+        "ABACI",
+        "AHLAK",
+        "AKŞAM",
+        "ARENA",
+        "AFYON",
+        "ADRES",
+        "AHENK"
       ]
     },
     {
@@ -315,7 +455,14 @@
         "PAMUK",
         "KÖPRÜ",
         "BARAJ",
-        "TARLA"
+        "TARLA",
+        "SOLUK",
+        "MECAL",
+        "PASTA",
+        "ŞARAP",
+        "SABAH",
+        "YARIŞ",
+        "GÖÇME"
       ]
     },
     {
@@ -328,7 +475,14 @@
         "SAHİL",
         "NARLI",
         "ÇİLEK",
-        "DENİZ"
+        "DENİZ",
+        "ABACI",
+        "AHENK",
+        "ADALE",
+        "ADALI",
+        "ALMAK",
+        "ADRES",
+        "BAHIS"
       ]
     },
     {
@@ -341,7 +495,14 @@
         "DEFNE",
         "TÜRBE",
         "SINIR",
-        "BAHÇE"
+        "BAHÇE",
+        "ABACI",
+        "ADALI",
+        "ADALE",
+        "ADASI",
+        "AHŞAP",
+        "ANKET",
+        "AHENK"
       ]
     },
     {
@@ -354,7 +515,14 @@
         "BİBER",
         "DONMA",
         "DAĞCI",
-        "PAMUK"
+        "PAMUK",
+        "KOÇAN",
+        "VİZON",
+        "GÖKÇE",
+        "KARAR",
+        "SEMİZ",
+        "GEÇIT",
+        "ÇEKIM"
       ]
     },
     {
@@ -367,7 +535,14 @@
         "PAMUK",
         "ÇEŞME",
         "ORMAN",
-        "KÖPRÜ"
+        "KÖPRÜ",
+        "ABACI",
+        "ACELE",
+        "ADALI",
+        "ADRES",
+        "AHENK",
+        "ARENA",
+        "AKMAK"
       ]
     },
     {
@@ -380,7 +555,14 @@
         "ŞEKER",
         "DAĞCI",
         "TARLA",
-        "KURAK"
+        "KURAK",
+        "ASKER",
+        "UZMAN",
+        "ATLAS",
+        "İPLİK",
+        "TUZLU",
+        "KUŞAK",
+        "KAĞIT"
       ]
     },
     {
@@ -393,7 +575,14 @@
         "GÖLET",
         "ELMAS",
         "HALCI",
-        "BAHÇE"
+        "BAHÇE",
+        "ABACI",
+        "ADRES",
+        "BADEM",
+        "ADALI",
+        "ADASI",
+        "NEBAT",
+        "AMBAR"
       ]
     },
     {
@@ -406,7 +595,14 @@
         "KIZIL",
         "SANAT",
         "HAMAM",
-        "ARABA"
+        "ARABA",
+        "ABACI",
+        "ADALI",
+        "AYRAN",
+        "AKREP",
+        "ALMAK",
+        "AHLAK",
+        "AYDIN"
       ]
     },
     {
@@ -419,7 +615,14 @@
         "SAMAN",
         "HAMAM",
         "PERDE",
-        "TARLA"
+        "TARLA",
+        "ROMAN",
+        "YASAM",
+        "KALIN",
+        "ULEMA",
+        "KEFAL",
+        "TÜZEL",
+        "AKŞAM"
       ]
     },
     {
@@ -432,7 +635,14 @@
         "SUCUK",
         "HAMUR",
         "DAĞCI",
-        "HİSAR"
+        "HİSAR",
+        "ANLAM",
+        "LIMAN",
+        "ÇAMLI",
+        "DAMAT",
+        "BUKET",
+        "GÖLLÜ",
+        "HAMAM"
       ]
     },
     {
@@ -445,7 +655,14 @@
         "NEHİR",
         "KÖPRÜ",
         "SARAY",
-        "TAŞÇI"
+        "TAŞÇI",
+        "ÖTEKI",
+        "PROJE",
+        "SARMA",
+        "METIN",
+        "TABAK",
+        "DUVAR",
+        "ÇOBAN"
       ]
     },
     {
@@ -458,7 +675,14 @@
         "HİSAR",
         "DONMA",
         "MADEN",
-        "SOĞUK"
+        "SOĞUK",
+        "DONUK",
+        "OLGUN",
+        "SIFIR",
+        "ŞEHİT",
+        "TAŞÇI",
+        "BİLET",
+        "TEKNE"
       ]
     },
     {
@@ -471,7 +695,14 @@
         "ORMAN",
         "HAMAM",
         "TESTİ",
-        "TARLA"
+        "TARLA",
+        "ABACI",
+        "ACELE",
+        "AKMAK",
+        "ADRES",
+        "BASIN",
+        "ALTAY",
+        "AFYON"
       ]
     },
     {
@@ -484,7 +715,14 @@
         "ÇÖLLÜ",
         "KURAK",
         "TAŞLI",
-        "HAMAM"
+        "HAMAM",
+        "DUVAR",
+        "İKRAM",
+        "HELAL",
+        "TAVUK",
+        "ŞEHİT",
+        "ZİFİR",
+        "FİDAN"
       ]
     },
     {
@@ -497,7 +735,14 @@
         "ÇELİK",
         "MADEN",
         "MOTOR",
-        "TARLA"
+        "TARLA",
+        "ABACI",
+        "ACELE",
+        "ADALE",
+        "BASIN",
+        "ADRES",
+        "ASKER",
+        "AFYON"
       ]
     },
     {
@@ -510,7 +755,14 @@
         "HAMAM",
         "BAĞCI",
         "TARLA",
-        "MÜZİK"
+        "MÜZİK",
+        "ABACI",
+        "AKŞAM",
+        "ADASI",
+        "ADALI",
+        "AKMAK",
+        "ADRES",
+        "AFYON"
       ]
     },
     {
@@ -523,7 +775,14 @@
         "KAYAÇ",
         "TARİH",
         "ŞARAP",
-        "TÜNEL"
+        "TÜNEL",
+        "ABACI",
+        "ADRES",
+        "ADALE",
+        "AVARE",
+        "AFYON",
+        "ALTAY",
+        "BEBEK"
       ]
     },
     {
@@ -536,7 +795,14 @@
         "DAĞCI",
         "TARLA",
         "ORMAN",
-        "SOĞUK"
+        "SOĞUK",
+        "ÇÖZÜM",
+        "KALAN",
+        "SARAY",
+        "DANIŞ",
+        "ORGAN",
+        "ROMAN",
+        "İLHAM"
       ]
     },
     {
@@ -549,7 +815,14 @@
         "TARLA",
         "ORMAN",
         "ELMAS",
-        "DAĞCI"
+        "DAĞCI",
+        "ABACI",
+        "ACELE",
+        "ADALE",
+        "ADALI",
+        "AHENK",
+        "ALTAY",
+        "BARAJ"
       ]
     },
     {
@@ -562,7 +835,14 @@
         "ORMAN",
         "MADEN",
         "KAYAÇ",
-        "TUZLA"
+        "TUZLA",
+        "ABACI",
+        "ADRES",
+        "DAVET",
+        "ARAZİ",
+        "ASLAN",
+        "DÜĞME",
+        "BOĞAZ"
       ]
     },
     {
@@ -575,7 +855,14 @@
         "YAYLA",
         "ÇAYCI",
         "HİSAR",
-        "PAZAR"
+        "PAZAR",
+        "TÜRBE",
+        "SINAV",
+        "YAHNI",
+        "AYDIN",
+        "RAPOR",
+        "SÜPER",
+        "KIYMA"
       ]
     },
     {
@@ -588,7 +875,14 @@
         "SİMİT",
         "DELTA",
         "TÜTÜN",
-        "LİMAN"
+        "LİMAN",
+        "DENIZ",
+        "SELAM",
+        "GENEL",
+        "DİKEN",
+        "DOLAR",
+        "TIRAŞ",
+        "SABAH"
       ]
     },
     {
@@ -601,7 +895,14 @@
         "ORMAN",
         "SAHİL",
         "DENİZ",
-        "ÇAYIR"
+        "ÇAYIR",
+        "NASIL",
+        "GÜNES",
+        "YÜREK",
+        "MINIK",
+        "KONUK",
+        "AZAMI",
+        "ŞARAP"
       ]
     },
     {
@@ -614,7 +915,14 @@
         "YAYLA",
         "ORMAN",
         "BALIK",
-        "DENİZ"
+        "DENİZ",
+        "HAFIF",
+        "MESİR",
+        "YASAM",
+        "DEFNE",
+        "UZMAN",
+        "TUGAY",
+        "TERLİ"
       ]
     },
     {
@@ -627,7 +935,14 @@
         "YAYLA",
         "YEŞİL",
         "YAĞIŞ",
-        "DAĞCI"
+        "DAĞCI",
+        "SERÇE",
+        "HAKIM",
+        "SEFIR",
+        "SIFIR",
+        "ÇİZGİ",
+        "IRADE",
+        "MUSKA"
       ]
     },
     {
@@ -640,7 +955,14 @@
         "ORMAN",
         "DAĞCI",
         "NEHİR",
-        "YAYLA"
+        "YAYLA",
+        "GENIS",
+        "KANAL",
+        "ÇELIK",
+        "SAYFA",
+        "İNSAN",
+        "AFETI",
+        "SIPER"
       ]
     },
     {
@@ -653,7 +975,14 @@
         "PESTİ",
         "ORMAN",
         "DAĞCI",
-        "GÜMÜŞ"
+        "GÜMÜŞ",
+        "YOSUN",
+        "VAKIT",
+        "REKOR",
+        "KEBAP",
+        "HALAT",
+        "BUKET",
+        "SİNİR"
       ]
     },
     {
@@ -666,7 +995,14 @@
         "HİSAR",
         "YAYLA",
         "TARLA",
-        "SOĞUK"
+        "SOĞUK",
+        "ABACI",
+        "ANKET",
+        "ADALI",
+        "ADASI",
+        "ADRES",
+        "CEBİR",
+        "ALMAK"
       ]
     },
     {
@@ -679,7 +1015,14 @@
         "BAĞCI",
         "ŞARAP",
         "YAYLA",
-        "ELMAS"
+        "ELMAS",
+        "DÜĞÜN",
+        "DUVAR",
+        "MERMİ",
+        "AVARE",
+        "CAMİİ",
+        "TERÖR",
+        "LANET"
       ]
     },
     {
@@ -692,7 +1035,14 @@
         "NEHİR",
         "HİSAR",
         "SARAY",
-        "PRENS"
+        "PRENS",
+        "DOYUM",
+        "VALIZ",
+        "AÇLIK",
+        "LAMBA",
+        "OYLUM",
+        "TÜTÜN",
+        "KANAT"
       ]
     },
     {
@@ -705,7 +1055,14 @@
         "HİSAR",
         "HAMAM",
         "TARLA",
-        "TUĞLA"
+        "TUĞLA",
+        "ABACI",
+        "ACELE",
+        "AKREP",
+        "ADASI",
+        "ALMAK",
+        "AHLAK",
+        "BİBER"
       ]
     },
     {
@@ -718,7 +1075,14 @@
         "TEKNE",
         "SAHİL",
         "DALGA",
-        "BALIK"
+        "BALIK",
+        "GEÇİŞ",
+        "ZEHIR",
+        "TAVLA",
+        "BULUT",
+        "GÖREV",
+        "SEREF",
+        "MEBUS"
       ]
     },
     {
@@ -731,7 +1095,14 @@
         "SARAY",
         "ÇAMLI",
         "YAYLA",
-        "HİSAR"
+        "HİSAR",
+        "ABACI",
+        "AKMAK",
+        "ADALI",
+        "DOĞMA",
+        "ADASI",
+        "ALMAK",
+        "AHENK"
       ]
     },
     {
@@ -744,7 +1115,14 @@
         "SAHİL",
         "NEHİR",
         "KÖYLÜ",
-        "DALGA"
+        "DALGA",
+        "ABACI",
+        "ADALI",
+        "AKŞAM",
+        "ADASI",
+        "ALTIN",
+        "ADRES",
+        "BALCI"
       ]
     },
     {
@@ -757,7 +1135,14 @@
         "MADEN",
         "SAHİL",
         "ORMAN",
-        "LİMAN"
+        "LİMAN",
+        "ABACI",
+        "ADALE",
+        "AKREP",
+        "ADRES",
+        "AFYON",
+        "ALMAK",
+        "ANLIK"
       ]
     },
     {
@@ -770,7 +1155,14 @@
         "ÇELİK",
         "KÖYLÜ",
         "ORMAN",
-        "NEHİR"
+        "NEHİR",
+        "ABACI",
+        "ADALI",
+        "ADALE",
+        "ADRES",
+        "AFYON",
+        "ANTEP",
+        "AMBAR"
       ]
     },
     {
@@ -783,7 +1175,14 @@
         "ORMAN",
         "YAYLA",
         "KAYAK",
-        "LOKMA"
+        "LOKMA",
+        "KAYIT",
+        "BASKI",
+        "DİKEN",
+        "HUKUK",
+        "HİNDİ",
+        "SORUN",
+        "YAPIM"
       ]
     },
     {
@@ -796,7 +1195,14 @@
         "GÖLET",
         "ÇAYIR",
         "TARLA",
-        "BAHÇE"
+        "BAHÇE",
+        "ABACI",
+        "ACELE",
+        "BAŞKA",
+        "ADRES",
+        "AHŞAP",
+        "AYLIK",
+        "AYDIN"
       ]
     },
     {
@@ -809,7 +1215,14 @@
         "SOĞUK",
         "DONMA",
         "HİSAR",
-        "DAĞCI"
+        "DAĞCI",
+        "ABACI",
+        "ADRES",
+        "AHŞAP",
+        "ANTEP",
+        "AHENK",
+        "AHLAK",
+        "BÖCEK"
       ]
     },
     {
@@ -822,7 +1235,14 @@
         "HİSAR",
         "GÖLET",
         "OTLAK",
-        "BALIK"
+        "BALIK",
+        "VALIZ",
+        "HAMUR",
+        "NEDEN",
+        "SERİN",
+        "POSTA",
+        "BEŞİK",
+        "LATİN"
       ]
     },
     {
@@ -835,7 +1255,14 @@
         "TARLA",
         "BAHÇE",
         "DAĞCI",
-        "HAMUR"
+        "HAMUR",
+        "ABACI",
+        "ACELE",
+        "ADALE",
+        "AMBAR",
+        "ADASI",
+        "BOYUN",
+        "ALTIN"
       ]
     },
     {
@@ -848,7 +1275,14 @@
         "GÖLET",
         "DAĞCI",
         "MADEN",
-        "TARLA"
+        "TARLA",
+        "BULGU",
+        "GÜDÜK",
+        "LEVHA",
+        "YÜREK",
+        "ROMAN",
+        "ŞARAP",
+        "ÇIRAK"
       ]
     },
     {
@@ -861,7 +1295,14 @@
         "DAĞCI",
         "TULUM",
         "NEHİR",
-        "SOĞUK"
+        "SOĞUK",
+        "SÖFÖR",
+        "DİNLE",
+        "SIFRE",
+        "ZIRVE",
+        "ADRES",
+        "DOYUM",
+        "GARİP"
       ]
     },
     {
@@ -874,7 +1315,14 @@
         "NEHİR",
         "ORMAN",
         "YAYLA",
-        "IRMAK"
+        "IRMAK",
+        "ABACI",
+        "ACELE",
+        "ADALE",
+        "AKŞAM",
+        "AKREP",
+        "ALTAY",
+        "AFYON"
       ]
     },
     {
@@ -887,7 +1335,14 @@
         "GÖLET",
         "YAYLA",
         "OTLAK",
-        "NEHİR"
+        "NEHİR",
+        "ABACI",
+        "ADRES",
+        "ADALI",
+        "AVARE",
+        "ADASI",
+        "AHENK",
+        "AKREP"
       ]
     },
     {
@@ -900,7 +1355,14 @@
         "OTLAK",
         "YAYLA",
         "TARLA",
-        "ÇOBAN"
+        "ÇOBAN",
+        "GÜVEY",
+        "CASUS",
+        "ABACI",
+        "BODUR",
+        "EMSAL",
+        "RAMAK",
+        "MELEK"
       ]
     },
     {
@@ -913,7 +1375,14 @@
         "GÖLET",
         "KAYAK",
         "TÜTÜN",
-        "YAYLA"
+        "YAYLA",
+        "ABACI",
+        "ADASI",
+        "ADALI",
+        "AHENK",
+        "ANTEP",
+        "AKMAK",
+        "AKŞAM"
       ]
     },
     {
@@ -926,7 +1395,14 @@
         "SINIR",
         "YAYLA",
         "NEHİR",
-        "OTLAK"
+        "OTLAK",
+        "ABACI",
+        "ADRES",
+        "KUŞAK",
+        "ADALI",
+        "ADASI",
+        "ANLIK",
+        "BAYAT"
       ]
     },
     {
@@ -939,7 +1415,14 @@
         "OTLAK",
         "SINIR",
         "SOĞUK",
-        "YAYLA"
+        "YAYLA",
+        "OKLUK",
+        "VIDAL",
+        "ADASI",
+        "SAHNE",
+        "ZIFIR",
+        "ARACI",
+        "KISIM"
       ]
     },
     {
@@ -952,7 +1435,14 @@
         "SOĞUK",
         "SINIR",
         "OTLAK",
-        "KAŞAR"
+        "KAŞAR",
+        "ILERI",
+        "ÇAPAK",
+        "ABIDE",
+        "DEMIR",
+        "GİRİŞ",
+        "YAKIN",
+        "BALON"
       ]
     },
     {
@@ -965,7 +1455,14 @@
         "SINIR",
         "KAYSI",
         "PAMUK",
-        "TARLA"
+        "TARLA",
+        "ABACI",
+        "ADALE",
+        "ADASI",
+        "ANKET",
+        "BALIK",
+        "BAŞAK",
+        "BALTA"
       ]
     },
     {
@@ -978,7 +1475,14 @@
         "SOĞUK",
         "OTLAK",
         "SINIR",
-        "GÖLET"
+        "GÖLET",
+        "ABACI",
+        "ACELE",
+        "ADALE",
+        "ADASI",
+        "AHENK",
+        "AKREP",
+        "AHŞAP"
       ]
     },
     {
@@ -991,7 +1495,14 @@
         "BAKLA",
         "ANTEP",
         "HAMAM",
-        "LOKUM"
+        "LOKUM",
+        "ABACI",
+        "AFYON",
+        "ADALI",
+        "BOYUT",
+        "ADASI",
+        "BAKIM",
+        "AHŞAP"
       ]
     },
     {
@@ -1004,7 +1515,14 @@
         "GÖLET",
         "TARİH",
         "PAMUK",
-        "TARLA"
+        "TARLA",
+        "ABACI",
+        "ACELE",
+        "ADALI",
+        "ADASI",
+        "AFYON",
+        "AYDIN",
+        "ARACI"
       ]
     },
     {
@@ -1017,7 +1535,14 @@
         "KEBAP",
         "TARİH",
         "HİSAR",
-        "KAVUN"
+        "KAVUN",
+        "ABACI",
+        "ADRES",
+        "ADALI",
+        "AHENK",
+        "ADASI",
+        "AFYON",
+        "ASLAN"
       ]
     },
     {
@@ -1030,7 +1555,14 @@
         "TAŞLI",
         "SINIR",
         "TARİH",
-        "HAMAM"
+        "HAMAM",
+        "KIYMA",
+        "IBRET",
+        "MESAİ",
+        "IPUCU",
+        "KEFEN",
+        "LOKMA",
+        "BAMBU"
       ]
     },
     {
@@ -1043,7 +1575,14 @@
         "BARAJ",
         "NEHİR",
         "MADEN",
-        "TARLA"
+        "TARLA",
+        "SOGUK",
+        "ÇIĞIR",
+        "HEMEN",
+        "VERGİ",
+        "PARÇA",
+        "ŞARAP",
+        "KOLAN"
       ]
     },
     {
@@ -1056,7 +1595,14 @@
         "DAĞCI",
         "OTLAK",
         "CEVİZ",
-        "TARLA"
+        "TARLA",
+        "TATIL",
+        "DENEY",
+        "DOLAP",
+        "KOMBİ",
+        "ÇİÇEK",
+        "ÇUKUR",
+        "YOLCU"
       ]
     },
     {
@@ -1069,7 +1615,14 @@
         "DAĞCI",
         "OTLAK",
         "NEHİR",
-        "TARLA"
+        "TARLA",
+        "BÖREK",
+        "ÇANTA",
+        "ÇORAK",
+        "ZIHIN",
+        "PİLOT",
+        "TEKİR",
+        "ERDEM"
       ]
     },
     {
@@ -1082,7 +1635,14 @@
         "TARİH",
         "DAĞCI",
         "TAŞLI",
-        "TÜNEL"
+        "TÜNEL",
+        "ÇEŞME",
+        "NITEL",
+        "ZAFER",
+        "KAYIT",
+        "BAKIM",
+        "MANGO",
+        "MACUN"
       ]
     },
     {
@@ -1095,7 +1655,14 @@
         "BAĞCI",
         "TARLA",
         "KEBAP",
-        "BAHÇE"
+        "BAHÇE",
+        "ABACI",
+        "ADRES",
+        "ADALI",
+        "AHENK",
+        "ANTEP",
+        "AFYON",
+        "DOKUZ"
       ]
     }
   ]
