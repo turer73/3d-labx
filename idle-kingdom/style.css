@@ -2439,3 +2439,17 @@ html, body {
     #kingdom-view { padding: 4px 0; }
     #kingdom-scene { height: 40px; }
 }
+
+/* ===== VERSION TAG ===== */
+#version-tag {
+    position: fixed;
+    bottom: 62px;
+    right: 6px;
+    font-size: 9px;
+    color: var(--text3);
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 1;
+    font-family: monospace;
+    letter-spacing: 0.5px;
+}
