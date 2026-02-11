@@ -2428,9 +2428,33 @@ html, body {
 
 /* ===== RESPONSIVE ===== */
 @media (min-width: 500px) {
-    #game-area { max-width: 480px; margin: 0 auto; }
-    #top-bar, #bottom-nav { max-width: 480px; margin: 0 auto; }
+    #game-area { max-width: 520px; margin: 0 auto; }
+    #top-bar, #bottom-nav { max-width: 520px; margin: 0 auto; }
     body { display: flex; flex-direction: column; align-items: center; }
+
+    /* Desktop: larger top bar */
+    #top-bar {
+        height: 64px;
+        padding: 10px 16px;
+        gap: 8px;
+        border-radius: 0 0 12px 12px;
+    }
+    .res-icon { font-size: 26px; }
+    .res-amount { font-size: 19px; }
+    .res-rate { font-size: 13px; }
+    #streak-indicator { font-size: 13px; }
+    .lang-btn, .cloud-btn, .sound-btn { font-size: 20px; padding: 6px; }
+
+    /* Desktop: larger bottom nav */
+    #bottom-nav {
+        height: 66px;
+        padding: 0 4px;
+        border-radius: 12px 12px 0 0;
+    }
+    .nav-icon { min-height: 26px; }
+    .nav-icon .game-icon { width: 26px !important; height: 26px !important; }
+    .nav-label { font-size: 10px; font-weight: 800; }
+    .nav-btn { gap: 3px; padding: 6px 0; }
 }
 
 @media (max-height: 600px) {
@@ -2443,13 +2467,16 @@ html, body {
 /* ===== VERSION TAG ===== */
 #version-tag {
     position: fixed;
-    bottom: 62px;
-    right: 6px;
+    bottom: 58px;
+    right: 8px;
     font-size: 9px;
     color: var(--text3);
-    opacity: 0.4;
+    opacity: 0.35;
     pointer-events: none;
     z-index: 1;
     font-family: monospace;
     letter-spacing: 0.5px;
+}
+@media (min-width: 500px) {
+    #version-tag { bottom: 70px; font-size: 10px; }
 }
