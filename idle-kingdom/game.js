@@ -1,5 +1,5 @@
 // ============================================================
-// TIKLA FETHET v3.4 — Bugfix & Play Store Prep Edition
+// TIKLA FETHET v3.5 — i18n Fixes, Prestige Bug, Production Ready
 // Dopamine Loops, Scarcity, FOMO, Variable Rewards, Near-Miss
 // Daily Rewards, Flash Sales, Tap Jackpots, Streak System
 // 12 Buildings, 10 Heroes, 12 Bosses, 20 Upgrades, 30 Achievements
@@ -819,8 +819,10 @@ const MERCHANT_ITEMS = [
     { id: 'mt_goldpack', icon: '🪙', name: 'Altın Çuvalı', name_en: 'Gold Sack', desc: 'Anında GPS x100 altın', desc_en: 'Instant GPS x100 gold', cost: 10, duration: 0, effect: 'instantGold', mult: 100 },
 ];
 
-const MERCHANT_INTERVAL_MIN = 180; // 3 minutes (seconds) — would be 10800 (3h) in production
-const MERCHANT_INTERVAL_MAX = 360; // 6 minutes (seconds) — would be 21600 (6h) in production
+// Set IS_DEV_MODE = true for testing (merchant every 3-6 min), false for production (3-6 hours)
+const IS_DEV_MODE = false;
+const MERCHANT_INTERVAL_MIN = IS_DEV_MODE ? 180 : 10800; // Dev: 3 min, Prod: 3 hours
+const MERCHANT_INTERVAL_MAX = IS_DEV_MODE ? 360 : 21600; // Dev: 6 min, Prod: 6 hours
 const MERCHANT_DURATION = 300; // 5 minutes the merchant stays
 
 // ===== TAP JACKPOT DEFINITIONS (Variable Ratio Reinforcement) =====
@@ -1886,7 +1888,7 @@ const DailyReward = {
 
         // Streak display — Loss Aversion: show streak + warning
         if (DOM.dailyStreak) {
-            DOM.dailyStreak.textContent = `🔥 ${state.dailyStreak}. Gün Serisi${state.dailyStreak >= 3 ? ' — Kaybetme!' : ''}`;
+            DOM.dailyStreak.textContent = t('daySeries', { n: state.dailyStreak }) + (state.dailyStreak >= 3 ? ` — ${t('dontLose')}` : '');
         }
 
         DOM.dailyOverlay.classList.remove('hidden');
@@ -1951,7 +1953,7 @@ const DailyReward = {
 function updateStreakDisplay() {
     if (!DOM.streakIndicator) return;
     if (state.dailyStreak > 0) {
-        DOM.streakIndicator.textContent = `🔥 ${state.dailyStreak} gün`;
+        DOM.streakIndicator.textContent = t('streakDays', { n: state.dailyStreak });
         DOM.streakIndicator.classList.add('active');
     } else {
         DOM.streakIndicator.classList.remove('active');
@@ -1983,7 +1985,7 @@ function checkFlashSale(dt) {
         }
         // Update UI
         if (DOM.saleTimer) DOM.saleTimer.textContent = `${Math.ceil(state.flashSaleTimer)}s`;
-        if (DOM.saleTimerFill) DOM.saleTimerFill.style.width = (state.flashSaleTimer / 30 * 100) + '%';
+        if (DOM.saleTimerFill) DOM.saleTimerFill.style.width = (state.flashSaleTimer / (state.flashSaleMaxTimer || 30) * 100) + '%';
         return;
     }
 
@@ -2003,6 +2005,7 @@ function triggerFlashSale() {
     state.flashSaleActive = true;
     state.flashSale = sale;
     state.flashSaleTimer = 30; // 30 second urgency window
+    state.flashSaleMaxTimer = 30; // store for timer bar calculation
 
     // Anchoring: Show "original" high price vs sale price
     if (DOM.flashSale) DOM.flashSale.classList.remove('hidden');
@@ -2427,7 +2430,7 @@ function showBossResult(result, data) {
         if (descEl) descEl.textContent = t('timeUp');
         if (rewardsEl) rewardsEl.innerHTML = `
             <div class="boss-hp-remaining">
-                <span>Kalan HP:</span>
+                <span>${t('remainingHP')}</span>
                 <span class="hp-value">${fmt(data.remainingHP)} / ${fmt(data.maxHP)}</span>
             </div>
             <div class="boss-hp-bar-mini">
@@ -2483,6 +2486,14 @@ function doPrestige() {
     state.flashSaleTimer = 0;
     state.flashSaleBoostTimer = 0;
     state.flashSaleBoost = null;
+    // Reset merchant boost (must match flash sale reset behavior)
+    state.merchantBoostTimer = 0;
+    state.merchantBoost = null;
+    state.merchantActive = false;
+    state.merchantTimer = 0;
+    state.merchantItems = [];
+    state.merchantPurchased = {};
+    state.merchantCooldown = 0;
     // Reset upgrade-derived state
     state.autoTapRate = 0;
     state.critDmgMult = 3;
@@ -2519,11 +2530,11 @@ function showOfflinePopup(earnings, time) {
     const hours = Math.floor(time / 3600);
     const mins = Math.floor((time % 3600) / 60);
     let timeStr = '';
-    if (hours > 0) timeStr += `${hours} saat `;
-    timeStr += `${mins} dakika`;
+    if (hours > 0) timeStr += `${hours} ${t('hours')} `;
+    timeStr += `${mins} ${t('minutes')}`;
 
     if (DOM.offlineEarnings) DOM.offlineEarnings.innerHTML = `+${fmt(earnings)} ${getIcon('gold', 20)}`;
-    if (DOM.offlineTime) DOM.offlineTime.textContent = timeStr + ' boyunca';
+    if (DOM.offlineTime) DOM.offlineTime.textContent = t('duration', { time: timeStr });
     if (DOM.offlinePopup) DOM.offlinePopup.classList.remove('hidden');
 
     if (DOM.btnOfflineOk) DOM.btnOfflineOk.onclick = () => {
@@ -2615,11 +2626,13 @@ function load() {
         state.flashSaleActive = false;
         state.flashSale = null;
         state.flashSaleTimer = 0;
-        // Don't persist active merchant visit (expires)
+        // Don't persist active merchant visit or boost (expires — consistent with flash sale)
         state.merchantActive = false;
         state.merchantTimer = 0;
         state.merchantItems = [];
         state.merchantPurchased = {};
+        state.merchantBoostTimer = 0;
+        state.merchantBoost = null;
         // Recalculate prestige multiplier (formula may have changed)
         state.prestigeMult = getPrestigeMult(state.prestigeStars);
         return true;
@@ -3434,7 +3447,7 @@ function init() {
         lastTime = performance.now();
         requestAnimationFrame(gameLoop);
 
-        console.log('🏰 Tıkla Fethet v3.4 — Play Store Ready loaded!');
+        console.log('🏰 Tıkla Fethet v3.5 — i18n Fixes + Production Ready loaded!');
     } catch (err) {
         console.error('INIT ERROR:', err);
     }
