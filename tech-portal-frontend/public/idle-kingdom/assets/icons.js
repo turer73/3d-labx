@@ -668,6 +668,26 @@ const ICONS = {
         <polygon points="12,5 10,8 12,9 14,8" fill="currentColor" opacity="0.9"/>
     </svg>`,
 
+    navQuests: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="3" width="14" height="18" rx="2" fill="currentColor" opacity="0.3"/>
+        <rect x="7" y="5" width="10" height="14" rx="1" fill="currentColor" opacity="0.5"/>
+        <line x1="9" y1="8" x2="17" y2="8" stroke="currentColor" stroke-width="1.2" opacity="0.8"/>
+        <line x1="9" y1="11" x2="17" y2="11" stroke="currentColor" stroke-width="1.2" opacity="0.8"/>
+        <line x1="9" y1="14" x2="14" y2="14" stroke="currentColor" stroke-width="1.2" opacity="0.8"/>
+        <circle cx="7" cy="8" r="1" fill="currentColor"/>
+        <circle cx="7" cy="11" r="1" fill="currentColor"/>
+        <circle cx="7" cy="14" r="1" fill="currentColor"/>
+    </svg>`,
+
+    scroll: `<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="4" width="20" height="24" rx="2" fill="#D4A76A"/>
+        <rect x="8" y="6" width="16" height="20" rx="1" fill="#F5E6CC"/>
+        <line x1="10" y1="10" x2="22" y2="10" stroke="#8B6914" stroke-width="1.2"/>
+        <line x1="10" y1="14" x2="22" y2="14" stroke="#8B6914" stroke-width="1.2"/>
+        <line x1="10" y1="18" x2="18" y2="18" stroke="#8B6914" stroke-width="1.2"/>
+        <circle cx="10" cy="22" r="1.2" fill="#8B6914"/>
+    </svg>`,
+
     // ===== MISC UI ICONS =====
     trophy: `<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M8,4 L24,4 L24,14 Q24,22 16,24 Q8,22 8,14 Z" fill="#F59E0B"/>
@@ -731,8 +751,9 @@ const ICON_MAP = {
     tap_critx2: 'bolt', boss_time: 'timeLord', auto_tap: 'tap', gem_find: 'gem', allprod3: 'bolt',
     // Nav icons
     navBuildings: 'navBuildings', navHeroes: 'navHeroes', navUpgrades: 'navUpgrades',
-    navAchievements: 'navAchievements', navPrestige: 'navPrestige',
+    navAchievements: 'navAchievements', navPrestige: 'navPrestige', navQuests: 'navQuests',
     // UI icons
+    scroll: 'scroll',
     trophy: 'trophy', lock: 'lock', fire: 'fire', bolt: 'bolt', check: 'check',
 };
 

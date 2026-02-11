@@ -3,13 +3,13 @@
 // Offline-first caching strategy for PWA
 // ============================================================
 
-const CACHE_NAME = 'tikla-fethet-v10';
+const CACHE_NAME = 'tikla-fethet-v12';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
-    './style.css?v=9',
-    './game.js?v=9',
-    './assets/icons.js?v=9',
+    './style.css?v=12',
+    './game.js?v=12',
+    './assets/icons.js?v=12',
     './assets/icon-192.svg',
     './assets/icon-512.svg',
     './manifest.json'

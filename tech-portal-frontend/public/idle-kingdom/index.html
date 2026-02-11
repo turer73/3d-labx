@@ -11,7 +11,7 @@
     <title>Tıkla Fethet</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/icon-192.svg">
-    <link rel="stylesheet" href="style.css?v=9">
+    <link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
     <!-- ===== TOP BAR - Resources ===== -->
@@ -37,6 +37,7 @@
             </div>
         </div>
         <span id="streak-indicator">🔥 0 gün</span>
+        <button id="btn-lang" class="lang-btn" title="Dil / Language">🌐</button>
         <button id="btn-cloud-save" class="cloud-btn" title="Bulut Kayıt">☁️</button>
         <button id="btn-sound" class="sound-btn" title="Ses Aç/Kapat">🔊</button>
     </header>
@@ -90,6 +91,21 @@
                 <span class="sale-timer" id="sale-timer">30s</span>
             </div>
             <div class="sale-timer-bar"><div class="sale-timer-fill" id="sale-timer-fill"></div></div>
+        </div>
+
+        <!-- Traveling Merchant Banner -->
+        <div id="merchant-banner" class="hidden">
+            <div class="merchant-header">
+                <span class="merchant-icon">🧳</span>
+                <div class="merchant-title-area">
+                    <div class="merchant-title" id="merchant-title">🧳 Gezgin Tüccar geldi!</div>
+                    <div class="merchant-timer" id="merchant-timer">5:00 kaldı</div>
+                </div>
+            </div>
+            <div class="merchant-items" id="merchant-items">
+                <!-- Dynamically filled with 3 items -->
+            </div>
+            <div class="merchant-timer-bar"><div class="merchant-timer-fill" id="merchant-timer-fill"></div></div>
         </div>
 
         <!-- Next Milestone -->
@@ -193,10 +209,30 @@
         <section id="achievements-panel" style="display:none;">
             <div class="panel-header">
                 <h2><span id="ph-achievements-icon"></span> Başarımlar</h2>
-                <span id="achievements-progress">0 / 20</span>
+                <span id="achievements-progress">0 / 30</span>
             </div>
             <div id="achievements-list">
                 <!-- Dynamically filled -->
+            </div>
+        </section>
+
+        <!-- Quests Panel -->
+        <section id="quests-panel" style="display:none;">
+            <div class="panel-header">
+                <h2><span id="ph-quests-icon"></span> Görevler</h2>
+                <span id="quests-progress">0 / 8</span>
+            </div>
+            <div class="quest-section">
+                <h3 class="quest-section-title">📋 Günlük Görevler</h3>
+                <div id="daily-quests-list"></div>
+            </div>
+            <div class="quest-section">
+                <h3 class="quest-section-title">📅 Haftalık Görevler</h3>
+                <div id="weekly-quests-list"></div>
+            </div>
+            <div class="quest-section">
+                <h3 class="quest-section-title">⭐ Ana Görevler</h3>
+                <div id="main-quests-list"></div>
             </div>
         </section>
     </main>
@@ -222,6 +258,10 @@
         <button class="nav-btn" data-tab="prestige">
             <span class="nav-icon" id="nav-icon-prestige"></span>
             <span class="nav-label">Yıldız</span>
+        </button>
+        <button class="nav-btn" data-tab="quests">
+            <span class="nav-icon" id="nav-icon-quests"></span>
+            <span class="nav-label">Görev</span>
         </button>
     </nav>
 
@@ -255,6 +295,21 @@
                 <!-- Dynamically filled -->
             </div>
             <button id="btn-daily-claim">Ödülü Al!</button>
+        </div>
+    </div>
+
+    <!-- ===== KINGDOM NAMING OVERLAY ===== -->
+    <div id="kingdom-name-overlay" class="overlay hidden">
+        <div class="overlay-content kingdom-name-content">
+            <div class="kingdom-name-crown">👑</div>
+            <h2>Krallığına İsim Ver!</h2>
+            <p>Bu topraklar artık senin. Krallığına layık bir isim seç!</p>
+            <input type="text" id="kingdom-name-input" maxlength="20" placeholder="Krallığının adı..." autocomplete="off">
+            <div class="kingdom-name-preview">
+                <span id="kingdom-name-preview-text">Tıkla Fethet</span>
+            </div>
+            <button id="btn-kingdom-name-ok" class="btn-gold">Krallığımı Kur!</button>
+            <button id="btn-kingdom-name-skip" class="btn-ghost">Varsayılan Kullan</button>
         </div>
     </div>
 
@@ -295,14 +350,26 @@
         </div>
     </div>
 
+    <!-- ===== BOSS RESULT OVERLAY ===== -->
+    <div id="boss-result-overlay" class="overlay hidden">
+        <div class="overlay-content boss-result-content" id="boss-result-box">
+            <div id="boss-result-icon"></div>
+            <h2 id="boss-result-title"></h2>
+            <p id="boss-result-desc"></p>
+            <div id="boss-result-rewards"></div>
+            <div id="boss-result-nearmiss" class="hidden"></div>
+            <button id="btn-boss-result" class="btn-gold">Tamam</button>
+        </div>
+    </div>
+
     <!-- ===== FLOATING TEXTS CONTAINER ===== -->
     <div id="float-container"></div>
 
     <!-- ===== GOLD RAIN CANVAS ===== -->
     <canvas id="particle-canvas"></canvas>
 
-    <script src="assets/icons.js?v=9"></script>
-    <script src="game.js?v=9"></script>
+    <script src="assets/icons.js?v=12"></script>
+    <script src="game.js?v=12"></script>
     <script>
         // Register Service Worker for PWA
         if ('serviceWorker' in navigator) {

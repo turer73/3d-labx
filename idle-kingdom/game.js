@@ -1,5 +1,5 @@
 // ============================================================
-// TIKLA FETHET v3.3 — Traveling Merchant + Quest Icons Edition
+// TIKLA FETHET v3.4 — Bugfix & Play Store Prep Edition
 // Dopamine Loops, Scarcity, FOMO, Variable Rewards, Near-Miss
 // Daily Rewards, Flash Sales, Tap Jackpots, Streak System
 // 12 Buildings, 10 Heroes, 12 Bosses, 20 Upgrades, 30 Achievements
@@ -1232,24 +1232,25 @@ function getTotalGPS() {
         if (state.luckyEvent.effect === 'goldRain') total *= state.luckyEvent.mult;
         if (state.luckyEvent.effect === 'speedBoost') total *= state.luckyEvent.mult;
     }
-    // Flash sale boost (prodBoost / goldRain)
+    // Temporary boost: use BEST of flash sale or merchant (don't stack both)
+    let tempBoostMult = 1;
     if (state.flashSaleBoostTimer > 0 && state.flashSaleBoost) {
         if (state.flashSaleBoost.effect === 'prodBoost' || state.flashSaleBoost.effect === 'goldRain') {
-            total *= state.flashSaleBoost.mult;
+            tempBoostMult = Math.max(tempBoostMult, state.flashSaleBoost.mult);
         }
     }
+    if (state.merchantBoostTimer > 0 && state.merchantBoost) {
+        if (state.merchantBoost.effect === 'prodBoost' || state.merchantBoost.effect === 'goldRain') {
+            tempBoostMult = Math.max(tempBoostMult, state.merchantBoost.mult);
+        }
+    }
+    total *= tempBoostMult;
     // Necromancer: +2% gold per boss defeated, cap 5x
     const necroLevel = state.heroes.necromancer || 0;
     if (necroLevel > 0) total *= Math.min(5, 1 + state.bossIndex * 0.02 * necroLevel);
     // Time Lord: +20% production speed per level, cap 3x
     const timeLordLevel = state.heroes.timeLord || 0;
     if (timeLordLevel > 0) total *= Math.min(3, 1 + timeLordLevel * 0.20);
-    // Merchant boost (prodBoost / goldRain)
-    if (state.merchantBoostTimer > 0 && state.merchantBoost) {
-        if (state.merchantBoost.effect === 'prodBoost' || state.merchantBoost.effect === 'goldRain') {
-            total *= state.merchantBoost.mult;
-        }
-    }
     // Phoenix burst
     if (state.phoenixActive) total *= 2;
     return total;
@@ -1272,22 +1273,19 @@ function getTapValue() {
     if (state.luckyActive && state.luckyEvent && state.luckyEvent.effect === 'tapStorm') {
         val *= state.luckyEvent.mult;
     }
-    // Flash sale tap boost
-    if (state.flashSaleBoostTimer > 0 && state.flashSaleBoost && state.flashSaleBoost.effect === 'tapBoost') {
-        val *= state.flashSaleBoost.mult;
+    // Temporary tap boost: best of flash sale or merchant (don't stack)
+    let tapBoostMult = 1;
+    let hasCritBoost = false;
+    if (state.flashSaleBoostTimer > 0 && state.flashSaleBoost) {
+        if (state.flashSaleBoost.effect === 'tapBoost') tapBoostMult = Math.max(tapBoostMult, state.flashSaleBoost.mult);
+        if (state.flashSaleBoost.effect === 'critBoost') hasCritBoost = true;
     }
-    // Flash sale crit boost
-    if (state.flashSaleBoostTimer > 0 && state.flashSaleBoost && state.flashSaleBoost.effect === 'critBoost') {
-        val *= 3; // always crit during crit boost
+    if (state.merchantBoostTimer > 0 && state.merchantBoost) {
+        if (state.merchantBoost.effect === 'tapBoost') tapBoostMult = Math.max(tapBoostMult, state.merchantBoost.mult);
+        if (state.merchantBoost.effect === 'critBoost') hasCritBoost = true;
     }
-    // Merchant tap boost
-    if (state.merchantBoostTimer > 0 && state.merchantBoost && state.merchantBoost.effect === 'tapBoost') {
-        val *= state.merchantBoost.mult;
-    }
-    // Merchant crit boost
-    if (state.merchantBoostTimer > 0 && state.merchantBoost && state.merchantBoost.effect === 'critBoost') {
-        val *= 3;
-    }
+    val *= tapBoostMult;
+    if (hasCritBoost) val *= 3;
     // Combo bonus: +5% per combo level (max +100%)
     const comboBonus = 1 + Math.min(state.comboCount * 0.05, 1.0);
     val = Math.floor(val * comboBonus);
@@ -1748,13 +1746,17 @@ function onTap(e) {
 }
 
 function spawnFloatText(text, x, y, isCrit) {
+    // Memory leak prevention: limit max floating texts
+    if (DOM.floatContainer && DOM.floatContainer.childElementCount > 30) {
+        DOM.floatContainer.firstElementChild.remove();
+    }
     const el = document.createElement('div');
     el.className = 'float-text' + (isCrit ? ' crit' : '');
     el.textContent = text;
     el.style.left = x + 'px';
     el.style.top = y + 'px';
     if (DOM.floatContainer) DOM.floatContainer.appendChild(el);
-    setTimeout(() => el.remove(), 900);
+    setTimeout(() => { if (el.parentNode) el.remove(); }, 900);
 }
 
 function spawnJackpotText(text, x, y) {
@@ -1768,12 +1770,16 @@ function spawnJackpotText(text, x, y) {
 }
 
 function spawnTapRipple(rect) {
+    // Limit ripple elements to prevent memory issues
+    if (DOM.tapParticles && DOM.tapParticles.childElementCount > 10) {
+        DOM.tapParticles.firstElementChild.remove();
+    }
     const el = document.createElement('div');
     el.className = 'tap-ripple';
     el.style.left = (rect.width/2 - 10) + 'px';
     el.style.top = (rect.height/2 - 10) + 'px';
     if (DOM.tapParticles) DOM.tapParticles.appendChild(el);
-    setTimeout(() => el.remove(), 500);
+    setTimeout(() => { if (el.parentNode) el.remove(); }, 500);
 }
 
 function showCombo() {
@@ -2227,7 +2233,12 @@ function updateBossNearMiss() {
 // ===== COMBO SYSTEM =====
 function updateCombo(dt) {
     if (state.comboCount > 0) {
-        state.comboTimer -= dt;
+        // Merchant comboBoost: double the combo decay time
+        let decayDt = dt;
+        if (state.merchantBoostTimer > 0 && state.merchantBoost && state.merchantBoost.effect === 'comboBoost') {
+            decayDt = dt / state.merchantBoost.mult; // slower decay
+        }
+        state.comboTimer -= decayDt;
         if (state.comboTimer <= 0) {
             state.comboCount = 0;
             state.comboTimer = 0;
@@ -2490,7 +2501,8 @@ function doPrestige() {
 function calcOfflineEarnings() {
     const now = Date.now();
     const elapsed = (now - state.lastTick) / 1000;
-    if (elapsed < 60) return null;
+    // Time cheat prevention: reject negative time or absurdly large gaps (>30 days)
+    if (elapsed < 60 || elapsed < 0 || elapsed > 30 * 24 * 3600) return null;
 
     const maxOffline = 8 * 3600;
     const cappedTime = Math.min(elapsed, maxOffline);
@@ -2544,8 +2556,12 @@ function load() {
         if (!raw) raw = localStorage.getItem('idle_kingdom_save');
         if (!raw) return false;
         const saved = JSON.parse(raw);
-        for (const key in saved) {
-            if (saved[key] !== undefined) state[key] = saved[key];
+        // Safe key copy — prevent prototype pollution
+        const allowedKeys = Object.keys(state);
+        for (const key of allowedKeys) {
+            if (saved.hasOwnProperty(key) && saved[key] !== undefined) {
+                state[key] = saved[key];
+            }
         }
         // Ensure critical objects exist
         if (!state.buildings) state.buildings = {};
@@ -3418,7 +3434,7 @@ function init() {
         lastTime = performance.now();
         requestAnimationFrame(gameLoop);
 
-        console.log('🏰 Tıkla Fethet v3.3 — Merchant Edition loaded!');
+        console.log('🏰 Tıkla Fethet v3.4 — Play Store Ready loaded!');
     } catch (err) {
         console.error('INIT ERROR:', err);
     }

@@ -1,5 +1,5 @@
 // ============================================================
-// TIKLA FETHET v3.2 — Balanced & Content-Rich Edition
+// TIKLA FETHET v3.4 — Bugfix & Play Store Prep Edition
 // Dopamine Loops, Scarcity, FOMO, Variable Rewards, Near-Miss
 // Daily Rewards, Flash Sales, Tap Jackpots, Streak System
 // 12 Buildings, 10 Heroes, 12 Bosses, 20 Upgrades, 30 Achievements
@@ -13,6 +13,347 @@ function fmt(n) {
     if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
     if (n >= 1e3) return (n / 1e3).toFixed(2) + 'K';
     return Math.floor(n).toString();
+}
+
+// ===== i18n LANGUAGE SYSTEM =====
+const LANG = {
+    tr: {
+        // Game
+        gameName: 'Tıkla Fethet',
+        tap: 'Dokun!',
+        power: 'Güç:',
+        perSec: '/s',
+        level: 'Seviye',
+        next: 'Sonraki:',
+
+        // Tabs
+        buildings: 'Bina',
+        heroes: 'Asker',
+        upgrades: 'Güç',
+        achievements: 'Ödül',
+        prestige: 'Yıldız',
+        quests: 'Görev',
+
+        // Panels
+        buildingsTitle: 'Binalar',
+        heroesTitle: 'Kahramanlar',
+        upgradesTitle: 'Geliştirmeler',
+        achievementsTitle: 'Başarımlar',
+
+        // Stats
+        goldPerSec: 'Altın/s',
+        tapLabel: 'Dokunuş',
+        clickLabel: 'Tıklama',
+        bossLabel: 'Boss',
+
+        // Boss
+        bossWin: '⚔️ ZAFER!',
+        bossLose: '💀 YENİLDİN!',
+        bossDefeated: '{name} yenildi!',
+        timeUp: 'Süre doldu!',
+        remainingHP: 'Kalan HP:',
+        nearMiss: '😱 Az kaldı! Sadece %{pct} kalmıştı!',
+        greatBtn: 'Harika!',
+        retryBtn: 'Tekrar Dene!',
+        nextBoss: 'Sıradaki: {name}',
+        fightBtn: 'Savaş!',
+        nearDeathWarning: '💥 Az kaldı! Hızlı dokun!',
+
+        // Prestige
+        prestigeTitle: '⭐ Prestige',
+        prestigeDesc: 'Krallığını sıfırla, kalıcı bonus kazan!',
+        starsToEarn: 'Kazanılacak Yıldız:',
+        newMultiplier: 'Yeni Çarpan:',
+        doPrestige: 'Prestige Yap',
+        cancel: 'Vazgeç',
+        moreGold: '(daha fazla altın kazan!)',
+
+        // Offline
+        welcomeBack: '🌙 Hoşgeldin!',
+        offlineEarnings: 'Yokken kazandın:',
+        collect: 'Topla!',
+        hours: 'saat',
+        minutes: 'dakika',
+        duration: '{time} boyunca',
+
+        // Daily Reward
+        dailyTitle: '🎁 Günlük Ödül',
+        dailySubtitle: 'Her gün gir, daha büyük ödüller kazan!',
+        daySeries: '🔥 {n}. Gün Serisi',
+        claimReward: 'Ödülü Al!',
+        streakDays: '🔥 {n} gün',
+        dontLose: 'Kaybetme!',
+
+        // Kingdom naming
+        nameKingdom: 'Krallığına İsim Ver!',
+        nameKingdomDesc: 'Bu topraklar artık senin. Krallığına layık bir isim seç!',
+        nameKingdomPlaceholder: 'Krallığının adı...',
+        nameKingdomConfirm: 'Krallığımı Kur!',
+        nameKingdomSkip: 'Varsayılan Kullan',
+        defaultKingdomName: 'Tıkla Fethet',
+
+        // Flash Sale
+        flashSaleTitle: '⚡ FLASH SATIŞ!',
+
+        // Merchant
+        merchantArrived: '🧳 Gezgin Tüccar geldi!',
+        merchantLeft: '🧳 Tüccar gitti! Bir sonraki ~',
+        merchantMinutes: ' dk sonra...',
+        merchantBuy: 'Satın Al',
+        merchantSold: 'Satıldı',
+        merchantTimeLeft: ' kaldı',
+
+        // Lucky Events
+        luckyGoldRain: 'Altın Yağmuru! x5 üretim',
+        luckyTapStorm: 'Dokunuş Fırtınası! x10 dokunuş',
+        luckyGemFeast: 'Mücevher Şöleni! +5 💎',
+        luckyCrazySpeed: 'Çılgın Hız! x3 üretim',
+        luckyCritStorm: '%100 Kritik Şans!',
+
+        // Combo
+        comboText: '🔥 x{n} COMBO!',
+
+        // Tutorial
+        tutTap: 'Altın kazanmak için daireye dokun!',
+        tutBuild: 'Şimdi aşağıdaki binaya tıkla! Otomatik altın kazanırsın!',
+        tutDone: 'Harika! Artık krallığını büyütebilirsin!',
+
+        // Cloud Save
+        cloudTitle: '☁️ Bulut Kayıt',
+        cloudChecking: 'Kontrol ediliyor...',
+        cloudPin: '🔑 PIN (4 haneli):',
+        cloudUpload: '⬆️ Buluta Kaydet',
+        cloudDownload: '⬇️ Buluttan Yükle',
+        cloudNote: "PIN'ini unutma! Farklı cihazlardan aynı kayda erişmek için aynı Player ID ve PIN kullan.",
+        cloudClose: 'Kapat',
+
+        // Jackpots
+        jackpotMini: 'Mini Bonus!',
+        jackpotSuper: 'Süper Bonus!',
+        jackpotJackpot: '🎰 JACKPOT!',
+        jackpotMega: '⭐ MEGA JACKPOT!',
+
+        // Misc
+        ok: 'Tamam',
+        close: 'Kapat',
+        sound: 'Ses Aç/Kapat',
+        cloudSave: 'Bulut Kayıt',
+        langToggle: '🌐 EN',
+    },
+    en: {
+        // Game
+        gameName: 'Tap & Conquer',
+        tap: 'Tap!',
+        power: 'Power:',
+        perSec: '/s',
+        level: 'Level',
+        next: 'Next:',
+
+        // Tabs
+        buildings: 'Build',
+        heroes: 'Heroes',
+        upgrades: 'Power',
+        achievements: 'Awards',
+        prestige: 'Stars',
+        quests: 'Quests',
+
+        // Panels
+        buildingsTitle: 'Buildings',
+        heroesTitle: 'Heroes',
+        upgradesTitle: 'Upgrades',
+        achievementsTitle: 'Achievements',
+
+        // Stats
+        goldPerSec: 'Gold/s',
+        tapLabel: 'Tap',
+        clickLabel: 'Clicks',
+        bossLabel: 'Boss',
+
+        // Boss
+        bossWin: '⚔️ VICTORY!',
+        bossLose: '💀 DEFEATED!',
+        bossDefeated: '{name} defeated!',
+        timeUp: "Time's up!",
+        remainingHP: 'Remaining HP:',
+        nearMiss: '😱 So close! Only {pct}% left!',
+        greatBtn: 'Awesome!',
+        retryBtn: 'Try Again!',
+        nextBoss: 'Next: {name}',
+        fightBtn: 'Fight!',
+        nearDeathWarning: '💥 Almost there! Tap fast!',
+
+        // Prestige
+        prestigeTitle: '⭐ Prestige',
+        prestigeDesc: 'Reset your kingdom, earn permanent bonuses!',
+        starsToEarn: 'Stars to Earn:',
+        newMultiplier: 'New Multiplier:',
+        doPrestige: 'Prestige',
+        cancel: 'Cancel',
+        moreGold: '(earn more gold!)',
+
+        // Offline
+        welcomeBack: '🌙 Welcome Back!',
+        offlineEarnings: 'You earned while away:',
+        collect: 'Collect!',
+        hours: 'hours',
+        minutes: 'minutes',
+        duration: 'over {time}',
+
+        // Daily Reward
+        dailyTitle: '🎁 Daily Reward',
+        dailySubtitle: 'Log in daily for bigger rewards!',
+        daySeries: '🔥 Day {n} Streak',
+        claimReward: 'Claim!',
+        streakDays: '🔥 {n} days',
+        dontLose: "Don't lose it!",
+
+        // Kingdom naming
+        nameKingdom: 'Name Your Kingdom!',
+        nameKingdomDesc: 'These lands are now yours. Choose a worthy name!',
+        nameKingdomPlaceholder: 'Your kingdom name...',
+        nameKingdomConfirm: 'Found My Kingdom!',
+        nameKingdomSkip: 'Use Default',
+        defaultKingdomName: 'Tap & Conquer',
+
+        // Flash Sale
+        flashSaleTitle: '⚡ FLASH SALE!',
+
+        // Lucky Events
+        luckyGoldRain: 'Gold Rain! x5 production',
+        luckyTapStorm: 'Tap Storm! x10 tap',
+        luckyGemFeast: 'Gem Feast! +5 💎',
+        luckyCrazySpeed: 'Crazy Speed! x3 production',
+        luckyCritStorm: '100% Crit Chance!',
+
+        // Combo
+        comboText: '🔥 x{n} COMBO!',
+
+        // Tutorial
+        tutTap: 'Tap the circle to earn gold!',
+        tutBuild: 'Now tap the building below! Earn gold automatically!',
+        tutDone: 'Great! Now grow your kingdom!',
+
+        // Cloud Save
+        cloudTitle: '☁️ Cloud Save',
+        cloudChecking: 'Checking...',
+        cloudPin: '🔑 PIN (4 digits):',
+        cloudUpload: '⬆️ Save to Cloud',
+        cloudDownload: '⬇️ Load from Cloud',
+        cloudNote: "Don't forget your PIN! Use the same Player ID and PIN to access your save from different devices.",
+        cloudClose: 'Close',
+
+        // Jackpots
+        jackpotMini: 'Mini Bonus!',
+        jackpotSuper: 'Super Bonus!',
+        jackpotJackpot: '🎰 JACKPOT!',
+        jackpotMega: '⭐ MEGA JACKPOT!',
+
+        // Misc
+        ok: 'OK',
+        close: 'Close',
+        sound: 'Sound On/Off',
+        cloudSave: 'Cloud Save',
+        langToggle: '🌐 TR',
+    }
+};
+
+function t(key, params) {
+    let str = LANG[state.lang]?.[key] || LANG.tr[key] || key;
+    if (params) {
+        for (const [k, v] of Object.entries(params)) {
+            str = str.replace(`{${k}}`, v);
+        }
+    }
+    return str;
+}
+
+function getLocalizedName(item) {
+    if (state.lang === 'en' && item.name_en) return item.name_en;
+    return item.name;
+}
+
+function getLocalizedDesc(item) {
+    if (state.lang === 'en' && item.desc_en) return item.desc_en;
+    return item.desc;
+}
+
+function applyLang() {
+    // Update static HTML text elements
+    const tapText = document.getElementById('tap-text');
+    if (tapText) tapText.textContent = t('tap');
+
+    const dpsLabel = document.getElementById('dps-label');
+    if (dpsLabel) dpsLabel.textContent = t('power');
+
+    const dpsSuffix = document.getElementById('dps-suffix');
+    if (dpsSuffix) dpsSuffix.textContent = t('perSec');
+
+    // Stats
+    const labels = document.querySelectorAll('.stat-label');
+    if (labels.length >= 4) {
+        labels[0].textContent = t('goldPerSec');
+        labels[1].textContent = t('tapLabel');
+        labels[2].textContent = t('clickLabel');
+        labels[3].textContent = t('bossLabel');
+    }
+
+    // Nav tabs
+    const navLabels = document.querySelectorAll('.nav-label');
+    if (navLabels.length >= 6) {
+        navLabels[0].textContent = t('buildings');
+        navLabels[1].textContent = t('heroes');
+        navLabels[2].textContent = t('upgrades');
+        navLabels[3].textContent = t('achievements');
+        navLabels[4].textContent = t('prestige');
+        navLabels[5].textContent = t('quests');
+    }
+
+    // Panel headers
+    const buildH = document.querySelector('#buildings-panel .panel-header h2');
+    if (buildH) buildH.innerHTML = `${getIcon('buildings', 20)} ${t('buildingsTitle')}`;
+    const heroH = document.querySelector('#heroes-panel .panel-header h2');
+    if (heroH) heroH.innerHTML = `${getIcon('heroes', 20)} ${t('heroesTitle')}`;
+    const upgH = document.querySelector('#upgrades-panel .panel-header h2');
+    if (upgH) upgH.innerHTML = `${getIcon('upgrades', 20)} ${t('upgradesTitle')}`;
+    const achH = document.querySelector('#achievements-panel .panel-header h2');
+    if (achH) achH.innerHTML = `${getIcon('achievements', 20)} ${t('achievementsTitle')}`;
+
+    // Milestone
+    const mlLabel = document.getElementById('milestone-label');
+    if (mlLabel) mlLabel.textContent = t('next');
+
+    // Fight button
+    const btnFight = document.getElementById('btn-fight-boss');
+    if (btnFight) {
+        const fightIcon = document.getElementById('fight-icon');
+        const iconHtml = fightIcon ? fightIcon.outerHTML : '';
+        btnFight.innerHTML = `${iconHtml} ${t('fightBtn')}`;
+    }
+
+    // Lang button text
+    const btnLang = document.getElementById('btn-lang');
+    if (btnLang) btnLang.textContent = t('langToggle');
+
+    // Quest section titles
+    const qSections = document.querySelectorAll('.quest-section-title');
+    if (qSections.length >= 3) {
+        qSections[0].textContent = state.lang === 'en' ? '📋 Daily Quests' : '📋 Günlük Görevler';
+        qSections[1].textContent = state.lang === 'en' ? '📅 Weekly Quests' : '📅 Haftalık Görevler';
+        qSections[2].textContent = state.lang === 'en' ? '⭐ Main Quests' : '⭐ Ana Görevler';
+    }
+
+    // Quest panel header
+    const questH = document.querySelector('#quests-panel .panel-header h2');
+    if (questH) questH.innerHTML = state.lang === 'en' ? '📋 Quests' : '📋 Görevler';
+
+    // Re-render all dynamic content
+    if (typeof renderAll === 'function') renderAll();
+}
+
+function toggleLang() {
+    state.lang = state.lang === 'tr' ? 'en' : 'tr';
+    applyLang();
+    save();
 }
 
 // ===== HAPTIC FEEDBACK (Vibration API) =====
@@ -146,6 +487,20 @@ const SFX = {
         setTimeout(() => this._play(200, 'sawtooth', 0.25, 0.05, 0, 400), 120);
         setTimeout(() => this._play(120, 'sawtooth', 0.3, 0.04, 0, 300), 260);
         this._noise(0.15, 0.03, 400);
+        Haptic.bossLose();
+    },
+    bossDefeat() {
+        // Dramatic defeat: deep descending tones + impact + rumble
+        this._play(400, 'sawtooth', 0.15, 0.08, 0, 800);
+        setTimeout(() => this._play(300, 'sawtooth', 0.2, 0.07, 0, 600), 100);
+        setTimeout(() => this._play(200, 'square', 0.25, 0.06, 0, 400), 220);
+        setTimeout(() => this._play(100, 'square', 0.35, 0.08, 0, 300), 370);
+        setTimeout(() => {
+            this._noise(0.3, 0.06, 300);
+            this._play(60, 'sawtooth', 0.5, 0.05, 0, 200);
+        }, 500);
+        // Final low rumble
+        setTimeout(() => this._play(40, 'sine', 0.6, 0.04, 0, 100), 700);
         Haptic.bossLose();
     },
     prestige() {
@@ -308,142 +663,181 @@ const Particles = {
 
 // ===== BUILDING DEFINITIONS =====
 const BUILDINGS = [
-    { id: 'farm',      icon: '🌾', name: 'Çiftlik',       desc: 'Temel altın üretir',        baseCost: 15,     baseGPS: 1,       costMult: 1.15, unlockAt: 0 },
-    { id: 'mine',      icon: '⛏️', name: 'Maden',         desc: 'Topraktan altın çıkarır',    baseCost: 100,    baseGPS: 5,       costMult: 1.15, unlockAt: 50 },
-    { id: 'lumber',    icon: '🪵', name: 'Kereste Ocağı', desc: 'Ağaçları altına çevirir',    baseCost: 500,    baseGPS: 22,      costMult: 1.15, unlockAt: 300 },
-    { id: 'blacksmith',icon: '⚒️', name: 'Demirci',       desc: 'Silah ve zırh üretir',       baseCost: 2500,   baseGPS: 100,     costMult: 1.15, unlockAt: 1500 },
-    { id: 'market',    icon: '🏪', name: 'Pazar',         desc: 'Ticaretle kazanç sağlar',    baseCost: 12000,  baseGPS: 450,     costMult: 1.15, unlockAt: 8000 },
-    { id: 'temple',    icon: '⛪', name: 'Tapınak',       desc: 'Dua gücüyle altın yağar',    baseCost: 60000,  baseGPS: 2000,    costMult: 1.15, unlockAt: 40000 },
-    { id: 'academy',   icon: '🏛️', name: 'Akademi',       desc: 'Bilgi güçtür, güç altındır', baseCost: 300000, baseGPS: 9000,    costMult: 1.15, unlockAt: 200000 },
-    { id: 'castle',      icon: '🏰', name: 'Kale',           desc: 'Krallığın kalbi',              baseCost: 1.5e6,  baseGPS: 40000,   costMult: 1.15, unlockAt: 1e6 },
-    { id: 'observatory', icon: '🔭', name: 'Gözlemevi',     desc: 'Yıldızlardan altın yaratır',   baseCost: 15e6,   baseGPS: 300000,  costMult: 1.15, unlockAt: 10e6 },
-    { id: 'wizard_tower',icon: '🗼', name: 'Büyücü Kulesi', desc: 'Büyüyle altın çoğaltır',       baseCost: 150e6,  baseGPS: 2e6,     costMult: 1.15, unlockAt: 100e6 },
-    { id: 'dragon_nest', icon: '🏔️', name: 'Ejderha Yuvası',desc: 'Ejderhalar hazine getirir',    baseCost: 1.5e9,  baseGPS: 15e6,    costMult: 1.15, unlockAt: 1e9 },
-    { id: 'cosmic_gate', icon: '🌌', name: 'Evren Kapısı',  desc: 'Başka boyutlardan servet akıtır',baseCost: 15e9,  baseGPS: 100e6,   costMult: 1.15, unlockAt: 10e9 },
+    { id: 'farm',      icon: '🌾', name: 'Çiftlik',       desc: 'Temel altın üretir',        baseCost: 15,     baseGPS: 1,       costMult: 1.15, unlockAt: 0, name_en: 'Farm', desc_en: 'Basic gold production' },
+    { id: 'mine',      icon: '⛏️', name: 'Maden',         desc: 'Topraktan altın çıkarır',    baseCost: 100,    baseGPS: 5,       costMult: 1.15, unlockAt: 50, name_en: 'Mine', desc_en: 'Extracts gold from earth' },
+    { id: 'lumber',    icon: '🪵', name: 'Kereste Ocağı', desc: 'Ağaçları altına çevirir',    baseCost: 500,    baseGPS: 22,      costMult: 1.15, unlockAt: 300, name_en: 'Lumber Mill', desc_en: 'Turns trees into gold' },
+    { id: 'blacksmith',icon: '⚒️', name: 'Demirci',       desc: 'Silah ve zırh üretir',       baseCost: 2500,   baseGPS: 100,     costMult: 1.15, unlockAt: 1500, name_en: 'Blacksmith', desc_en: 'Forges weapons and armor' },
+    { id: 'market',    icon: '🏪', name: 'Pazar',         desc: 'Ticaretle kazanç sağlar',    baseCost: 12000,  baseGPS: 450,     costMult: 1.15, unlockAt: 8000, name_en: 'Market', desc_en: 'Profits through trade' },
+    { id: 'temple',    icon: '⛪', name: 'Tapınak',       desc: 'Dua gücüyle altın yağar',    baseCost: 60000,  baseGPS: 2000,    costMult: 1.15, unlockAt: 40000, name_en: 'Temple', desc_en: 'Gold rains through prayer' },
+    { id: 'academy',   icon: '🏛️', name: 'Akademi',       desc: 'Bilgi güçtür, güç altındır', baseCost: 300000, baseGPS: 9000,    costMult: 1.15, unlockAt: 200000, name_en: 'Academy', desc_en: 'Knowledge is power, power is gold' },
+    { id: 'castle',      icon: '🏰', name: 'Kale',           desc: 'Krallığın kalbi',              baseCost: 1.5e6,  baseGPS: 40000,   costMult: 1.15, unlockAt: 1e6, name_en: 'Castle', desc_en: 'Heart of the kingdom' },
+    { id: 'observatory', icon: '🔭', name: 'Gözlemevi',     desc: 'Yıldızlardan altın yaratır',   baseCost: 15e6,   baseGPS: 300000,  costMult: 1.15, unlockAt: 10e6, name_en: 'Observatory', desc_en: 'Creates gold from stars' },
+    { id: 'wizard_tower',icon: '🗼', name: 'Büyücü Kulesi', desc: 'Büyüyle altın çoğaltır',       baseCost: 150e6,  baseGPS: 2e6,     costMult: 1.15, unlockAt: 100e6, name_en: 'Wizard Tower', desc_en: 'Multiplies gold with magic' },
+    { id: 'dragon_nest', icon: '🏔️', name: 'Ejderha Yuvası',desc: 'Ejderhalar hazine getirir',    baseCost: 1.5e9,  baseGPS: 15e6,    costMult: 1.15, unlockAt: 1e9, name_en: 'Dragon Nest', desc_en: 'Dragons bring treasure' },
+    { id: 'cosmic_gate', icon: '🌌', name: 'Evren Kapısı',  desc: 'Başka boyutlardan servet akıtır',baseCost: 15e9,  baseGPS: 100e6,   costMult: 1.15, unlockAt: 10e9, name_en: 'Cosmic Gate', desc_en: 'Pours wealth from other dimensions' },
 ];
 
 // ===== HERO DEFINITIONS =====
 const HEROES = [
-    { id: 'knight',    icon: '🗡️', name: 'Şövalye',       desc: 'Boss hasar x2',              baseCost: 500,    baseDPS: 10,    costMult: 1.20, unlockAt: 200, ability: 'bossDmg' },
-    { id: 'archer',    icon: '🏹', name: 'Okçu',          desc: 'Kritik şans %10',            baseCost: 2000,   baseDPS: 25,    costMult: 1.20, unlockAt: 1000, ability: 'critChance' },
-    { id: 'mage',      icon: '🧙', name: 'Büyücü',        desc: 'Altın üretimi +%15',         baseCost: 10000,  baseDPS: 80,    costMult: 1.20, unlockAt: 5000, ability: 'goldBoost' },
-    { id: 'healer',    icon: '💚', name: 'Şifacı',        desc: 'Boss süresi +5s',            baseCost: 50000,  baseDPS: 200,   costMult: 1.20, unlockAt: 25000, ability: 'bossTime' },
-    { id: 'dragon',    icon: '🐲', name: 'Ejderha Binici', desc: 'Tüm hasar x3',              baseCost: 250000, baseDPS: 600,   costMult: 1.20, unlockAt: 100000, ability: 'allDmg' },
-    { id: 'angel',       icon: '👼', name: 'Melek',           desc: 'Offline kazanç x2',            baseCost: 1e6,    baseDPS: 2000,   costMult: 1.20, unlockAt: 500000, ability: 'offlineBoost' },
-    { id: 'phoenix',     icon: '🔥', name: 'Anka Kuşu',      desc: 'Her 60s altın x2 patlaması',   baseCost: 5e6,    baseDPS: 8000,   costMult: 1.20, unlockAt: 3e6, ability: 'phoenix' },
-    { id: 'necromancer', icon: '☠️', name: 'Ölü Büyücü',     desc: 'Her boss +%2 kalıcı altın',    baseCost: 25e6,   baseDPS: 30000,  costMult: 1.20, unlockAt: 15e6, ability: 'bossStack' },
-    { id: 'valkyrie',    icon: '⚔️', name: 'Valkyrie',       desc: 'Combo x altın çarpanı',        baseCost: 125e6,  baseDPS: 120000, costMult: 1.20, unlockAt: 75e6, ability: 'comboGold' },
-    { id: 'timeLord',    icon: '⏳', name: 'Zaman Lordu',    desc: 'Tüm üretim %20 hızlı',        baseCost: 750e6,  baseDPS: 500000, costMult: 1.20, unlockAt: 400e6, ability: 'timeAccel' },
+    { id: 'knight',    icon: '🗡️', name: 'Şövalye',       desc: 'Boss hasar x2',              baseCost: 500,    baseDPS: 10,    costMult: 1.20, unlockAt: 200, ability: 'bossDmg', name_en: 'Knight', desc_en: 'Boss damage x2' },
+    { id: 'archer',    icon: '🏹', name: 'Okçu',          desc: 'Kritik şans %10',            baseCost: 2000,   baseDPS: 25,    costMult: 1.20, unlockAt: 1000, ability: 'critChance', name_en: 'Archer', desc_en: 'Crit chance +10%' },
+    { id: 'mage',      icon: '🧙', name: 'Büyücü',        desc: 'Altın üretimi +%15',         baseCost: 10000,  baseDPS: 80,    costMult: 1.20, unlockAt: 5000, ability: 'goldBoost', name_en: 'Mage', desc_en: 'Gold production +15%' },
+    { id: 'healer',    icon: '💚', name: 'Şifacı',        desc: 'Boss süresi +5s',            baseCost: 50000,  baseDPS: 200,   costMult: 1.20, unlockAt: 25000, ability: 'bossTime', name_en: 'Healer', desc_en: 'Boss timer +5s' },
+    { id: 'dragon',    icon: '🐲', name: 'Ejderha Binici', desc: 'Tüm hasar x3',              baseCost: 250000, baseDPS: 600,   costMult: 1.20, unlockAt: 100000, ability: 'allDmg', name_en: 'Dragon Rider', desc_en: 'All damage x3' },
+    { id: 'angel',       icon: '👼', name: 'Melek',           desc: 'Offline kazanç x2',            baseCost: 1e6,    baseDPS: 2000,   costMult: 1.20, unlockAt: 500000, ability: 'offlineBoost', name_en: 'Angel', desc_en: 'Offline earnings x2' },
+    { id: 'phoenix',     icon: '🔥', name: 'Anka Kuşu',      desc: 'Her 60s altın x2 patlaması',   baseCost: 5e6,    baseDPS: 8000,   costMult: 1.20, unlockAt: 3e6, ability: 'phoenix', name_en: 'Phoenix', desc_en: 'Gold x2 burst every 60s' },
+    { id: 'necromancer', icon: '☠️', name: 'Ölü Büyücü',     desc: 'Her boss +%2 kalıcı altın',    baseCost: 25e6,   baseDPS: 30000,  costMult: 1.20, unlockAt: 15e6, ability: 'bossStack', name_en: 'Necromancer', desc_en: 'Each boss +2% permanent gold' },
+    { id: 'valkyrie',    icon: '⚔️', name: 'Valkyrie',       desc: 'Combo x altın çarpanı',        baseCost: 125e6,  baseDPS: 120000, costMult: 1.20, unlockAt: 75e6, ability: 'comboGold', name_en: 'Valkyrie', desc_en: 'Combo x gold multiplier' },
+    { id: 'timeLord',    icon: '⏳', name: 'Zaman Lordu',    desc: 'Tüm üretim %20 hızlı',        baseCost: 750e6,  baseDPS: 500000, costMult: 1.20, unlockAt: 400e6, ability: 'timeAccel', name_en: 'Time Lord', desc_en: 'All production 20% faster' },
 ];
 
 // ===== UPGRADE DEFINITIONS =====
 const UPGRADES = [
-    { id: 'tap2x',      icon: '👆', name: 'Güçlü Dokunuş',      desc: 'Dokunuş gücü x2',                  cost: 200,    effect: () => { state.tapMult *= 2; } },
-    { id: 'farm2x',     icon: '🌾', name: 'Verimli Çiftlik',     desc: 'Çiftlik üretimi x2',               cost: 500,    effect: () => { state.buildingMult.farm = (state.buildingMult.farm||1) * 2; } },
-    { id: 'mine2x',     icon: '⛏️', name: 'Derin Maden',         desc: 'Maden üretimi x2',                 cost: 2000,   effect: () => { state.buildingMult.mine = (state.buildingMult.mine||1) * 2; } },
-    { id: 'tap5x',      icon: '💥', name: 'Yıkıcı Dokunuş',     desc: 'Dokunuş gücü x5',                  cost: 10000,  effect: () => { state.tapMult *= 5; } },
-    { id: 'lumber2x',   icon: '🪵', name: 'Keskin Balta',        desc: 'Kereste üretimi x2',               cost: 5000,   effect: () => { state.buildingMult.lumber = (state.buildingMult.lumber||1) * 2; } },
-    { id: 'allprod',    icon: '📈', name: 'Ekonomi Devrimi',     desc: 'Tüm üretim x2',                   cost: 150000, effect: () => { state.globalMult *= 2; } },
-    { id: 'black2x',    icon: '⚒️', name: 'Usta Demirci',        desc: 'Demirci üretimi x3',               cost: 25000,  effect: () => { state.buildingMult.blacksmith = (state.buildingMult.blacksmith||1) * 3; } },
-    { id: 'market2x',   icon: '🏪', name: 'Ticaret İmparatorluğu', desc: 'Pazar üretimi x3',              cost: 100000, effect: () => { state.buildingMult.market = (state.buildingMult.market||1) * 3; } },
-    { id: 'tap10x',     icon: '⚡', name: 'Tanrı Dokunuşu',     desc: 'Dokunuş gücü x10',                 cost: 500000, effect: () => { state.tapMult *= 10; } },
-    { id: 'allprod2',   icon: '🚀', name: 'Sanayi Devrimi',     desc: 'Tüm üretim x5',                   cost: 5e6,    effect: () => { state.globalMult *= 5; } },
-    { id: 'temple3x',   icon: '⛪', name: 'Kutsal Güç',          desc: 'Tapınak üretimi x3',               cost: 500000, effect: () => { state.buildingMult.temple = (state.buildingMult.temple||1) * 3; } },
-    { id: 'academy3x',  icon: '🏛️', name: 'Altın Bilgi',         desc: 'Akademi üretimi x3',               cost: 2e6,    effect: () => { state.buildingMult.academy = (state.buildingMult.academy||1) * 3; } },
-    { id: 'obs2x',      icon: '🔭', name: 'Gelişmiş Teleskop',  desc: 'Gözlemevi üretimi x3',             cost: 10e6,   effect: () => { state.buildingMult.observatory = (state.buildingMult.observatory||1) * 3; } },
-    { id: 'wizard2x',   icon: '🗼', name: 'Büyü Yükseltmesi',   desc: 'Büyücü Kulesi üretimi x3',        cost: 100e6,  effect: () => { state.buildingMult.wizard_tower = (state.buildingMult.wizard_tower||1) * 3; } },
-    { id: 'dragon_hoard',icon: '🏔️', name: 'Ejderha Hazinesi',  desc: 'Ejderha Yuvası üretimi x3',       cost: 1e9,    effect: () => { state.buildingMult.dragon_nest = (state.buildingMult.dragon_nest||1) * 3; } },
-    { id: 'cosmic_power',icon: '🌌', name: 'Evren Gücü',         desc: 'Evren Kapısı üretimi x3',         cost: 10e9,   effect: () => { state.buildingMult.cosmic_gate = (state.buildingMult.cosmic_gate||1) * 3; } },
-    { id: 'tap_critx2', icon: '💢', name: 'Kritik Patlama',     desc: 'Kritik hasar x2',                  cost: 5e6,    effect: () => { state.critDmgMult = (state.critDmgMult||3) * 2; } },
-    { id: 'auto_tap',   icon: '🤖', name: 'Oto-Dokunuş',        desc: 'Saniyede 3 otomatik dokunuş',      cost: 50e6,   effect: () => { state.autoTapRate = (state.autoTapRate||0) + 3; } },
-    { id: 'gem_find',   icon: '💎', name: 'Mücevher Madencisi', desc: 'Boss mücevheri %50 fazla',         cost: 100e6,  effect: () => { state.gemBossMult = (state.gemBossMult||1) * 1.5; } },
-    { id: 'allprod3',   icon: '⚡', name: 'Kozmik Devrim',      desc: 'Tüm üretim x3',                   cost: 500e6,  effect: () => { state.globalMult *= 3; } },
+    { id: 'tap2x',      icon: '👆', name: 'Güçlü Dokunuş',      desc: 'Dokunuş gücü x2',                  cost: 200,    effect: () => { state.tapMult *= 2; }, name_en: 'Power Tap', desc_en: 'Tap power x2' },
+    { id: 'farm2x',     icon: '🌾', name: 'Verimli Çiftlik',     desc: 'Çiftlik üretimi x2',               cost: 500,    effect: () => { state.buildingMult.farm = (state.buildingMult.farm||1) * 2; }, name_en: 'Efficient Farm', desc_en: 'Farm production x2' },
+    { id: 'mine2x',     icon: '⛏️', name: 'Derin Maden',         desc: 'Maden üretimi x2',                 cost: 2000,   effect: () => { state.buildingMult.mine = (state.buildingMult.mine||1) * 2; }, name_en: 'Deep Mine', desc_en: 'Mine production x2' },
+    { id: 'tap5x',      icon: '💥', name: 'Yıkıcı Dokunuş',     desc: 'Dokunuş gücü x5',                  cost: 10000,  effect: () => { state.tapMult *= 5; }, name_en: 'Devastating Tap', desc_en: 'Tap power x5' },
+    { id: 'lumber2x',   icon: '🪵', name: 'Keskin Balta',        desc: 'Kereste üretimi x2',               cost: 5000,   effect: () => { state.buildingMult.lumber = (state.buildingMult.lumber||1) * 2; }, name_en: 'Sharp Axe', desc_en: 'Lumber production x2' },
+    { id: 'allprod',    icon: '📈', name: 'Ekonomi Devrimi',     desc: 'Tüm üretim x2',                   cost: 150000, effect: () => { state.globalMult *= 2; }, name_en: 'Economic Revolution', desc_en: 'All production x2' },
+    { id: 'black2x',    icon: '⚒️', name: 'Usta Demirci',        desc: 'Demirci üretimi x3',               cost: 25000,  effect: () => { state.buildingMult.blacksmith = (state.buildingMult.blacksmith||1) * 3; }, name_en: 'Master Blacksmith', desc_en: 'Blacksmith production x3' },
+    { id: 'market2x',   icon: '🏪', name: 'Ticaret İmparatorluğu', desc: 'Pazar üretimi x3',              cost: 100000, effect: () => { state.buildingMult.market = (state.buildingMult.market||1) * 3; }, name_en: 'Trade Empire', desc_en: 'Market production x3' },
+    { id: 'tap10x',     icon: '⚡', name: 'Tanrı Dokunuşu',     desc: 'Dokunuş gücü x10',                 cost: 500000, effect: () => { state.tapMult *= 10; }, name_en: "God's Touch", desc_en: 'Tap power x10' },
+    { id: 'allprod2',   icon: '🚀', name: 'Sanayi Devrimi',     desc: 'Tüm üretim x5',                   cost: 5e6,    effect: () => { state.globalMult *= 5; }, name_en: 'Industrial Revolution', desc_en: 'All production x5' },
+    { id: 'temple3x',   icon: '⛪', name: 'Kutsal Güç',          desc: 'Tapınak üretimi x3',               cost: 500000, effect: () => { state.buildingMult.temple = (state.buildingMult.temple||1) * 3; }, name_en: 'Holy Power', desc_en: 'Temple production x3' },
+    { id: 'academy3x',  icon: '🏛️', name: 'Altın Bilgi',         desc: 'Akademi üretimi x3',               cost: 2e6,    effect: () => { state.buildingMult.academy = (state.buildingMult.academy||1) * 3; }, name_en: 'Golden Knowledge', desc_en: 'Academy production x3' },
+    { id: 'obs2x',      icon: '🔭', name: 'Gelişmiş Teleskop',  desc: 'Gözlemevi üretimi x3',             cost: 10e6,   effect: () => { state.buildingMult.observatory = (state.buildingMult.observatory||1) * 3; }, name_en: 'Advanced Telescope', desc_en: 'Observatory production x3' },
+    { id: 'wizard2x',   icon: '🗼', name: 'Büyü Yükseltmesi',   desc: 'Büyücü Kulesi üretimi x3',        cost: 100e6,  effect: () => { state.buildingMult.wizard_tower = (state.buildingMult.wizard_tower||1) * 3; }, name_en: 'Magic Enhancement', desc_en: 'Wizard Tower production x3' },
+    { id: 'dragon_hoard',icon: '🏔️', name: 'Ejderha Hazinesi',  desc: 'Ejderha Yuvası üretimi x3',       cost: 1e9,    effect: () => { state.buildingMult.dragon_nest = (state.buildingMult.dragon_nest||1) * 3; }, name_en: 'Dragon Hoard', desc_en: 'Dragon Nest production x3' },
+    { id: 'cosmic_power',icon: '🌌', name: 'Evren Gücü',         desc: 'Evren Kapısı üretimi x3',         cost: 10e9,   effect: () => { state.buildingMult.cosmic_gate = (state.buildingMult.cosmic_gate||1) * 3; }, name_en: 'Cosmic Power', desc_en: 'Cosmic Gate production x3' },
+    { id: 'tap_critx2', icon: '💢', name: 'Kritik Patlama',     desc: 'Kritik hasar x2',                  cost: 5e6,    effect: () => { state.critDmgMult = (state.critDmgMult||3) * 2; }, name_en: 'Critical Explosion', desc_en: 'Critical damage x2' },
+    { id: 'auto_tap',   icon: '🤖', name: 'Oto-Dokunuş',        desc: 'Saniyede 3 otomatik dokunuş',      cost: 50e6,   effect: () => { state.autoTapRate = (state.autoTapRate||0) + 3; }, name_en: 'Auto-Tap', desc_en: '3 automatic taps per second' },
+    { id: 'gem_find',   icon: '💎', name: 'Mücevher Madencisi', desc: 'Boss mücevheri %50 fazla',         cost: 100e6,  effect: () => { state.gemBossMult = (state.gemBossMult||1) * 1.5; }, name_en: 'Gem Miner', desc_en: 'Boss gems +50%' },
+    { id: 'allprod3',   icon: '⚡', name: 'Kozmik Devrim',      desc: 'Tüm üretim x3',                   cost: 500e6,  effect: () => { state.globalMult *= 3; }, name_en: 'Cosmic Revolution', desc_en: 'All production x3' },
 ];
 
 // ===== BOSS DEFINITIONS =====
 const BOSSES = [
-    { name: 'Goblin Şef',      icon: '👺', hp: 200,    reward: 300,    gemReward: 1, timer: 45 },
-    { name: 'İskelet Kral',    icon: '💀', hp: 2000,   reward: 1500,   gemReward: 2, timer: 30 },
-    { name: 'Ogre Lordu',      icon: '👹', hp: 8000,   reward: 8000,   gemReward: 3, timer: 30 },
-    { name: 'Vampir Kontu',    icon: '🧛', hp: 30000,  reward: 40000,  gemReward: 5, timer: 30 },
-    { name: 'Ejderha',         icon: '🐉', hp: 100000, reward: 200000, gemReward: 10, timer: 30 },
-    { name: 'Karanlık Lord',   icon: '😈', hp: 500000, reward: 1e6,    gemReward: 20, timer: 30 },
-    { name: 'Titan',           icon: '🗿', hp: 2e6,    reward: 5e6,    gemReward: 50, timer: 30 },
-    { name: 'Evren Yıkıcı',   icon: '🌑', hp: 1e7,    reward: 3e7,    gemReward: 100, timer: 30 },
-    { name: 'Kraken',          icon: '🦑', hp: 5e7,    reward: 1.5e8,  gemReward: 200, timer: 30 },
-    { name: 'Fırtına Dev',     icon: '⛈️', hp: 2.5e8,  reward: 8e8,    gemReward: 400, timer: 30 },
-    { name: 'Kadim Gölge',     icon: '👤', hp: 1.5e9,  reward: 5e9,    gemReward: 800, timer: 30 },
-    { name: 'Kıyamet Meleği',  icon: '😇', hp: 1e10,   reward: 4e10,   gemReward: 2000, timer: 30 },
+    { name: 'Goblin Şef',      icon: '👺', hp: 200,    reward: 300,    gemReward: 1, timer: 45, name_en: 'Goblin Chief' },
+    { name: 'İskelet Kral',    icon: '💀', hp: 2000,   reward: 1500,   gemReward: 2, timer: 30, name_en: 'Skeleton King' },
+    { name: 'Ogre Lordu',      icon: '👹', hp: 8000,   reward: 8000,   gemReward: 3, timer: 30, name_en: 'Ogre Lord' },
+    { name: 'Vampir Kontu',    icon: '🧛', hp: 30000,  reward: 40000,  gemReward: 5, timer: 30, name_en: 'Vampire Count' },
+    { name: 'Ejderha',         icon: '🐉', hp: 100000, reward: 200000, gemReward: 10, timer: 30, name_en: 'Dragon' },
+    { name: 'Karanlık Lord',   icon: '😈', hp: 500000, reward: 1e6,    gemReward: 20, timer: 30, name_en: 'Dark Lord' },
+    { name: 'Titan',           icon: '🗿', hp: 2e6,    reward: 5e6,    gemReward: 50, timer: 30, name_en: 'Titan' },
+    { name: 'Evren Yıkıcı',   icon: '🌑', hp: 1e7,    reward: 3e7,    gemReward: 100, timer: 30, name_en: 'Universe Destroyer' },
+    { name: 'Kraken',          icon: '🦑', hp: 5e7,    reward: 1.5e8,  gemReward: 200, timer: 30, name_en: 'Kraken' },
+    { name: 'Fırtına Dev',     icon: '⛈️', hp: 2.5e8,  reward: 8e8,    gemReward: 400, timer: 30, name_en: 'Storm Giant' },
+    { name: 'Kadim Gölge',     icon: '👤', hp: 1.5e9,  reward: 5e9,    gemReward: 800, timer: 30, name_en: 'Ancient Shadow' },
+    { name: 'Kıyamet Meleği',  icon: '😇', hp: 1e10,   reward: 4e10,   gemReward: 2000, timer: 30, name_en: 'Doomsday Angel' },
 ];
 
 // ===== ACHIEVEMENT DEFINITIONS =====
 const ACHIEVEMENTS = [
-    { id: 'first_tap',     icon: '👆', name: 'İlk Dokunuş',     desc: '1 kez dokun',           check: () => state.totalClicks >= 1, reward: 5 },
-    { id: 'tap_100',       icon: '💪', name: 'Hızlı Parmak',    desc: '100 kez dokun',         check: () => state.totalClicks >= 100, reward: 10 },
-    { id: 'tap_1000',      icon: '🔥', name: 'Ateş Parmak',     desc: '1000 kez dokun',        check: () => state.totalClicks >= 1000, reward: 25 },
-    { id: 'tap_10000',     icon: '⚡', name: 'Şimşek Hızı',    desc: '10.000 kez dokun',      check: () => state.totalClicks >= 10000, reward: 100 },
-    { id: 'gold_1k',       icon: '🪙', name: 'Altın Avcısı',    desc: '1K altın kazan',        check: () => state.totalGold >= 1000, reward: 5 },
-    { id: 'gold_100k',     icon: '💰', name: 'Zengin',           desc: '100K altın kazan',      check: () => state.totalGold >= 100000, reward: 20 },
-    { id: 'gold_1m',       icon: '🤑', name: 'Milyoner',         desc: '1M altın kazan',        check: () => state.totalGold >= 1e6, reward: 50 },
-    { id: 'gold_1b',       icon: '👑', name: 'Milyarder',        desc: '1B altın kazan',        check: () => state.totalGold >= 1e9, reward: 200 },
-    { id: 'building_5',    icon: '🏘️', name: 'Köy Kurucusu',    desc: '5 bina inşa et',        check: () => getKingdomLevel() >= 5, reward: 10 },
-    { id: 'building_20',   icon: '🏙️', name: 'Şehir Plancısı',  desc: '20 bina inşa et',       check: () => getKingdomLevel() >= 20, reward: 25 },
-    { id: 'building_50',   icon: '🌆', name: 'İmparator',        desc: '50 bina inşa et',       check: () => getKingdomLevel() >= 50, reward: 75 },
-    { id: 'boss_1',        icon: '⚔️', name: 'Boss Avcısı',     desc: 'İlk bossu yen',         check: () => state.bossIndex >= 1, reward: 15 },
-    { id: 'boss_5',        icon: '🛡️', name: 'Savaş Lordu',     desc: '5 boss yen',            check: () => state.bossIndex >= 5, reward: 40 },
-    { id: 'boss_8',        icon: '🏆', name: 'Efsane',            desc: 'Tüm bossları yen',     check: () => state.bossIndex >= 12, reward: 100 },
-    { id: 'hero_1',        icon: '🗡️', name: 'İlk Kahraman',    desc: 'Bir kahraman al',       check: () => Object.values(state.heroes).some(l => l > 0), reward: 10 },
-    { id: 'hero_all',      icon: '⚔️', name: 'Ordu Komutanı',   desc: 'Tüm kahramanları al',   check: () => HEROES.every(h => (state.heroes[h.id]||0) > 0), reward: 100 },
-    { id: 'prestige_1',    icon: '⭐', name: 'Yeniden Doğuş',   desc: 'İlk prestige yap',      check: () => state.prestigeStars >= 1, reward: 30 },
-    { id: 'prestige_10',   icon: '🌟', name: 'Yıldız Lordu',    desc: '10 prestige yıldızı',   check: () => state.prestigeStars >= 10, reward: 100 },
-    { id: 'combo_10',      icon: '🔥', name: 'Combo Ustası',    desc: '10x combo yap',         check: () => state.maxCombo >= 10, reward: 15 },
-    { id: 'lucky_1',       icon: '🍀', name: 'Şanslı',           desc: 'Şans olayı yaşa',      check: () => state.luckyEvents >= 1, reward: 10 },
-    { id: 'tap_50k',      icon: '🌪️', name: 'Kasırga Parmak',  desc: '50.000 kez dokun',      check: () => state.totalClicks >= 50000, reward: 300 },
-    { id: 'gold_1t',      icon: '💸', name: 'Trilyoner',        desc: '1T altın kazan',        check: () => state.totalGold >= 1e12, reward: 500 },
-    { id: 'building_100', icon: '🌍', name: 'Dünya İmparatoru', desc: '100 bina inşa et',      check: () => getKingdomLevel() >= 100, reward: 200 },
-    { id: 'building_200', icon: '🏗️', name: 'Mega Mimar',      desc: '200 bina inşa et',      check: () => getKingdomLevel() >= 200, reward: 400 },
-    { id: 'combo_50',     icon: '💥', name: 'Kombo Tanrısı',   desc: '50x combo yap',         check: () => state.maxCombo >= 50, reward: 75 },
-    { id: 'prestige_5',   icon: '🌟', name: 'Yıldız Avcısı',   desc: '5 prestige yıldızı',    check: () => state.prestigeStars >= 5, reward: 50 },
-    { id: 'prestige_50',  icon: '✨', name: 'Yıldız Efendisi',  desc: '50 prestige yıldızı',   check: () => state.prestigeStars >= 50, reward: 500 },
-    { id: 'hero_maxed',   icon: '💪', name: 'Ordu Efsanesi',   desc: 'Bir kahramanı Lv.50',   check: () => Object.values(state.heroes).some(l => l >= 50), reward: 150 },
-    { id: 'jackpot_1',    icon: '🎰', name: 'Şanslı Dokunuş',  desc: 'İlk jackpot!',          check: () => state.totalJackpots >= 1, reward: 15 },
-    { id: 'jackpot_10',   icon: '🎯', name: 'Şans Ustası',     desc: '10 jackpot kazan',      check: () => state.totalJackpots >= 10, reward: 50 },
+    { id: 'first_tap',     icon: '👆', name: 'İlk Dokunuş',     desc: '1 kez dokun',           check: () => state.totalClicks >= 1, reward: 5, name_en: 'First Tap', desc_en: 'Tap 1 time' },
+    { id: 'tap_100',       icon: '💪', name: 'Hızlı Parmak',    desc: '100 kez dokun',         check: () => state.totalClicks >= 100, reward: 10, name_en: 'Quick Finger', desc_en: 'Tap 100 times' },
+    { id: 'tap_1000',      icon: '🔥', name: 'Ateş Parmak',     desc: '1000 kez dokun',        check: () => state.totalClicks >= 1000, reward: 25, name_en: 'Fire Finger', desc_en: 'Tap 1,000 times' },
+    { id: 'tap_10000',     icon: '⚡', name: 'Şimşek Hızı',    desc: '10.000 kez dokun',      check: () => state.totalClicks >= 10000, reward: 100, name_en: 'Lightning Speed', desc_en: 'Tap 10,000 times' },
+    { id: 'gold_1k',       icon: '🪙', name: 'Altın Avcısı',    desc: '1K altın kazan',        check: () => state.totalGold >= 1000, reward: 5, name_en: 'Gold Hunter', desc_en: 'Earn 1K gold' },
+    { id: 'gold_100k',     icon: '💰', name: 'Zengin',           desc: '100K altın kazan',      check: () => state.totalGold >= 100000, reward: 20, name_en: 'Wealthy', desc_en: 'Earn 100K gold' },
+    { id: 'gold_1m',       icon: '🤑', name: 'Milyoner',         desc: '1M altın kazan',        check: () => state.totalGold >= 1e6, reward: 50, name_en: 'Millionaire', desc_en: 'Earn 1M gold' },
+    { id: 'gold_1b',       icon: '👑', name: 'Milyarder',        desc: '1B altın kazan',        check: () => state.totalGold >= 1e9, reward: 200, name_en: 'Billionaire', desc_en: 'Earn 1B gold' },
+    { id: 'building_5',    icon: '🏘️', name: 'Köy Kurucusu',    desc: '5 bina inşa et',        check: () => getKingdomLevel() >= 5, reward: 10, name_en: 'Village Founder', desc_en: 'Build 5 buildings' },
+    { id: 'building_20',   icon: '🏙️', name: 'Şehir Plancısı',  desc: '20 bina inşa et',       check: () => getKingdomLevel() >= 20, reward: 25, name_en: 'City Planner', desc_en: 'Build 20 buildings' },
+    { id: 'building_50',   icon: '🌆', name: 'İmparator',        desc: '50 bina inşa et',       check: () => getKingdomLevel() >= 50, reward: 75, name_en: 'Emperor', desc_en: 'Build 50 buildings' },
+    { id: 'boss_1',        icon: '⚔️', name: 'Boss Avcısı',     desc: 'İlk bossu yen',         check: () => state.bossIndex >= 1, reward: 15, name_en: 'Boss Hunter', desc_en: 'Defeat first boss' },
+    { id: 'boss_5',        icon: '🛡️', name: 'Savaş Lordu',     desc: '5 boss yen',            check: () => state.bossIndex >= 5, reward: 40, name_en: 'Warlord', desc_en: 'Defeat 5 bosses' },
+    { id: 'boss_8',        icon: '🏆', name: 'Efsane',            desc: 'Tüm bossları yen',     check: () => state.bossIndex >= 12, reward: 100, name_en: 'Legend', desc_en: 'Defeat all bosses' },
+    { id: 'hero_1',        icon: '🗡️', name: 'İlk Kahraman',    desc: 'Bir kahraman al',       check: () => Object.values(state.heroes).some(l => l > 0), reward: 10, name_en: 'First Hero', desc_en: 'Recruit a hero' },
+    { id: 'hero_all',      icon: '⚔️', name: 'Ordu Komutanı',   desc: 'Tüm kahramanları al',   check: () => HEROES.every(h => (state.heroes[h.id]||0) > 0), reward: 100, name_en: 'Army Commander', desc_en: 'Recruit all heroes' },
+    { id: 'prestige_1',    icon: '⭐', name: 'Yeniden Doğuş',   desc: 'İlk prestige yap',      check: () => state.prestigeStars >= 1, reward: 30, name_en: 'Rebirth', desc_en: 'First prestige' },
+    { id: 'prestige_10',   icon: '🌟', name: 'Yıldız Lordu',    desc: '10 prestige yıldızı',   check: () => state.prestigeStars >= 10, reward: 100, name_en: 'Star Lord', desc_en: '10 prestige stars' },
+    { id: 'combo_10',      icon: '🔥', name: 'Combo Ustası',    desc: '10x combo yap',         check: () => state.maxCombo >= 10, reward: 15, name_en: 'Combo Master', desc_en: '10x combo' },
+    { id: 'lucky_1',       icon: '🍀', name: 'Şanslı',           desc: 'Şans olayı yaşa',      check: () => state.luckyEvents >= 1, reward: 10, name_en: 'Lucky', desc_en: 'Experience a lucky event' },
+    { id: 'tap_50k',      icon: '🌪️', name: 'Kasırga Parmak',  desc: '50.000 kez dokun',      check: () => state.totalClicks >= 50000, reward: 300, name_en: 'Hurricane Finger', desc_en: 'Tap 50,000 times' },
+    { id: 'gold_1t',      icon: '💸', name: 'Trilyoner',        desc: '1T altın kazan',        check: () => state.totalGold >= 1e12, reward: 500, name_en: 'Trillionaire', desc_en: 'Earn 1T gold' },
+    { id: 'building_100', icon: '🌍', name: 'Dünya İmparatoru', desc: '100 bina inşa et',      check: () => getKingdomLevel() >= 100, reward: 200, name_en: 'World Emperor', desc_en: 'Build 100 buildings' },
+    { id: 'building_200', icon: '🏗️', name: 'Mega Mimar',      desc: '200 bina inşa et',      check: () => getKingdomLevel() >= 200, reward: 400, name_en: 'Mega Architect', desc_en: 'Build 200 buildings' },
+    { id: 'combo_50',     icon: '💥', name: 'Kombo Tanrısı',   desc: '50x combo yap',         check: () => state.maxCombo >= 50, reward: 75, name_en: 'Combo God', desc_en: '50x combo' },
+    { id: 'prestige_5',   icon: '🌟', name: 'Yıldız Avcısı',   desc: '5 prestige yıldızı',    check: () => state.prestigeStars >= 5, reward: 50, name_en: 'Star Hunter', desc_en: '5 prestige stars' },
+    { id: 'prestige_50',  icon: '✨', name: 'Yıldız Efendisi',  desc: '50 prestige yıldızı',   check: () => state.prestigeStars >= 50, reward: 500, name_en: 'Star Master', desc_en: '50 prestige stars' },
+    { id: 'hero_maxed',   icon: '💪', name: 'Ordu Efsanesi',   desc: 'Bir kahramanı Lv.50',   check: () => Object.values(state.heroes).some(l => l >= 50), reward: 150, name_en: 'Army Legend', desc_en: 'Get a hero to Lv.50' },
+    { id: 'jackpot_1',    icon: '🎰', name: 'Şanslı Dokunuş',  desc: 'İlk jackpot!',          check: () => state.totalJackpots >= 1, reward: 15, name_en: 'Lucky Tap', desc_en: 'First jackpot!' },
+    { id: 'jackpot_10',   icon: '🎯', name: 'Şans Ustası',     desc: '10 jackpot kazan',      check: () => state.totalJackpots >= 10, reward: 50, name_en: 'Luck Master', desc_en: 'Win 10 jackpots' },
 ];
 
 // ===== DAILY REWARD SYSTEM (Hook Model + Loss Aversion) =====
 const DAILY_REWARDS = [
-    { day: 1, icon: '🪙', name: '100 Altın',     type: 'gold', amount: 100 },
-    { day: 2, icon: '💎', name: '5 Mücevher',     type: 'gem',  amount: 5 },
-    { day: 3, icon: '🪙', name: '500 Altın',      type: 'gold', amount: 500 },
-    { day: 4, icon: '💎', name: '10 Mücevher',    type: 'gem',  amount: 10 },
-    { day: 5, icon: '⚡', name: 'x2 Üretim 60s',  type: 'boost', amount: 60 },
-    { day: 6, icon: '💎', name: '25 Mücevher',    type: 'gem',  amount: 25 },
-    { day: 7, icon: '🌟', name: 'MEGA ÖDÜL!',     type: 'mega', amount: 1 },
+    { day: 1, icon: '🪙', name: '100 Altın',     type: 'gold', amount: 100, name_en: '100 Gold' },
+    { day: 2, icon: '💎', name: '5 Mücevher',     type: 'gem',  amount: 5, name_en: '5 Gems' },
+    { day: 3, icon: '🪙', name: '500 Altın',      type: 'gold', amount: 500, name_en: '500 Gold' },
+    { day: 4, icon: '💎', name: '10 Mücevher',    type: 'gem',  amount: 10, name_en: '10 Gems' },
+    { day: 5, icon: '⚡', name: 'x2 Üretim 60s',  type: 'boost', amount: 60, name_en: 'x2 Production 60s' },
+    { day: 6, icon: '💎', name: '25 Mücevher',    type: 'gem',  amount: 25, name_en: '25 Gems' },
+    { day: 7, icon: '🌟', name: 'MEGA ÖDÜL!',     type: 'mega', amount: 1, name_en: 'MEGA REWARD!' },
+];
+
+// ===== QUEST SYSTEM (Zeigarnik Effect) =====
+const DAILY_QUESTS = [
+    { id: 'dq_tap50', name: '50 Dokunuş', name_en: '50 Taps', desc: '50 kez dokun', desc_en: 'Tap 50 times', target: 50, track: 'dailyTaps', reward: { type: 'gold', amount: 500 }, icon: '👆' },
+    { id: 'dq_build1', name: 'İnşaat', name_en: 'Construction', desc: '1 bina inşa et', desc_en: 'Build 1 building', target: 1, track: 'dailyBuilds', reward: { type: 'gold', amount: 300 }, icon: '🏗️' },
+    { id: 'dq_boss1', name: 'Boss Avı', name_en: 'Boss Hunt', desc: '1 boss\'a saldır', desc_en: 'Attack 1 boss', target: 1, track: 'dailyBossAttempts', reward: { type: 'gem', amount: 5 }, icon: '⚔️' },
+];
+
+const WEEKLY_QUESTS = [
+    { id: 'wq_tap500', name: '500 Dokunuş', name_en: '500 Taps', desc: '500 kez dokun', desc_en: 'Tap 500 times', target: 500, track: 'weeklyTaps', reward: { type: 'gem', amount: 15 }, icon: '🔥' },
+    { id: 'wq_boss3', name: '3 Boss Yen', name_en: 'Defeat 3 Bosses', desc: '3 boss yen', desc_en: 'Defeat 3 bosses', target: 3, track: 'weeklyBossWins', reward: { type: 'gem', amount: 30 }, icon: '🏆' },
+];
+
+const MAIN_QUESTS = [
+    { id: 'mq_farm', name: 'İlk Çiftlik', name_en: 'First Farm', desc: 'Çiftlik inşa et', desc_en: 'Build a Farm', check: () => (state.buildings.farm || 0) >= 1, reward: { type: 'gold', amount: 100 }, icon: '🌾' },
+    { id: 'mq_mine', name: 'Maden Aç', name_en: 'Open Mine', desc: 'Maden inşa et', desc_en: 'Build a Mine', check: () => (state.buildings.mine || 0) >= 1, reward: { type: 'gold', amount: 500 }, icon: '⛏️' },
+    { id: 'mq_hero', name: 'İlk Kahraman', name_en: 'First Hero', desc: 'Bir kahraman al', desc_en: 'Recruit a hero', check: () => Object.values(state.heroes).some(l => l > 0), reward: { type: 'gem', amount: 10 }, icon: '🗡️' },
+    { id: 'mq_boss1', name: 'İlk Zafer', name_en: 'First Victory', desc: 'İlk bossu yen', desc_en: 'Defeat first boss', check: () => state.bossIndex >= 1, reward: { type: 'gem', amount: 15 }, icon: '⚔️' },
+    { id: 'mq_5build', name: 'Köy Kur', name_en: 'Found Village', desc: '5 bina inşa et', desc_en: 'Build 5 buildings', check: () => getKingdomLevel() >= 5, reward: { type: 'gem', amount: 20 }, icon: '🏘️' },
+    { id: 'mq_prestige', name: 'Yeniden Doğuş', name_en: 'Rebirth', desc: 'İlk prestige yap', desc_en: 'First prestige', check: () => state.prestigeStars >= 1, reward: { type: 'gem', amount: 50 }, icon: '⭐' },
+    { id: 'mq_10build', name: 'Şehir Kur', name_en: 'Found City', desc: '10 bina seviyesi', desc_en: '10 building levels', check: () => getKingdomLevel() >= 10, reward: { type: 'gem', amount: 25 }, icon: '🏙️' },
+    { id: 'mq_boss5', name: '5 Boss Yen', name_en: 'Defeat 5 Bosses', desc: '5 boss yen', desc_en: 'Defeat 5 bosses', check: () => state.bossIndex >= 5, reward: { type: 'gem', amount: 40 }, icon: '🛡️' },
 ];
 
 // ===== FLASH SALE DEFINITIONS (Scarcity Principle + FOMO) =====
 const FLASH_SALES = [
-    { id: 'prod2x',   icon: '📈', name: 'Üretim x2',        desc: '60 saniye tüm üretim 2 katı!',  normalCost: 80,  saleCost: 25, duration: 60, effect: 'prodBoost', mult: 2 },
-    { id: 'tap5x',    icon: '👆', name: 'Mega Dokunuş',      desc: '30 saniye dokunuş 5 katı!',      normalCost: 60,  saleCost: 15, duration: 30, effect: 'tapBoost',  mult: 5 },
-    { id: 'gold10x',  icon: '🪙', name: 'Altın Patlaması',   desc: '45 saniye altın 10 katı!',       normalCost: 150, saleCost: 40, duration: 45, effect: 'goldRain',  mult: 10 },
-    { id: 'crit100',  icon: '🎯', name: 'Kritik Ustası',     desc: '30 saniye %100 kritik!',         normalCost: 100, saleCost: 30, duration: 30, effect: 'critBoost', mult: 1 },
+    { id: 'prod2x',   icon: '📈', name: 'Üretim x2',        desc: '60 saniye tüm üretim 2 katı!',  normalCost: 80,  saleCost: 25, duration: 60, effect: 'prodBoost', mult: 2, name_en: 'Production x2', desc_en: '60 seconds all production x2!' },
+    { id: 'tap5x',    icon: '👆', name: 'Mega Dokunuş',      desc: '30 saniye dokunuş 5 katı!',      normalCost: 60,  saleCost: 15, duration: 30, effect: 'tapBoost',  mult: 5, name_en: 'Mega Tap', desc_en: '30 seconds tap x5!' },
+    { id: 'gold10x',  icon: '🪙', name: 'Altın Patlaması',   desc: '45 saniye altın 10 katı!',       normalCost: 150, saleCost: 40, duration: 45, effect: 'goldRain',  mult: 10, name_en: 'Gold Burst', desc_en: '45 seconds gold x10!' },
+    { id: 'crit100',  icon: '🎯', name: 'Kritik Ustası',     desc: '30 saniye %100 kritik!',         normalCost: 100, saleCost: 30, duration: 30, effect: 'critBoost', mult: 1, name_en: 'Crit Master', desc_en: '30 seconds 100% crit!' },
 ];
+
+// ===== TRAVELING MERCHANT (FOMO + Scarcity) =====
+const MERCHANT_ITEMS = [
+    { id: 'mt_prod3x', icon: '📈', name: 'Güçlü Üretim', name_en: 'Power Production', desc: '90s tüm üretim x3', desc_en: '90s all production x3', cost: 20, duration: 90, effect: 'prodBoost', mult: 3 },
+    { id: 'mt_tap8x', icon: '👊', name: 'Titan Dokunuş', name_en: 'Titan Tap', desc: '60s dokunuş x8', desc_en: '60s tap x8', cost: 25, duration: 60, effect: 'tapBoost', mult: 8 },
+    { id: 'mt_gold15x', icon: '💰', name: 'Altın Madeni', name_en: 'Gold Mine', desc: '45s altın x15', desc_en: '45s gold x15', cost: 35, duration: 45, effect: 'goldRain', mult: 15 },
+    { id: 'mt_crit100', icon: '🎯', name: 'Keskin Nişancı', name_en: 'Sharpshooter', desc: '60s %100 kritik', desc_en: '60s 100% crit', cost: 20, duration: 60, effect: 'critBoost', mult: 1 },
+    { id: 'mt_combo', icon: '🔥', name: 'Kombo Ustası', name_en: 'Combo Master', desc: '120s kombo süresi x2', desc_en: '120s combo timer x2', cost: 15, duration: 120, effect: 'comboBoost', mult: 2 },
+    { id: 'mt_boss', icon: '⚔️', name: 'Boss Avcısı', name_en: 'Boss Hunter', desc: '60s boss hasarı x3', desc_en: '60s boss dmg x3', cost: 30, duration: 60, effect: 'bossDmgBoost', mult: 3 },
+    { id: 'mt_gem5', icon: '💎', name: 'Mücevher Paketi', name_en: 'Gem Pack', desc: 'Anında +5 💎', desc_en: 'Instant +5 💎', cost: 0, duration: 0, effect: 'instantGem', mult: 5 },
+    { id: 'mt_goldpack', icon: '🪙', name: 'Altın Çuvalı', name_en: 'Gold Sack', desc: 'Anında GPS x100 altın', desc_en: 'Instant GPS x100 gold', cost: 10, duration: 0, effect: 'instantGold', mult: 100 },
+];
+
+const MERCHANT_INTERVAL_MIN = 180; // 3 minutes (seconds) — would be 10800 (3h) in production
+const MERCHANT_INTERVAL_MAX = 360; // 6 minutes (seconds) — would be 21600 (6h) in production
+const MERCHANT_DURATION = 300; // 5 minutes the merchant stays
 
 // ===== TAP JACKPOT DEFINITIONS (Variable Ratio Reinforcement) =====
 const TAP_JACKPOTS = [
-    { chance: 0.05,   name: 'Mini Bonus!',      mult: 3,   icon: '✨', particles: 5 },   // 5% chance
-    { chance: 0.015,  name: 'Süper Bonus!',      mult: 10,  icon: '💫', particles: 10 },  // 1.5% chance
-    { chance: 0.003,  name: '🎰 JACKPOT!',       mult: 50,  icon: '🌟', particles: 25 },  // 0.3% chance
-    { chance: 0.0005, name: '⭐ MEGA JACKPOT!',  mult: 200, icon: '👑', particles: 40 },  // 0.05% chance
+    { chance: 0.05,   name: 'Mini Bonus!',      mult: 3,   icon: '✨', particles: 5, name_en: 'Mini Bonus!' },   // 5% chance
+    { chance: 0.015,  name: 'Süper Bonus!',      mult: 10,  icon: '💫', particles: 10, name_en: 'Super Bonus!' },  // 1.5% chance
+    { chance: 0.003,  name: '🎰 JACKPOT!',       mult: 50,  icon: '🌟', particles: 25, name_en: '🎰 JACKPOT!' },  // 0.3% chance
+    { chance: 0.0005, name: '⭐ MEGA JACKPOT!',  mult: 200, icon: '👑', particles: 40, name_en: '⭐ MEGA JACKPOT!' },  // 0.05% chance
 ];
 
 // ===== LUCKY EVENTS =====
 const LUCKY_EVENTS = [
-    { icon: '🪙', text: 'Altın Yağmuru! x5 üretim',    duration: 10, effect: 'goldRain',   mult: 5 },
-    { icon: '⚡', text: 'Dokunuş Fırtınası! x10 dokunuş', duration: 8, effect: 'tapStorm', mult: 10 },
-    { icon: '💎', text: 'Mücevher Şöleni! +5 💎',        duration: 5, effect: 'gemBonus',   mult: 5 },
-    { icon: '🔥', text: 'Çılgın Hız! x3 üretim',        duration: 15, effect: 'speedBoost', mult: 3 },
-    { icon: '🎯', text: '%100 Kritik Şans!',              duration: 8, effect: 'critBoost',  mult: 1 },
+    { icon: '🪙', text: 'Altın Yağmuru! x5 üretim',    duration: 10, effect: 'goldRain',   mult: 5, text_en: 'Gold Rain! x5 production' },
+    { icon: '⚡', text: 'Dokunuş Fırtınası! x10 dokunuş', duration: 8, effect: 'tapStorm', mult: 10, text_en: 'Tap Storm! x10 tap' },
+    { icon: '💎', text: 'Mücevher Şöleni! +5 💎',        duration: 5, effect: 'gemBonus',   mult: 5, text_en: 'Gem Feast! +5 💎' },
+    { icon: '🔥', text: 'Çılgın Hız! x3 üretim',        duration: 15, effect: 'speedBoost', mult: 3, text_en: 'Crazy Speed! x3 production' },
+    { icon: '🎯', text: '%100 Kritik Şans!',              duration: 8, effect: 'critBoost',  mult: 1, text_en: '100% Crit Chance!' },
 ];
 
 // ===== TUTORIAL SYSTEM =====
@@ -666,6 +1060,29 @@ const state = {
     phoenixTimer: 0,       // phoenix hero cooldown
     phoenixActive: false,  // phoenix burst active
     startTime: Date.now(), // session start time for play time tracking
+    kingdomName: '',       // custom kingdom name (IKEA effect)
+    lang: 'tr',            // language: 'tr' or 'en'
+    // Quest system
+    quests: {
+        daily: {},      // { dq_tap50: { progress: 0, claimed: false }, ... }
+        weekly: {},     // { wq_tap500: { progress: 0, claimed: false }, ... }
+        mainClaimed: {},// { mq_farm: true, ... }
+    },
+    dailyTaps: 0,
+    dailyBuilds: 0,
+    dailyBossAttempts: 0,
+    weeklyTaps: 0,
+    weeklyBossWins: 0,
+    questDailyReset: 0,   // timestamp
+    questWeeklyReset: 0,  // timestamp
+    // Merchant system
+    merchantActive: false,
+    merchantTimer: 0,        // countdown while merchant is present
+    merchantCooldown: 0,     // countdown until next merchant visit
+    merchantItems: [],       // current 3 items (indices into MERCHANT_ITEMS)
+    merchantPurchased: {},   // { itemIndex: true } — what was bought this visit
+    merchantBoostTimer: 0,   // active merchant item boost countdown
+    merchantBoost: null,     // { effect, mult } — active merchant item effect
 };
 
 // ===== DOM CACHE =====
@@ -700,6 +1117,7 @@ function cacheDom() {
         achievementsPanel: document.getElementById('achievements-panel'),
         achievementsList:  document.getElementById('achievements-list'),
         achievementsProgress: document.getElementById('achievements-progress'),
+        questsPanel:   document.getElementById('quests-panel'),
         navBtns:       document.querySelectorAll('.nav-btn'),
         prestigeOverlay:document.getElementById('prestige-overlay'),
         prestigeEarn:  document.getElementById('prestige-earn'),
@@ -745,6 +1163,12 @@ function cacheDom() {
         dailyDays:     document.getElementById('daily-days'),
         dailyStreak:   document.getElementById('daily-streak-display'),
         btnDailyClaim: document.getElementById('btn-daily-claim'),
+        // Merchant DOM
+        merchantBanner: document.getElementById('merchant-banner'),
+        merchantTitle:  document.getElementById('merchant-title'),
+        merchantTimer:  document.getElementById('merchant-timer'),
+        merchantItems:  document.getElementById('merchant-items'),
+        merchantTimerFill: document.getElementById('merchant-timer-fill'),
     };
 }
 
@@ -780,6 +1204,10 @@ function getHeroBossDmgMult() {
     let mult = 1;
     if (knightLevel > 0) mult *= (1 + knightLevel * 0.5);
     if (dragonLevel > 0) mult *= (1 + dragonLevel * 1.0);
+    // Merchant boss damage boost
+    if (state.merchantBoostTimer > 0 && state.merchantBoost && state.merchantBoost.effect === 'bossDmgBoost') {
+        mult *= state.merchantBoost.mult;
+    }
     return Math.min(50, mult); // cap boss dmg at 50x
 }
 
@@ -804,12 +1232,19 @@ function getTotalGPS() {
         if (state.luckyEvent.effect === 'goldRain') total *= state.luckyEvent.mult;
         if (state.luckyEvent.effect === 'speedBoost') total *= state.luckyEvent.mult;
     }
-    // Flash sale boost (prodBoost / goldRain)
+    // Temporary boost: use BEST of flash sale or merchant (don't stack both)
+    let tempBoostMult = 1;
     if (state.flashSaleBoostTimer > 0 && state.flashSaleBoost) {
         if (state.flashSaleBoost.effect === 'prodBoost' || state.flashSaleBoost.effect === 'goldRain') {
-            total *= state.flashSaleBoost.mult;
+            tempBoostMult = Math.max(tempBoostMult, state.flashSaleBoost.mult);
         }
     }
+    if (state.merchantBoostTimer > 0 && state.merchantBoost) {
+        if (state.merchantBoost.effect === 'prodBoost' || state.merchantBoost.effect === 'goldRain') {
+            tempBoostMult = Math.max(tempBoostMult, state.merchantBoost.mult);
+        }
+    }
+    total *= tempBoostMult;
     // Necromancer: +2% gold per boss defeated, cap 5x
     const necroLevel = state.heroes.necromancer || 0;
     if (necroLevel > 0) total *= Math.min(5, 1 + state.bossIndex * 0.02 * necroLevel);
@@ -838,14 +1273,19 @@ function getTapValue() {
     if (state.luckyActive && state.luckyEvent && state.luckyEvent.effect === 'tapStorm') {
         val *= state.luckyEvent.mult;
     }
-    // Flash sale tap boost
-    if (state.flashSaleBoostTimer > 0 && state.flashSaleBoost && state.flashSaleBoost.effect === 'tapBoost') {
-        val *= state.flashSaleBoost.mult;
+    // Temporary tap boost: best of flash sale or merchant (don't stack)
+    let tapBoostMult = 1;
+    let hasCritBoost = false;
+    if (state.flashSaleBoostTimer > 0 && state.flashSaleBoost) {
+        if (state.flashSaleBoost.effect === 'tapBoost') tapBoostMult = Math.max(tapBoostMult, state.flashSaleBoost.mult);
+        if (state.flashSaleBoost.effect === 'critBoost') hasCritBoost = true;
     }
-    // Flash sale crit boost
-    if (state.flashSaleBoostTimer > 0 && state.flashSaleBoost && state.flashSaleBoost.effect === 'critBoost') {
-        val *= 3; // always crit during crit boost
+    if (state.merchantBoostTimer > 0 && state.merchantBoost) {
+        if (state.merchantBoost.effect === 'tapBoost') tapBoostMult = Math.max(tapBoostMult, state.merchantBoost.mult);
+        if (state.merchantBoost.effect === 'critBoost') hasCritBoost = true;
     }
+    val *= tapBoostMult;
+    if (hasCritBoost) val *= 3;
     // Combo bonus: +5% per combo level (max +100%)
     const comboBonus = 1 + Math.min(state.comboCount * 0.05, 1.0);
     val = Math.floor(val * comboBonus);
@@ -890,8 +1330,8 @@ function renderBuildings() {
         card.innerHTML = `
             <div class="build-icon">${getIcon(def.id, 40)}</div>
             <div class="build-info">
-                <div class="build-name">${def.name} <span class="build-level">Lv ${level}</span></div>
-                <div class="build-desc">${def.desc}</div>
+                <div class="build-name">${getLocalizedName(def)} <span class="build-level">Lv ${level}</span></div>
+                <div class="build-desc">${getLocalizedDesc(def)}</div>
                 <div class="build-production">${level > 0 ? fmt(gps) + '/s' : ''} ${level > 0 ? '→ +' + fmt(nextGPS) + '/s' : '+' + fmt(def.baseGPS * state.globalMult * state.prestigeMult * (state.buildingMult[def.id]||1) * getHeroGoldBoost()) + '/s'}</div>
             </div>
             <button class="build-btn">${fmt(cost)} ${getIcon('gold', 14)}</button>
@@ -926,8 +1366,8 @@ function renderHeroes() {
         card.innerHTML = `
             <div class="hero-icon-wrap">${getIcon(def.id, 40)}</div>
             <div class="hero-info">
-                <div class="hero-name">${def.name} ${isUnlocked ? `<span class="hero-level">Lv ${level}</span>` : `<span class="hero-level">${getIcon('lock', 14)} ${fmt(def.unlockAt)} altın</span>`}</div>
-                <div class="hero-desc">${def.desc}</div>
+                <div class="hero-name">${getLocalizedName(def)} ${isUnlocked ? `<span class="hero-level">Lv ${level}</span>` : `<span class="hero-level">${getIcon('lock', 14)} ${fmt(def.unlockAt)} ${state.lang === 'en' ? 'gold' : 'altın'}</span>`}</div>
+                <div class="hero-desc">${getLocalizedDesc(def)}</div>
                 <div class="hero-dps">${level > 0 ? `${getIcon('sword', 14)} ${fmt(dps)} DPS` : ''}</div>
             </div>
             <button class="hero-btn" ${!isUnlocked ? 'disabled' : ''}>${isUnlocked ? fmt(cost) + ' ' + getIcon('gold', 14) : getIcon('lock', 16)}</button>
@@ -950,8 +1390,8 @@ function renderUpgrades() {
         card.innerHTML = `
             <div class="upgrade-icon">${getIcon(def.id, 32)}</div>
             <div class="upgrade-info">
-                <div class="upgrade-name">${def.name}${purchased ? ' ' + getIcon('check', 16) : ''}</div>
-                <div class="upgrade-desc">${def.desc}</div>
+                <div class="upgrade-name">${getLocalizedName(def)}${purchased ? ' ' + getIcon('check', 16) : ''}</div>
+                <div class="upgrade-desc">${getLocalizedDesc(def)}</div>
             </div>
             <div class="upgrade-cost">${purchased ? 'Alındı' : fmt(def.cost) + ' ' + getIcon('gold', 14)}</div>
         `;
@@ -973,8 +1413,8 @@ function renderAchievements() {
         card.innerHTML = `
             <div class="ach-icon">${done ? def.icon : getIcon('lock', 24)}</div>
             <div class="ach-info">
-                <div class="ach-name">${def.name}</div>
-                <div class="ach-desc">${def.desc}</div>
+                <div class="ach-name">${getLocalizedName(def)}</div>
+                <div class="ach-desc">${getLocalizedDesc(def)}</div>
             </div>
             <div class="ach-reward">${done ? getIcon('check', 20) : `+${def.reward} ${getIcon('gem', 14)}`}</div>
         `;
@@ -1015,7 +1455,7 @@ function renderHUD() {
 
     // Kingdom level & icon
     const kl = getKingdomLevel();
-    if (DOM.kingdomLevel) DOM.kingdomLevel.textContent = `Seviye ${kl}`;
+    if (DOM.kingdomLevel) DOM.kingdomLevel.textContent = `${t('level')} ${kl}`;
     // Map kingdom level to building icon (progressive)
     const tapIconKeys = ['farm','farm','mine','lumber','blacksmith','market','temple','academy','castle'];
     const tapIconKey = tapIconKeys[Math.min(Math.floor(kl / 5), tapIconKeys.length - 1)];
@@ -1038,7 +1478,7 @@ function renderMilestone() {
     for (const def of BUILDINGS) {
         const level = state.buildings[def.id] || 0;
         if (level === 0 && state.totalGold < def.unlockAt) {
-            nextTarget = { html: `${getIcon(def.id, 18)} ${def.name} Aç`, text: true };
+            nextTarget = { html: `${getIcon(def.id, 18)} ${getLocalizedName(def)} ${state.lang === 'en' ? 'Unlock' : 'Aç'}`, text: true };
             progress = Math.min(1, state.totalGold / def.unlockAt);
             break;
         }
@@ -1047,7 +1487,7 @@ function renderMilestone() {
     if (!nextTarget) {
         if (!state.bossActive) {
             const boss = BOSSES[state.bossIndex % BOSSES.length];
-            nextTarget = { html: `${getBossIcon(state.bossIndex % BOSSES.length)} ${boss.name} Yen`, text: true };
+            nextTarget = { html: `${getBossIcon(state.bossIndex % BOSSES.length)} ${getLocalizedName(boss)} ${state.lang === 'en' ? 'Defeat' : 'Yen'}`, text: true };
             progress = 1;
         } else {
             nextTarget = { html: `${getIcon('sword', 18)} Boss savaşı devam ediyor...`, text: true };
@@ -1071,23 +1511,43 @@ function renderBossPreview() {
     const boss = BOSSES[idx];
     const hpScale = Math.pow(10, scale - 1);
     if (DOM.bossPreviewIcon) DOM.bossPreviewIcon.innerHTML = getBossIcon(idx);
-    if (DOM.bossPreviewName) DOM.bossPreviewName.textContent = `Sıradaki: ${boss.name}${scale > 1 ? ' x' + scale : ''}`;
+    if (DOM.bossPreviewName) DOM.bossPreviewName.textContent = `${t('next')} ${getLocalizedName(boss)}${scale > 1 ? ' x' + scale : ''}`;
     if (DOM.bossPreviewHp) DOM.bossPreviewHp.innerHTML = `HP: ${fmt(boss.hp * hpScale)} | Ödül: ${fmt(boss.reward * hpScale)} ${getIcon('gold', 14)} + ${boss.gemReward * scale} ${getIcon('gem', 14)}`;
 }
 
 function renderBoss() {
     if (!state.bossActive) {
-        if (DOM.bossSection) DOM.bossSection.classList.add('hidden');
+        if (DOM.bossSection) {
+            DOM.bossSection.classList.add('hidden');
+            DOM.bossSection.classList.remove('boss-battle-active');
+        }
+        if (DOM.bossTimer) DOM.bossTimer.classList.remove('timer-danger');
         return;
     }
-    if (DOM.bossSection) DOM.bossSection.classList.remove('hidden');
+    if (DOM.bossSection) {
+        DOM.bossSection.classList.remove('hidden');
+        DOM.bossSection.classList.add('boss-battle-active');
+    }
     const boss = BOSSES[state.bossIndex % BOSSES.length];
     const scale = Math.floor(state.bossIndex / BOSSES.length) + 1;
-    if (DOM.bossName) DOM.bossName.innerHTML = `${getBossIcon(state.bossIndex % BOSSES.length)} ${boss.name}${scale > 1 ? ' x' + scale : ''}`;
-    if (DOM.bossTimer) DOM.bossTimer.textContent = `${Math.ceil(state.bossTimer)}s`;
+    if (DOM.bossName) DOM.bossName.innerHTML = `${getBossIcon(state.bossIndex % BOSSES.length)} ${getLocalizedName(boss)}${scale > 1 ? ' x' + scale : ''}`;
+
+    // Timer with danger state
+    const timerSecs = Math.ceil(state.bossTimer);
+    if (DOM.bossTimer) {
+        DOM.bossTimer.textContent = `${timerSecs}s`;
+        if (timerSecs <= 5) {
+            DOM.bossTimer.classList.add('timer-danger');
+        } else {
+            DOM.bossTimer.classList.remove('timer-danger');
+        }
+    }
+
+    // HP bar with percentage
     const ratio = Math.max(0, state.bossHP / state.bossMaxHP);
+    const hpPercent = Math.ceil(ratio * 100);
     if (DOM.bossHpFill) DOM.bossHpFill.style.width = (ratio * 100) + '%';
-    if (DOM.bossHpText) DOM.bossHpText.textContent = `${fmt(state.bossHP)} / ${fmt(state.bossMaxHP)}`;
+    if (DOM.bossHpText) DOM.bossHpText.textContent = `${fmt(state.bossHP)} / ${fmt(state.bossMaxHP)}  (%${hpPercent})`;
 }
 
 function renderPrestigeOverlay() {
@@ -1123,6 +1583,7 @@ function buyBuilding(id) {
 
     state.gold -= cost;
     state.buildings[id] = level + 1;
+    trackQuest('dailyBuilds', 1);
     SFX.buy();
 
     // 🟢 Purchase burst effect — Green flash (positive reinforcement)
@@ -1185,6 +1646,8 @@ function onTap(e) {
     try {
         SFX.resume();
         state.totalClicks++;
+        trackQuest('dailyTaps', 1);
+        trackQuest('weeklyTaps', 1);
 
         // Combo system
         state.comboCount++;
@@ -1283,13 +1746,17 @@ function onTap(e) {
 }
 
 function spawnFloatText(text, x, y, isCrit) {
+    // Memory leak prevention: limit max floating texts
+    if (DOM.floatContainer && DOM.floatContainer.childElementCount > 30) {
+        DOM.floatContainer.firstElementChild.remove();
+    }
     const el = document.createElement('div');
     el.className = 'float-text' + (isCrit ? ' crit' : '');
     el.textContent = text;
     el.style.left = x + 'px';
     el.style.top = y + 'px';
     if (DOM.floatContainer) DOM.floatContainer.appendChild(el);
-    setTimeout(() => el.remove(), 900);
+    setTimeout(() => { if (el.parentNode) el.remove(); }, 900);
 }
 
 function spawnJackpotText(text, x, y) {
@@ -1303,12 +1770,16 @@ function spawnJackpotText(text, x, y) {
 }
 
 function spawnTapRipple(rect) {
+    // Limit ripple elements to prevent memory issues
+    if (DOM.tapParticles && DOM.tapParticles.childElementCount > 10) {
+        DOM.tapParticles.firstElementChild.remove();
+    }
     const el = document.createElement('div');
     el.className = 'tap-ripple';
     el.style.left = (rect.width/2 - 10) + 'px';
     el.style.top = (rect.height/2 - 10) + 'px';
     if (DOM.tapParticles) DOM.tapParticles.appendChild(el);
-    setTimeout(() => el.remove(), 500);
+    setTimeout(() => { if (el.parentNode) el.remove(); }, 500);
 }
 
 function showCombo() {
@@ -1566,6 +2037,172 @@ function buyFlashSale() {
     save();
 }
 
+// ===== TRAVELING MERCHANT SYSTEM (FOMO + Scarcity) =====
+let merchantCheckTimer = 0;
+
+function checkMerchant(dt) {
+    // Update active merchant boost
+    if (state.merchantBoostTimer > 0) {
+        state.merchantBoostTimer -= dt;
+        if (state.merchantBoostTimer <= 0) {
+            state.merchantBoostTimer = 0;
+            state.merchantBoost = null;
+        }
+    }
+
+    // Merchant is currently visiting
+    if (state.merchantActive) {
+        state.merchantTimer -= dt;
+        if (state.merchantTimer <= 0) {
+            // Merchant leaves — FOMO: they missed items!
+            dismissMerchant();
+            return;
+        }
+        // Update timer UI
+        renderMerchantTimer();
+        return;
+    }
+
+    // Cooldown until next merchant visit
+    if (state.merchantCooldown > 0) {
+        state.merchantCooldown -= dt;
+        if (state.merchantCooldown <= 0) {
+            state.merchantCooldown = 0;
+            triggerMerchant();
+        }
+        return;
+    }
+
+    // Random chance to schedule a merchant visit (only if GPS > 0)
+    merchantCheckTimer += dt;
+    if (merchantCheckTimer >= 1) {
+        merchantCheckTimer = 0;
+        if (getTotalGPS() > 0 && !state.merchantActive) {
+            // Schedule first visit with shorter cooldown
+            const cooldown = MERCHANT_INTERVAL_MIN + Math.random() * (MERCHANT_INTERVAL_MAX - MERCHANT_INTERVAL_MIN);
+            state.merchantCooldown = cooldown;
+        }
+    }
+}
+
+function triggerMerchant() {
+    // Pick 3 random unique items
+    const indices = [];
+    const pool = [...Array(MERCHANT_ITEMS.length).keys()];
+    for (let i = 0; i < 3 && pool.length > 0; i++) {
+        const pick = Math.floor(Math.random() * pool.length);
+        indices.push(pool.splice(pick, 1)[0]);
+    }
+
+    state.merchantActive = true;
+    state.merchantTimer = MERCHANT_DURATION;
+    state.merchantItems = indices;
+    state.merchantPurchased = {};
+
+    renderMerchant();
+    if (DOM.merchantBanner) DOM.merchantBanner.classList.remove('hidden');
+    SFX.lucky(); // arrival fanfare
+    spawnFloatText(t('merchantArrived'), window.innerWidth / 2, window.innerHeight / 3, false);
+}
+
+function dismissMerchant() {
+    state.merchantActive = false;
+    state.merchantTimer = 0;
+    state.merchantItems = [];
+    state.merchantPurchased = {};
+    // Set cooldown for next visit
+    state.merchantCooldown = MERCHANT_INTERVAL_MIN + Math.random() * (MERCHANT_INTERVAL_MAX - MERCHANT_INTERVAL_MIN);
+
+    if (DOM.merchantBanner) DOM.merchantBanner.classList.add('hidden');
+}
+
+function buyMerchantItem(itemIndex) {
+    if (!state.merchantActive) return;
+    if (state.merchantPurchased[itemIndex]) return;
+
+    const item = MERCHANT_ITEMS[itemIndex];
+    if (!item) return;
+
+    if (state.gems < item.cost) {
+        SFX.error();
+        return;
+    }
+
+    state.gems -= item.cost;
+    state.merchantPurchased[itemIndex] = true;
+
+    // Apply item effect
+    if (item.effect === 'instantGem') {
+        state.gems += item.mult;
+        spawnFloatText(`+${item.mult} 💎`, window.innerWidth / 2, window.innerHeight / 3, true);
+    } else if (item.effect === 'instantGold') {
+        const goldAmount = Math.max(100, getTotalGPS() * item.mult);
+        state.gold += goldAmount;
+        state.totalGold += goldAmount;
+        spawnFloatText(`+${fmt(goldAmount)} 🪙`, window.innerWidth / 2, window.innerHeight / 3, true);
+        Particles.spawn(15, 'gold');
+    } else if (item.duration > 0) {
+        // Timed boost — replaces any existing merchant boost
+        state.merchantBoostTimer = item.duration;
+        state.merchantBoost = { effect: item.effect, mult: item.mult };
+        spawnFloatText(`${item.icon} ${getLocalizedName(item)} aktif!`, window.innerWidth / 2, window.innerHeight / 3, false);
+    }
+
+    SFX.buy();
+    renderMerchant();
+    renderHUD();
+    save();
+}
+
+function renderMerchant() {
+    if (!DOM.merchantItems) return;
+    if (!state.merchantActive) {
+        if (DOM.merchantBanner) DOM.merchantBanner.classList.add('hidden');
+        return;
+    }
+
+    if (DOM.merchantTitle) DOM.merchantTitle.textContent = t('merchantArrived');
+    DOM.merchantItems.innerHTML = '';
+
+    for (const idx of state.merchantItems) {
+        const item = MERCHANT_ITEMS[idx];
+        if (!item) continue;
+        const purchased = state.merchantPurchased[idx];
+        const canAfford = state.gems >= item.cost;
+
+        const card = document.createElement('div');
+        card.className = 'merchant-item' + (purchased ? ' purchased' : '') + (!canAfford && !purchased ? ' too-expensive' : '');
+        card.innerHTML = `
+            <span class="merchant-item-icon">${item.icon}</span>
+            <div class="merchant-item-info">
+                <div class="merchant-item-name">${getLocalizedName(item)}</div>
+                <div class="merchant-item-desc">${getLocalizedDesc(item)}</div>
+            </div>
+            <button class="merchant-buy-btn ${purchased ? 'sold' : ''}" ${purchased || !canAfford ? 'disabled' : ''}>
+                ${purchased ? t('merchantSold') : item.cost + ' 💎'}
+            </button>
+        `;
+        if (!purchased && canAfford) {
+            card.querySelector('.merchant-buy-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                buyMerchantItem(idx);
+            });
+        }
+        DOM.merchantItems.appendChild(card);
+    }
+}
+
+function renderMerchantTimer() {
+    if (!state.merchantActive) return;
+    const mins = Math.floor(state.merchantTimer / 60);
+    const secs = Math.ceil(state.merchantTimer % 60);
+    const timeStr = mins > 0 ? `${mins}:${secs.toString().padStart(2, '0')}` : `${secs}s`;
+    if (DOM.merchantTimer) DOM.merchantTimer.textContent = timeStr + t('merchantTimeLeft');
+    if (DOM.merchantTimerFill) {
+        DOM.merchantTimerFill.style.width = (state.merchantTimer / MERCHANT_DURATION * 100) + '%';
+    }
+}
+
 // ===== NEAR-MISS BOSS EFFECT (Near-Miss Psychology) =====
 function updateBossNearMiss() {
     if (!state.bossActive || !DOM.bossHpFill) return;
@@ -1596,7 +2233,12 @@ function updateBossNearMiss() {
 // ===== COMBO SYSTEM =====
 function updateCombo(dt) {
     if (state.comboCount > 0) {
-        state.comboTimer -= dt;
+        // Merchant comboBoost: double the combo decay time
+        let decayDt = dt;
+        if (state.merchantBoostTimer > 0 && state.merchantBoost && state.merchantBoost.effect === 'comboBoost') {
+            decayDt = dt / state.merchantBoost.mult; // slower decay
+        }
+        state.comboTimer -= decayDt;
         if (state.comboTimer <= 0) {
             state.comboCount = 0;
             state.comboTimer = 0;
@@ -1661,6 +2303,7 @@ function startBoss() {
     state.bossMaxHP = boss.hp * hpScale;
     state.bossHP = state.bossMaxHP;
     state.bossTimer = boss.timer + getHeroBossTimerBonus();
+    trackQuest('dailyBossAttempts', 1);
     renderBoss();
 }
 
@@ -1688,19 +2331,23 @@ function updateBoss(dt) {
         state.gems += gemReward;
         state.bossIndex++;
         state.bossActive = false;
+        trackQuest('weeklyBossWins', 1);
 
         SFX.bossWin();
         Particles.spawn(30, 'gold');
         Particles.spawn(10, 'gem');
-        spawnFloatText(`+${fmt(goldReward)} gold  +${gemReward} gem`, window.innerWidth/2, window.innerHeight/3, false);
-        if (DOM.bossSection) {
-            DOM.bossSection.classList.add('boss-defeated');
-            setTimeout(() => DOM.bossSection.classList.remove('boss-defeated'), 600);
-        }
 
         // Screen shake
         document.body.classList.add('screen-shake');
         setTimeout(() => document.body.classList.remove('screen-shake'), 300);
+
+        // Show victory overlay
+        showBossResult('win', {
+            bossName: getLocalizedName(boss),
+            bossIcon: getBossIcon(idx),
+            goldReward: goldReward,
+            gemReward: gemReward
+        });
 
         renderHUD();
         renderBoss();
@@ -1708,13 +2355,106 @@ function updateBoss(dt) {
     }
 
     if (state.bossTimer <= 0) {
+        // Defeat!
+        const idx = state.bossIndex % BOSSES.length;
+        const scale = Math.floor(state.bossIndex / BOSSES.length) + 1;
+        const boss = BOSSES[idx];
+        const hpScale = Math.pow(10, scale - 1);
+        const remainingHP = state.bossHP;
+        const maxHP = state.bossMaxHP;
+        const hpPercent = Math.ceil((remainingHP / maxHP) * 100);
+
         state.bossActive = false;
-        SFX.bossLose();
+
+        SFX.bossDefeat();
+        Haptic.bossLose();
+
+        // Red screen flash
+        document.body.classList.add('screen-flash-red');
+        setTimeout(() => document.body.classList.remove('screen-flash-red'), 500);
+
+        // Show defeat overlay
+        showBossResult('lose', {
+            bossName: getLocalizedName(boss),
+            bossIcon: getBossIcon(idx),
+            remainingHP: remainingHP,
+            maxHP: maxHP,
+            hpPercent: hpPercent
+        });
+
         renderBoss();
         return;
     }
 
     renderBoss();
+}
+
+// ===== BOSS RESULT OVERLAY =====
+function showBossResult(result, data) {
+    const overlay = document.getElementById('boss-result-overlay');
+    const box = document.getElementById('boss-result-box');
+    const iconEl = document.getElementById('boss-result-icon');
+    const titleEl = document.getElementById('boss-result-title');
+    const descEl = document.getElementById('boss-result-desc');
+    const rewardsEl = document.getElementById('boss-result-rewards');
+    const nearmissEl = document.getElementById('boss-result-nearmiss');
+    const btnEl = document.getElementById('btn-boss-result');
+    if (!overlay || !box) return;
+
+    // Remove old theme classes
+    box.classList.remove('boss-result-win', 'boss-result-lose');
+
+    if (result === 'win') {
+        box.classList.add('boss-result-win');
+        if (iconEl) iconEl.innerHTML = `<div class="boss-result-icon-wrap win-icon">${data.bossIcon || '👺'}</div>`;
+        if (titleEl) titleEl.textContent = t('bossWin');
+        if (descEl) descEl.textContent = t('bossDefeated', { name: data.bossName });
+        if (rewardsEl) rewardsEl.innerHTML = `
+            <div class="boss-reward-line">
+                <span class="reward-amount">+${fmt(data.goldReward)}</span> ${getIcon('gold', 18)}
+            </div>
+            <div class="boss-reward-line">
+                <span class="reward-amount">+${data.gemReward}</span> ${getIcon('gem', 18)}
+            </div>
+        `;
+        if (nearmissEl) nearmissEl.classList.add('hidden');
+        if (btnEl) btnEl.textContent = t('greatBtn');
+        btnEl.className = 'btn-gold btn-boss-ok';
+    } else {
+        box.classList.add('boss-result-lose');
+        if (iconEl) iconEl.innerHTML = `<div class="boss-result-icon-wrap lose-icon">${data.bossIcon || '👺'}</div>`;
+        if (titleEl) titleEl.textContent = t('bossLose');
+        if (descEl) descEl.textContent = t('timeUp');
+        if (rewardsEl) rewardsEl.innerHTML = `
+            <div class="boss-hp-remaining">
+                <span>Kalan HP:</span>
+                <span class="hp-value">${fmt(data.remainingHP)} / ${fmt(data.maxHP)}</span>
+            </div>
+            <div class="boss-hp-bar-mini">
+                <div class="boss-hp-bar-mini-fill" style="width:${data.hpPercent}%"></div>
+            </div>
+        `;
+        // Near-miss: if boss HP was below 15%
+        if (data.hpPercent <= 15) {
+            if (nearmissEl) {
+                nearmissEl.classList.remove('hidden');
+                nearmissEl.innerHTML = `<span class="nearmiss-text">${t('nearMiss', { pct: data.hpPercent })}</span>`;
+            }
+        } else {
+            if (nearmissEl) nearmissEl.classList.add('hidden');
+        }
+        if (btnEl) btnEl.textContent = t('retryBtn');
+        btnEl.className = 'btn-red btn-boss-ok';
+    }
+
+    overlay.classList.remove('hidden');
+
+    // Button click handler
+    const closeHandler = () => {
+        overlay.classList.add('hidden');
+        btnEl.removeEventListener('click', closeHandler);
+    };
+    btnEl.addEventListener('click', closeHandler);
 }
 
 // ===== PRESTIGE SYSTEM =====
@@ -1761,7 +2501,8 @@ function doPrestige() {
 function calcOfflineEarnings() {
     const now = Date.now();
     const elapsed = (now - state.lastTick) / 1000;
-    if (elapsed < 60) return null;
+    // Time cheat prevention: reject negative time or absurdly large gaps (>30 days)
+    if (elapsed < 60 || elapsed < 0 || elapsed > 30 * 24 * 3600) return null;
 
     const maxOffline = 8 * 3600;
     const cappedTime = Math.min(elapsed, maxOffline);
@@ -1815,8 +2556,12 @@ function load() {
         if (!raw) raw = localStorage.getItem('idle_kingdom_save');
         if (!raw) return false;
         const saved = JSON.parse(raw);
-        for (const key in saved) {
-            if (saved[key] !== undefined) state[key] = saved[key];
+        // Safe key copy — prevent prototype pollution
+        const allowedKeys = Object.keys(state);
+        for (const key of allowedKeys) {
+            if (saved.hasOwnProperty(key) && saved[key] !== undefined) {
+                state[key] = saved[key];
+            }
         }
         // Ensure critical objects exist
         if (!state.buildings) state.buildings = {};
@@ -1844,17 +2589,254 @@ function load() {
         if (typeof state.critDmgMult !== 'number') state.critDmgMult = 3;
         if (typeof state.gemBossMult !== 'number') state.gemBossMult = 1;
         if (typeof state.phoenixTimer !== 'number') state.phoenixTimer = 0;
+        if (typeof state.kingdomName !== 'string') state.kingdomName = '';
+        if (typeof state.lang !== 'string') state.lang = 'tr';
+        // Quest system backward compatibility
+        if (!state.quests) state.quests = { daily: {}, weekly: {}, mainClaimed: {} };
+        if (!state.quests.daily) state.quests.daily = {};
+        if (!state.quests.weekly) state.quests.weekly = {};
+        if (!state.quests.mainClaimed) state.quests.mainClaimed = {};
+        if (typeof state.dailyTaps !== 'number') state.dailyTaps = 0;
+        if (typeof state.dailyBuilds !== 'number') state.dailyBuilds = 0;
+        if (typeof state.dailyBossAttempts !== 'number') state.dailyBossAttempts = 0;
+        if (typeof state.weeklyTaps !== 'number') state.weeklyTaps = 0;
+        if (typeof state.weeklyBossWins !== 'number') state.weeklyBossWins = 0;
+        if (typeof state.questDailyReset !== 'number') state.questDailyReset = 0;
+        if (typeof state.questWeeklyReset !== 'number') state.questWeeklyReset = 0;
+        // Merchant backward compatibility
+        if (typeof state.merchantActive !== 'boolean') state.merchantActive = false;
+        if (typeof state.merchantTimer !== 'number') state.merchantTimer = 0;
+        if (typeof state.merchantCooldown !== 'number') state.merchantCooldown = 0;
+        if (!Array.isArray(state.merchantItems)) state.merchantItems = [];
+        if (!state.merchantPurchased) state.merchantPurchased = {};
+        if (typeof state.merchantBoostTimer !== 'number') state.merchantBoostTimer = 0;
         state.phoenixActive = false; // don't persist
         // Don't persist active flash sale (expires)
         state.flashSaleActive = false;
         state.flashSale = null;
         state.flashSaleTimer = 0;
+        // Don't persist active merchant visit (expires)
+        state.merchantActive = false;
+        state.merchantTimer = 0;
+        state.merchantItems = [];
+        state.merchantPurchased = {};
         // Recalculate prestige multiplier (formula may have changed)
         state.prestigeMult = getPrestigeMult(state.prestigeStars);
         return true;
     } catch (e) {
         console.warn('Load failed, resetting:', e);
         return false;
+    }
+}
+
+// ===== QUEST SYSTEM LOGIC =====
+function checkQuestResets() {
+    const now = Date.now();
+    const dayMs = 24 * 60 * 60 * 1000;
+    const weekMs = 7 * dayMs;
+
+    // Daily reset
+    if (now - state.questDailyReset > dayMs) {
+        state.quests.daily = {};
+        state.dailyTaps = 0;
+        state.dailyBuilds = 0;
+        state.dailyBossAttempts = 0;
+        state.questDailyReset = now;
+    }
+
+    // Weekly reset
+    if (now - state.questWeeklyReset > weekMs) {
+        state.quests.weekly = {};
+        state.weeklyTaps = 0;
+        state.weeklyBossWins = 0;
+        state.questWeeklyReset = now;
+    }
+}
+
+function getQuestProgress(quest, type) {
+    if (type === 'main') {
+        return quest.check() ? quest.target || 1 : 0;
+    }
+    const stateKey = type === 'daily' ? 'daily' : 'weekly';
+    const qData = state.quests[stateKey][quest.id];
+    return qData ? qData.progress : 0;
+}
+
+function isQuestComplete(quest, type) {
+    if (type === 'main') return quest.check();
+    const progress = getQuestProgress(quest, type);
+    return progress >= quest.target;
+}
+
+function isQuestClaimed(quest, type) {
+    if (type === 'main') return !!state.quests.mainClaimed[quest.id];
+    const stateKey = type === 'daily' ? 'daily' : 'weekly';
+    const qData = state.quests[stateKey][quest.id];
+    return qData ? qData.claimed : false;
+}
+
+function claimQuest(quest, type) {
+    if (!isQuestComplete(quest, type) || isQuestClaimed(quest, type)) return;
+
+    // Give reward
+    if (quest.reward.type === 'gold') {
+        state.gold += quest.reward.amount;
+        state.totalGold += quest.reward.amount;
+    } else if (quest.reward.type === 'gem') {
+        state.gems += quest.reward.amount;
+    }
+
+    // Mark claimed
+    if (type === 'main') {
+        state.quests.mainClaimed[quest.id] = true;
+    } else {
+        const stateKey = type === 'daily' ? 'daily' : 'weekly';
+        if (!state.quests[stateKey][quest.id]) state.quests[stateKey][quest.id] = { progress: 0, claimed: false };
+        state.quests[stateKey][quest.id].claimed = true;
+    }
+
+    SFX.buy();
+    Haptic.achievement();
+    renderQuests();
+    renderHUD();
+    save();
+}
+
+function trackQuest(trackKey, amount) {
+    if (typeof amount !== 'number') amount = 1;
+    state[trackKey] = (state[trackKey] || 0) + amount;
+
+    // Update daily quest progress
+    DAILY_QUESTS.forEach(q => {
+        if (q.track === trackKey) {
+            if (!state.quests.daily[q.id]) state.quests.daily[q.id] = { progress: 0, claimed: false };
+            state.quests.daily[q.id].progress = state[trackKey];
+        }
+    });
+
+    // Update weekly quest progress
+    WEEKLY_QUESTS.forEach(q => {
+        if (q.track === trackKey) {
+            if (!state.quests.weekly[q.id]) state.quests.weekly[q.id] = { progress: 0, claimed: false };
+            state.quests.weekly[q.id].progress = state[trackKey];
+        }
+    });
+}
+
+function renderQuests() {
+    const dailyList = document.getElementById('daily-quests-list');
+    const weeklyList = document.getElementById('weekly-quests-list');
+    const mainList = document.getElementById('main-quests-list');
+    const progressEl = document.getElementById('quests-progress');
+
+    let totalComplete = 0;
+    let totalQuests = DAILY_QUESTS.length + WEEKLY_QUESTS.length + MAIN_QUESTS.length;
+
+    function renderQuestCard(quest, type, container) {
+        const complete = isQuestComplete(quest, type);
+        const claimed = isQuestClaimed(quest, type);
+        const progress = getQuestProgress(quest, type);
+        const target = quest.target || 1;
+        const pct = Math.min(100, Math.floor((progress / target) * 100));
+
+        if (claimed) totalComplete++;
+
+        const card = document.createElement('div');
+        card.className = `quest-card ${claimed ? 'quest-claimed' : complete ? 'quest-complete' : ''}`;
+
+        const rewardIcon = quest.reward.type === 'gold' ? getIcon('gold', 14) : getIcon('gem', 14);
+        const questName = getLocalizedName(quest);
+        const questDesc = getLocalizedDesc(quest);
+
+        card.innerHTML = `
+            <div class="quest-icon">${quest.icon}</div>
+            <div class="quest-info">
+                <div class="quest-name">${questName}</div>
+                <div class="quest-desc">${questDesc}</div>
+                <div class="quest-progress-bar">
+                    <div class="quest-progress-fill" style="width:${pct}%"></div>
+                </div>
+                <div class="quest-progress-text">${progress >= target ? target : progress} / ${target}</div>
+            </div>
+            <div class="quest-reward-area">
+                ${claimed ? '<span class="quest-done-check">✅</span>' :
+                  complete ? `<button class="quest-claim-btn">+${quest.reward.amount} ${rewardIcon}</button>` :
+                  `<span class="quest-reward-preview">+${quest.reward.amount} ${rewardIcon}</span>`}
+            </div>
+        `;
+
+        if (complete && !claimed) {
+            const btn = card.querySelector('.quest-claim-btn');
+            if (btn) btn.addEventListener('click', (e) => { e.stopPropagation(); claimQuest(quest, type); });
+        }
+
+        container.appendChild(card);
+    }
+
+    if (dailyList) {
+        dailyList.innerHTML = '';
+        DAILY_QUESTS.forEach(q => renderQuestCard(q, 'daily', dailyList));
+    }
+
+    if (weeklyList) {
+        weeklyList.innerHTML = '';
+        WEEKLY_QUESTS.forEach(q => renderQuestCard(q, 'weekly', weeklyList));
+    }
+
+    if (mainList) {
+        mainList.innerHTML = '';
+        MAIN_QUESTS.forEach(q => renderQuestCard(q, 'main', mainList));
+    }
+
+    if (progressEl) progressEl.textContent = `${totalComplete} / ${totalQuests}`;
+}
+
+// ===== KINGDOM NAMING SYSTEM =====
+function applyKingdomName() {
+    const nameEl = document.getElementById('kingdom-name');
+    if (nameEl) {
+        nameEl.textContent = state.kingdomName || 'Tıkla Fethet';
+    }
+}
+
+function showKingdomNaming() {
+    const overlay = document.getElementById('kingdom-name-overlay');
+    const input = document.getElementById('kingdom-name-input');
+    const preview = document.getElementById('kingdom-name-preview-text');
+    const btnOk = document.getElementById('btn-kingdom-name-ok');
+    const btnSkip = document.getElementById('btn-kingdom-name-skip');
+    if (!overlay) return;
+
+    overlay.classList.remove('hidden');
+
+    if (input) {
+        input.value = '';
+        input.addEventListener('input', () => {
+            const val = input.value.trim();
+            if (preview) preview.textContent = val || 'Tıkla Fethet';
+        });
+    }
+
+    const confirmName = () => {
+        const val = input ? input.value.trim() : '';
+        state.kingdomName = val || 'Tıkla Fethet';
+        applyKingdomName();
+        overlay.classList.add('hidden');
+        SFX.buy();
+        Haptic.achievement();
+        save();
+    };
+
+    if (btnOk) {
+        btnOk.onclick = confirmName;
+    }
+    if (btnSkip) {
+        btnSkip.onclick = () => {
+            state.kingdomName = 'Tıkla Fethet';
+            applyKingdomName();
+            overlay.classList.add('hidden');
+            save();
+        };
     }
 }
 
@@ -2073,6 +3055,7 @@ function switchTab(tab) {
     if (DOM.upgradesPanel) DOM.upgradesPanel.style.display = 'none';
     if (DOM.heroesPanel) DOM.heroesPanel.style.display = 'none';
     if (DOM.achievementsPanel) DOM.achievementsPanel.style.display = 'none';
+    if (DOM.questsPanel) DOM.questsPanel.style.display = 'none';
 
     switch (tab) {
         case 'buildings':
@@ -2094,6 +3077,10 @@ function switchTab(tab) {
         case 'prestige':
             renderPrestigeOverlay();
             if (DOM.prestigeOverlay) DOM.prestigeOverlay.classList.remove('hidden');
+            break;
+        case 'quests':
+            if (DOM.questsPanel) DOM.questsPanel.style.display = 'block';
+            renderQuests();
             break;
     }
 }
@@ -2171,6 +3158,9 @@ function gameLoop(timestamp) {
 
     // Flash sale system (Scarcity + FOMO)
     checkFlashSale(dt);
+
+    // Traveling Merchant system (FOMO + Scarcity)
+    checkMerchant(dt);
 
     // Auto-tap system
     if (state.autoTapRate > 0) {
@@ -2257,6 +3247,8 @@ function initStaticIcons() {
     if (navUpgrades) navUpgrades.innerHTML = getIcon('navUpgrades', 22);
     if (navAchievements) navAchievements.innerHTML = getIcon('navAchievements', 22);
     if (navPrestige) navPrestige.innerHTML = getIcon('navPrestige', 22);
+    const navQuests = document.getElementById('nav-icon-quests');
+    if (navQuests) navQuests.innerHTML = getIcon('navQuests', 22);
 
     // Panel header icons
     const phBuildings = document.getElementById('ph-buildings-icon');
@@ -2267,6 +3259,8 @@ function initStaticIcons() {
     if (phHeroes) phHeroes.innerHTML = getIcon('sword', 20);
     if (phUpgrades) phUpgrades.innerHTML = getIcon('bolt', 20);
     if (phAchievements) phAchievements.innerHTML = getIcon('trophy', 20);
+    const phQuests = document.getElementById('ph-quests-icon');
+    if (phQuests) phQuests.innerHTML = getIcon('scroll', 20);
 
     // Fight boss button icon
     const fightIcon = document.getElementById('fight-icon');
@@ -2283,6 +3277,8 @@ function renderAll() {
     renderBoss();
     renderAchievements();
     renderLuckyEvent();
+    renderMerchant();
+    renderQuests();
 }
 
 // ===== INIT =====
@@ -2293,6 +3289,7 @@ function init() {
         Particles.init();
 
         const loaded = load();
+        checkQuestResets();
         if (loaded) {
             reapplyUpgrades();
             const offline = calcOfflineEarnings();
@@ -2361,6 +3358,15 @@ function init() {
             } catch(e) {}
         }
 
+        // Language toggle button
+        const btnLang = document.getElementById('btn-lang');
+        if (btnLang) {
+            btnLang.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleLang();
+            });
+        }
+
         // Cloud Save button handlers
         const btnCloudSave = document.getElementById('btn-cloud-save');
         if (btnCloudSave) btnCloudSave.addEventListener('click', () => {
@@ -2403,6 +3409,17 @@ function init() {
             }
         }, 1500);
 
+        // Apply kingdom name and language
+        applyKingdomName();
+        applyLang();
+
+        // Kingdom naming for new players (after popups settle)
+        if (!state.kingdomName) {
+            setTimeout(() => {
+                showKingdomNaming();
+            }, 2500);
+        }
+
         // Tutorial system
         Tutorial.init();
         if (Tutorial.shouldShow()) {
@@ -2417,7 +3434,7 @@ function init() {
         lastTime = performance.now();
         requestAnimationFrame(gameLoop);
 
-        console.log('🏰 Tıkla Fethet v3.2 — Psychology Edition loaded!');
+        console.log('🏰 Tıkla Fethet v3.4 — Play Store Ready loaded!');
     } catch (err) {
         console.error('INIT ERROR:', err);
     }
