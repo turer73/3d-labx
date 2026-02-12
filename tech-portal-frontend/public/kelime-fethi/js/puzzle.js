@@ -23,6 +23,9 @@ let keyboardState = {};
 // These are pre-filled by easy mode and must stay fixed during input
 let _revealedPositions = new Map();
 
+// Keys eliminated at puzzle start (easy mode) — must survive updateKeyboardState resets
+let _eliminatedKeys = new Set();
+
 // ===== UI UPDATE CALLBACKS =====
 let _updateUICallback = null;
 export function setUpdateUICallback(fn) { _updateUICallback = fn; }
@@ -103,6 +106,8 @@ export function renderGrid() {
 // ===== KEYBOARD STATE =====
 export function updateKeyboardState() {
     keyboardState = {};
+    // Re-apply initially eliminated keys (easy mode)
+    _eliminatedKeys.forEach(ch => { keyboardState[ch] = 'absent'; });
     state.activeCityGuesses.forEach(guess => {
         if (!state.activeCityWord) return;
         const evaluation = evaluateGuess(guess, state.activeCityWord);
@@ -425,6 +430,9 @@ function checkPuzzleResult(guess, evaluation, rowIndex) {
     } else {
         // Not correct, not last guess — check auto-hint
         checkAutoHint(evaluation);
+        // Lock all correct (green) positions from this guess + carry over to next row
+        updateRevealedFromEvaluation(guess, evaluation);
+        prefillNextRow();
     }
 }
 
@@ -641,6 +649,29 @@ function revealStartingLetters() {
     showToast(`Başlangıç ipucu: ${hintText}`, 4000);
 }
 
+// Update _revealedPositions with all correct (green) positions from a guess evaluation
+function updateRevealedFromEvaluation(guess, evaluation) {
+    const chars = [...guess];
+    evaluation.forEach((result, col) => {
+        if (result === 'correct' && !_revealedPositions.has(col)) {
+            _revealedPositions.set(col, chars[col]);
+        }
+    });
+}
+
+// Pre-fill the current (next) row with locked letters after a guess
+function prefillNextRow() {
+    if (_revealedPositions.size === 0) return;
+    const row = state.activeCityGuesses.length; // next row index
+    _revealedPositions.forEach((letter, col) => {
+        const tile = document.getElementById(`tile-${row}-${col}`);
+        if (tile) {
+            tile.textContent = letter;
+            tile.classList.add('filled', 'correct', 'locked', 'hint-reveal');
+        }
+    });
+}
+
 // Get next available (non-locked) column index for typing
 function getNextFreeCol() {
     const inputChars = [...currentInput];
@@ -693,6 +724,9 @@ function eliminateInitialKeys() {
     // Eliminate up to `count` letters
     const toEliminate = nonWordLetters.slice(0, Math.min(count, nonWordLetters.length));
     const eliminateSet = new Set(toEliminate);
+
+    // Store eliminated keys persistently so they survive updateKeyboardState resets
+    toEliminate.forEach(ch => _eliminatedKeys.add(ch));
 
     // Mark them as absent on keyboard
     toEliminate.forEach(ch => {
@@ -792,6 +826,7 @@ export function startCityPuzzle(cityId, switchViewFn) {
     keyboardState = {};
     _gridBuilt = false;
     _revealedPositions.clear();
+    _eliminatedKeys.clear();
     clearEvalCache();
 
     document.getElementById('puzzle-city-name').textContent = city.name;
@@ -855,6 +890,7 @@ export function startDailyPuzzle(switchViewFn) {
     keyboardState = {};
     _gridBuilt = false;
     _revealedPositions.clear();
+    _eliminatedKeys.clear();
     clearEvalCache();
 
     // Restore word length from saved state (for returning to an in-progress daily)
@@ -918,6 +954,7 @@ export function startChallengePuzzle(challengeData, switchViewFn) {
     keyboardState = {};
     _gridBuilt = false;
     _revealedPositions.clear();
+    _eliminatedKeys.clear();
     clearEvalCache();
 
     document.getElementById('puzzle-city-name').textContent = '⚔️ Meydan Okuma';
