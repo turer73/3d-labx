@@ -6475,6 +6475,232 @@ ${text}`;
         }
       }
 
+      // ================================
+      // 🏆 KELIME FETHI — SOCIAL ENDPOINTS
+      // ================================
+
+      // POST /api/game/profile — Create or update player profile
+      if (path === "/api/game/profile" && method === "POST") {
+        try {
+          const body = await request.json();
+          const { playerId, nickname, avatarEmoji, totalScore, citiesConquered } = body;
+
+          if (!playerId || !nickname) {
+            return errorResponse("playerId ve nickname gerekli", 400, "INVALID_INPUT", request);
+          }
+          if (typeof nickname !== 'string' || nickname.length < 2 || nickname.length > 16) {
+            return errorResponse("Rumuz 2-16 karakter olmalı", 400, "INVALID_NICKNAME", request);
+          }
+          const cleanNick = nickname.trim();
+          if (!/^[a-zA-ZçğıöşüÇĞİÖŞÜ0-9 ]{2,16}$/.test(cleanNick)) {
+            return errorResponse("Rumuz sadece harf, rakam ve boşluk içerebilir", 400, "INVALID_NICKNAME_CHARS", request);
+          }
+
+          const nickLower = cleanNick.toLowerCase().replace(/ı/g, 'i').replace(/İ/g, 'i');
+          const emoji = (avatarEmoji || '🎮').substring(0, 4);
+
+          const existingNick = await env.DB.prepare(
+            "SELECT player_id FROM game_profiles WHERE nickname_lower = ? AND player_id != ?"
+          ).bind(nickLower, playerId).first();
+
+          if (existingNick) {
+            return errorResponse("Bu rumuz zaten kullanılıyor", 409, "NICKNAME_TAKEN", request);
+          }
+
+          const existing = await env.DB.prepare(
+            "SELECT id FROM game_profiles WHERE player_id = ?"
+          ).bind(playerId).first();
+
+          if (existing) {
+            await env.DB.prepare(`
+              UPDATE game_profiles SET nickname = ?, nickname_lower = ?, avatar_emoji = ?, total_score = ?, cities_conquered = ? WHERE player_id = ?
+            `).bind(cleanNick, nickLower, emoji, totalScore || 0, citiesConquered || 0, playerId).run();
+          } else {
+            await env.DB.prepare(`
+              INSERT INTO game_profiles (player_id, nickname, nickname_lower, avatar_emoji, total_score, cities_conquered) VALUES (?, ?, ?, ?, ?, ?)
+            `).bind(playerId, cleanNick, nickLower, emoji, totalScore || 0, citiesConquered || 0).run();
+          }
+
+          return jsonResponse({ success: true, nickname: cleanNick, avatarEmoji: emoji, isNew: !existing }, 200, 0, request);
+        } catch (error) {
+          console.error("Profile error:", error);
+          return errorResponse("Profil hatası: " + error.message, 500, "PROFILE_ERROR", request);
+        }
+      }
+
+      // GET /api/game/profile?playerId=X — Get player profile
+      if (path === "/api/game/profile" && method === "GET") {
+        try {
+          const playerId = url.searchParams.get('playerId');
+          if (!playerId) return errorResponse("playerId gerekli", 400, "INVALID_INPUT", request);
+
+          const profile = await env.DB.prepare(
+            "SELECT nickname, avatar_emoji, total_score, cities_conquered, leaderboard_opt_in, created_at FROM game_profiles WHERE player_id = ?"
+          ).bind(playerId).first();
+
+          if (!profile) return jsonResponse({ exists: false }, 200, 60, request);
+
+          return jsonResponse({
+            exists: true, nickname: profile.nickname, avatarEmoji: profile.avatar_emoji,
+            totalScore: profile.total_score, citiesConquered: profile.cities_conquered,
+            leaderboardOptIn: !!profile.leaderboard_opt_in, createdAt: profile.created_at
+          }, 200, 60, request);
+        } catch (error) {
+          console.error("Profile get error:", error);
+          return errorResponse("Profil hatası: " + error.message, 500, "PROFILE_ERROR", request);
+        }
+      }
+
+      // POST /api/game/daily-score — Submit daily puzzle score
+      if (path === "/api/game/daily-score" && method === "POST") {
+        try {
+          const body = await request.json();
+          const { playerId, dayNumber, guesses, solved, solveTimeMs, score, difficulty, wordLength } = body;
+
+          if (!playerId || dayNumber === undefined || !guesses) {
+            return errorResponse("playerId, dayNumber, guesses gerekli", 400, "INVALID_INPUT", request);
+          }
+          if (typeof dayNumber !== 'number' || dayNumber < 0) return errorResponse("Geçersiz dayNumber", 400, "INVALID_DAY", request);
+          if (typeof guesses !== 'number' || guesses < 1 || guesses > 8) return errorResponse("Geçersiz tahmin sayısı", 400, "INVALID_GUESSES", request);
+
+          const profile = await env.DB.prepare(
+            "SELECT leaderboard_opt_in FROM game_profiles WHERE player_id = ?"
+          ).bind(playerId).first();
+
+          if (!profile || !profile.leaderboard_opt_in) {
+            return errorResponse("Liderboard kaydı için profil gerekli", 403, "NO_PROFILE", request);
+          }
+
+          await env.DB.prepare(`
+            INSERT INTO game_daily_scores (player_id, day_number, guesses, solved, solve_time_ms, score, difficulty, word_length)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(player_id, day_number)
+            DO UPDATE SET guesses = ?, solved = ?, solve_time_ms = ?, score = ?, difficulty = ?, word_length = ?
+          `).bind(
+            playerId, dayNumber, guesses, solved ? 1 : 0, solveTimeMs || 0, score || 0, difficulty || 'normal', wordLength || 5,
+            guesses, solved ? 1 : 0, solveTimeMs || 0, score || 0, difficulty || 'normal', wordLength || 5
+          ).run();
+
+          // Update total score in profile
+          const totalResult = await env.DB.prepare(
+            "SELECT SUM(score) as total FROM game_daily_scores WHERE player_id = ? AND solved = 1"
+          ).bind(playerId).first();
+          if (totalResult) {
+            await env.DB.prepare("UPDATE game_profiles SET total_score = ? WHERE player_id = ?").bind(totalResult.total || 0, playerId).run();
+          }
+
+          return jsonResponse({ success: true, message: "Skor kaydedildi" }, 200, 0, request);
+        } catch (error) {
+          console.error("Daily score error:", error);
+          return errorResponse("Skor hatası: " + error.message, 500, "SCORE_ERROR", request);
+        }
+      }
+
+      // GET /api/game/leaderboard/daily?day=N — Daily leaderboard
+      if (path === "/api/game/leaderboard/daily" && method === "GET") {
+        try {
+          const day = parseInt(url.searchParams.get('day'));
+          if (isNaN(day) || day < 0) return errorResponse("Geçerli bir gün numarası gerekli", 400, "INVALID_DAY", request);
+
+          const results = await env.DB.prepare(`
+            SELECT gp.nickname, gp.avatar_emoji, gds.guesses, gds.solved, gds.solve_time_ms, gds.score, gds.word_length, gds.player_id
+            FROM game_daily_scores gds
+            JOIN game_profiles gp ON gp.player_id = gds.player_id AND gp.leaderboard_opt_in = 1
+            WHERE gds.day_number = ?
+            ORDER BY gds.solved DESC, gds.guesses ASC, gds.solve_time_ms ASC
+            LIMIT 50
+          `).bind(day).all();
+
+          const leaderboard = (results.results || []).map((row, idx) => ({
+            rank: idx + 1, nickname: row.nickname, avatar: row.avatar_emoji,
+            guesses: row.guesses, solved: !!row.solved, timeMs: row.solve_time_ms,
+            score: row.score, wordLength: row.word_length, playerId: row.player_id,
+          }));
+
+          return jsonResponse({ day, count: leaderboard.length, leaderboard }, 200, 30, request);
+        } catch (error) {
+          console.error("Daily leaderboard error:", error);
+          return errorResponse("Liderboard hatası: " + error.message, 500, "LEADERBOARD_ERROR", request);
+        }
+      }
+
+      // GET /api/game/leaderboard/alltime — All-time leaderboard
+      if (path === "/api/game/leaderboard/alltime" && method === "GET") {
+        try {
+          const results = await env.DB.prepare(`
+            SELECT nickname, avatar_emoji, total_score, cities_conquered, player_id
+            FROM game_profiles WHERE leaderboard_opt_in = 1 AND total_score > 0
+            ORDER BY total_score DESC LIMIT 50
+          `).all();
+
+          const leaderboard = (results.results || []).map((row, idx) => ({
+            rank: idx + 1, nickname: row.nickname, avatar: row.avatar_emoji,
+            totalScore: row.total_score, cities: row.cities_conquered, playerId: row.player_id,
+          }));
+
+          return jsonResponse({ count: leaderboard.length, leaderboard }, 200, 60, request);
+        } catch (error) {
+          console.error("Alltime leaderboard error:", error);
+          return errorResponse("Liderboard hatası: " + error.message, 500, "LEADERBOARD_ERROR", request);
+        }
+      }
+
+      // POST /api/game/challenge — Create a challenge link
+      if (path === "/api/game/challenge" && method === "POST") {
+        try {
+          const body = await request.json();
+          const { creatorId, word, wordLength } = body;
+
+          if (!creatorId || !word) return errorResponse("creatorId ve word gerekli", 400, "INVALID_INPUT", request);
+          if (typeof word !== 'string' || [...word].length < 4 || [...word].length > 6) {
+            return errorResponse("Kelime 4-6 harf olmalı", 400, "INVALID_WORD", request);
+          }
+
+          const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+          let challengeId = '';
+          for (let i = 0; i < 6; i++) challengeId += chars[Math.floor(Math.random() * chars.length)];
+
+          const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
+          await env.DB.prepare(`
+            INSERT INTO game_challenges (challenge_id, creator_id, word, word_length, expires_at) VALUES (?, ?, ?, ?, ?)
+          `).bind(challengeId, creatorId, word.toUpperCase(), wordLength || [...word].length, expiresAt).run();
+
+          return jsonResponse({
+            success: true, challengeId, expiresAt,
+            url: `https://3d-labx.com/kelime-fethi/?challenge=${challengeId}`
+          }, 200, 0, request);
+        } catch (error) {
+          console.error("Challenge create error:", error);
+          return errorResponse("Meydan okuma hatası: " + error.message, 500, "CHALLENGE_ERROR", request);
+        }
+      }
+
+      // GET /api/game/challenge/:id — Get challenge details
+      if (path.startsWith("/api/game/challenge/") && method === "GET") {
+        try {
+          const challengeId = path.split("/").pop();
+          if (!challengeId || challengeId.length !== 6) return errorResponse("Geçersiz meydan okuma ID", 400, "INVALID_CHALLENGE_ID", request);
+
+          const challenge = await env.DB.prepare(
+            "SELECT challenge_id, word, word_length, play_count, created_at, expires_at FROM game_challenges WHERE challenge_id = ?"
+          ).bind(challengeId.toUpperCase()).first();
+
+          if (!challenge) return errorResponse("Meydan okuma bulunamadı", 404, "CHALLENGE_NOT_FOUND", request);
+          if (new Date(challenge.expires_at) < new Date()) return errorResponse("Meydan okuma süresi dolmuş", 410, "CHALLENGE_EXPIRED", request);
+
+          await env.DB.prepare("UPDATE game_challenges SET play_count = play_count + 1 WHERE challenge_id = ?").bind(challengeId.toUpperCase()).run();
+
+          return jsonResponse({
+            challengeId: challenge.challenge_id, word: challenge.word, wordLength: challenge.word_length,
+            playCount: challenge.play_count + 1, expiresAt: challenge.expires_at
+          }, 200, 0, request);
+        } catch (error) {
+          console.error("Challenge get error:", error);
+          return errorResponse("Meydan okuma hatası: " + error.message, 500, "CHALLENGE_ERROR", request);
+        }
+      }
+
       return errorResponse("Not Found", 404, "NOT_FOUND");
 
     } catch (error) {

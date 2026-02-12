@@ -2,9 +2,13 @@
 // KELIME FETHI v2.0 — Game State Management
 // ============================================================
 
-import { SAVE_KEY, PLAYER_ID_KEY } from './config.js';
+import { SAVE_KEY, PLAYER_ID_KEY, DIFFICULTY, DEFAULT_DIFFICULTY } from './config.js';
 import { SFX } from './sound.js';
 import { Haptic } from './haptic.js';
+
+export function getDifficultyConfig() {
+    return DIFFICULTY[state.difficulty] || DIFFICULTY[DEFAULT_DIFFICULTY];
+}
 
 export const DEFAULT_STATE = {
     score: 0,
@@ -13,7 +17,8 @@ export const DEFAULT_STATE = {
     gamesWon: 0,
     currentStreak: 0,
     maxStreak: 0,
-    hints: 3,
+    hints: 5,
+    difficulty: DEFAULT_DIFFICULTY,
     dailyDate: null,
     dailyGuesses: [],
     dailyComplete: false,
@@ -38,7 +43,14 @@ export const DEFAULT_STATE = {
     colorblindMode: false,
     streakFreezeCount: 0,
     lastStreakFreeze: null,
-    version: '2.1',
+    // v3.1: Multi-length + social fields
+    activeCityWordLength: 5,
+    dailyWordLength: 5,
+    nickname: '',
+    avatarEmoji: '🎮',
+    leaderboardOptIn: false,
+    shareCount: 0,
+    version: '3.1',
 };
 
 // Reactive state with deep clone
@@ -81,6 +93,9 @@ function ensureStateIntegrity() {
     if (state.hints < 0) state.hints = 0;
     if (state.currentStreak < 0) state.currentStreak = 0;
 
+    // Difficulty validation
+    if (!DIFFICULTY[state.difficulty]) state.difficulty = DEFAULT_DIFFICULTY;
+
     // Type safety — booleans
     const bools = ['hardMode', 'soundEnabled', 'hapticEnabled', 'tutorialDone', 'dailyComplete', 'dailyWon'];
     bools.forEach(k => { if (typeof state[k] !== 'boolean') state[k] = DEFAULT_STATE[k]; });
@@ -101,10 +116,23 @@ function ensureStateIntegrity() {
     if (typeof state.hintUsedThisGame !== 'boolean') state.hintUsedThisGame = false;
     if (typeof state.colorblindMode !== 'boolean') state.colorblindMode = false;
 
+    // Ensure new v3.1 fields
+    if (typeof state.activeCityWordLength !== 'number') state.activeCityWordLength = 5;
+    if (typeof state.dailyWordLength !== 'number') state.dailyWordLength = 5;
+    if (typeof state.nickname !== 'string') state.nickname = '';
+    if (typeof state.avatarEmoji !== 'string') state.avatarEmoji = '🎮';
+    if (typeof state.leaderboardOptIn !== 'boolean') state.leaderboardOptIn = false;
+    if (typeof state.shareCount !== 'number') state.shareCount = 0;
+
     // Version migration
-    if (state.version !== '2.1') {
-        state.version = '2.1';
-        console.log('[KF] State migrated to v2.1');
+    if (state.version !== '3.1') {
+        // Migrate guessDistribution to support up to 8 guesses
+        if (state.guessDistribution && !state.guessDistribution[7]) {
+            state.guessDistribution[7] = 0;
+            state.guessDistribution[8] = 0;
+        }
+        state.version = '3.1';
+        console.log('[KF] State migrated to v3.1');
     }
 }
 

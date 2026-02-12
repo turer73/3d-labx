@@ -4,7 +4,7 @@
 
 import { WORD_LENGTH, MAX_GUESSES } from './config.js';
 import { trUpper, trLen } from './utils.js';
-import { state } from './state.js';
+import { state, getDifficultyConfig } from './state.js';
 
 // Game data (loaded from JSON)
 export let WORDS = [];
@@ -15,6 +15,21 @@ export let TURKEY_MAP = {};
 
 // FIX: Use Set for O(1) word lookup instead of Array.includes O(n)
 let WORD_SET = new Set();
+let EASY_WORDS = []; // Subset: common/daily words for easy mode
+
+// Multi-length word data stores
+export let WORDS_BY_LENGTH = { 4: [], 5: [], 6: [] };
+export let DAILY_BY_LENGTH = { 4: [], 5: [], 6: [] };
+export let EASY_BY_LENGTH = { 4: [], 5: [], 6: [] };
+export let WORD_SET_BY_LENGTH = { 4: new Set(), 5: new Set(), 6: new Set() };
+
+// Switch active word lists to a specific length
+export function setActiveLength(len) {
+    WORDS = WORDS_BY_LENGTH[len] || WORDS_BY_LENGTH[5];
+    DAILY_WORDS = DAILY_BY_LENGTH[len] || DAILY_BY_LENGTH[5];
+    EASY_WORDS = EASY_BY_LENGTH[len] || EASY_BY_LENGTH[5];
+    WORD_SET = WORD_SET_BY_LENGTH[len] || WORD_SET_BY_LENGTH[5];
+}
 
 // ===== Offline Data Cache =====
 const DATA_CACHE_KEY = 'kf_data_cache';
@@ -74,10 +89,45 @@ export async function loadGameData() {
 
     // Apply data
     if (wordsData) {
-        WORDS = wordsData.words || [];
-        DAILY_WORDS = wordsData.daily || [];
-        WORD_SET = new Set(WORDS);
-        console.log(`[Kelime Fethi] ${WORDS.length} kelime, ${DAILY_WORDS.length} günlük kelime yüklendi`);
+        if (wordsData.version >= 5 && wordsData.words4) {
+            // v5 flat format: words4/daily4/easy4, words5/..., words6/...
+            for (const len of [4, 5, 6]) {
+                const wKey = `words${len}`, dKey = `daily${len}`, eKey = `easy${len}`;
+                WORDS_BY_LENGTH[len] = wordsData[wKey] || [];
+                DAILY_BY_LENGTH[len] = wordsData[dKey] || [];
+                EASY_BY_LENGTH[len] = wordsData[eKey] || wordsData[dKey] || [];
+                WORD_SET_BY_LENGTH[len] = new Set(WORDS_BY_LENGTH[len]);
+            }
+            setActiveLength(5);
+            const total = Object.values(WORDS_BY_LENGTH).reduce((s, a) => s + a.length, 0);
+            console.log(`[Kelime Fethi] v5 format: ${total} kelime (4h:${WORDS_BY_LENGTH[4].length}, 5h:${WORDS_BY_LENGTH[5].length}, 6h:${WORDS_BY_LENGTH[6].length})`);
+        } else if (wordsData.lengths) {
+            // v5 nested format (alternate): lengths.4.words, lengths.5.words, etc.
+            for (const len of [4, 5, 6]) {
+                const d = wordsData.lengths[len] || wordsData.lengths[String(len)];
+                if (d) {
+                    WORDS_BY_LENGTH[len] = d.words || [];
+                    DAILY_BY_LENGTH[len] = d.daily || [];
+                    EASY_BY_LENGTH[len] = d.easy || d.daily || [];
+                    WORD_SET_BY_LENGTH[len] = new Set(d.words);
+                }
+            }
+            setActiveLength(5);
+            const total = Object.values(WORDS_BY_LENGTH).reduce((s, a) => s + a.length, 0);
+            console.log(`[Kelime Fethi] v5 nested: ${total} kelime (4h:${WORDS_BY_LENGTH[4].length}, 5h:${WORDS_BY_LENGTH[5].length}, 6h:${WORDS_BY_LENGTH[6].length})`);
+        } else {
+            // Legacy v4 format — all 5-letter
+            WORDS = wordsData.words || [];
+            DAILY_WORDS = wordsData.daily || [];
+            EASY_WORDS = wordsData.easy || DAILY_WORDS;
+            WORD_SET = new Set(WORDS);
+            // Also populate multi-length stores for backward compat
+            WORDS_BY_LENGTH[5] = WORDS;
+            DAILY_BY_LENGTH[5] = DAILY_WORDS;
+            EASY_BY_LENGTH[5] = EASY_WORDS;
+            WORD_SET_BY_LENGTH[5] = WORD_SET;
+            console.log(`[Kelime Fethi] v4 format: ${WORDS.length} kelime, ${DAILY_WORDS.length} günlük, ${EASY_WORDS.length} kolay`);
+        }
     } else {
         console.error('[Kelime Fethi] Kelime verisi yüklenemedi! Çevrimdışı ve önbellek boş.');
     }
@@ -99,14 +149,16 @@ export function evaluateGuess(guess, target) {
     const key = guess + '|' + target;
     if (_evalCache.has(key)) return _evalCache.get(key);
 
-    const result = new Array(WORD_LENGTH).fill('absent');
+    // Derive length from actual word (supports 4, 5, 6 letters)
     const guessArr = [...guess];
     const targetArr = [...target];
-    const targetUsed = new Array(WORD_LENGTH).fill(false);
-    const guessUsed = new Array(WORD_LENGTH).fill(false);
+    const len = targetArr.length;
+    const result = new Array(len).fill('absent');
+    const targetUsed = new Array(len).fill(false);
+    const guessUsed = new Array(len).fill(false);
 
     // Pass 1: correct positions (green)
-    for (let i = 0; i < WORD_LENGTH; i++) {
+    for (let i = 0; i < len; i++) {
         if (guessArr[i] === targetArr[i]) {
             result[i] = 'correct';
             targetUsed[i] = true;
@@ -115,9 +167,9 @@ export function evaluateGuess(guess, target) {
     }
 
     // Pass 2: present but wrong position (yellow)
-    for (let i = 0; i < WORD_LENGTH; i++) {
+    for (let i = 0; i < len; i++) {
         if (guessUsed[i]) continue;
-        for (let j = 0; j < WORD_LENGTH; j++) {
+        for (let j = 0; j < len; j++) {
             if (targetUsed[j]) continue;
             if (guessArr[i] === targetArr[j]) {
                 result[i] = 'present';
@@ -149,14 +201,16 @@ export function isValidWord(word) {
 
 export function validateGuess(guess) {
     if (trLen(guess) !== WORD_LENGTH) {
-        return { valid: false, message: '5 harfli bir kelime girin!' };
+        return { valid: false, message: `${WORD_LENGTH} harfli bir kelime girin!` };
     }
     if (!isValidWord(guess)) {
         return { valid: false, message: 'Bu kelime sözlükte yok!' };
     }
 
-    // Hard mode validation
-    if (state.hardMode && state.activeCityGuesses.length > 0) {
+    // Hard mode validation (forced in hard difficulty)
+    const dc = getDifficultyConfig();
+    const hardActive = (state.hardMode || dc.hardModeForced) && state.activeCityGuesses.length > 0;
+    if (hardActive) {
         const guessArr = [...guess];
         const requiredPositions = {};
         const requiredLetters = {};
@@ -166,7 +220,8 @@ export function validateGuess(guess) {
             const prevArr = [...prevGuess];
             const letterCounts = {};
 
-            for (let i = 0; i < WORD_LENGTH; i++) {
+            const evalLen = prevEval.length;
+            for (let i = 0; i < evalLen; i++) {
                 if (prevEval[i] === 'correct') {
                     requiredPositions[i] = prevArr[i];
                     letterCounts[prevArr[i]] = (letterCounts[prevArr[i]] || 0) + 1;
@@ -221,9 +276,9 @@ function mulberry32(seed) {
 }
 
 // Generate a deterministic permutation for a given cycle
-// Ensures no repeats within DAILY_WORDS.length days
-function getDailyPermutation(cycleNum) {
-    const n = DAILY_WORDS.length;
+// Ensures no repeats within poolSize days
+function getDailyPermutation(cycleNum, poolSize) {
+    const n = poolSize || DAILY_WORDS.length;
     const indices = Array.from({ length: n }, (_, i) => i);
     // Seed based on cycle number — different permutation each cycle
     const rng = mulberry32(cycleNum * 7919 + 42);
@@ -235,13 +290,48 @@ function getDailyPermutation(cycleNum) {
     return indices;
 }
 
-// Daily word selection — permutation-based, no repeats within cycle
-export function getDailyWord() {
-    if (DAILY_WORDS.length === 0) return null;
+// Get word pool based on difficulty
+export function getWordPoolForCity(cityWords) {
+    const dc = getDifficultyConfig();
+    if (dc.wordPool === 'easy') {
+        // Filter city words to only common/easy ones; fallback to full pool if too few
+        const easySet = new Set(EASY_WORDS);
+        const filtered = cityWords.filter(w => easySet.has(w));
+        return filtered.length >= 3 ? filtered : cityWords;
+    }
+    return cityWords;
+}
+
+// Daily word length pattern — most days 5, some 4 or 6
+const DAILY_LENGTH_PATTERN = [5, 5, 5, 4, 5, 5, 6];
+
+// Get today's daily word length
+export function getDailyWordLength() {
     const dayNum = getDayNumber();
-    const n = DAILY_WORDS.length;
+    return DAILY_LENGTH_PATTERN[dayNum % DAILY_LENGTH_PATTERN.length];
+}
+
+// Daily word selection — permutation-based, no repeats within cycle
+// Returns { word, length } object
+export function getDailyWord() {
+    const dayNum = getDayNumber();
+    const dailyLen = getDailyWordLength();
+
+    // Get pool for this length
+    const pool = DAILY_BY_LENGTH[dailyLen];
+    if (!pool || pool.length === 0) {
+        // Fallback to 5-letter
+        if (DAILY_WORDS.length === 0) return null;
+        const n = DAILY_WORDS.length;
+        const cycleNum = Math.floor(dayNum / n);
+        const dayInCycle = dayNum % n;
+        const perm = getDailyPermutation(cycleNum, n);
+        return { word: DAILY_WORDS[perm[dayInCycle]], length: 5 };
+    }
+
+    const n = pool.length;
     const cycleNum = Math.floor(dayNum / n);
     const dayInCycle = dayNum % n;
-    const perm = getDailyPermutation(cycleNum);
-    return DAILY_WORDS[perm[dayInCycle]];
+    const perm = getDailyPermutation(cycleNum, n);
+    return { word: pool[perm[dayInCycle]], length: dailyLen };
 }

@@ -1,27 +1,30 @@
 // ============================================================
-// KELIME FETHI v2.1 — Main Application Entry
-// Modular Architecture
+// KELIME FETHI v4.0 — Main Application Entry
+// Modular Architecture + Social Layer
 // ============================================================
 
-import { state, save, loadSave, resetState } from './state.js';
+import { state, save, loadSave, resetState, getDifficultyConfig, getPlayerId } from './state.js';
+import { DIFFICULTY } from './config.js';
 import { SFX } from './sound.js';
 import { Haptic } from './haptic.js';
 import { Particles } from './particles.js';
 import { showToast } from './utils.js';
-import { loadGameData, TURKEY_MAP } from './words.js';
+import { loadGameData, TURKEY_MAP, getDayNumber } from './words.js';
 import { renderMap, updateMapProgress, initRegionSelector, initMapZoom, initRegionTracking, checkRegionUnlock } from './map.js';
 import { updateStats } from './stats.js';
 import { CloudSave } from './cloud.js';
-import { initPhysicalKeyboard, initVirtualKeyboard } from './keyboard.js';
+import { initPhysicalKeyboard, initVirtualKeyboard, initSwipeKeyboard } from './keyboard.js';
 import {
     startDailyPuzzle, startCityPuzzle, useHint, shareResult, hideResultOverlay,
-    updateHintDisplay, setSwitchViewFn, setUpdateUICallback
+    updateHintDisplay, setSwitchViewFn, setUpdateUICallback, generateShareGrid, startChallengePuzzle
 } from './puzzle.js';
 import { showTutorial, nextTutorialStep } from './tutorial.js';
 import { getTodayStr as getToday } from './words.js';
 import { TURKEY_MAP_DATA } from './turkey-map-data.js';
 import { checkAchievements } from './achievements.js';
 import { initAds } from './ads.js';
+import { fetchDailyLeaderboard, fetchAlltimeLeaderboard, renderDailyLeaderboard, renderAlltimeLeaderboard } from './leaderboard.js';
+import { initSocialUI, shareViaWhatsApp, createChallenge, loadChallenge } from './social.js';
 
 // ===== ICON INTEGRATION =====
 function initIcons() {
@@ -201,20 +204,48 @@ function showStreakRecoveryDialog() {
     });
 }
 
-// Award streak freeze on milestones
-export function awardStreakFreeze() {
-    const freezeMilestones = [7, 14, 21, 30, 50, 75, 100];
-    if (freezeMilestones.includes(state.currentStreak)) {
-        state.streakFreezeCount = (state.streakFreezeCount || 0) + 1;
-        save();
-        setTimeout(() => {
-            showToast(`❄️ Seri dondurma kazandın! (${state.streakFreezeCount} hak)`, 3000);
-        }, 2000);
-    }
+// ===== DIFFICULTY INFO =====
+const DIFFICULTY_INFO = {
+    easy: '6 deneme, 5 ipucu, 2 harf açık, klavye daraltılır',
+    normal: '6 deneme, 3 ipucu, standart',
+    hard: '6 deneme, 1 ipucu, zor mod zorunlu',
+};
+
+function updateDifficultyUI() {
+    const btns = document.querySelectorAll('.diff-btn');
+    btns.forEach(btn => btn.classList.toggle('active', btn.dataset.diff === state.difficulty));
+
+    const infoEl = document.getElementById('difficulty-info');
+    if (infoEl) infoEl.textContent = DIFFICULTY_INFO[state.difficulty] || '';
+
+    // Hide hard mode toggle when difficulty is 'hard' (auto-forced)
+    const hardRow = document.getElementById('hard-mode-row');
+    if (hardRow) hardRow.style.display = state.difficulty === 'hard' ? 'none' : '';
 }
 
 // ===== SETTINGS =====
 function initSettings() {
+    // Difficulty selector
+    document.querySelectorAll('.diff-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const diff = btn.dataset.diff;
+            if (!DIFFICULTY[diff]) return;
+
+            state.difficulty = diff;
+            // Reset hints to the difficulty default
+            const dc = DIFFICULTY[diff];
+            if (state.hints < dc.startHints) state.hints = dc.startHints;
+
+            save();
+            updateDifficultyUI();
+            updateHintDisplay();
+
+            const labels = { easy: 'Kolay', normal: 'Normal', hard: 'Zor' };
+            showToast(`Zorluk: ${labels[diff] || diff}`);
+        });
+    });
+    updateDifficultyUI();
+
     const hardEl = document.getElementById('setting-hard-mode');
     const soundEl = document.getElementById('setting-sound');
     const hapticEl = document.getElementById('setting-haptic');
@@ -307,12 +338,76 @@ function initEventListeners() {
         switchView('map');
     });
 
+    // Close result overlay by tapping outside the content
+    document.getElementById('result-overlay')?.addEventListener('click', (e) => {
+        if (e.target.id === 'result-overlay') {
+            hideResultOverlay();
+        }
+    });
+
     document.getElementById('btn-tutorial-next')?.addEventListener('click', () => nextTutorialStep());
+
+    // === SOCIAL BUTTONS ===
+    document.getElementById('btn-share-whatsapp')?.addEventListener('click', () => {
+        const text = generateShareGrid();
+        if (text) shareViaWhatsApp(text);
+    });
+
+    document.getElementById('btn-challenge')?.addEventListener('click', async () => {
+        if (!state.activeCityWord) return;
+        const btn = document.getElementById('btn-challenge');
+        btn.textContent = '...';
+        const result = await createChallenge(state.activeCityWord, state.activeCityWordLength || 5);
+        if (result) {
+            const shareText = `⚔️ Kelime Fethi Meydan Okuma!\nBu kelimeyi bulabilir misin? (${result.url})`;
+            if (navigator.share) {
+                navigator.share({ text: shareText }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(shareText).then(() => showToast('Link kopyalandı!'));
+            }
+            btn.textContent = '✓ Gönderildi';
+        } else {
+            btn.textContent = '⚔️ Meydan Oku';
+        }
+        setTimeout(() => { btn.textContent = '⚔️ Meydan Oku'; }, 3000);
+    });
+
+    // === LEADERBOARD TABS ===
+    document.querySelectorAll('.stats-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.stats-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.stats-panel').forEach(p => p.classList.remove('active'));
+            tab.classList.add('active');
+            const panelId = `stats-panel-${tab.dataset.stab}`;
+            const panel = document.getElementById(panelId);
+            if (panel) panel.classList.add('active');
+
+            // Lazy-load leaderboards
+            if (tab.dataset.stab === 'daily') loadDailyLeaderboard();
+            if (tab.dataset.stab === 'alltime') loadAlltimeLeaderboard();
+        });
+    });
+}
+
+async function loadDailyLeaderboard() {
+    const container = document.getElementById('leaderboard-daily');
+    if (!container) return;
+    container.innerHTML = '<div class="lb-loading">Yükleniyor...</div>';
+    const data = await fetchDailyLeaderboard();
+    renderDailyLeaderboard(container, data, getPlayerId());
+}
+
+async function loadAlltimeLeaderboard() {
+    const container = document.getElementById('leaderboard-alltime');
+    if (!container) return;
+    container.innerHTML = '<div class="lb-loading">Yükleniyor...</div>';
+    const data = await fetchAlltimeLeaderboard();
+    renderAlltimeLeaderboard(container, data, getPlayerId());
 }
 
 // ===== MAIN INIT =====
 async function init() {
-    console.log('[Kelime Fethi] v2.1 — başlatılıyor...');
+    console.log('[Kelime Fethi] v4.0 — başlatılıyor...');
 
     // Update splash progress
     const splashProgress = document.getElementById('splash-progress');
@@ -341,6 +436,7 @@ async function init() {
     // Init UI
     initVirtualKeyboard();
     initPhysicalKeyboard();
+    initSwipeKeyboard();
     initEventListeners();
     initRegionSelector();
     initSettings();
@@ -359,6 +455,9 @@ async function init() {
 
     // Init ads (reward-based, non-intrusive)
     initAds();
+
+    // Init social UI (nickname, avatar, leaderboard opt-in)
+    initSocialUI();
 
     // Daily countdown timer
     setInterval(updateDailyCountdown, 1000);
@@ -381,14 +480,24 @@ async function init() {
     // Handle URL shortcuts (from manifest shortcuts)
     const urlParams = new URLSearchParams(window.location.search);
     const startView = urlParams.get('view');
-    if (startView === 'daily') {
+    const challengeId = urlParams.get('challenge');
+
+    if (challengeId) {
+        // Challenge URL: ?challenge=XXXXXX
+        setTimeout(async () => {
+            const challenge = await loadChallenge(challengeId);
+            if (challenge && typeof startChallengePuzzle === 'function') {
+                startChallengePuzzle(challenge, switchView);
+            }
+        }, 600);
+    } else if (startView === 'daily') {
         setTimeout(() => startDailyPuzzle(switchView), 600);
     } else if (startView === 'map') {
         // Already default
     }
 
     // Show tutorial for first time
-    if (!state.tutorialDone && !startView) {
+    if (!state.tutorialDone && !startView && !challengeId) {
         setTimeout(showTutorial, 500);
     }
 

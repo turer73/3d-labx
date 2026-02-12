@@ -2,11 +2,27 @@
 // KELIME FETHI v2.0 — Configuration & Constants
 // ============================================================
 
-export const MAX_GUESSES = 6;
-export const WORD_LENGTH = 5;
+// Dynamic WORD_LENGTH — set per-puzzle via setWordLength()
+export let WORD_LENGTH = 5;
+export function setWordLength(n) { WORD_LENGTH = n; }
+
+// Word length score multiplier (longer = harder = more points)
+export const LENGTH_SCORE_MULTIPLIER = { 4: 0.8, 5: 1.0, 6: 1.3 };
 export const SAVE_KEY = 'kelime_fethi_save_v1';
 export const CLOUD_API = 'https://tech-portal-api.turgut-d01.workers.dev/api/game';
 export const PLAYER_ID_KEY = 'kelime_fethi_player_id';
+
+// Difficulty settings
+export const DIFFICULTY = {
+    easy:   { maxGuesses: 6, startHints: 5, revealLetters: 2, eliminateKeys: 10, consolationScore: 25, autoHintAfter: 2, hardModeForced: false, wordPool: 'easy' },
+    normal: { maxGuesses: 6, startHints: 3, revealLetters: 0, eliminateKeys: 0,  consolationScore: 0,  autoHintAfter: 0, hardModeForced: false, wordPool: 'daily' },
+    hard:   { maxGuesses: 6, startHints: 1, revealLetters: 0, eliminateKeys: 0,  consolationScore: 0,  autoHintAfter: 0, hardModeForced: true,  wordPool: 'all' },
+};
+export const DEFAULT_DIFFICULTY = 'easy';
+
+// Dynamic MAX_GUESSES — use getDifficultyConfig().maxGuesses instead of this constant
+export let MAX_GUESSES = 6;
+export function setMaxGuesses(n) { MAX_GUESSES = n; }
 
 // Score per guess count (variable reward — fewer guesses = more points)
 export const SCORE_TABLE = { 1: 500, 2: 400, 3: 300, 4: 200, 5: 150, 6: 100 };
@@ -40,7 +56,7 @@ export const TUTORIAL_STEPS = [
     },
     {
         title: 'Nasıl Oynanır? ✍️',
-        text: 'Haritadan bir şehir seç → 5 harfli kelimeyi 6 denemede bul!',
+        text: 'Haritadan bir şehir seç → 4-6 harfli kelimeyi bul!\nKolay modda 2 harf tabloda açık başlar.',
         icon: '✍️',
     },
     {

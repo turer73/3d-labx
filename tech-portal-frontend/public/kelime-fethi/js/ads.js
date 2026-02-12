@@ -194,7 +194,7 @@ function onRewardEarned(rewardType) {
 
     switch (rewardType) {
         case 'hint':
-            state.hintsUsed = Math.max(0, (state.hintsUsed || 0) - 1); // Refund 1 hint
+            state.hints = (state.hints || 0) + 1;
             SFX.bonus();
             showToast('💡 Ekstra ipucu kazandın!', 2500);
             break;

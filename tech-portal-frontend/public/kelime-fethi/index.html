@@ -32,7 +32,7 @@
     <title>Kelime Fethi</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="assets/icon-192.png">
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
     <!-- ===== SPLASH SCREEN ===== -->
@@ -112,6 +112,7 @@
                 <div class="puzzle-city-info">
                     <span id="puzzle-city-name">İstanbul</span>
                     <span id="puzzle-region-name" class="region-tag">Marmara</span>
+                    <span id="puzzle-word-length" class="word-length-badge">5 harf</span>
                 </div>
                 <button id="btn-hint" class="hint-btn" title="İpucu" aria-label="İpucu kullan">💡 <span id="hint-count">3</span></button>
             </div>
@@ -169,6 +170,12 @@
         <!-- VIEW 3: STATS -->
         <section id="stats-view" class="view">
             <div class="stats-container">
+                <div class="stats-tabs">
+                    <button class="stats-tab active" data-stab="my">Benim</button>
+                    <button class="stats-tab" data-stab="daily">Günlük 🏆</button>
+                    <button class="stats-tab" data-stab="alltime">Tüm Zamanlar</button>
+                </div>
+                <div id="stats-panel-my" class="stats-panel active">
                 <h2>İstatistikler</h2>
                 <div class="stats-grid">
                     <div class="stat-box">
@@ -200,6 +207,17 @@
                 <div id="region-progress" class="region-progress-list">
                     <!-- Rendered by JS -->
                 </div>
+                </div><!-- /stats-panel-my -->
+                <div id="stats-panel-daily" class="stats-panel">
+                    <div id="leaderboard-daily" class="leaderboard-container">
+                        <div class="lb-loading">Yükleniyor...</div>
+                    </div>
+                </div>
+                <div id="stats-panel-alltime" class="stats-panel">
+                    <div id="leaderboard-alltime" class="leaderboard-container">
+                        <div class="lb-loading">Yükleniyor...</div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -208,7 +226,18 @@
             <div class="settings-container">
                 <h2>Ayarlar</h2>
                 <div class="setting-row">
-                    <span>Zor Mod</span>
+                    <span>Zorluk Seviyesi</span>
+                    <div class="difficulty-selector" id="difficulty-selector">
+                        <button class="diff-btn active" data-diff="easy">Kolay</button>
+                        <button class="diff-btn" data-diff="normal">Normal</button>
+                        <button class="diff-btn" data-diff="hard">Zor</button>
+                    </div>
+                </div>
+                <div id="difficulty-info" class="difficulty-info">
+                    6 deneme, 5 ipucu, 2 harf açık, klavye daraltılır
+                </div>
+                <div class="setting-row" id="hard-mode-row">
+                    <span>Zor Mod (Manuel)</span>
                     <label class="toggle">
                         <input type="checkbox" id="setting-hard-mode">
                         <span class="toggle-slider"></span>
@@ -228,6 +257,26 @@
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
+                <h3 class="settings-section-title">🏆 Sosyal</h3>
+                <div class="setting-row">
+                    <span>Rumuz</span>
+                    <div class="nickname-input-wrap">
+                        <input type="text" id="nickname-input" maxlength="16" placeholder="Rumuzun" class="nickname-input">
+                        <button id="btn-save-nickname" class="nick-save-btn">Kaydet</button>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <span>Avatar</span>
+                    <div id="avatar-selector" class="avatar-selector"></div>
+                </div>
+                <div class="setting-row">
+                    <span>Liderboard'a Katıl</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="setting-leaderboard">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <h3 class="settings-section-title">⚙️ Tercihler</h3>
                 <div class="setting-row">
                     <span>Renk Körü Modu 🎨</span>
                     <label class="toggle">
@@ -246,7 +295,7 @@
                     <button id="btn-reset" class="reset-btn" aria-label="Oyunu sıfırla">Sıfırla</button>
                 </div>
                 <div class="about-section">
-                    <p>Kelime Fethi v2.0</p>
+                    <p>Kelime Fethi v4.0</p>
                     <p>3D-labX tarafından geliştirildi</p>
                     <a href="/" class="back-to-site">← 3D-labX'e dön</a>
                 </div>
@@ -285,9 +334,14 @@
             <p id="result-message">İstanbul fethedildi!</p>
             <div id="result-score" class="result-score">+300 ⭐</div>
             <div id="result-grid-share" class="share-grid"></div>
+            <div id="result-daily-rank" class="result-rank" style="display:none;"></div>
             <div class="result-actions">
-                <button id="btn-share" class="share-btn" aria-label="Sonucu paylaş">📋 Paylaş</button>
-                <button id="btn-next-city" class="next-btn" aria-label="Sonraki şehir">Sonraki Şehir →</button>
+                <button id="btn-share" class="share-btn" aria-label="Sonucu paylaş">📋 Kopyala</button>
+                <button id="btn-share-whatsapp" class="share-btn whatsapp-btn" aria-label="WhatsApp'ta paylaş">💬 WhatsApp</button>
+            </div>
+            <div class="result-actions-secondary">
+                <button id="btn-challenge" class="challenge-btn" aria-label="Meydan oku">⚔️ Meydan Oku</button>
+                <button id="btn-next-city" class="next-btn" aria-label="Sonraki şehir">Tamam ✓</button>
             </div>
         </div>
     </div>
@@ -370,7 +424,7 @@
     })();
     </script>
     <script src="assets/icons.js?v=3"></script>
-    <script type="module" src="js/app.js?v=6"></script>
+    <script type="module" src="js/app.js?v=7"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

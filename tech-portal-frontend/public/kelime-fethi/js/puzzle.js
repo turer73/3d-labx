@@ -2,21 +2,26 @@
 // KELIME FETHI v2.0 — Puzzle Mechanics
 // ============================================================
 
-import { WORD_LENGTH, MAX_GUESSES, SCORE_TABLE, STREAK_REWARDS } from './config.js';
-import { trUpper, trLen, showToast, floatText } from './utils.js';
+import { WORD_LENGTH, MAX_GUESSES, SCORE_TABLE, STREAK_REWARDS, setMaxGuesses, setWordLength, LENGTH_SCORE_MULTIPLIER } from './config.js';
+import { TR_UPPER, trUpper, trLen, showToast, floatText } from './utils.js';
 import { SFX } from './sound.js';
 import { Haptic } from './haptic.js';
 import { Particles } from './particles.js';
-import { state, save } from './state.js';
-import { evaluateGuess, validateGuess, getDailyWord, getTodayStr, getDayNumber, clearEvalCache, CITIES, REGIONS } from './words.js';
+import { state, save, getDifficultyConfig } from './state.js';
+import { evaluateGuess, validateGuess, getDailyWord, getDailyWordLength, getTodayStr, getDayNumber, clearEvalCache, CITIES, REGIONS, getWordPoolForCity, setActiveLength, WORDS_BY_LENGTH } from './words.js';
 import { renderMap, getConqueredCount, setOnCityClickCallback, playCityConquestAnimation, checkRegionUnlock } from './map.js';
 import { updateStats } from './stats.js';
 import { checkAchievements, trackNoHintWin, trackQuickWin } from './achievements.js';
+import { submitDailyScore } from './leaderboard.js';
 
 let currentInput = '';
 let isAnimating = false;
 let currentPuzzleComplete = false;
 let keyboardState = {};
+
+// Revealed (locked) letter positions: Map<position, letter>
+// These are pre-filled by easy mode and must stay fixed during input
+let _revealedPositions = new Map();
 
 // ===== UI UPDATE CALLBACKS =====
 let _updateUICallback = null;
@@ -32,7 +37,10 @@ let _gridBuilt = false;
 function ensureGridBuilt() {
     const grid = document.getElementById('guess-grid');
     if (!grid) return;
-    if (_gridBuilt && grid.children.length === MAX_GUESSES) return;
+    // Check both row count AND column count (word length may have changed)
+    const firstRow = grid.querySelector('.grid-row');
+    if (_gridBuilt && grid.children.length === MAX_GUESSES &&
+        firstRow && firstRow.children.length === WORD_LENGTH) return;
 
     grid.innerHTML = '';
     for (let row = 0; row < MAX_GUESSES; row++) {
@@ -62,15 +70,31 @@ export function renderGrid() {
             tile.textContent = '';
 
             if (row < state.activeCityGuesses.length) {
+                // Completed guess row
                 const guess = state.activeCityGuesses[row];
                 const evaluation = evaluateGuess(guess, state.activeCityWord);
                 const chars = [...guess];
                 tile.textContent = chars[col] || '';
                 tile.classList.add('revealed', evaluation[col]);
             } else if (row === state.activeCityGuesses.length) {
-                const chars = [...currentInput];
-                tile.textContent = chars[col] || '';
-                if (chars[col]) tile.classList.add('filled');
+                // Current input row — merge locked + user input
+                if (_revealedPositions.has(col)) {
+                    // Locked revealed letter — always show
+                    tile.textContent = _revealedPositions.get(col);
+                    tile.classList.add('filled', 'correct', 'locked', 'hint-reveal');
+                } else {
+                    // Free slot — fill from user input (skip locked positions)
+                    const inputChars = [...currentInput];
+                    let freeIdx = 0;
+                    let charForCol = '';
+                    for (let c = 0; c < WORD_LENGTH; c++) {
+                        if (_revealedPositions.has(c)) continue;
+                        if (c === col) { charForCol = inputChars[freeIdx] || ''; break; }
+                        freeIdx++;
+                    }
+                    tile.textContent = charForCol;
+                    if (charForCol) tile.classList.add('filled');
+                }
             }
         }
     }
@@ -111,18 +135,32 @@ export function renderKeyboard() {
 // ===== INPUT =====
 export function addLetter(letter) {
     if (isAnimating || currentPuzzleComplete) return;
-    if (trLen(currentInput) >= WORD_LENGTH) return;
+    // Check against free slots (non-locked), not total WORD_LENGTH
+    if (trLen(currentInput) >= getFreeSlotCount()) return;
 
     currentInput += letter;
     SFX.keyTap();
 
-    const row = state.activeCityGuesses.length;
-    const col = trLen(currentInput) - 1;
-    const tile = document.getElementById(`tile-${row}-${col}`);
-    if (tile) {
-        tile.textContent = letter;
-        tile.classList.add('filled', 'pop');
-        setTimeout(() => tile.classList.remove('pop'), 100);
+    // Find which visual column this letter lands on (skip locked positions)
+    const freeCol = getNextFreeCol() - 1; // -1 because we already added the letter
+    // Actually, calculate proper column for the just-added letter
+    const inputChars = [...currentInput];
+    let inputIdx = 0;
+    let targetCol = -1;
+    for (let col = 0; col < WORD_LENGTH; col++) {
+        if (_revealedPositions.has(col)) continue;
+        inputIdx++;
+        if (inputIdx === inputChars.length) { targetCol = col; break; }
+    }
+
+    if (targetCol >= 0) {
+        const row = state.activeCityGuesses.length;
+        const tile = document.getElementById(`tile-${row}-${targetCol}`);
+        if (tile) {
+            tile.textContent = letter;
+            tile.classList.add('filled', 'pop');
+            setTimeout(() => tile.classList.remove('pop'), 100);
+        }
     }
 }
 
@@ -130,12 +168,23 @@ export function removeLetter() {
     if (isAnimating || currentPuzzleComplete) return;
     if (currentInput.length === 0) return;
 
-    const row = state.activeCityGuesses.length;
-    const col = trLen(currentInput) - 1;
-    const tile = document.getElementById(`tile-${row}-${col}`);
-    if (tile) {
-        tile.textContent = '';
-        tile.classList.remove('filled');
+    // Find visual column of the last free-slot letter being removed
+    const inputChars = [...currentInput];
+    let inputIdx = 0;
+    let targetCol = -1;
+    for (let col = 0; col < WORD_LENGTH; col++) {
+        if (_revealedPositions.has(col)) continue;
+        inputIdx++;
+        if (inputIdx === inputChars.length) { targetCol = col; break; }
+    }
+
+    if (targetCol >= 0) {
+        const row = state.activeCityGuesses.length;
+        const tile = document.getElementById(`tile-${row}-${targetCol}`);
+        if (tile) {
+            tile.textContent = '';
+            tile.classList.remove('filled');
+        }
     }
 
     const chars = [...currentInput];
@@ -147,7 +196,18 @@ export function removeLetter() {
 export function submitGuess() {
     if (isAnimating || currentPuzzleComplete) return;
 
-    const guess = trUpper(currentInput);
+    // Build full word: merge locked letters + user input
+    const fullWord = buildFullWord();
+    const guess = trUpper(fullWord);
+
+    // Check if all slots filled
+    if (trLen(guess) < WORD_LENGTH) {
+        shakeRow(state.activeCityGuesses.length);
+        showToast('Tüm harfleri doldur!');
+        SFX.error();
+        return;
+    }
+
     const validation = validateGuess(guess);
 
     if (!validation.valid) {
@@ -185,7 +245,7 @@ function revealRow(rowIndex, guess) {
                 else SFX.tileRevealAbsent();
             }, 250);
 
-            if (col === WORD_LENGTH - 1) {
+            if (col === chars.length - 1) {
                 setTimeout(() => {
                     updateKeyboardState();
                     renderKeyboard();
@@ -227,7 +287,8 @@ function checkPuzzleResult(guess, evaluation, rowIndex) {
         const baseScore = SCORE_TABLE[guessCount] || 100;
         const hasBonus = Math.random() < 0.03;
         const bonusScore = hasBonus ? 200 : 0;
-        const totalScore = baseScore + bonusScore;
+        const lengthMult = LENGTH_SCORE_MULTIPLIER[WORD_LENGTH] || 1.0;
+        const totalScore = Math.round((baseScore + bonusScore) * lengthMult);
 
         state.score += totalScore;
         state.totalScore += totalScore;
@@ -241,13 +302,26 @@ function checkPuzzleResult(guess, evaluation, rowIndex) {
                 guesses: guessCount,
                 score: totalScore,
                 date: getTodayStr(),
+                wordLength: WORD_LENGTH,
             };
         }
 
-        if (state.dailyDate === getTodayStr() && !state.dailyComplete) {
+        const isDaily = state.dailyDate === getTodayStr() && !state.dailyComplete;
+        if (isDaily) {
             state.dailyComplete = true;
             state.dailyWon = true;
             updateStreak(true);
+
+            // Auto-submit daily score to leaderboard
+            const solveTimeMs = Date.now() - (state.startTime || Date.now());
+            submitDailyScore({
+                guesses: guessCount,
+                solved: true,
+                solveTimeMs,
+                score: totalScore,
+                difficulty: state.difficulty,
+                wordLength: WORD_LENGTH
+            });
         }
 
         // Track achievement helpers
@@ -310,19 +384,47 @@ function checkPuzzleResult(guess, evaluation, rowIndex) {
         currentPuzzleComplete = true;
         state.gamesPlayed++;
 
+        // Consolation score for easy mode
+        const dc = getDifficultyConfig();
+        const consolation = dc.consolationScore || 0;
+        if (consolation > 0) {
+            state.score += consolation;
+            state.totalScore += consolation;
+        }
+
         if (state.dailyDate === getTodayStr() && !state.dailyComplete) {
             state.dailyComplete = true;
             state.dailyWon = false;
             updateStreak(false);
+
+            // Submit lost daily score to leaderboard
+            const solveTimeMs = Date.now() - (state.startTime || Date.now());
+            submitDailyScore({
+                guesses: MAX_GUESSES,
+                solved: false,
+                solveTimeMs,
+                score: consolation,
+                difficulty: state.difficulty,
+                wordLength: WORD_LENGTH
+            });
         }
 
         save();
 
         setTimeout(() => {
             SFX.lose();
-            showResultOverlay(false, `Doğru kelime: ${state.activeCityWord}`, 0, false, 0);
+            const msg = consolation > 0
+                ? `Doğru kelime: ${state.activeCityWord} (+${consolation} deneme puanı)`
+                : `Doğru kelime: ${state.activeCityWord}`;
+            showResultOverlay(false, msg, consolation, false, 0);
             updateUI();
+            if (consolation > 0) {
+                floatText(`+${consolation}`, window.innerWidth / 2, window.innerHeight / 2 - 60, '#f59e0b');
+            }
         }, 500);
+    } else {
+        // Not correct, not last guess — check auto-hint
+        checkAutoHint(evaluation);
     }
 }
 
@@ -397,7 +499,14 @@ function showResultOverlay(won, message, score, hasBonus, guessCount) {
 
     const nextBtn = document.getElementById('btn-next-city');
     if (nextBtn) {
-        nextBtn.style.display = state.activeCityId ? 'inline-flex' : 'none';
+        if (state.activeCityId) {
+            nextBtn.style.display = 'inline-flex';
+            nextBtn.textContent = 'Sonraki Şehir →';
+        } else {
+            // Daily puzzle — show "Tamam" instead of hiding
+            nextBtn.style.display = 'inline-flex';
+            nextBtn.textContent = 'Tamam ✓';
+        }
     }
 
     overlay.classList.remove('hidden');
@@ -409,7 +518,7 @@ export function hideResultOverlay() {
 }
 
 // ===== SHARE =====
-function generateShareGrid() {
+export function generateShareGrid() {
     const guesses = state.activeCityGuesses;
     const word = state.activeCityWord;
     if (!word || guesses.length === 0) return '';
@@ -418,7 +527,7 @@ function generateShareGrid() {
     const isDaily = state.dailyDate === getTodayStr();
     const title = isDaily ? `Kelime Fethi - Günlük #${getDayNumber()}` : 'Kelime Fethi';
     const won = guesses.some(g => g === word);
-    shareText += `${title} ${won ? guesses.length : 'X'}/${MAX_GUESSES}\n\n`;
+    shareText += `${title} ${won ? guesses.length : 'X'}/${MAX_GUESSES} (${WORD_LENGTH} harf)\n\n`;
 
     guesses.forEach(guess => {
         const eval_ = evaluateGuess(guess, word);
@@ -493,33 +602,217 @@ export function updateHintDisplay() {
     if (el) el.textContent = state.hints;
 }
 
+// ===== DIFFICULTY HELPERS =====
+let _autoHintCount = 0; // Track wrong guesses for auto-hint
+
+function applyDifficultySettings() {
+    const dc = getDifficultyConfig();
+    setMaxGuesses(dc.maxGuesses);
+}
+
+function revealStartingLetters() {
+    const dc = getDifficultyConfig();
+    const count = dc.revealLetters || 0;
+    if (count <= 0 || !state.activeCityWord) return;
+
+    _revealedPositions.clear();
+    const chars = [...state.activeCityWord];
+    // Pick random unique positions to reveal
+    const positions = Array.from({ length: WORD_LENGTH }, (_, i) => i);
+    const revealed = [];
+    for (let i = 0; i < Math.min(count, WORD_LENGTH); i++) {
+        const idx = Math.floor(Math.random() * positions.length);
+        const pos = positions.splice(idx, 1)[0];
+        revealed.push({ pos, letter: chars[pos] });
+    }
+    revealed.sort((a, b) => a.pos - b.pos);
+
+    // Register as locked positions and show on grid
+    revealed.forEach(({ pos, letter }) => {
+        _revealedPositions.set(pos, letter);
+        const tile = document.getElementById(`tile-0-${pos}`);
+        if (tile) {
+            tile.textContent = letter;
+            tile.classList.add('revealed', 'correct', 'hint-reveal', 'locked');
+        }
+    });
+
+    const hintText = revealed.map(r => `${r.pos + 1}. harf: ${r.letter}`).join(', ');
+    showToast(`Başlangıç ipucu: ${hintText}`, 4000);
+}
+
+// Get next available (non-locked) column index for typing
+function getNextFreeCol() {
+    const inputChars = [...currentInput];
+    let inputIdx = 0;
+    for (let col = 0; col < WORD_LENGTH; col++) {
+        if (_revealedPositions.has(col)) continue; // skip locked
+        if (inputIdx >= inputChars.length) return col; // first empty free slot
+        inputIdx++;
+    }
+    return -1; // all free slots filled
+}
+
+// Count how many free (non-locked) slots exist
+function getFreeSlotCount() {
+    return WORD_LENGTH - _revealedPositions.size;
+}
+
+// Build full word combining revealed letters + user input
+function buildFullWord() {
+    const inputChars = [...currentInput];
+    let inputIdx = 0;
+    let result = '';
+    for (let col = 0; col < WORD_LENGTH; col++) {
+        if (_revealedPositions.has(col)) {
+            result += _revealedPositions.get(col);
+        } else {
+            result += (inputIdx < inputChars.length) ? inputChars[inputIdx++] : '';
+        }
+    }
+    return result;
+}
+
+// Pre-eliminate some keyboard keys in easy mode
+// Keeps: word letters + some random extras. Marks the rest as absent.
+function eliminateInitialKeys() {
+    const dc = getDifficultyConfig();
+    const count = dc.eliminateKeys || 0;
+    if (count <= 0 || !state.activeCityWord) return;
+
+    const wordLetters = new Set([...state.activeCityWord]);
+    // All alphabet letters not in the word
+    const nonWordLetters = [...TR_UPPER].filter(ch => !wordLetters.has(ch));
+
+    // Shuffle non-word letters
+    for (let i = nonWordLetters.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [nonWordLetters[i], nonWordLetters[j]] = [nonWordLetters[j], nonWordLetters[i]];
+    }
+
+    // Eliminate up to `count` letters
+    const toEliminate = nonWordLetters.slice(0, Math.min(count, nonWordLetters.length));
+    const eliminateSet = new Set(toEliminate);
+
+    // Mark them as absent on keyboard
+    toEliminate.forEach(ch => {
+        keyboardState[ch] = 'absent';
+    });
+    renderKeyboard();
+
+    const remaining = TR_UPPER.length - toEliminate.length;
+    showToast(`Klavye daraltıldı! ${remaining} harf kaldı`, 3000);
+}
+
+function checkAutoHint(evaluation) {
+    const dc = getDifficultyConfig();
+    if (dc.autoHintAfter <= 0) return;
+    const isCorrect = evaluation.every(e => e === 'correct');
+    if (isCorrect) return;
+
+    _autoHintCount++;
+    if (_autoHintCount > 0 && _autoHintCount % dc.autoHintAfter === 0) {
+        state.hints++;
+        save();
+        updateHintDisplay();
+        showToast('Bonus ipucu kazandın! (+1)', 2500);
+        SFX.hint();
+    }
+}
+
+// ===== DYNAMIC TILE SIZING =====
+function updateTileSize() {
+    const maxWidth = Math.min(380, window.innerWidth - 24);
+    const gap = 6;
+    const size = Math.floor((maxWidth - gap * (WORD_LENGTH - 1)) / WORD_LENGTH);
+    const clamped = Math.min(76, Math.max(42, size));
+    document.documentElement.style.setProperty('--tile-size', clamped + 'px');
+}
+
 // ===== START PUZZLE =====
 export function startCityPuzzle(cityId, switchViewFn) {
     const city = CITIES.find(c => c.id === cityId);
-    if (!city || !city.words || city.words.length === 0) return;
+    if (!city || !city.words) return;
 
-    const word = city.words[Math.floor(Math.random() * city.words.length)];
+    applyDifficultySettings();
+
+    // Determine available word lengths for this city
+    let wordLength = 5;
+    let pool;
+    const cityWords = city.words;
+
+    if (typeof cityWords === 'object' && !Array.isArray(cityWords)) {
+        // New format: { "4": [...], "5": [...], "6": [...] }
+        const availableLengths = [];
+        for (const len of [4, 5, 6]) {
+            if (cityWords[len] && cityWords[len].length > 0) {
+                availableLengths.push(Number(len));
+            }
+            if (cityWords[String(len)] && cityWords[String(len)].length > 0) {
+                availableLengths.push(Number(len));
+            }
+        }
+        // Remove duplicates
+        const uniqueLengths = [...new Set(availableLengths)];
+        if (uniqueLengths.length === 0) return;
+
+        // Weighted random: 5 is most common (weight 5), 4 and 6 are treats (weight 2)
+        const weighted = [];
+        uniqueLengths.forEach(l => {
+            const w = l === 5 ? 5 : 2;
+            for (let i = 0; i < w; i++) weighted.push(l);
+        });
+        wordLength = weighted[Math.floor(Math.random() * weighted.length)];
+        pool = cityWords[wordLength] || cityWords[String(wordLength)] || [];
+    } else if (Array.isArray(cityWords) && cityWords.length > 0) {
+        // Legacy format: flat array of 5-letter words
+        pool = cityWords;
+        wordLength = 5;
+    } else {
+        return;
+    }
+
+    // Set dynamic word length
+    setWordLength(wordLength);
+    setActiveLength(wordLength);
+
+    // Pick word from difficulty-filtered pool
+    const wordPool = getWordPoolForCity(pool);
+    if (wordPool.length === 0) return;
+    const word = wordPool[Math.floor(Math.random() * wordPool.length)];
 
     state.activeCityId = cityId;
     state.activeCityWord = word;
     state.activeCityGuesses = [];
+    state.activeCityWordLength = wordLength;
     state.hintUsedThisGame = false;
+    _autoHintCount = 0;
     currentInput = '';
     currentPuzzleComplete = false;
     keyboardState = {};
     _gridBuilt = false;
+    _revealedPositions.clear();
     clearEvalCache();
 
     document.getElementById('puzzle-city-name').textContent = city.name;
     const regionData = REGIONS.find(r => r.id === city.region);
     document.getElementById('puzzle-region-name').textContent = regionData ? regionData.name : '';
 
+    // Update word length badge
+    const lengthBadge = document.getElementById('puzzle-word-length');
+    if (lengthBadge) lengthBadge.textContent = `${wordLength} harf`;
+
+    updateTileSize();
     renderGrid();
     renderKeyboard();
     updateHintDisplay();
 
     switchViewFn('puzzle');
     SFX.resume();
+
+    // Easy mode: eliminate some keys + reveal letters
+    eliminateInitialKeys();
+    setTimeout(() => revealStartingLetters(), 500);
 }
 
 export function startDailyPuzzle(switchViewFn) {
@@ -530,41 +823,68 @@ export function startDailyPuzzle(switchViewFn) {
         return;
     }
 
-    const word = getDailyWord();
-    if (!word) {
+    applyDifficultySettings();
+
+    const dailyData = getDailyWord();
+    if (!dailyData || !dailyData.word) {
         showToast('Kelime verisi yüklenemedi!');
         return;
     }
+
+    // Set dynamic word length for daily puzzle
+    const wordLength = dailyData.length || 5;
+    setWordLength(wordLength);
+    setActiveLength(wordLength);
 
     if (state.dailyDate !== today) {
         state.dailyDate = today;
         state.dailyGuesses = [];
         state.dailyComplete = false;
         state.dailyWon = false;
-        state.dailyWord = word;
+        state.dailyWord = dailyData.word;
+        state.dailyWordLength = wordLength;
     }
 
     state.activeCityId = null;
     state.activeCityWord = state.dailyWord;
     state.activeCityGuesses = state.dailyGuesses;
     state.hintUsedThisGame = false;
+    _autoHintCount = 0;
     currentInput = '';
     currentPuzzleComplete = state.dailyComplete;
     keyboardState = {};
     _gridBuilt = false;
+    _revealedPositions.clear();
     clearEvalCache();
+
+    // Restore word length from saved state (for returning to an in-progress daily)
+    if (state.dailyWordLength && state.dailyDate === today) {
+        setWordLength(state.dailyWordLength);
+        setActiveLength(state.dailyWordLength);
+    }
 
     updateKeyboardState();
 
     document.getElementById('puzzle-city-name').textContent = 'Günlük Bulmaca';
     document.getElementById('puzzle-region-name').textContent = `#${getDayNumber()}`;
 
+    // Update word length badge
+    const lengthBadge = document.getElementById('puzzle-word-length');
+    if (lengthBadge) lengthBadge.textContent = `${WORD_LENGTH} harf`;
+
+    updateTileSize();
     renderGrid();
     renderKeyboard();
     updateHintDisplay();
 
     switchViewFn('puzzle');
     SFX.resume();
+
+    // Easy mode: eliminate some keys + reveal letters (only for new puzzles)
+    if (!state.dailyComplete && state.dailyGuesses.length === 0) {
+        eliminateInitialKeys();
+        setTimeout(() => revealStartingLetters(), 500);
+    }
 }
 
 // Register city click callback
@@ -575,3 +895,45 @@ setOnCityClickCallback((cityId) => {
 // switchView reference (will be set from app.js)
 let switchView = () => {};
 export function setSwitchViewFn(fn) { switchView = fn; }
+
+// ===== CHALLENGE PUZZLE =====
+export function startChallengePuzzle(challengeData, switchViewFn) {
+    if (!challengeData || !challengeData.word) return;
+
+    const word = challengeData.word;
+    const wordLen = challengeData.wordLength || [...word].length;
+
+    applyDifficultySettings();
+    setWordLength(wordLen);
+    setActiveLength(wordLen);
+
+    state.activeCityId = null;
+    state.activeCityWord = word;
+    state.activeCityGuesses = [];
+    state.activeCityWordLength = wordLen;
+    state.hintUsedThisGame = false;
+    _autoHintCount = 0;
+    currentInput = '';
+    currentPuzzleComplete = false;
+    keyboardState = {};
+    _gridBuilt = false;
+    _revealedPositions.clear();
+    clearEvalCache();
+
+    document.getElementById('puzzle-city-name').textContent = '⚔️ Meydan Okuma';
+    document.getElementById('puzzle-region-name').textContent = `#${challengeData.challengeId}`;
+
+    const lengthBadge = document.getElementById('puzzle-word-length');
+    if (lengthBadge) lengthBadge.textContent = `${wordLen} harf`;
+
+    updateTileSize();
+    renderGrid();
+    renderKeyboard();
+    updateHintDisplay();
+
+    switchViewFn('puzzle');
+    SFX.resume();
+
+    eliminateInitialKeys();
+    setTimeout(() => revealStartingLetters(), 500);
+}
