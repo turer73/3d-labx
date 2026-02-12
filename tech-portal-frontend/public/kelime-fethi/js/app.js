@@ -206,9 +206,9 @@ function showStreakRecoveryDialog() {
 
 // ===== DIFFICULTY INFO =====
 const DIFFICULTY_INFO = {
-    easy: '6 deneme, 5 ipucu, 2 harf açık, klavye daraltılır',
-    normal: '6 deneme, 3 ipucu, standart',
-    hard: '6 deneme, 1 ipucu, zor mod zorunlu',
+    easy: '4 harf, 6 deneme, 1 harf açık, klavye daraltılır',
+    normal: '5 harf, 6 deneme, 3 ipucu',
+    hard: '6 harf, 6 deneme, 1 ipucu, zor mod zorunlu',
 };
 
 function updateDifficultyUI() {

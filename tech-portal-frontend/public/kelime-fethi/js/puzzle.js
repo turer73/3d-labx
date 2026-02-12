@@ -770,41 +770,26 @@ export function startCityPuzzle(cityId, switchViewFn) {
 
     applyDifficultySettings();
 
-    // Determine available word lengths for this city
-    let wordLength = 5;
+    // Word length is determined by difficulty level (easy=4, normal=5, hard=6)
+    const dc = getDifficultyConfig();
+    const wordLength = dc.wordLength || 5;
     let pool;
     const cityWords = city.words;
 
     if (typeof cityWords === 'object' && !Array.isArray(cityWords)) {
         // New format: { "4": [...], "5": [...], "6": [...] }
-        const availableLengths = [];
-        for (const len of [4, 5, 6]) {
-            if (cityWords[len] && cityWords[len].length > 0) {
-                availableLengths.push(Number(len));
-            }
-            if (cityWords[String(len)] && cityWords[String(len)].length > 0) {
-                availableLengths.push(Number(len));
-            }
-        }
-        // Remove duplicates
-        const uniqueLengths = [...new Set(availableLengths)];
-        if (uniqueLengths.length === 0) return;
-
-        // Weighted random: 5 is most common (weight 5), 4 and 6 are treats (weight 2)
-        const weighted = [];
-        uniqueLengths.forEach(l => {
-            const w = l === 5 ? 5 : 2;
-            for (let i = 0; i < w; i++) weighted.push(l);
-        });
-        wordLength = weighted[Math.floor(Math.random() * weighted.length)];
         pool = cityWords[wordLength] || cityWords[String(wordLength)] || [];
+        // Fallback to 5-letter if chosen length has no words for this city
+        if (pool.length === 0 && wordLength !== 5) {
+            pool = cityWords[5] || cityWords['5'] || [];
+        }
     } else if (Array.isArray(cityWords) && cityWords.length > 0) {
         // Legacy format: flat array of 5-letter words
         pool = cityWords;
-        wordLength = 5;
     } else {
         return;
     }
+    if (pool.length === 0) return;
 
     // Set dynamic word length
     setWordLength(wordLength);
@@ -860,14 +845,15 @@ export function startDailyPuzzle(switchViewFn) {
 
     applyDifficultySettings();
 
-    const dailyData = getDailyWord();
+    // Word length determined by difficulty (easy=4, normal=5, hard=6)
+    const dc = getDifficultyConfig();
+    const wordLength = dc.wordLength || 5;
+
+    const dailyData = getDailyWord(wordLength);
     if (!dailyData || !dailyData.word) {
         showToast('Kelime verisi yüklenemedi!');
         return;
     }
-
-    // Set dynamic word length for daily puzzle
-    const wordLength = dailyData.length || 5;
     setWordLength(wordLength);
     setActiveLength(wordLength);
 

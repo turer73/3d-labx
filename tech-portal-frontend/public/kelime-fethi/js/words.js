@@ -313,9 +313,10 @@ export function getDailyWordLength() {
 
 // Daily word selection — permutation-based, no repeats within cycle
 // Returns { word, length } object
-export function getDailyWord() {
+// forceLength: override word length (used when difficulty determines length)
+export function getDailyWord(forceLength) {
     const dayNum = getDayNumber();
-    const dailyLen = getDailyWordLength();
+    const dailyLen = forceLength || getDailyWordLength();
 
     // Get pool for this length
     const pool = DAILY_BY_LENGTH[dailyLen];
