@@ -5,14 +5,14 @@
 // ============================================================
 
 // BUILD_TS will be updated by deploy script or manually
-const BUILD_TS = '20260213d';
+const BUILD_TS = '20260213e';
 const CACHE_NAME = `kelime-fethi-${BUILD_TS}`;
 
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
     './style.css?v=6',
-    './js/app.js?v=10',
+    './js/app.js?v=11',
     './js/config.js',
     './js/utils.js',
     './js/haptic.js',

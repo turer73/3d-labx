@@ -305,6 +305,28 @@ export function getWordPoolForCity(cityWords) {
 // Daily word length pattern — most days 5, some 4 or 6
 const DAILY_LENGTH_PATTERN = [5, 5, 5, 4, 5, 5, 6];
 
+// Pick a random word length from a city's available word lengths
+// Weights: 50% → 5-letter, 25% → 4-letter, 25% → 6-letter
+export function pickCityWordLength(cityWords) {
+    const available = [];
+    for (const len of [4, 5, 6]) {
+        const pool = cityWords[len] || cityWords[String(len)];
+        if (pool && pool.length > 0) available.push(len);
+    }
+    if (available.length === 0) return 5;
+    if (available.length === 1) return available[0];
+
+    const weights = { 4: 25, 5: 50, 6: 25 };
+    const entries = available.map(len => ({ len, w: weights[len] || 25 }));
+    const totalWeight = entries.reduce((s, e) => s + e.w, 0);
+    let roll = Math.random() * totalWeight;
+    for (const entry of entries) {
+        roll -= entry.w;
+        if (roll <= 0) return entry.len;
+    }
+    return entries[entries.length - 1].len;
+}
+
 // Get today's daily word length
 export function getDailyWordLength() {
     const dayNum = getDayNumber();
@@ -313,10 +335,10 @@ export function getDailyWordLength() {
 
 // Daily word selection — permutation-based, no repeats within cycle
 // Returns { word, length } object
-// forceLength: override word length (used when difficulty determines length)
-export function getDailyWord(forceLength) {
+// Word length comes from DAILY_LENGTH_PATTERN rotation (independent of difficulty)
+export function getDailyWord() {
     const dayNum = getDayNumber();
-    const dailyLen = forceLength || getDailyWordLength();
+    const dailyLen = getDailyWordLength();
 
     // Get pool for this length
     const pool = DAILY_BY_LENGTH[dailyLen];

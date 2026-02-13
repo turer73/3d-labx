@@ -50,7 +50,8 @@ export const DEFAULT_STATE = {
     avatarEmoji: '🎮',
     leaderboardOptIn: false,
     shareCount: 0,
-    version: '3.1',
+    puzzleSolveTimeMs: 0,
+    version: '4.0',
 };
 
 // Reactive state with deep clone
@@ -123,16 +124,17 @@ function ensureStateIntegrity() {
     if (typeof state.avatarEmoji !== 'string') state.avatarEmoji = '🎮';
     if (typeof state.leaderboardOptIn !== 'boolean') state.leaderboardOptIn = false;
     if (typeof state.shareCount !== 'number') state.shareCount = 0;
+    if (typeof state.puzzleSolveTimeMs !== 'number') state.puzzleSolveTimeMs = 0;
 
     // Version migration
-    if (state.version !== '3.1') {
+    if (state.version !== '4.0') {
         // Migrate guessDistribution to support up to 8 guesses
         if (state.guessDistribution && !state.guessDistribution[7]) {
             state.guessDistribution[7] = 0;
             state.guessDistribution[8] = 0;
         }
-        state.version = '3.1';
-        console.log('[KF] State migrated to v3.1');
+        state.version = '4.0';
+        console.log('[KF] State migrated to v4.0');
     }
 }
 

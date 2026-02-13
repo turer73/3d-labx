@@ -532,29 +532,20 @@ body::before {
 .hint-btn:active { transform: scale(0.95); }
 .hint-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-/* Guess Timer */
-.guess-timer {
-    width: 100%;
-    max-width: 380px;
-    height: 5px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 3px;
-    margin: 4px auto 2px;
-    overflow: hidden;
-}
-.guess-timer-bar {
-    height: 100%;
-    background: linear-gradient(90deg, #16a34a, #22c55e);
-    border-radius: 3px;
-    transition: width 0.1s linear;
-}
-.guess-timer-bar.timer-critical {
-    background: linear-gradient(90deg, #dc2626, #f87171);
-    animation: timer-pulse 0.5s ease-in-out infinite;
-}
-@keyframes timer-pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
+/* Puzzle Stopwatch Timer */
+.puzzle-timer-display {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text2, rgba(255,255,255,0.6));
+    font-family: 'Courier New', monospace;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 2px 8px;
+    border-radius: 6px;
+    min-width: 36px;
+    text-align: center;
+    letter-spacing: 0.05em;
+    margin-left: 4px;
 }
 
 /* Guess Grid */
@@ -569,6 +560,24 @@ body::before {
     display: flex;
     gap: var(--gap);
     justify-content: center;
+    position: relative;
+}
+
+/* Row ready indicator — green progress bar under row during auto-submit countdown */
+.grid-row.row-ready::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(22, 163, 74, 0.6), transparent);
+    border-radius: 2px;
+    animation: row-ready-progress 0.8s linear forwards;
+}
+@keyframes row-ready-progress {
+    from { transform: scaleX(0); transform-origin: left; }
+    to { transform: scaleX(1); transform-origin: left; }
 }
 
 .tile {
@@ -721,6 +730,18 @@ body::before {
     background: linear-gradient(180deg, rgba(22, 163, 74, 0.3), rgba(22, 163, 74, 0.15));
     border-color: rgba(22, 163, 74, 0.3);
     color: var(--green-light);
+}
+
+/* GİR button glow when word is complete (auto-submit countdown) */
+.key.wide[data-key="ENTER"].gir-glow {
+    background: linear-gradient(180deg, rgba(22, 163, 74, 0.6), rgba(22, 163, 74, 0.35)) !important;
+    border-color: rgba(22, 163, 74, 0.6) !important;
+    box-shadow: 0 0 12px rgba(22, 163, 74, 0.4), 0 0 24px rgba(22, 163, 74, 0.15);
+    animation: gir-pulse 0.6s ease-in-out infinite;
+}
+@keyframes gir-pulse {
+    0%, 100% { box-shadow: 0 0 12px rgba(22, 163, 74, 0.4); transform: scale(1); }
+    50% { box-shadow: 0 0 20px rgba(22, 163, 74, 0.6), 0 0 32px rgba(22, 163, 74, 0.2); transform: scale(1.05); }
 }
 
 .key.correct {

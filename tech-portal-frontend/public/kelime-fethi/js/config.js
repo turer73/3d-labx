@@ -12,11 +12,11 @@ export const SAVE_KEY = 'kelime_fethi_save_v1';
 export const CLOUD_API = 'https://tech-portal-api.turgut-d01.workers.dev/api/game';
 export const PLAYER_ID_KEY = 'kelime_fethi_player_id';
 
-// Difficulty settings
+// Difficulty settings (word length is independent — comes from city/daily data)
 export const DIFFICULTY = {
-    easy:   { maxGuesses: 6, startHints: 5, revealLetters: 1, eliminateKeys: 10, consolationScore: 25, autoHintAfter: 2, hardModeForced: false, wordPool: 'easy', wordLength: 4, guessTimerSec: 10 },
-    normal: { maxGuesses: 6, startHints: 3, revealLetters: 0, eliminateKeys: 0,  consolationScore: 0,  autoHintAfter: 0, hardModeForced: false, wordPool: 'daily', wordLength: 5, guessTimerSec: 0 },
-    hard:   { maxGuesses: 6, startHints: 1, revealLetters: 0, eliminateKeys: 0,  consolationScore: 0,  autoHintAfter: 0, hardModeForced: true,  wordPool: 'all',   wordLength: 6, guessTimerSec: 0 },
+    easy:   { maxGuesses: 8, startHints: 5, revealLetters: 1, eliminateKeys: 10, consolationScore: 25, autoHintAfter: 2, hardModeForced: false, wordPool: 'easy' },
+    normal: { maxGuesses: 6, startHints: 3, revealLetters: 0, eliminateKeys: 0,  consolationScore: 0,  autoHintAfter: 0, hardModeForced: false, wordPool: 'daily' },
+    hard:   { maxGuesses: 5, startHints: 1, revealLetters: 0, eliminateKeys: 0,  consolationScore: 0,  autoHintAfter: 0, hardModeForced: true,  wordPool: 'all' },
 };
 export const DEFAULT_DIFFICULTY = 'easy';
 
@@ -25,7 +25,7 @@ export let MAX_GUESSES = 6;
 export function setMaxGuesses(n) { MAX_GUESSES = n; }
 
 // Score per guess count (variable reward — fewer guesses = more points)
-export const SCORE_TABLE = { 1: 500, 2: 400, 3: 300, 4: 200, 5: 150, 6: 100 };
+export const SCORE_TABLE = { 1: 500, 2: 400, 3: 300, 4: 200, 5: 150, 6: 100, 7: 75, 8: 50 };
 
 // Streak rewards
 export const STREAK_REWARDS = {
@@ -56,7 +56,7 @@ export const TUTORIAL_STEPS = [
     },
     {
         title: 'Nasıl Oynanır? ✍️',
-        text: 'Haritadan bir şehir seç → kelimeyi bul!\nKolay=4 harf, Normal=5 harf, Zor=6 harf.',
+        text: 'Haritadan bir şehir seç → kelimeyi bul!\nKelime uzunluğu şehre göre değişir (4-6 harf).\nZorluk seviyesini ayarlardan seçebilirsin.',
         icon: '✍️',
     },
     {

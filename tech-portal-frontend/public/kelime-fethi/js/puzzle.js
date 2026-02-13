@@ -8,7 +8,7 @@ import { SFX } from './sound.js';
 import { Haptic } from './haptic.js';
 import { Particles } from './particles.js';
 import { state, save, getDifficultyConfig } from './state.js';
-import { evaluateGuess, validateGuess, getDailyWord, getDailyWordLength, getTodayStr, getDayNumber, clearEvalCache, CITIES, REGIONS, getWordPoolForCity, setActiveLength, WORDS_BY_LENGTH } from './words.js';
+import { evaluateGuess, validateGuess, getDailyWord, getDailyWordLength, getTodayStr, getDayNumber, clearEvalCache, CITIES, REGIONS, getWordPoolForCity, setActiveLength, WORDS_BY_LENGTH, pickCityWordLength } from './words.js';
 import { renderMap, getConqueredCount, setOnCityClickCallback, playCityConquestAnimation, checkRegionUnlock } from './map.js';
 import { updateStats } from './stats.js';
 import { checkAchievements, trackNoHintWin, trackQuickWin } from './achievements.js';
@@ -31,107 +31,87 @@ let _greenCarryPositions = new Map();
 // Keys eliminated at puzzle start (easy mode) — must survive updateKeyboardState resets
 let _eliminatedKeys = new Set();
 
-// ===== GUESS TIMER =====
-let _guessTimerId = null;
-let _guessTimerStart = 0;
-let _guessTimerDuration = 0; // ms
-let _guessTimerAnimFrame = null;
+// ===== PUZZLE TIMER (Stopwatch) =====
+let _puzzleTimerInterval = null;
+let _puzzleStartTime = 0;
+let _puzzleSolveTimeMs = 0;
 
-function startGuessTimer() {
-    const dc = getDifficultyConfig();
-    const sec = dc.guessTimerSec || 0;
-    if (sec <= 0) return;
-    if (_guessTimerId) return; // already running
-
-    _guessTimerDuration = sec * 1000;
-    _guessTimerStart = Date.now();
-
-    // Show timer bar
-    const bar = document.getElementById('guess-timer-bar');
-    const container = document.getElementById('guess-timer');
-    if (container) container.style.display = '';
-    if (bar) { bar.style.width = '100%'; bar.classList.remove('timer-critical'); }
-
-    // Animate the bar
-    const animate = () => {
-        const elapsed = Date.now() - _guessTimerStart;
-        const remaining = Math.max(0, _guessTimerDuration - elapsed);
-        const pct = (remaining / _guessTimerDuration) * 100;
-        if (bar) {
-            bar.style.width = pct + '%';
-            if (pct <= 30) bar.classList.add('timer-critical');
-        }
-        if (remaining > 0) {
-            _guessTimerAnimFrame = requestAnimationFrame(animate);
-        }
-    };
-    _guessTimerAnimFrame = requestAnimationFrame(animate);
-
-    // Set timeout for burn
-    _guessTimerId = setTimeout(() => {
-        onGuessTimerExpired();
-    }, _guessTimerDuration);
+function startPuzzleTimer() {
+    stopPuzzleTimer();
+    _puzzleStartTime = Date.now();
+    _puzzleSolveTimeMs = 0;
+    updatePuzzleTimerDisplay();
+    _puzzleTimerInterval = setInterval(updatePuzzleTimerDisplay, 1000);
 }
 
-function clearGuessTimer() {
-    if (_guessTimerId) { clearTimeout(_guessTimerId); _guessTimerId = null; }
-    if (_guessTimerAnimFrame) { cancelAnimationFrame(_guessTimerAnimFrame); _guessTimerAnimFrame = null; }
-    const container = document.getElementById('guess-timer');
-    if (container) container.style.display = 'none';
+function stopPuzzleTimer() {
+    if (_puzzleTimerInterval) {
+        clearInterval(_puzzleTimerInterval);
+        _puzzleTimerInterval = null;
+    }
+    if (_puzzleStartTime > 0) {
+        _puzzleSolveTimeMs = Date.now() - _puzzleStartTime;
+    }
 }
 
-function onGuessTimerExpired() {
-    clearGuessTimer();
+function clearPuzzleTimer() {
+    stopPuzzleTimer();
+    _puzzleStartTime = 0;
+    _puzzleSolveTimeMs = 0;
+    const el = document.getElementById('puzzle-timer-display');
+    if (el) el.textContent = '0:00';
+}
+
+function updatePuzzleTimerDisplay() {
+    const el = document.getElementById('puzzle-timer-display');
+    if (!el || _puzzleStartTime === 0) return;
+    const elapsed = Date.now() - _puzzleStartTime;
+    const totalSec = Math.floor(elapsed / 1000);
+    const min = Math.floor(totalSec / 60);
+    const sec = totalSec % 60;
+    el.textContent = `${min}:${sec.toString().padStart(2, '0')}`;
+}
+
+export function getPuzzleSolveTimeMs() {
+    return _puzzleSolveTimeMs;
+}
+
+// ===== AUTO-SUBMIT =====
+let _autoSubmitTimerId = null;
+
+function scheduleAutoSubmit() {
+    cancelAutoSubmit();
     if (isAnimating || currentPuzzleComplete) return;
 
-    SFX.error();
-    showToast('Süre doldu! Tahmin hakkın yandı', 2000);
+    // Glow the GİR button
+    const girBtn = document.querySelector('.key[data-key="ENTER"]');
+    if (girBtn) girBtn.classList.add('gir-glow');
 
-    // Burn the guess: push empty/partial guess and advance
+    // Highlight current row with progress bar
     const row = state.activeCityGuesses.length;
-    const locked = getAllLockedPositions();
-    // Clear current input from tiles
-    for (let col = 0; col < WORD_LENGTH; col++) {
-        if (locked.has(col)) continue;
-        const tile = document.getElementById(`tile-${row}-${col}`);
-        if (tile) { tile.textContent = ''; tile.classList.remove('filled'); }
+    const rowEl = document.querySelectorAll('.grid-row')[row];
+    if (rowEl) rowEl.classList.add('row-ready');
+
+    // Auto-submit after 800ms
+    _autoSubmitTimerId = setTimeout(() => {
+        _autoSubmitTimerId = null;
+        removeAutoSubmitVisuals();
+        submitGuess();
+    }, 800);
+}
+
+function cancelAutoSubmit() {
+    if (_autoSubmitTimerId) {
+        clearTimeout(_autoSubmitTimerId);
+        _autoSubmitTimerId = null;
     }
+    removeAutoSubmitVisuals();
+}
 
-    // Push a dummy guess (all dashes) to consume the slot
-    const dummyGuess = '·'.repeat(WORD_LENGTH);
-    state.activeCityGuesses.push(dummyGuess);
-    currentInput = '';
-
-    // Mark the burned row visually
-    shakeRow(row);
-
-    // Check if that was the last guess
-    const isLastGuess = state.activeCityGuesses.length >= MAX_GUESSES;
-    if (isLastGuess) {
-        currentPuzzleComplete = true;
-        state.gamesPlayed++;
-        const dc = getDifficultyConfig();
-        const consolation = dc.consolationScore || 0;
-        if (consolation > 0) { state.score += consolation; state.totalScore += consolation; }
-
-        if (state.dailyDate === getTodayStr() && !state.dailyComplete) {
-            state.dailyComplete = true;
-            state.dailyWon = false;
-        }
-        save();
-        setTimeout(() => {
-            SFX.lose();
-            const msg = consolation > 0
-                ? `Doğru kelime: ${state.activeCityWord} (+${consolation} deneme puanı)`
-                : `Doğru kelime: ${state.activeCityWord}`;
-            showResultOverlay(false, msg, consolation, false, 0);
-            updateUI();
-        }, 500);
-    } else {
-        // Advance to next row with locked letters
-        prefillNextRow();
-        save();
-    }
+function removeAutoSubmitVisuals() {
+    const girBtn = document.querySelector('.key[data-key="ENTER"]');
+    if (girBtn) girBtn.classList.remove('gir-glow');
+    document.querySelectorAll('.grid-row.row-ready').forEach(r => r.classList.remove('row-ready'));
 }
 
 // ===== UI UPDATE CALLBACKS =====
@@ -253,12 +233,8 @@ export function addLetter(letter) {
     // Check against free slots (non-locked), not total WORD_LENGTH
     if (trLen(currentInput) >= (WORD_LENGTH - locked.size)) return;
 
-    const wasEmpty = currentInput.length === 0;
     currentInput += letter;
     SFX.keyTap();
-
-    // Start guess timer on first letter typed
-    if (wasEmpty) startGuessTimer();
 
     // Find which visual column this letter lands on (skip all locked positions)
     const inputChars = [...currentInput];
@@ -278,6 +254,11 @@ export function addLetter(letter) {
             tile.classList.add('filled', 'pop');
             setTimeout(() => tile.classList.remove('pop'), 100);
         }
+    }
+
+    // Auto-submit: schedule when all free slots are filled
+    if (trLen(currentInput) >= (WORD_LENGTH - locked.size) && !isAnimating && !currentPuzzleComplete) {
+        scheduleAutoSubmit();
     }
 }
 
@@ -308,12 +289,13 @@ export function removeLetter() {
     const chars = [...currentInput];
     chars.pop();
     currentInput = chars.join('');
+    cancelAutoSubmit();
     Haptic.tap();
 }
 
 export function submitGuess() {
+    cancelAutoSubmit();
     if (isAnimating || currentPuzzleComplete) return;
-    clearGuessTimer();
 
     // Build full word: merge locked letters + user input
     const fullWord = buildFullWord();
@@ -400,6 +382,7 @@ function checkPuzzleResult(guess, evaluation, rowIndex) {
 
     if (isCorrect) {
         currentPuzzleComplete = true;
+        stopPuzzleTimer();
         bounceRow(rowIndex);
 
         const guessCount = state.activeCityGuesses.length;
@@ -432,7 +415,7 @@ function checkPuzzleResult(guess, evaluation, rowIndex) {
             updateStreak(true);
 
             // Auto-submit daily score to leaderboard
-            const solveTimeMs = Date.now() - (state.startTime || Date.now());
+            const solveTimeMs = _puzzleSolveTimeMs;
             submitDailyScore({
                 guesses: guessCount,
                 solved: true,
@@ -501,6 +484,7 @@ function checkPuzzleResult(guess, evaluation, rowIndex) {
 
     } else if (isLastGuess) {
         currentPuzzleComplete = true;
+        stopPuzzleTimer();
         state.gamesPlayed++;
 
         // Consolation score for easy mode
@@ -517,7 +501,7 @@ function checkPuzzleResult(guess, evaluation, rowIndex) {
             updateStreak(false);
 
             // Submit lost daily score to leaderboard
-            const solveTimeMs = Date.now() - (state.startTime || Date.now());
+            const solveTimeMs = _puzzleSolveTimeMs;
             submitDailyScore({
                 guesses: MAX_GUESSES,
                 solved: false,
@@ -901,28 +885,23 @@ export function startCityPuzzle(cityId, switchViewFn) {
 
     applyDifficultySettings();
 
-    // Word length is determined by difficulty level (easy=4, normal=5, hard=6)
-    const dc = getDifficultyConfig();
-    const wordLength = dc.wordLength || 5;
-    let pool;
+    // Word length is determined by city data (weighted random), NOT by difficulty
     const cityWords = city.words;
+    let wordLength, pool;
 
     if (typeof cityWords === 'object' && !Array.isArray(cityWords)) {
         // New format: { "4": [...], "5": [...], "6": [...] }
+        wordLength = pickCityWordLength(cityWords);
         pool = cityWords[wordLength] || cityWords[String(wordLength)] || [];
-        // Fallback to 5-letter if chosen length has no words for this city
-        if (pool.length === 0 && wordLength !== 5) {
-            pool = cityWords[5] || cityWords['5'] || [];
-        }
+        if (pool.length === 0) return;
     } else if (Array.isArray(cityWords) && cityWords.length > 0) {
         // Legacy format: flat array of 5-letter words
+        wordLength = 5;
         pool = cityWords;
     } else {
         return;
     }
-    if (pool.length === 0) return;
 
-    // Set dynamic word length
     setWordLength(wordLength);
     setActiveLength(wordLength);
 
@@ -937,7 +916,8 @@ export function startCityPuzzle(cityId, switchViewFn) {
     state.activeCityWordLength = wordLength;
     state.hintUsedThisGame = false;
     _autoHintCount = 0;
-    clearGuessTimer();
+    clearPuzzleTimer();
+    cancelAutoSubmit();
     currentInput = '';
     currentPuzzleComplete = false;
     keyboardState = {};
@@ -959,6 +939,7 @@ export function startCityPuzzle(cityId, switchViewFn) {
     renderGrid();
     renderKeyboard();
     updateHintDisplay();
+    startPuzzleTimer();
 
     switchViewFn('puzzle');
     SFX.resume();
@@ -978,15 +959,13 @@ export function startDailyPuzzle(switchViewFn) {
 
     applyDifficultySettings();
 
-    // Word length determined by difficulty (easy=4, normal=5, hard=6)
-    const dc = getDifficultyConfig();
-    const wordLength = dc.wordLength || 5;
-
-    const dailyData = getDailyWord(wordLength);
+    // Word length from daily rotation pattern (independent of difficulty)
+    const dailyData = getDailyWord();
     if (!dailyData || !dailyData.word) {
         showToast('Kelime verisi yüklenemedi!');
         return;
     }
+    const wordLength = dailyData.length;
     setWordLength(wordLength);
     setActiveLength(wordLength);
 
@@ -1004,7 +983,8 @@ export function startDailyPuzzle(switchViewFn) {
     state.activeCityGuesses = state.dailyGuesses;
     state.hintUsedThisGame = false;
     _autoHintCount = 0;
-    clearGuessTimer();
+    clearPuzzleTimer();
+    cancelAutoSubmit();
     currentInput = '';
     currentPuzzleComplete = state.dailyComplete;
     keyboardState = {};
@@ -1033,6 +1013,7 @@ export function startDailyPuzzle(switchViewFn) {
     renderGrid();
     renderKeyboard();
     updateHintDisplay();
+    if (!currentPuzzleComplete) startPuzzleTimer();
 
     switchViewFn('puzzle');
     SFX.resume();
@@ -1070,7 +1051,8 @@ export function startChallengePuzzle(challengeData, switchViewFn) {
     state.activeCityWordLength = wordLen;
     state.hintUsedThisGame = false;
     _autoHintCount = 0;
-    clearGuessTimer();
+    clearPuzzleTimer();
+    cancelAutoSubmit();
     currentInput = '';
     currentPuzzleComplete = false;
     keyboardState = {};
@@ -1090,6 +1072,7 @@ export function startChallengePuzzle(challengeData, switchViewFn) {
     renderGrid();
     renderKeyboard();
     updateHintDisplay();
+    startPuzzleTimer();
 
     switchViewFn('puzzle');
     SFX.resume();
