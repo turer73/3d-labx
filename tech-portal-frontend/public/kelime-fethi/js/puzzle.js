@@ -623,6 +623,28 @@ export function hideResultOverlay() {
     if (overlay) overlay.classList.add('hidden');
 }
 
+// ===== SKIP PUZZLE =====
+export function skipPuzzle() {
+    // Only allow skip for city puzzles (not daily)
+    if (!state.activeCityId || currentPuzzleComplete) return;
+
+    currentPuzzleComplete = true;
+    stopPuzzleTimer();
+    cancelAutoSubmit();
+
+    // Show the answer with a toast
+    const word = state.activeCityWord || '?';
+    showToast(`Pas geçildi — Cevap: ${word}`, 3000);
+
+    save();
+    updateUI();
+
+    // Return to map after short delay
+    setTimeout(() => {
+        if (switchView) switchView('map');
+    }, 2000);
+}
+
 // ===== SHARE =====
 export function generateShareGrid() {
     const guesses = state.activeCityGuesses;
@@ -719,8 +741,10 @@ function applyDifficultySettings() {
 
 function revealStartingLetters() {
     const dc = getDifficultyConfig();
-    const count = dc.revealLetters || 0;
-    if (count <= 0 || !state.activeCityWord) return;
+    const baseCount = dc.revealLetters || 0;
+    if (baseCount <= 0 || !state.activeCityWord) return;
+    // 5-6 letter words get +1 revealed letter in easy mode
+    const count = (baseCount > 0 && WORD_LENGTH >= 5) ? baseCount + 1 : baseCount;
 
     _revealedPositions.clear();
     _greenCarryPositions.clear();
@@ -987,6 +1011,10 @@ export function startCityPuzzle(cityId, switchViewFn) {
     const lengthBadge = document.getElementById('puzzle-word-length');
     if (lengthBadge) lengthBadge.textContent = `${wordLength} harf`;
 
+    // Show skip button for city puzzles
+    const skipBtn = document.getElementById('btn-skip');
+    if (skipBtn) skipBtn.style.display = 'inline-block';
+
     switchViewFn('puzzle');
 
     // Delay tile sizing until view is visible and laid out
@@ -1064,6 +1092,10 @@ export function startDailyPuzzle(switchViewFn) {
     const lengthBadge = document.getElementById('puzzle-word-length');
     if (lengthBadge) lengthBadge.textContent = `${WORD_LENGTH} harf`;
 
+    // Hide skip button for daily puzzles
+    const skipBtn = document.getElementById('btn-skip');
+    if (skipBtn) skipBtn.style.display = 'none';
+
     switchViewFn('puzzle');
 
     requestAnimationFrame(() => {
@@ -1124,6 +1156,10 @@ export function startChallengePuzzle(challengeData, switchViewFn) {
 
     const lengthBadge = document.getElementById('puzzle-word-length');
     if (lengthBadge) lengthBadge.textContent = `${wordLen} harf`;
+
+    // Hide skip button for challenge puzzles
+    const skipBtn = document.getElementById('btn-skip');
+    if (skipBtn) skipBtn.style.display = 'none';
 
     switchViewFn('puzzle');
 

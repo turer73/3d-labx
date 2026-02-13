@@ -16,7 +16,8 @@ import { CloudSave } from './cloud.js';
 import { initPhysicalKeyboard, initVirtualKeyboard, initSwipeKeyboard } from './keyboard.js';
 import {
     startDailyPuzzle, startCityPuzzle, useHint, shareResult, hideResultOverlay,
-    updateHintDisplay, setSwitchViewFn, setUpdateUICallback, generateShareGrid, startChallengePuzzle
+    updateHintDisplay, setSwitchViewFn, setUpdateUICallback, generateShareGrid, startChallengePuzzle,
+    skipPuzzle
 } from './puzzle.js';
 import { showTutorial, nextTutorialStep } from './tutorial.js';
 import { getTodayStr as getToday } from './words.js';
@@ -321,6 +322,8 @@ function initEventListeners() {
     });
 
     document.getElementById('btn-back')?.addEventListener('click', () => switchView('map'));
+
+    document.getElementById('btn-skip')?.addEventListener('click', () => skipPuzzle());
 
     document.getElementById('btn-daily')?.addEventListener('click', () => {
         SFX.resume();

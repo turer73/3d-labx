@@ -108,14 +108,19 @@
         <!-- VIEW 2: PUZZLE -->
         <section id="puzzle-view" class="view">
             <div class="puzzle-header">
-                <button id="btn-back" class="back-btn" aria-label="Haritaya dön">← Harita</button>
+                <div class="puzzle-header-left">
+                    <button id="btn-back" class="back-btn" aria-label="Haritaya dön">← Harita</button>
+                    <button id="btn-skip" class="skip-puzzle-btn" aria-label="Pas geç" style="display:none;">Pas</button>
+                </div>
                 <div class="puzzle-city-info">
                     <span id="puzzle-city-name">İstanbul</span>
                     <span id="puzzle-region-name" class="region-tag">Marmara</span>
                     <span id="puzzle-word-length" class="word-length-badge">5 harf</span>
                 </div>
-                <button id="btn-hint" class="hint-btn" title="İpucu" aria-label="İpucu kullan">💡 <span id="hint-count">3</span></button>
-                <span id="puzzle-timer-display" class="puzzle-timer-display">0:00</span>
+                <div class="puzzle-header-right">
+                    <button id="btn-hint" class="hint-btn" title="İpucu" aria-label="İpucu kullan">💡 <span id="hint-count">3</span></button>
+                    <span id="puzzle-timer-display" class="puzzle-timer-display">0:00</span>
+                </div>
             </div>
 
             <!-- Guess Grid -->
