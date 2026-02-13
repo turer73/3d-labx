@@ -872,29 +872,47 @@ function checkAutoHint(evaluation) {
 // ===== DYNAMIC TILE SIZING =====
 function updateTileSize() {
     const gap = 6;
+    const rows = MAX_GUESSES;
 
-    // Width-based sizing (existing logic)
+    // Width-based sizing
     const maxWidth = Math.min(380, window.innerWidth - 24);
     const sizeW = Math.floor((maxWidth - gap * (WORD_LENGTH - 1)) / WORD_LENGTH);
 
-    // Height-based sizing: ensure grid + keyboard + header fit without scrolling
-    // Available height = viewport - topBar(50) - bottomNav(60) - puzzleHeader(44) - keyboard(~175) - messageArea(24) - margins(24)
-    const availH = window.innerHeight - 50 - 60 - 44 - 175 - 24 - 24;
-    const rows = MAX_GUESSES;
+    // Height-based sizing: use actual game-area height
+    const gameArea = document.getElementById('game-area');
+    const containerH = gameArea ? gameArea.clientHeight : (window.innerHeight - 110);
+    // Reserve space: puzzleHeader(~40) + keyboard(3rows × keyH + 2×gap + padding) + message(18) + viewPadding(16+2)
+    // First pass: estimate keyboard height with default key-h
+    const estKeyH = 42;
+    const kbdHeight = estKeyH * 3 + 5 * 2 + 6; // 3 rows × key + 2 gaps + padding
+    const headerH = 40;
+    const messageH = 18;
+    const paddingH = 18; // view padding top+bottom (8+8) + gap slack
+    const availH = containerH - headerH - kbdHeight - messageH - paddingH;
     const sizeH = Math.floor((availH - gap * (rows - 1)) / rows);
 
     // Use the smaller of width/height constraints
     const size = Math.min(sizeW, sizeH);
-    const clamped = Math.min(76, Math.max(36, size));
+    const clamped = Math.min(76, Math.max(32, size));
     document.documentElement.style.setProperty('--tile-size', clamped + 'px');
 
-    // Also scale keyboard height if tiles are small
-    if (clamped <= 44) {
-        document.documentElement.style.setProperty('--key-h', '46px');
+    // Scale keyboard key height proportionally to tile size
+    let keyH;
+    if (clamped <= 38) {
+        keyH = 40;
+    } else if (clamped <= 44) {
+        keyH = 44;
     } else if (clamped <= 52) {
-        document.documentElement.style.setProperty('--key-h', '50px');
+        keyH = 48;
     } else {
-        document.documentElement.style.setProperty('--key-h', '54px');
+        keyH = 54;
+    }
+    document.documentElement.style.setProperty('--key-h', keyH + 'px');
+
+    // Also scale tile font size for very small tiles
+    const grid = document.getElementById('guess-grid');
+    if (grid) {
+        grid.style.setProperty('--gap', (clamped <= 40 ? '4px' : '6px'));
     }
 }
 

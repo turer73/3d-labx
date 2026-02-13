@@ -469,10 +469,13 @@ body::before {
 /* === PUZZLE VIEW === */
 #puzzle-view {
     padding: 8px 12px;
-    gap: 4px;
+    gap: 2px;
     align-items: center;
     justify-content: space-between;
+    height: 100%;
+    max-height: 100%;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 .puzzle-header {
@@ -481,6 +484,7 @@ body::before {
     justify-content: space-between;
     width: 100%;
     max-width: 360px;
+    flex-shrink: 0;
 }
 
 .back-btn {
@@ -559,7 +563,9 @@ body::before {
     display: flex;
     flex-direction: column;
     gap: var(--gap);
-    margin: 2px 0;
+    margin: 0;
+    flex-shrink: 1;
+    overflow: hidden;
 }
 
 .grid-row {
@@ -590,11 +596,11 @@ body::before {
     width: var(--tile-size);
     height: var(--tile-size);
     border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.85rem;
+    font-size: clamp(1.1rem, calc(var(--tile-size) * 0.45), 1.85rem);
     font-weight: 800;
     text-transform: uppercase;
     color: var(--text);
@@ -673,21 +679,22 @@ body::before {
 
 /* Message Area */
 .message-area {
-    min-height: 24px;
+    min-height: 18px;
     text-align: center;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--text2);
+    flex-shrink: 1;
 }
 
 /* Virtual Keyboard */
 .keyboard {
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 5px;
     width: 100%;
     max-width: 540px;
-    padding: 4px 2px 6px;
+    padding: 2px 2px 4px;
     margin-top: auto;
     flex-shrink: 0;
 }
