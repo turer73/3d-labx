@@ -20,8 +20,13 @@ let currentPuzzleComplete = false;
 let keyboardState = {};
 
 // Revealed (locked) letter positions: Map<position, letter>
-// These are pre-filled by easy mode and must stay fixed during input
+// These are pre-filled by easy mode start and must stay fixed during input
+// ONLY set by revealStartingLetters — affects free slot count & input blocking
 let _revealedPositions = new Map();
+
+// Green carry-over positions: Map<position, letter>
+// Accumulated from correct guesses — visual pre-fill only, does NOT block input
+let _greenCarryPositions = new Map();
 
 // Keys eliminated at puzzle start (easy mode) — must survive updateKeyboardState resets
 let _eliminatedKeys = new Set();
@@ -84,9 +89,10 @@ function onGuessTimerExpired() {
 
     // Burn the guess: push empty/partial guess and advance
     const row = state.activeCityGuesses.length;
+    const locked = getAllLockedPositions();
     // Clear current input from tiles
     for (let col = 0; col < WORD_LENGTH; col++) {
-        if (_revealedPositions.has(col)) continue;
+        if (locked.has(col)) continue;
         const tile = document.getElementById(`tile-${row}-${col}`);
         if (tile) { tile.textContent = ''; tile.classList.remove('filled'); }
     }
@@ -182,18 +188,19 @@ export function renderGrid() {
                 tile.textContent = chars[col] || '';
                 tile.classList.add('revealed', evaluation[col]);
             } else if (row === state.activeCityGuesses.length) {
-                // Current input row — merge locked + user input
-                if (_revealedPositions.has(col)) {
-                    // Locked revealed letter — always show
-                    tile.textContent = _revealedPositions.get(col);
+                // Current input row — merge all locked + user input
+                const locked = getAllLockedPositions();
+                if (locked.has(col)) {
+                    // Locked letter (from easy-mode start OR green carry-over)
+                    tile.textContent = locked.get(col);
                     tile.classList.add('filled', 'correct', 'locked', 'hint-reveal');
                 } else {
-                    // Free slot — fill from user input (skip locked positions)
+                    // Free slot — fill from user input (skip all locked positions)
                     const inputChars = [...currentInput];
                     let freeIdx = 0;
                     let charForCol = '';
                     for (let c = 0; c < WORD_LENGTH; c++) {
-                        if (_revealedPositions.has(c)) continue;
+                        if (locked.has(c)) continue;
                         if (c === col) { charForCol = inputChars[freeIdx] || ''; break; }
                         freeIdx++;
                     }
@@ -242,8 +249,9 @@ export function renderKeyboard() {
 // ===== INPUT =====
 export function addLetter(letter) {
     if (isAnimating || currentPuzzleComplete) return;
+    const locked = getAllLockedPositions();
     // Check against free slots (non-locked), not total WORD_LENGTH
-    if (trLen(currentInput) >= getFreeSlotCount()) return;
+    if (trLen(currentInput) >= (WORD_LENGTH - locked.size)) return;
 
     const wasEmpty = currentInput.length === 0;
     currentInput += letter;
@@ -252,14 +260,12 @@ export function addLetter(letter) {
     // Start guess timer on first letter typed
     if (wasEmpty) startGuessTimer();
 
-    // Find which visual column this letter lands on (skip locked positions)
-    const freeCol = getNextFreeCol() - 1; // -1 because we already added the letter
-    // Actually, calculate proper column for the just-added letter
+    // Find which visual column this letter lands on (skip all locked positions)
     const inputChars = [...currentInput];
     let inputIdx = 0;
     let targetCol = -1;
     for (let col = 0; col < WORD_LENGTH; col++) {
-        if (_revealedPositions.has(col)) continue;
+        if (locked.has(col)) continue;
         inputIdx++;
         if (inputIdx === inputChars.length) { targetCol = col; break; }
     }
@@ -279,12 +285,13 @@ export function removeLetter() {
     if (isAnimating || currentPuzzleComplete) return;
     if (currentInput.length === 0) return;
 
+    const locked = getAllLockedPositions();
     // Find visual column of the last free-slot letter being removed
     const inputChars = [...currentInput];
     let inputIdx = 0;
     let targetCol = -1;
     for (let col = 0; col < WORD_LENGTH; col++) {
-        if (_revealedPositions.has(col)) continue;
+        if (locked.has(col)) continue;
         inputIdx++;
         if (inputIdx === inputChars.length) { targetCol = col; break; }
     }
@@ -683,7 +690,8 @@ export function useHint() {
     if (!state.activeCityWord) return;
 
     const targetChars = [...state.activeCityWord];
-    const knownCorrect = new Set();
+    const locked = getAllLockedPositions();
+    const knownCorrect = new Set(locked.keys());
     state.activeCityGuesses.forEach(guess => {
         const eval_ = evaluateGuess(guess, state.activeCityWord);
         [...guess].forEach((ch, i) => {
@@ -731,6 +739,7 @@ function revealStartingLetters() {
     if (count <= 0 || !state.activeCityWord) return;
 
     _revealedPositions.clear();
+    _greenCarryPositions.clear();
     const chars = [...state.activeCityWord];
     // Pick random unique positions to reveal
     const positions = Array.from({ length: WORD_LENGTH }, (_, i) => i);
@@ -756,21 +765,25 @@ function revealStartingLetters() {
     showToast(`Başlangıç ipucu: ${hintText}`, 4000);
 }
 
-// Update _revealedPositions with all correct (green) positions from a guess evaluation
+// Update _greenCarryPositions with all correct (green) positions from a guess evaluation
+// These are visual-only carry-overs that DON'T reduce free slot count
 function updateRevealedFromEvaluation(guess, evaluation) {
     const chars = [...guess];
     evaluation.forEach((result, col) => {
-        if (result === 'correct' && !_revealedPositions.has(col)) {
-            _revealedPositions.set(col, chars[col]);
+        if (result === 'correct') {
+            if (!_revealedPositions.has(col) && !_greenCarryPositions.has(col)) {
+                _greenCarryPositions.set(col, chars[col]);
+            }
         }
     });
 }
 
-// Pre-fill the current (next) row with locked letters after a guess
+// Pre-fill the current (next) row with all locked letters (start + green carry)
 function prefillNextRow() {
-    if (_revealedPositions.size === 0) return;
+    const locked = getAllLockedPositions();
+    if (locked.size === 0) return;
     const row = state.activeCityGuesses.length; // next row index
-    _revealedPositions.forEach((letter, col) => {
+    locked.forEach((letter, col) => {
         const tile = document.getElementById(`tile-${row}-${col}`);
         if (tile) {
             tile.textContent = letter;
@@ -781,29 +794,40 @@ function prefillNextRow() {
 
 // Get next available (non-locked) column index for typing
 function getNextFreeCol() {
+    const locked = getAllLockedPositions();
     const inputChars = [...currentInput];
     let inputIdx = 0;
     for (let col = 0; col < WORD_LENGTH; col++) {
-        if (_revealedPositions.has(col)) continue; // skip locked
+        if (locked.has(col)) continue; // skip all locked
         if (inputIdx >= inputChars.length) return col; // first empty free slot
         inputIdx++;
     }
     return -1; // all free slots filled
 }
 
-// Count how many free (non-locked) slots exist
-function getFreeSlotCount() {
-    return WORD_LENGTH - _revealedPositions.size;
+// Get all locked positions (start-reveal + green carry-over combined)
+function getAllLockedPositions() {
+    const merged = new Map(_revealedPositions);
+    _greenCarryPositions.forEach((letter, col) => {
+        if (!merged.has(col)) merged.set(col, letter);
+    });
+    return merged;
 }
 
-// Build full word combining revealed letters + user input
+// Count how many free (non-locked) slots exist
+function getFreeSlotCount() {
+    return WORD_LENGTH - getAllLockedPositions().size;
+}
+
+// Build full word combining all locked letters (start + green carry) + user input
 function buildFullWord() {
+    const locked = getAllLockedPositions();
     const inputChars = [...currentInput];
     let inputIdx = 0;
     let result = '';
     for (let col = 0; col < WORD_LENGTH; col++) {
-        if (_revealedPositions.has(col)) {
-            result += _revealedPositions.get(col);
+        if (locked.has(col)) {
+            result += locked.get(col);
         } else {
             result += (inputIdx < inputChars.length) ? inputChars[inputIdx++] : '';
         }
@@ -919,6 +943,7 @@ export function startCityPuzzle(cityId, switchViewFn) {
     keyboardState = {};
     _gridBuilt = false;
     _revealedPositions.clear();
+    _greenCarryPositions.clear();
     _eliminatedKeys.clear();
     clearEvalCache();
 
@@ -985,6 +1010,7 @@ export function startDailyPuzzle(switchViewFn) {
     keyboardState = {};
     _gridBuilt = false;
     _revealedPositions.clear();
+    _greenCarryPositions.clear();
     _eliminatedKeys.clear();
     clearEvalCache();
 
@@ -1050,6 +1076,7 @@ export function startChallengePuzzle(challengeData, switchViewFn) {
     keyboardState = {};
     _gridBuilt = false;
     _revealedPositions.clear();
+    _greenCarryPositions.clear();
     _eliminatedKeys.clear();
     clearEvalCache();
 
