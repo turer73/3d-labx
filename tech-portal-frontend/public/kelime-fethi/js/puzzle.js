@@ -909,11 +909,31 @@ function updateTileSize() {
     }
     document.documentElement.style.setProperty('--key-h', keyH + 'px');
 
-    // Also scale tile font size for very small tiles
+    // Also scale grid gap for very small tiles
     const grid = document.getElementById('guess-grid');
     if (grid) {
         grid.style.setProperty('--gap', (clamped <= 40 ? '4px' : '6px'));
     }
+
+    // Scroll game-area to top to ensure puzzle is fully visible
+    const gameArea2 = document.getElementById('game-area');
+    if (gameArea2) gameArea2.scrollTop = 0;
+}
+
+// Re-layout on viewport resize (mobile URL bar show/hide, orientation change)
+let _resizeTimer = null;
+function _onResize() {
+    clearTimeout(_resizeTimer);
+    _resizeTimer = setTimeout(() => {
+        const puzzleView = document.getElementById('puzzle-view');
+        if (puzzleView && puzzleView.classList.contains('active')) {
+            updateTileSize();
+        }
+    }, 150);
+}
+window.addEventListener('resize', _onResize);
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', _onResize);
 }
 
 // ===== START PUZZLE =====
@@ -973,18 +993,21 @@ export function startCityPuzzle(cityId, switchViewFn) {
     const lengthBadge = document.getElementById('puzzle-word-length');
     if (lengthBadge) lengthBadge.textContent = `${wordLength} harf`;
 
-    updateTileSize();
-    renderGrid();
-    renderKeyboard();
-    updateHintDisplay();
-    startPuzzleTimer();
-
     switchViewFn('puzzle');
-    SFX.resume();
 
-    // Easy mode: eliminate some keys + reveal letters
-    eliminateInitialKeys();
-    setTimeout(() => revealStartingLetters(), 500);
+    // Delay tile sizing until view is visible and laid out
+    requestAnimationFrame(() => {
+        updateTileSize();
+        renderGrid();
+        renderKeyboard();
+        updateHintDisplay();
+        startPuzzleTimer();
+        SFX.resume();
+
+        // Easy mode: eliminate some keys + reveal letters
+        eliminateInitialKeys();
+        setTimeout(() => revealStartingLetters(), 500);
+    });
 }
 
 export function startDailyPuzzle(switchViewFn) {
@@ -1047,20 +1070,22 @@ export function startDailyPuzzle(switchViewFn) {
     const lengthBadge = document.getElementById('puzzle-word-length');
     if (lengthBadge) lengthBadge.textContent = `${WORD_LENGTH} harf`;
 
-    updateTileSize();
-    renderGrid();
-    renderKeyboard();
-    updateHintDisplay();
-    if (!currentPuzzleComplete) startPuzzleTimer();
-
     switchViewFn('puzzle');
-    SFX.resume();
 
-    // Easy mode: eliminate some keys + reveal letters (only for new puzzles)
-    if (!state.dailyComplete && state.dailyGuesses.length === 0) {
-        eliminateInitialKeys();
-        setTimeout(() => revealStartingLetters(), 500);
-    }
+    requestAnimationFrame(() => {
+        updateTileSize();
+        renderGrid();
+        renderKeyboard();
+        updateHintDisplay();
+        if (!currentPuzzleComplete) startPuzzleTimer();
+        SFX.resume();
+
+        // Easy mode: eliminate some keys + reveal letters (only for new puzzles)
+        if (!state.dailyComplete && state.dailyGuesses.length === 0) {
+            eliminateInitialKeys();
+            setTimeout(() => revealStartingLetters(), 500);
+        }
+    });
 }
 
 // Register city click callback
@@ -1106,15 +1131,17 @@ export function startChallengePuzzle(challengeData, switchViewFn) {
     const lengthBadge = document.getElementById('puzzle-word-length');
     if (lengthBadge) lengthBadge.textContent = `${wordLen} harf`;
 
-    updateTileSize();
-    renderGrid();
-    renderKeyboard();
-    updateHintDisplay();
-    startPuzzleTimer();
-
     switchViewFn('puzzle');
-    SFX.resume();
 
-    eliminateInitialKeys();
-    setTimeout(() => revealStartingLetters(), 500);
+    requestAnimationFrame(() => {
+        updateTileSize();
+        renderGrid();
+        renderKeyboard();
+        updateHintDisplay();
+        startPuzzleTimer();
+        SFX.resume();
+
+        eliminateInitialKeys();
+        setTimeout(() => revealStartingLetters(), 500);
+    });
 }

@@ -69,6 +69,15 @@ function switchView(viewName) {
     const target = document.getElementById(targetId);
     if (target) target.classList.add('active');
 
+    // Reset scroll position on view switch
+    const gameArea = document.getElementById('game-area');
+    if (gameArea) gameArea.scrollTop = 0;
+
+    // Disable game-area scrolling when puzzle is active
+    if (gameArea) {
+        gameArea.style.overflowY = (viewName === 'puzzle') ? 'hidden' : 'auto';
+    }
+
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.tab === viewName);
     });
