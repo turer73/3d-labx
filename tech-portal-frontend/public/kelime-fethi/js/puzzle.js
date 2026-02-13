@@ -26,6 +26,108 @@ let _revealedPositions = new Map();
 // Keys eliminated at puzzle start (easy mode) — must survive updateKeyboardState resets
 let _eliminatedKeys = new Set();
 
+// ===== GUESS TIMER =====
+let _guessTimerId = null;
+let _guessTimerStart = 0;
+let _guessTimerDuration = 0; // ms
+let _guessTimerAnimFrame = null;
+
+function startGuessTimer() {
+    const dc = getDifficultyConfig();
+    const sec = dc.guessTimerSec || 0;
+    if (sec <= 0) return;
+    if (_guessTimerId) return; // already running
+
+    _guessTimerDuration = sec * 1000;
+    _guessTimerStart = Date.now();
+
+    // Show timer bar
+    const bar = document.getElementById('guess-timer-bar');
+    const container = document.getElementById('guess-timer');
+    if (container) container.style.display = '';
+    if (bar) { bar.style.width = '100%'; bar.classList.remove('timer-critical'); }
+
+    // Animate the bar
+    const animate = () => {
+        const elapsed = Date.now() - _guessTimerStart;
+        const remaining = Math.max(0, _guessTimerDuration - elapsed);
+        const pct = (remaining / _guessTimerDuration) * 100;
+        if (bar) {
+            bar.style.width = pct + '%';
+            if (pct <= 30) bar.classList.add('timer-critical');
+        }
+        if (remaining > 0) {
+            _guessTimerAnimFrame = requestAnimationFrame(animate);
+        }
+    };
+    _guessTimerAnimFrame = requestAnimationFrame(animate);
+
+    // Set timeout for burn
+    _guessTimerId = setTimeout(() => {
+        onGuessTimerExpired();
+    }, _guessTimerDuration);
+}
+
+function clearGuessTimer() {
+    if (_guessTimerId) { clearTimeout(_guessTimerId); _guessTimerId = null; }
+    if (_guessTimerAnimFrame) { cancelAnimationFrame(_guessTimerAnimFrame); _guessTimerAnimFrame = null; }
+    const container = document.getElementById('guess-timer');
+    if (container) container.style.display = 'none';
+}
+
+function onGuessTimerExpired() {
+    clearGuessTimer();
+    if (isAnimating || currentPuzzleComplete) return;
+
+    SFX.error();
+    showToast('Süre doldu! Tahmin hakkın yandı', 2000);
+
+    // Burn the guess: push empty/partial guess and advance
+    const row = state.activeCityGuesses.length;
+    // Clear current input from tiles
+    for (let col = 0; col < WORD_LENGTH; col++) {
+        if (_revealedPositions.has(col)) continue;
+        const tile = document.getElementById(`tile-${row}-${col}`);
+        if (tile) { tile.textContent = ''; tile.classList.remove('filled'); }
+    }
+
+    // Push a dummy guess (all dashes) to consume the slot
+    const dummyGuess = '·'.repeat(WORD_LENGTH);
+    state.activeCityGuesses.push(dummyGuess);
+    currentInput = '';
+
+    // Mark the burned row visually
+    shakeRow(row);
+
+    // Check if that was the last guess
+    const isLastGuess = state.activeCityGuesses.length >= MAX_GUESSES;
+    if (isLastGuess) {
+        currentPuzzleComplete = true;
+        state.gamesPlayed++;
+        const dc = getDifficultyConfig();
+        const consolation = dc.consolationScore || 0;
+        if (consolation > 0) { state.score += consolation; state.totalScore += consolation; }
+
+        if (state.dailyDate === getTodayStr() && !state.dailyComplete) {
+            state.dailyComplete = true;
+            state.dailyWon = false;
+        }
+        save();
+        setTimeout(() => {
+            SFX.lose();
+            const msg = consolation > 0
+                ? `Doğru kelime: ${state.activeCityWord} (+${consolation} deneme puanı)`
+                : `Doğru kelime: ${state.activeCityWord}`;
+            showResultOverlay(false, msg, consolation, false, 0);
+            updateUI();
+        }, 500);
+    } else {
+        // Advance to next row with locked letters
+        prefillNextRow();
+        save();
+    }
+}
+
 // ===== UI UPDATE CALLBACKS =====
 let _updateUICallback = null;
 export function setUpdateUICallback(fn) { _updateUICallback = fn; }
@@ -143,8 +245,12 @@ export function addLetter(letter) {
     // Check against free slots (non-locked), not total WORD_LENGTH
     if (trLen(currentInput) >= getFreeSlotCount()) return;
 
+    const wasEmpty = currentInput.length === 0;
     currentInput += letter;
     SFX.keyTap();
+
+    // Start guess timer on first letter typed
+    if (wasEmpty) startGuessTimer();
 
     // Find which visual column this letter lands on (skip locked positions)
     const freeCol = getNextFreeCol() - 1; // -1 because we already added the letter
@@ -200,6 +306,7 @@ export function removeLetter() {
 
 export function submitGuess() {
     if (isAnimating || currentPuzzleComplete) return;
+    clearGuessTimer();
 
     // Build full word: merge locked letters + user input
     const fullWord = buildFullWord();
@@ -806,6 +913,7 @@ export function startCityPuzzle(cityId, switchViewFn) {
     state.activeCityWordLength = wordLength;
     state.hintUsedThisGame = false;
     _autoHintCount = 0;
+    clearGuessTimer();
     currentInput = '';
     currentPuzzleComplete = false;
     keyboardState = {};
@@ -871,6 +979,7 @@ export function startDailyPuzzle(switchViewFn) {
     state.activeCityGuesses = state.dailyGuesses;
     state.hintUsedThisGame = false;
     _autoHintCount = 0;
+    clearGuessTimer();
     currentInput = '';
     currentPuzzleComplete = state.dailyComplete;
     keyboardState = {};
@@ -935,6 +1044,7 @@ export function startChallengePuzzle(challengeData, switchViewFn) {
     state.activeCityWordLength = wordLen;
     state.hintUsedThisGame = false;
     _autoHintCount = 0;
+    clearGuessTimer();
     currentInput = '';
     currentPuzzleComplete = false;
     keyboardState = {};

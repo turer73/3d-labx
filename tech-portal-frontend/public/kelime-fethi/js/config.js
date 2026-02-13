@@ -14,9 +14,9 @@ export const PLAYER_ID_KEY = 'kelime_fethi_player_id';
 
 // Difficulty settings
 export const DIFFICULTY = {
-    easy:   { maxGuesses: 6, startHints: 5, revealLetters: 1, eliminateKeys: 10, consolationScore: 25, autoHintAfter: 2, hardModeForced: false, wordPool: 'easy', wordLength: 4 },
-    normal: { maxGuesses: 6, startHints: 3, revealLetters: 0, eliminateKeys: 0,  consolationScore: 0,  autoHintAfter: 0, hardModeForced: false, wordPool: 'daily', wordLength: 5 },
-    hard:   { maxGuesses: 6, startHints: 1, revealLetters: 0, eliminateKeys: 0,  consolationScore: 0,  autoHintAfter: 0, hardModeForced: true,  wordPool: 'all',   wordLength: 6 },
+    easy:   { maxGuesses: 6, startHints: 5, revealLetters: 1, eliminateKeys: 10, consolationScore: 25, autoHintAfter: 2, hardModeForced: false, wordPool: 'easy', wordLength: 4, guessTimerSec: 10 },
+    normal: { maxGuesses: 6, startHints: 3, revealLetters: 0, eliminateKeys: 0,  consolationScore: 0,  autoHintAfter: 0, hardModeForced: false, wordPool: 'daily', wordLength: 5, guessTimerSec: 0 },
+    hard:   { maxGuesses: 6, startHints: 1, revealLetters: 0, eliminateKeys: 0,  consolationScore: 0,  autoHintAfter: 0, hardModeForced: true,  wordPool: 'all',   wordLength: 6, guessTimerSec: 0 },
 };
 export const DEFAULT_DIFFICULTY = 'easy';
 
