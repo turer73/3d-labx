@@ -5,7 +5,7 @@
 // ============================================================
 
 // BUILD_TS will be updated by deploy script or manually
-const BUILD_TS = '20260213m';
+const BUILD_TS = '20260213n';
 const CACHE_NAME = `kelime-fethi-${BUILD_TS}`;
 
 const ASSETS_TO_CACHE = [
@@ -43,12 +43,18 @@ const ASSETS_TO_CACHE = [
     './data/cities.json',
 ];
 
-// Install — cache core assets
+// Install — cache core assets (bypass browser HTTP cache to get fresh files)
 self.addEventListener('install', (event) => {
     console.log(`[SW] Installing ${CACHE_NAME}`);
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then(cache => cache.addAll(ASSETS_TO_CACHE))
+            .then(cache => Promise.all(
+                ASSETS_TO_CACHE.map(url =>
+                    fetch(url, { cache: 'no-cache' })
+                        .then(resp => resp.ok ? cache.put(url, resp) : cache.add(url))
+                        .catch(() => cache.add(url))
+                )
+            ))
             .then(() => self.skipWaiting())
     );
 });
@@ -106,6 +112,23 @@ self.addEventListener('fetch', (event) => {
                     return response;
                 })
                 .catch(() => caches.match(event.request))
+        );
+        return;
+    }
+
+    // JS/CSS assets — stale-while-revalidate (serve cached, update in background)
+    const isCodeAsset = url.pathname.endsWith('.js') || url.pathname.endsWith('.css');
+    if (isCodeAsset) {
+        event.respondWith(
+            caches.open(CACHE_NAME).then(cache =>
+                cache.match(event.request).then(cached => {
+                    const fetchPromise = fetch(event.request).then(response => {
+                        if (response.ok) cache.put(event.request, response.clone());
+                        return response;
+                    }).catch(() => cached);
+                    return cached || fetchPromise;
+                })
+            )
         );
         return;
     }
