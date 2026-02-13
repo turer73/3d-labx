@@ -468,7 +468,7 @@ body::before {
 
 /* === PUZZLE VIEW === */
 #puzzle-view {
-    padding: 8px 12px;
+    padding: 4px 12px 6px;
     gap: 2px;
     align-items: center;
     justify-content: space-between;
@@ -504,9 +504,10 @@ body::before {
 
 #puzzle-city-name {
     display: block;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 800;
     color: var(--text);
+    line-height: 1.2;
 }
 
 .region-tag {
@@ -533,7 +534,7 @@ body::before {
     background: rgba(245,158,11,0.12);
     border: 1px solid rgba(245,158,11,0.25);
     color: var(--gold);
-    padding: 6px 10px;
+    padding: 4px 8px;
     border-radius: 8px;
     font-size: 0.85rem;
     cursor: pointer;
@@ -679,12 +680,13 @@ body::before {
 
 /* Message Area */
 .message-area {
-    min-height: 18px;
+    min-height: 16px;
     text-align: center;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 600;
     color: var(--text2);
     flex-shrink: 1;
+    line-height: 1.2;
 }
 
 /* Virtual Keyboard */

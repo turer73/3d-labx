@@ -871,53 +871,47 @@ function checkAutoHint(evaluation) {
 
 // ===== DYNAMIC TILE SIZING =====
 function updateTileSize() {
-    const gap = 6;
     const rows = MAX_GUESSES;
 
     // Width-based sizing
     const maxWidth = Math.min(380, window.innerWidth - 24);
-    const sizeW = Math.floor((maxWidth - gap * (WORD_LENGTH - 1)) / WORD_LENGTH);
+    const gapW = 6;
+    const sizeW = Math.floor((maxWidth - gapW * (WORD_LENGTH - 1)) / WORD_LENGTH);
 
-    // Height-based sizing: use actual game-area height
+    // Height-based sizing: calculate exactly how much space we have
     const gameArea = document.getElementById('game-area');
     const containerH = gameArea ? gameArea.clientHeight : (window.innerHeight - 110);
-    // Reserve space: puzzleHeader(~40) + keyboard(3rows × keyH + 2×gap + padding) + message(18) + viewPadding(16+2)
-    // First pass: estimate keyboard height with default key-h
-    const estKeyH = 42;
-    const kbdHeight = estKeyH * 3 + 5 * 2 + 6; // 3 rows × key + 2 gaps + padding
-    const headerH = 40;
-    const messageH = 18;
-    const paddingH = 18; // view padding top+bottom (8+8) + gap slack
-    const availH = containerH - headerH - kbdHeight - messageH - paddingH;
-    const sizeH = Math.floor((availH - gap * (rows - 1)) / rows);
+
+    // Fixed UI overhead: header(36) + message(16) + view padding(8+6) + section gaps(4)
+    const fixedH = 36 + 16 + 14 + 4; // = 70px
+
+    // Remaining height shared between grid and keyboard
+    const sharedH = containerH - fixedH;
+
+    // Keyboard: 3 key-rows + 2 gaps(5px) + padding(6px) = 3*keyH + 16
+    // Key height = tile * 0.82 (proportional, min 32px enforced later)
+    // Grid: rows * tile + (rows-1) * gridGap
+    // Equation: tile*(rows + 3*0.82) + (rows-1)*gridGap + 16 ≤ sharedH
+    const kRatio = 0.82;
+    const gridGap = 5;
+    const kbdPadding = 16;
+    const tileFromH = Math.floor((sharedH - (rows - 1) * gridGap - kbdPadding) / (rows + 3 * kRatio));
 
     // Use the smaller of width/height constraints
-    const size = Math.min(sizeW, sizeH);
-    const clamped = Math.min(76, Math.max(32, size));
+    const size = Math.min(sizeW, tileFromH);
+    const clamped = Math.min(72, Math.max(32, size));
     document.documentElement.style.setProperty('--tile-size', clamped + 'px');
 
-    // Scale keyboard key height proportionally to tile size
-    let keyH;
-    if (clamped <= 38) {
-        keyH = 40;
-    } else if (clamped <= 44) {
-        keyH = 44;
-    } else if (clamped <= 52) {
-        keyH = 48;
-    } else {
-        keyH = 54;
-    }
+    // Keyboard key height: proportional to tile, min 32px
+    const keyH = Math.max(32, Math.min(52, Math.round(clamped * 0.82)));
     document.documentElement.style.setProperty('--key-h', keyH + 'px');
 
-    // Also scale grid gap for very small tiles
-    const grid = document.getElementById('guess-grid');
-    if (grid) {
-        grid.style.setProperty('--gap', (clamped <= 40 ? '4px' : '6px'));
-    }
+    // Tighter grid gap for small tiles
+    const gap = clamped <= 40 ? 4 : (clamped <= 50 ? 5 : 6);
+    document.documentElement.style.setProperty('--gap', gap + 'px');
 
-    // Scroll game-area to top to ensure puzzle is fully visible
-    const gameArea2 = document.getElementById('game-area');
-    if (gameArea2) gameArea2.scrollTop = 0;
+    // Scroll game-area to top
+    if (gameArea) gameArea.scrollTop = 0;
 }
 
 // Re-layout on viewport resize (mobile URL bar show/hide, orientation change)
