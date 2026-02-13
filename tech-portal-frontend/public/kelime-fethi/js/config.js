@@ -14,7 +14,7 @@ export const PLAYER_ID_KEY = 'kelime_fethi_player_id';
 
 // Difficulty settings (word length is independent — comes from city/daily data)
 export const DIFFICULTY = {
-    easy:   { maxGuesses: 8, startHints: 5, revealLetters: 1, eliminateKeys: 10, consolationScore: 25, autoHintAfter: 2, hardModeForced: false, wordPool: 'easy' },
+    easy:   { maxGuesses: 7, startHints: 5, revealLetters: 1, eliminateKeys: 10, consolationScore: 25, autoHintAfter: 2, hardModeForced: false, wordPool: 'easy' },
     normal: { maxGuesses: 6, startHints: 3, revealLetters: 0, eliminateKeys: 0,  consolationScore: 0,  autoHintAfter: 0, hardModeForced: false, wordPool: 'daily' },
     hard:   { maxGuesses: 5, startHints: 1, revealLetters: 0, eliminateKeys: 0,  consolationScore: 0,  autoHintAfter: 0, hardModeForced: true,  wordPool: 'all' },
 };
