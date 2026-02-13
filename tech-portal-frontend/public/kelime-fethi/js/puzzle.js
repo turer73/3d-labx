@@ -871,11 +871,31 @@ function checkAutoHint(evaluation) {
 
 // ===== DYNAMIC TILE SIZING =====
 function updateTileSize() {
-    const maxWidth = Math.min(380, window.innerWidth - 24);
     const gap = 6;
-    const size = Math.floor((maxWidth - gap * (WORD_LENGTH - 1)) / WORD_LENGTH);
-    const clamped = Math.min(76, Math.max(42, size));
+
+    // Width-based sizing (existing logic)
+    const maxWidth = Math.min(380, window.innerWidth - 24);
+    const sizeW = Math.floor((maxWidth - gap * (WORD_LENGTH - 1)) / WORD_LENGTH);
+
+    // Height-based sizing: ensure grid + keyboard + header fit without scrolling
+    // Available height = viewport - topBar(50) - bottomNav(60) - puzzleHeader(44) - keyboard(~175) - messageArea(24) - margins(24)
+    const availH = window.innerHeight - 50 - 60 - 44 - 175 - 24 - 24;
+    const rows = MAX_GUESSES;
+    const sizeH = Math.floor((availH - gap * (rows - 1)) / rows);
+
+    // Use the smaller of width/height constraints
+    const size = Math.min(sizeW, sizeH);
+    const clamped = Math.min(76, Math.max(36, size));
     document.documentElement.style.setProperty('--tile-size', clamped + 'px');
+
+    // Also scale keyboard height if tiles are small
+    if (clamped <= 44) {
+        document.documentElement.style.setProperty('--key-h', '46px');
+    } else if (clamped <= 52) {
+        document.documentElement.style.setProperty('--key-h', '50px');
+    } else {
+        document.documentElement.style.setProperty('--key-h', '54px');
+    }
 }
 
 // ===== START PUZZLE =====
