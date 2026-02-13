@@ -651,11 +651,20 @@ export function skipPuzzle() {
     const word = state.activeCityWord || '?';
     showToast(`Pas geçildi — Cevap: ${word}`, 3000);
 
+    // Reset city puzzle state so it can be retried
+    state.activeCityGuesses = [];
+    currentInput = '';
+    _revealedPositions.clear();
+    _greenCarryPositions.clear();
+    _eliminatedKeys.clear();
+
     save();
     updateUI();
 
     // Return to map after short delay
     setTimeout(() => {
+        const skipBtn = document.getElementById('btn-skip');
+        if (skipBtn) skipBtn.style.display = 'none';
         if (switchView) switchView('map');
     }, 2000);
 }
