@@ -315,6 +315,21 @@ export function submitGuess() {
         shakeRow(state.activeCityGuesses.length);
         showToast(validation.message);
         SFX.error();
+
+        // Clear user-typed letters after shake animation, keep locked letters
+        setTimeout(() => {
+            const row = state.activeCityGuesses.length;
+            const locked = getAllLockedPositions();
+            for (let col = 0; col < WORD_LENGTH; col++) {
+                if (locked.has(col)) continue;
+                const tile = document.getElementById(`tile-${row}-${col}`);
+                if (tile) {
+                    tile.textContent = '';
+                    tile.classList.remove('filled');
+                }
+            }
+            currentInput = '';
+        }, 600);
         return;
     }
 
