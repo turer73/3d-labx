@@ -291,6 +291,9 @@ body::before {
 #map-container {
     flex: 1;
     min-height: 200px;
+    max-width: 720px;
+    width: 100%;
+    margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -305,6 +308,7 @@ body::before {
 
 #turkey-map {
     width: 100%;
+    height: auto;
     max-height: 100%;
 }
 
@@ -1367,7 +1371,11 @@ body::before {
     }
     .key { font-size: 1.15rem; max-width: 54px; }
     .key.wide { min-width: 64px; max-width: 80px; }
-    #map-container { max-height: 400px; }
+    #map-container { max-width: 800px; }
+}
+
+@media (min-width: 1200px) {
+    #map-container { max-width: 900px; }
 }
 
 /* ============================================================
