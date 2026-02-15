@@ -81,6 +81,7 @@
             const hasChallenge = await loadChallengeFromUrl();
 
             updateHomeUI();
+            initNotifications();
             setTimeout(() => {
                 showScreen('home');
                 if (hasChallenge) showChallengeBanner();
@@ -789,6 +790,177 @@
         } catch(e) { showToast('Kayıt hatası'); }
     }
 
+    // ===== NOTIFICATIONS =====
+    const NOTIF_KEY = 'wq_notifications';
+    const NOTIF_REMINDER_HOUR = 19; // 19:00 default
+
+    function loadNotifSettings() {
+        try {
+            const saved = localStorage.getItem(NOTIF_KEY);
+            return saved ? JSON.parse(saved) : { enabled: false, reminderHour: NOTIF_REMINDER_HOUR, lastScheduled: null };
+        } catch(e) { return { enabled: false, reminderHour: NOTIF_REMINDER_HOUR, lastScheduled: null }; }
+    }
+
+    function saveNotifSettings(settings) {
+        try { localStorage.setItem(NOTIF_KEY, JSON.stringify(settings)); } catch(e) {}
+    }
+
+    async function requestNotificationPermission() {
+        if (!('Notification' in window)) {
+            showToast('Bu tarayıcı bildirimleri desteklemiyor');
+            return false;
+        }
+        if (Notification.permission === 'granted') return true;
+        if (Notification.permission === 'denied') {
+            showToast('Bildirimler engellendi. Tarayıcı ayarlarından açabilirsin.');
+            return false;
+        }
+        const result = await Notification.requestPermission();
+        return result === 'granted';
+    }
+
+    async function toggleNotifications() {
+        const settings = loadNotifSettings();
+        const toggle = $('notif-toggle');
+
+        if (!settings.enabled) {
+            // Turning ON
+            const granted = await requestNotificationPermission();
+            if (!granted) {
+                if (toggle) toggle.checked = false;
+                return;
+            }
+            settings.enabled = true;
+            saveNotifSettings(settings);
+            if (toggle) toggle.checked = true;
+            scheduleDailyReminder();
+            showToast('🔔 Bildirimler açıldı');
+        } else {
+            // Turning OFF
+            settings.enabled = false;
+            saveNotifSettings(settings);
+            if (toggle) toggle.checked = false;
+            showToast('🔕 Bildirimler kapatıldı');
+        }
+        updateNotifUI();
+    }
+
+    function scheduleDailyReminder() {
+        const settings = loadNotifSettings();
+        if (!settings.enabled) return;
+        if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
+
+        const today = new Date().toDateString();
+        // Don't schedule if already played today
+        if (stats.dailyDate === today && stats.dailyCount >= DAILY_GOAL) return;
+
+        // Calculate delay until reminder hour
+        const now = new Date();
+        const reminderTime = new Date();
+        reminderTime.setHours(settings.reminderHour, 0, 0, 0);
+
+        // If reminder time has passed, schedule for tomorrow
+        if (now >= reminderTime) {
+            reminderTime.setDate(reminderTime.getDate() + 1);
+        }
+
+        const delayMs = reminderTime.getTime() - now.getTime();
+
+        // Don't reschedule if already scheduled today
+        if (settings.lastScheduled === today) return;
+        settings.lastScheduled = today;
+        saveNotifSettings(settings);
+
+        const messages = [
+            '📚 Günlük kelime antrenmanını yapmayı unutma!',
+            '🎯 Bugün henüz pratik yapmadın. Hadi başlayalım!',
+            '💪 Birkaç dakika pratik yaparak kelime gücünü artır!',
+            '🔥 Streak\'ini kaybetme! Bugün bir oyun oyna.',
+            '📖 Günde 10 soru, sınavda fark yaratır!'
+        ];
+        const body = messages[Math.floor(Math.random() * messages.length)];
+
+        navigator.serviceWorker.controller.postMessage({
+            type: 'SCHEDULE_NOTIFICATION',
+            delayMs,
+            title: 'WordQuest Hatırlatma',
+            body,
+            tag: 'wq-daily-reminder'
+        });
+    }
+
+    function scheduleStreakReminder() {
+        const settings = loadNotifSettings();
+        if (!settings.enabled) return;
+        if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
+        if (stats.streak < 2) return; // Only remind if there's a streak to protect
+
+        const today = new Date().toDateString();
+        if (stats.lastPlayDate === today) return; // Already played today
+
+        // Schedule for 2 hours from now (if not too late)
+        const now = new Date();
+        if (now.getHours() >= 22) return; // Don't send late night
+
+        const delayMs = 2 * 60 * 60 * 1000; // 2 hours
+
+        navigator.serviceWorker.controller.postMessage({
+            type: 'SCHEDULE_NOTIFICATION',
+            delayMs,
+            title: '🔥 Streak Uyarısı!',
+            body: `${stats.streak} günlük serinizi kaybetmeyin! Bugün bir oyun oynayın.`,
+            tag: 'wq-streak-reminder'
+        });
+    }
+
+    function updateNotifUI() {
+        const settings = loadNotifSettings();
+        const toggle = $('notif-toggle');
+        const timeSelect = $('notif-time');
+        const statusText = $('notif-status');
+
+        if (toggle) toggle.checked = settings.enabled;
+        if (timeSelect) timeSelect.value = settings.reminderHour;
+        if (statusText) {
+            if (!('Notification' in window)) {
+                statusText.textContent = 'Desteklenmiyor';
+                statusText.className = 'notif-status-text off';
+            } else if (Notification.permission === 'denied') {
+                statusText.textContent = 'Engellendi';
+                statusText.className = 'notif-status-text off';
+            } else if (settings.enabled) {
+                statusText.textContent = `Aktif (${String(settings.reminderHour).padStart(2,'0')}:00)`;
+                statusText.className = 'notif-status-text on';
+            } else {
+                statusText.textContent = 'Kapalı';
+                statusText.className = 'notif-status-text off';
+            }
+        }
+    }
+
+    function changeNotifTime() {
+        const timeSelect = $('notif-time');
+        if (!timeSelect) return;
+        const settings = loadNotifSettings();
+        settings.reminderHour = parseInt(timeSelect.value, 10);
+        settings.lastScheduled = null; // Force reschedule
+        saveNotifSettings(settings);
+        if (settings.enabled) {
+            scheduleDailyReminder();
+        }
+        updateNotifUI();
+        showToast('⏰ Hatırlatma saati güncellendi');
+    }
+
+    function initNotifications() {
+        updateNotifUI();
+        const settings = loadNotifSettings();
+        if (settings.enabled && Notification.permission === 'granted') {
+            scheduleDailyReminder();
+            scheduleStreakReminder();
+        }
+    }
+
     // ===== ADAPTIVE DIFFICULTY =====
     const LEVEL_ORDER = ['B1', 'B2', 'C1'];
 
@@ -1072,6 +1244,10 @@
             });
         });
 
+        // Notifications
+        if ($('notif-toggle')) $('notif-toggle').addEventListener('change', toggleNotifications);
+        if ($('notif-time')) $('notif-time').addEventListener('change', changeNotifTime);
+
         // Default selection
         document.querySelector('.mode-card[data-mode="vocabulary"]').classList.add('selected');
     }
@@ -1316,6 +1492,9 @@
 
         // Sync score to leaderboard server
         syncScore();
+
+        // Reschedule notifications (daily goal may have changed)
+        scheduleDailyReminder();
 
         const pctEnd = Math.round((state.score / state.questions.length) * 100);
         trackEvent('game_complete', {

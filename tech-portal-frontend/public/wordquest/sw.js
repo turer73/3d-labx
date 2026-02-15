@@ -1,5 +1,5 @@
 // ===== WORDQUEST SERVICE WORKER =====
-const BUILD_TS = '2026-02-16T03:00:00Z';
+const BUILD_TS = '2026-02-16T04:00:00Z';
 const CACHE_NAME = 'wordquest-' + BUILD_TS;
 const ASSETS = [
     './',
@@ -28,6 +28,39 @@ self.addEventListener('activate', (e) => {
             Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
         ).then(() => self.clients.claim())
     );
+});
+
+// Notification click — open WordQuest
+self.addEventListener('notificationclick', (e) => {
+    e.notification.close();
+    e.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(tabs => {
+            for (const tab of tabs) {
+                if (tab.url.includes('/wordquest/')) {
+                    return tab.focus();
+                }
+            }
+            return clients.openWindow('./index.html');
+        })
+    );
+});
+
+// Message from client — schedule notification
+self.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'SCHEDULE_NOTIFICATION') {
+        const { delayMs, title, body, tag } = e.data;
+        setTimeout(() => {
+            self.registration.showNotification(title, {
+                body,
+                tag,
+                icon: './icons/icon-192.png',
+                badge: './icons/icon-192.png',
+                vibrate: [200, 100, 200],
+                data: { url: './index.html' },
+                requireInteraction: false
+            });
+        }, delayMs);
+    }
 });
 
 // Fetch - stale-while-revalidate

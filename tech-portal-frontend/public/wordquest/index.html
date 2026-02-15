@@ -302,6 +302,37 @@
                 <span class="daily-goal-text" id="daily-progress-text">0/20</span>
             </div>
 
+            <!-- Notification Settings -->
+            <div class="notif-section">
+                <div class="notif-row">
+                    <div class="notif-info">
+                        <span class="notif-icon">🔔</span>
+                        <div class="notif-text">
+                            <span class="notif-label">Günlük Hatırlatma</span>
+                            <span class="notif-status-text off" id="notif-status">Kapalı</span>
+                        </div>
+                    </div>
+                    <label class="notif-switch">
+                        <input type="checkbox" id="notif-toggle">
+                        <span class="notif-slider"></span>
+                    </label>
+                </div>
+                <div class="notif-time-row" id="notif-time-row">
+                    <label class="notif-time-label" for="notif-time">⏰ Hatırlatma Saati:</label>
+                    <select id="notif-time" class="notif-time-select">
+                        <option value="8">08:00</option>
+                        <option value="9">09:00</option>
+                        <option value="10">10:00</option>
+                        <option value="12">12:00</option>
+                        <option value="14">14:00</option>
+                        <option value="17">17:00</option>
+                        <option value="19" selected>19:00</option>
+                        <option value="20">20:00</option>
+                        <option value="21">21:00</option>
+                    </select>
+                </div>
+            </div>
+
             <!-- Challenge Banner (shown when arriving via challenge link) -->
             <div class="challenge-banner hidden" id="challenge-banner">
                 <div class="challenge-banner-icon">⚔️</div>

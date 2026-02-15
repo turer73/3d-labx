@@ -1780,6 +1780,106 @@ body {
     transform: scale(0.97);
 }
 
+/* ===== NOTIFICATIONS ===== */
+.notif-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+}
+.notif-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.notif-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.notif-icon {
+    font-size: 1.3rem;
+}
+.notif-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.notif-label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+.notif-status-text {
+    font-size: 0.72rem;
+    font-weight: 500;
+}
+.notif-status-text.on { color: var(--success); }
+.notif-status-text.off { color: var(--text-muted); }
+
+/* Toggle switch */
+.notif-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+.notif-switch input { opacity: 0; width: 0; height: 0; }
+.notif-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(100,116,139,0.3);
+    border-radius: 24px;
+    transition: 0.3s;
+}
+.notif-slider::before {
+    content: '';
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+.notif-switch input:checked + .notif-slider {
+    background: var(--accent);
+}
+.notif-switch input:checked + .notif-slider::before {
+    transform: translateX(20px);
+}
+
+/* Time selector row */
+.notif-time-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+}
+.notif-time-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+.notif-time-select {
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-main);
+    color: var(--text-main);
+    font-size: 0.78rem;
+    font-family: inherit;
+    cursor: pointer;
+}
+.notif-time-select:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
 /* ===== ADAPTIVE DIFFICULTY ===== */
 
 /* Adaptive pill on home screen */
