@@ -1,519 +1,257 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import "../../styles/admin.css";
 
 export const prerender = false;
 ---
 
 <BaseLayout title="Çeviri Yönetimi – Admin Panel" noIndex={true}>
+  <button class="mobile-menu-toggle" id="mobileMenuToggle">
+    <span></span>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <div class="admin-layout">
-    <aside class="admin-sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
-        <a href="/" class="logo">3D-labX <span class="admin-badge">ADMİN</span></a>
+        <a href="/" class="logo">3D-labX</a>
+        <span class="badge badge-primary">Admin</span>
       </div>
+
       <nav class="sidebar-nav">
-        <a href="/admin/dashboard"><span class="nav-icon">📊</span> Dashboard</a>
-        <a href="/admin/posts"><span class="nav-icon">📝</span> Yazılar</a>
-        <a href="/admin/users"><span class="nav-icon">👥</span> Üyeler</a>
-        <a href="/admin/rss"><span class="nav-icon">📡</span> RSS Kaynakları</a>
-        <a href="/admin/content-boxes"><span class="nav-icon">📦</span> İçerik Kutuları</a>
-        <a href="/admin/logs"><span class="nav-icon">📋</span> Site Logları</a>
-        <a href="/admin/translations" class="active"><span class="nav-icon">🌍</span> Çeviriler</a>
-        <a href="/admin/new"><span class="nav-icon">➕</span> Yeni Yazı</a>
+        <a href="/admin/dashboard" class="nav-item">
+          <span class="icon">📊</span>
+          Dashboard
+        </a>
+        <a href="/admin/posts" class="nav-item">
+          <span class="icon">📝</span>
+          Yazılar
+        </a>
+        <a href="/admin/users" class="nav-item">
+          <span class="icon">👥</span>
+          Üyeler
+        </a>
+        <a href="/admin/rss" class="nav-item">
+          <span class="icon">📡</span>
+          RSS Kaynakları
+        </a>
+        <a href="/admin/content-boxes" class="nav-item">
+          <span class="icon">📦</span>
+          İçerik Kutuları
+        </a>
+        <a href="/admin/logs" class="nav-item">
+          <span class="icon">📋</span>
+          Site Logları
+        </a>
+        <a href="/admin/translations" class="nav-item active">
+          <span class="icon">🌍</span>
+          Çeviriler
+        </a>
+        <a href="/admin/new" class="nav-item">
+          <span class="icon">➕</span>
+          Yeni Yazı
+        </a>
       </nav>
+
       <div class="sidebar-footer">
-        <button id="logoutBtn" class="logout-btn">🚪 Çıkış Yap</button>
+        <button id="logoutBtn" class="btn btn-ghost btn-full">
+          🚪 Çıkış Yap
+        </button>
       </div>
     </aside>
 
-    <main class="admin-main">
-      <header class="admin-header">
-        <h1>🌍 Çeviri Yönetimi</h1>
-        <p>AI ile otomatik içerik çevirisi</p>
+    <main class="main-content">
+      <header class="content-header">
+        <div>
+          <h1>Çeviri Yönetimi</h1>
+          <p class="text-muted">AI ile otomatik içerik çevirisi</p>
+        </div>
       </header>
 
-      <div class="content-grid">
-        <!-- Çeviri Durumu -->
-        <div class="stat-cards">
-          <div class="stat-card">
-            <div class="stat-icon" style="background: #10B981;">🇬🇧</div>
-            <div class="stat-info">
-              <h3 id="enTranslated">-</h3>
-              <p>İngilizce Çeviri</p>
-              <div class="progress-bar">
-                <div class="progress-fill" id="enProgress" style="width: 0%;"></div>
-              </div>
-              <span class="stat-detail" id="enPending">- bekliyor</span>
+      <!-- Çeviri Durumu -->
+      <div class="stats-grid">
+        <div class="stat-card stat-card-en">
+          <div class="stat-icon">🇬🇧</div>
+          <div class="stat-info">
+            <span class="stat-value" id="enTranslated">-</span>
+            <span class="stat-label">İngilizce Çeviri</span>
+            <div class="progress-bar">
+              <div class="progress-fill progress-fill-en" id="enProgress" style="width: 0%;"></div>
             </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon" style="background: #F59E0B;">🇩🇪</div>
-            <div class="stat-info">
-              <h3 id="deTranslated">-</h3>
-              <p>Almanca Çeviri</p>
-              <div class="progress-bar">
-                <div class="progress-fill" id="deProgress" style="width: 0%;"></div>
-              </div>
-              <span class="stat-detail" id="dePending">- bekliyor</span>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon" style="background: #6366F1;">📊</div>
-            <div class="stat-info">
-              <h3 id="totalPosts">-</h3>
-              <p>Toplam İçerik</p>
-            </div>
+            <span class="stat-detail" id="enPending">- bekliyor</span>
           </div>
         </div>
 
-        <!-- Toplu İçerik Çevirisi -->
-        <div class="translate-section">
+        <div class="stat-card stat-card-de">
+          <div class="stat-icon">🇩🇪</div>
+          <div class="stat-info">
+            <span class="stat-value" id="deTranslated">-</span>
+            <span class="stat-label">Almanca Çeviri</span>
+            <div class="progress-bar">
+              <div class="progress-fill progress-fill-de" id="deProgress" style="width: 0%;"></div>
+            </div>
+            <span class="stat-detail" id="dePending">- bekliyor</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">📊</div>
+          <div class="stat-info">
+            <span class="stat-value" id="totalPosts">-</span>
+            <span class="stat-label">Toplam İçerik</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toplu İçerik Çevirisi -->
+      <div class="translate-card">
+        <div class="translate-card-header">
           <h2>🚀 Toplu İçerik Çevirisi</h2>
           <p>Çevrilmemiş içerikleri AI ile toplu olarak çevirin</p>
-
-          <div class="translate-controls">
-            <div class="control-group">
-              <label>Hedef Dil</label>
-              <select id="targetLang">
-                <option value="en">🇬🇧 İngilizce</option>
-                <option value="de">🇩🇪 Almanca</option>
-              </select>
-            </div>
-
-            <div class="control-group">
-              <label>Adet (max 50)</label>
-              <input type="number" id="batchLimit" value="10" min="1" max="50" />
-            </div>
-
-            <button id="startBatchBtn" class="btn-primary">
-              <span class="btn-text">🤖 Çeviriyi Başlat</span>
-              <span class="btn-loading" style="display: none;">⏳ Çeviriliyor...</span>
-            </button>
-          </div>
-
-          <div id="batchResult" class="batch-result" style="display: none;"></div>
         </div>
 
-        <!-- Slug Çevirisi (SEO için) -->
-        <div class="translate-section">
+        <div class="translate-controls">
+          <div class="control-group">
+            <label>Hedef Dil</label>
+            <select id="targetLang" class="filter-select">
+              <option value="en">🇬🇧 İngilizce</option>
+              <option value="de">🇩🇪 Almanca</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label>Adet (max 50)</label>
+            <input type="number" id="batchLimit" class="search-input" value="10" min="1" max="50" style="width: 100px;" />
+          </div>
+
+          <button id="startBatchBtn" class="btn btn-primary">
+            <span class="btn-text">🤖 Çeviriyi Başlat</span>
+            <span class="btn-loading" style="display: none;">⏳ Çeviriliyor...</span>
+          </button>
+        </div>
+
+        <div id="batchResult" class="batch-result" style="display: none;"></div>
+      </div>
+
+      <!-- Slug Çevirisi (SEO için) -->
+      <div class="translate-card">
+        <div class="translate-card-header">
           <h2>🔗 URL Slug Çevirisi (SEO)</h2>
           <p>Çevrilmiş içeriklerin URL'lerini dile göre oluşturun. Bu SEO için kritiktir!</p>
-
-          <div class="slug-stats">
-            <div class="slug-stat">
-              <span class="flag">🇬🇧</span>
-              <span id="enSlugCount">-</span> slug oluşturuldu
-              <span class="pending" id="enSlugPending">(-)</span>
-            </div>
-            <div class="slug-stat">
-              <span class="flag">🇩🇪</span>
-              <span id="deSlugCount">-</span> slug oluşturuldu
-              <span class="pending" id="deSlugPending">(-)</span>
-            </div>
-          </div>
-
-          <div class="translate-controls">
-            <div class="control-group">
-              <label>Hedef Dil</label>
-              <select id="slugTargetLang">
-                <option value="en">🇬🇧 İngilizce</option>
-                <option value="de">🇩🇪 Almanca</option>
-              </select>
-            </div>
-
-            <div class="control-group">
-              <label>Adet (max 100)</label>
-              <input type="number" id="slugBatchLimit" value="50" min="1" max="100" />
-            </div>
-
-            <button id="startSlugBtn" class="btn-primary btn-secondary">
-              <span class="btn-text">🔗 Slug Oluştur</span>
-              <span class="btn-loading" style="display: none;">⏳ Oluşturuluyor...</span>
-            </button>
-          </div>
-
-          <div id="slugResult" class="batch-result" style="display: none;"></div>
         </div>
 
-        <!-- Çeviri Geçmişi -->
-        <div class="history-section">
-          <h2>📋 Son Çeviriler</h2>
-          <div id="translationHistory" class="history-list">
-            <p class="empty-state">Henüz çeviri yapılmadı</p>
+        <div class="slug-stats">
+          <div class="slug-stat">
+            <span class="flag">🇬🇧</span>
+            <span id="enSlugCount">-</span> slug oluşturuldu
+            <span class="pending" id="enSlugPending">(-)</span>
           </div>
+          <div class="slug-stat">
+            <span class="flag">🇩🇪</span>
+            <span id="deSlugCount">-</span> slug oluşturuldu
+            <span class="pending" id="deSlugPending">(-)</span>
+          </div>
+        </div>
+
+        <div class="translate-controls">
+          <div class="control-group">
+            <label>Hedef Dil</label>
+            <select id="slugTargetLang" class="filter-select">
+              <option value="en">🇬🇧 İngilizce</option>
+              <option value="de">🇩🇪 Almanca</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label>Adet (max 100)</label>
+            <input type="number" id="slugBatchLimit" class="search-input" value="50" min="1" max="100" style="width: 100px;" />
+          </div>
+
+          <button id="startSlugBtn" class="btn btn-success">
+            <span class="btn-text">🔗 Slug Oluştur</span>
+            <span class="btn-loading" style="display: none;">⏳ Oluşturuluyor...</span>
+          </button>
+        </div>
+
+        <div id="slugResult" class="batch-result" style="display: none;"></div>
+      </div>
+
+      <!-- Çeviri Geçmişi -->
+      <div class="translate-card">
+        <div class="translate-card-header">
+          <h2>📋 Son Çeviriler</h2>
+        </div>
+        <div id="translationHistory" class="history-list">
+          <p class="empty-state">Henüz çeviri yapılmadı</p>
         </div>
       </div>
     </main>
   </div>
 </BaseLayout>
 
-<script is:inline>
-  const API = 'https://tech-portal-api.turgut-d01.workers.dev';
-
-  // Auth check
-  const token = localStorage.getItem('authToken');
-  const user = JSON.parse(localStorage.getItem('authUser') || '{}');
-  if (!token || user.role !== 'admin') {
-    window.location.href = '/auth/giris?redirect=/admin/translations';
-  }
-
-  // Load translation status
-  async function loadStatus() {
-    try {
-      const res = await fetch(`${API}/admin/translation-status`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await res.json();
-
-      document.getElementById('totalPosts').textContent = data.total;
-      document.getElementById('enTranslated').textContent = `${data.english.translated}/${data.total}`;
-      document.getElementById('enPending').textContent = `${data.english.pending} bekliyor`;
-      document.getElementById('enProgress').style.width = `${data.english.percentage}%`;
-
-      document.getElementById('deTranslated').textContent = `${data.german.translated}/${data.total}`;
-      document.getElementById('dePending').textContent = `${data.german.pending} bekliyor`;
-      document.getElementById('deProgress').style.width = `${data.german.percentage}%`;
-
-      // Slug stats
-      document.getElementById('enSlugCount').textContent = data.english.slugs || 0;
-      document.getElementById('enSlugPending').textContent = `(${(data.english.translated || 0) - (data.english.slugs || 0)} bekliyor)`;
-      document.getElementById('deSlugCount').textContent = data.german.slugs || 0;
-      document.getElementById('deSlugPending').textContent = `(${(data.german.translated || 0) - (data.german.slugs || 0)} bekliyor)`;
-    } catch (err) {
-      console.error('Status load error:', err);
-    }
-  }
-
-  // Batch translate
-  document.getElementById('startBatchBtn').addEventListener('click', async function() {
-    const btn = this;
-    const btnText = btn.querySelector('.btn-text');
-    const btnLoading = btn.querySelector('.btn-loading');
-    const resultDiv = document.getElementById('batchResult');
-
-    const lang = document.getElementById('targetLang').value;
-    const limit = parseInt(document.getElementById('batchLimit').value) || 10;
-
-    btnText.style.display = 'none';
-    btnLoading.style.display = 'inline';
-    btn.disabled = true;
-    resultDiv.style.display = 'none';
-
-    try {
-      const res = await fetch(`${API}/admin/translate-batch`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ lang, limit })
-      });
-
-      const data = await res.json();
-
-      resultDiv.style.display = 'block';
-      if (data.success) {
-        resultDiv.className = 'batch-result success';
-        resultDiv.innerHTML = `
-          <strong>✅ Çeviri Tamamlandı!</strong><br>
-          ${data.translated}/${data.total} içerik ${lang === 'en' ? 'İngilizce' : 'Almanca'}\'ya çevrildi.
-          ${data.errors ? `<br><small>⚠️ ${data.errors.length} hata oluştu</small>` : ''}
-        `;
-        loadStatus(); // Refresh stats
-        addToHistory(lang, data.translated, data.total);
-      } else {
-        resultDiv.className = 'batch-result error';
-        resultDiv.innerHTML = `<strong>❌ Hata:</strong> ${data.error || 'Bilinmeyen hata'}`;
-      }
-    } catch (err) {
-      resultDiv.style.display = 'block';
-      resultDiv.className = 'batch-result error';
-      resultDiv.innerHTML = `<strong>❌ Bağlantı hatası:</strong> ${err.message}`;
-    } finally {
-      btnText.style.display = 'inline';
-      btnLoading.style.display = 'none';
-      btn.disabled = false;
-    }
-  });
-
-  // History
-  function addToHistory(lang, translated, total, type = 'content') {
-    const historyDiv = document.getElementById('translationHistory');
-    const emptyState = historyDiv.querySelector('.empty-state');
-    if (emptyState) emptyState.remove();
-
-    const item = document.createElement('div');
-    item.className = 'history-item';
-    const actionText = type === 'slug' ? 'slug oluşturuldu' : 'içerik çevrildi';
-    const icon = type === 'slug' ? '🔗' : '📝';
-    item.innerHTML = `
-      <span class="history-lang">${lang === 'en' ? '🇬🇧' : '🇩🇪'}</span>
-      <span class="history-text">${icon} ${translated}/${total} ${actionText}</span>
-      <span class="history-time">${new Date().toLocaleTimeString('tr-TR')}</span>
-    `;
-    historyDiv.insertBefore(item, historyDiv.firstChild);
-  }
-
-  // Slug generation
-  document.getElementById('startSlugBtn').addEventListener('click', async function() {
-    const btn = this;
-    const btnText = btn.querySelector('.btn-text');
-    const btnLoading = btn.querySelector('.btn-loading');
-    const resultDiv = document.getElementById('slugResult');
-
-    const lang = document.getElementById('slugTargetLang').value;
-    const limit = parseInt(document.getElementById('slugBatchLimit').value) || 50;
-
-    btnText.style.display = 'none';
-    btnLoading.style.display = 'inline';
-    btn.disabled = true;
-    resultDiv.style.display = 'none';
-
-    try {
-      const res = await fetch(`${API}/admin/translate-slugs`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ lang, limit })
-      });
-
-      const data = await res.json();
-
-      resultDiv.style.display = 'block';
-      if (data.success) {
-        resultDiv.className = 'batch-result success';
-        resultDiv.innerHTML = `
-          <strong>✅ Slug Oluşturma Tamamlandı!</strong><br>
-          ${data.translated}/${data.total} ${lang === 'en' ? 'İngilizce' : 'Almanca'} slug oluşturuldu.
-          ${data.errors ? `<br><small>⚠️ ${data.errors.length} hata oluştu</small>` : ''}
-        `;
-        loadStatus(); // Refresh stats
-        addToHistory(lang, data.translated, data.total, 'slug');
-      } else {
-        resultDiv.className = 'batch-result error';
-        resultDiv.innerHTML = `<strong>❌ Hata:</strong> ${data.error || 'Bilinmeyen hata'}`;
-      }
-    } catch (err) {
-      resultDiv.style.display = 'block';
-      resultDiv.className = 'batch-result error';
-      resultDiv.innerHTML = `<strong>❌ Bağlantı hatası:</strong> ${err.message}`;
-    } finally {
-      btnText.style.display = 'inline';
-      btnLoading.style.display = 'none';
-      btn.disabled = false;
-    }
-  });
-
-  // Logout
-  document.getElementById('logoutBtn').addEventListener('click', () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('authUser');
-    window.location.href = '/';
-  });
-
-  // Init
-  loadStatus();
-</script>
-
 <style>
-  .admin-layout {
-    display: flex;
-    min-height: 100vh;
-    background: var(--bg-main);
-  }
-
-  .admin-sidebar {
-    width: 240px;
-    background: var(--bg-card);
-    border-right: 1px solid var(--border-soft);
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    height: 100vh;
-    z-index: 100;
-  }
-
-  .sidebar-header {
-    padding: 20px;
-    border-bottom: 1px solid var(--border-soft);
-  }
-
-  .logo {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--text-main);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .admin-badge {
-    font-size: 0.65rem;
-    padding: 3px 6px;
-    background: linear-gradient(135deg, #8B5CF6, #6366F1);
-    color: white;
-    border-radius: 4px;
-    font-weight: 600;
-  }
-
-  .sidebar-nav {
-    flex: 1;
-    padding: 16px 0;
-    overflow-y: auto;
-  }
-
-  .sidebar-nav a {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 20px;
-    color: var(--text-muted);
-    text-decoration: none;
-    transition: all 0.2s;
-    font-size: 0.9rem;
-  }
-
-  .sidebar-nav a:hover {
-    background: var(--bg-soft);
-    color: var(--text-main);
-  }
-
-  .sidebar-nav a.active {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
-    color: #8B5CF6;
-    border-left: 3px solid #8B5CF6;
-  }
-
-  .nav-icon {
-    font-size: 1.1rem;
-  }
-
-  .sidebar-footer {
-    padding: 16px 20px;
-    border-top: 1px solid var(--border-soft);
-  }
-
-  .logout-btn {
-    width: 100%;
-    padding: 10px;
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    color: #EF4444;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.2s;
-  }
-
-  .logout-btn:hover {
-    background: rgba(239, 68, 68, 0.2);
-  }
-
-  .admin-main {
-    flex: 1;
-    margin-left: 240px;
-    padding: 32px;
-  }
-
-  .admin-header {
-    margin-bottom: 32px;
-  }
-
-  .admin-header h1 {
-    font-size: 1.75rem;
-    margin-bottom: 8px;
-  }
-
-  .admin-header p {
-    color: var(--text-muted);
-  }
-
-  .content-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 32px;
-  }
-
-  .stat-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-  }
-
-  .stat-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-soft);
-    border-radius: 16px;
-    padding: 24px;
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
-  }
-
-  .stat-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    flex-shrink: 0;
-  }
-
-  .stat-info h3 {
-    font-size: 1.5rem;
-    margin-bottom: 4px;
-  }
-
-  .stat-info p {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    margin-bottom: 8px;
-  }
-
+  /* Progress bars */
   .progress-bar {
     width: 100%;
     height: 8px;
-    background: var(--bg-soft);
+    background: rgba(99, 102, 241, 0.08);
     border-radius: 4px;
     overflow: hidden;
-    margin-bottom: 4px;
+    margin: 8px 0 4px;
   }
 
   .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #10B981, #34D399);
     border-radius: 4px;
-    transition: width 0.5s ease;
+    transition: width 0.6s ease;
+  }
+
+  .progress-fill-en {
+    background: linear-gradient(90deg, #10B981, #34D399);
+  }
+
+  .progress-fill-de {
+    background: linear-gradient(90deg, #F59E0B, #FBBF24);
   }
 
   .stat-detail {
     font-size: 0.8rem;
-    color: var(--text-light);
-  }
-
-  .translate-section,
-  .history-section {
-    background: var(--bg-card);
-    border: 1px solid var(--border-soft);
-    border-radius: 16px;
-    padding: 24px;
-  }
-
-  .translate-section h2,
-  .history-section h2 {
-    font-size: 1.25rem;
-    margin-bottom: 8px;
-  }
-
-  .translate-section > p {
     color: var(--text-muted);
+  }
+
+  /* Stat card variants */
+  .stat-card-en {
+    border-top: 3px solid #10B981;
+  }
+
+  .stat-card-de {
+    border-top: 3px solid #F59E0B;
+  }
+
+  /* Translate cards */
+  .translate-card {
+    background: white;
+    border: 1px solid rgba(99, 102, 241, 0.08);
+    border-radius: 16px;
+    padding: 28px;
     margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  }
+
+  .translate-card-header {
+    margin-bottom: 20px;
+  }
+
+  .translate-card-header h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1E293B;
+    margin-bottom: 6px;
+  }
+
+  .translate-card-header p {
+    color: #64748B;
+    font-size: 0.9rem;
   }
 
   .translate-controls {
@@ -531,23 +269,14 @@ export const prerender = false;
 
   .control-group label {
     font-size: 0.85rem;
-    color: var(--text-muted);
+    color: #64748B;
+    font-weight: 500;
   }
 
-  .control-group select,
-  .control-group input {
-    padding: 10px 14px;
-    border: 1px solid var(--border-soft);
-    border-radius: 8px;
-    background: var(--bg-main);
-    color: var(--text-main);
-    font-size: 0.9rem;
-    min-width: 150px;
-  }
-
-  .btn-primary {
+  /* Success button variant */
+  .btn-success {
     padding: 10px 24px;
-    background: linear-gradient(135deg, #6366F1, #8B5CF6);
+    background: linear-gradient(135deg, #10B981, #059669);
     color: white;
     border: none;
     border-radius: 10px;
@@ -557,75 +286,40 @@ export const prerender = false;
     font-size: 0.9rem;
   }
 
-  .btn-primary:hover:not(:disabled) {
+  .btn-success:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
   }
 
-  .btn-primary:disabled {
+  .btn-success:disabled {
     opacity: 0.7;
     cursor: not-allowed;
   }
 
+  /* Batch result */
   .batch-result {
     margin-top: 20px;
-    padding: 16px;
-    border-radius: 10px;
+    padding: 16px 20px;
+    border-radius: 12px;
     font-size: 0.9rem;
   }
 
   .batch-result.success {
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    color: #10B981;
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    color: #059669;
   }
 
   .batch-result.error {
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    color: #EF4444;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: #DC2626;
   }
 
-  .history-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 16px;
-  }
-
-  .history-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: var(--bg-soft);
-    border-radius: 10px;
-  }
-
-  .history-lang {
-    font-size: 1.5rem;
-  }
-
-  .history-text {
-    flex: 1;
-    font-size: 0.9rem;
-  }
-
-  .history-time {
-    font-size: 0.8rem;
-    color: var(--text-light);
-  }
-
-  .empty-state {
-    color: var(--text-muted);
-    text-align: center;
-    padding: 20px;
-    font-size: 0.9rem;
-  }
-
+  /* Slug stats */
   .slug-stats {
     display: flex;
-    gap: 24px;
+    gap: 16px;
     margin-bottom: 20px;
     flex-wrap: wrap;
   }
@@ -635,9 +329,12 @@ export const prerender = false;
     align-items: center;
     gap: 8px;
     padding: 12px 16px;
-    background: var(--bg-soft);
-    border-radius: 10px;
+    background: rgba(99, 102, 241, 0.04);
+    border: 1px solid rgba(99, 102, 241, 0.08);
+    border-radius: 12px;
     font-size: 0.9rem;
+    font-weight: 500;
+    color: #475569;
   }
 
   .slug-stat .flag {
@@ -645,38 +342,312 @@ export const prerender = false;
   }
 
   .slug-stat .pending {
-    color: var(--text-muted);
+    color: #94A3B8;
     font-size: 0.8rem;
   }
 
-  .btn-secondary {
-    background: linear-gradient(135deg, #10B981, #059669) !important;
+  /* History */
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
 
-  .btn-secondary:hover:not(:disabled) {
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3) !important;
+  .history-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(99, 102, 241, 0.04);
+    border: 1px solid rgba(99, 102, 241, 0.08);
+    border-radius: 12px;
+    transition: all 0.2s;
+  }
+
+  .history-item:hover {
+    background: rgba(99, 102, 241, 0.08);
+  }
+
+  .history-lang {
+    font-size: 1.5rem;
+  }
+
+  .history-text {
+    flex: 1;
+    font-size: 0.9rem;
+    color: #475569;
+  }
+
+  .history-time {
+    font-size: 0.8rem;
+    color: #94A3B8;
+  }
+
+  .empty-state {
+    color: #94A3B8;
+    text-align: center;
+    padding: 24px;
+    font-size: 0.9rem;
+  }
+
+  /* Dark Mode */
+  @media (prefers-color-scheme: dark) {
+    .translate-card {
+      background: var(--bg-card);
+      border-color: rgba(99, 102, 241, 0.12);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .translate-card-header h2 {
+      color: #F1F5F9;
+    }
+
+    .translate-card-header p {
+      color: #94A3B8;
+    }
+
+    .control-group label {
+      color: #94A3B8;
+    }
+
+    .progress-bar {
+      background: rgba(99, 102, 241, 0.15);
+    }
+
+    .batch-result.success {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: #6EE7B7;
+    }
+
+    .batch-result.error {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #FCA5A5;
+    }
+
+    .slug-stat {
+      background: rgba(99, 102, 241, 0.08);
+      border-color: rgba(99, 102, 241, 0.15);
+      color: #CBD5E1;
+    }
+
+    .slug-stat .pending {
+      color: #64748B;
+    }
+
+    .history-item {
+      background: rgba(99, 102, 241, 0.06);
+      border-color: rgba(99, 102, 241, 0.12);
+    }
+
+    .history-item:hover {
+      background: rgba(99, 102, 241, 0.12);
+    }
+
+    .history-text {
+      color: #CBD5E1;
+    }
+
+    .history-time {
+      color: #64748B;
+    }
+
+    .empty-state {
+      color: #64748B;
+    }
   }
 
   @media (max-width: 768px) {
-    .admin-sidebar {
-      width: 100%;
-      height: auto;
-      position: relative;
-    }
-
-    .admin-main {
-      margin-left: 0;
-      padding: 16px;
-    }
-
     .translate-controls {
       flex-direction: column;
       align-items: stretch;
     }
 
-    .control-group select,
-    .control-group input {
-      min-width: auto;
+    .slug-stats {
+      flex-direction: column;
     }
   }
 </style>
+
+<script>
+  const API = 'https://tech-portal-api.turgut-d01.workers.dev';
+
+  // Auth check - use adminSecret pattern (consistent with other admin pages)
+  const secret = localStorage.getItem('adminSecret');
+  if (!secret) {
+    window.location.href = '/admin';
+  }
+
+  // Logout
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    localStorage.removeItem('adminSecret');
+    window.location.href = '/admin';
+  });
+
+  // Mobile menu toggle
+  const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+  const sidebar = document.getElementById('sidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+  function toggleMobileMenu() {
+    mobileMenuToggle?.classList.toggle('active');
+    sidebar?.classList.toggle('open');
+    sidebarOverlay?.classList.toggle('active');
+  }
+
+  mobileMenuToggle?.addEventListener('click', toggleMobileMenu);
+  sidebarOverlay?.addEventListener('click', toggleMobileMenu);
+
+  // Load translation status
+  async function loadStatus() {
+    try {
+      const res = await fetch(`${API}/admin/translation-status`, {
+        headers: { 'X-ADMIN-SECRET': secret! }
+      });
+      const data = await res.json();
+
+      document.getElementById('totalPosts')!.textContent = data.total;
+      document.getElementById('enTranslated')!.textContent = `${data.english.translated}/${data.total}`;
+      document.getElementById('enPending')!.textContent = `${data.english.pending} bekliyor`;
+      (document.getElementById('enProgress') as HTMLElement).style.width = `${data.english.percentage}%`;
+
+      document.getElementById('deTranslated')!.textContent = `${data.german.translated}/${data.total}`;
+      document.getElementById('dePending')!.textContent = `${data.german.pending} bekliyor`;
+      (document.getElementById('deProgress') as HTMLElement).style.width = `${data.german.percentage}%`;
+
+      // Slug stats
+      document.getElementById('enSlugCount')!.textContent = data.english.slugs || '0';
+      document.getElementById('enSlugPending')!.textContent = `(${(data.english.translated || 0) - (data.english.slugs || 0)} bekliyor)`;
+      document.getElementById('deSlugCount')!.textContent = data.german.slugs || '0';
+      document.getElementById('deSlugPending')!.textContent = `(${(data.german.translated || 0) - (data.german.slugs || 0)} bekliyor)`;
+    } catch (err) {
+      console.error('Status load error:', err);
+    }
+  }
+
+  // Batch translate
+  document.getElementById('startBatchBtn')?.addEventListener('click', async function() {
+    const btn = this as HTMLButtonElement;
+    const btnText = btn.querySelector('.btn-text') as HTMLElement;
+    const btnLoading = btn.querySelector('.btn-loading') as HTMLElement;
+    const resultDiv = document.getElementById('batchResult')!;
+
+    const lang = (document.getElementById('targetLang') as HTMLSelectElement).value;
+    const limit = parseInt((document.getElementById('batchLimit') as HTMLInputElement).value) || 10;
+
+    btnText.style.display = 'none';
+    btnLoading.style.display = 'inline';
+    btn.disabled = true;
+    resultDiv.style.display = 'none';
+
+    try {
+      const res = await fetch(`${API}/admin/translate-batch`, {
+        method: 'POST',
+        headers: {
+          'X-ADMIN-SECRET': secret!,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ lang, limit })
+      });
+
+      const data = await res.json();
+
+      resultDiv.style.display = 'block';
+      if (data.success) {
+        resultDiv.className = 'batch-result success';
+        resultDiv.innerHTML = `
+          <strong>✅ Çeviri Tamamlandı!</strong><br>
+          ${data.translated}/${data.total} içerik ${lang === 'en' ? 'İngilizce' : 'Almanca'}'ya çevrildi.
+          ${data.errors ? `<br><small>⚠️ ${data.errors.length} hata oluştu</small>` : ''}
+        `;
+        loadStatus();
+        addToHistory(lang, data.translated, data.total);
+      } else {
+        resultDiv.className = 'batch-result error';
+        resultDiv.innerHTML = `<strong>❌ Hata:</strong> ${data.error || 'Bilinmeyen hata'}`;
+      }
+    } catch (err: any) {
+      resultDiv.style.display = 'block';
+      resultDiv.className = 'batch-result error';
+      resultDiv.innerHTML = `<strong>❌ Bağlantı hatası:</strong> ${err.message}`;
+    } finally {
+      btnText.style.display = 'inline';
+      btnLoading.style.display = 'none';
+      btn.disabled = false;
+    }
+  });
+
+  // History
+  function addToHistory(lang: string, translated: number, total: number, type = 'content') {
+    const historyDiv = document.getElementById('translationHistory')!;
+    const emptyState = historyDiv.querySelector('.empty-state');
+    if (emptyState) emptyState.remove();
+
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    const actionText = type === 'slug' ? 'slug oluşturuldu' : 'içerik çevrildi';
+    const icon = type === 'slug' ? '🔗' : '📝';
+    item.innerHTML = `
+      <span class="history-lang">${lang === 'en' ? '🇬🇧' : '🇩🇪'}</span>
+      <span class="history-text">${icon} ${translated}/${total} ${actionText}</span>
+      <span class="history-time">${new Date().toLocaleTimeString('tr-TR')}</span>
+    `;
+    historyDiv.insertBefore(item, historyDiv.firstChild);
+  }
+
+  // Slug generation
+  document.getElementById('startSlugBtn')?.addEventListener('click', async function() {
+    const btn = this as HTMLButtonElement;
+    const btnText = btn.querySelector('.btn-text') as HTMLElement;
+    const btnLoading = btn.querySelector('.btn-loading') as HTMLElement;
+    const resultDiv = document.getElementById('slugResult')!;
+
+    const lang = (document.getElementById('slugTargetLang') as HTMLSelectElement).value;
+    const limit = parseInt((document.getElementById('slugBatchLimit') as HTMLInputElement).value) || 50;
+
+    btnText.style.display = 'none';
+    btnLoading.style.display = 'inline';
+    btn.disabled = true;
+    resultDiv.style.display = 'none';
+
+    try {
+      const res = await fetch(`${API}/admin/translate-slugs`, {
+        method: 'POST',
+        headers: {
+          'X-ADMIN-SECRET': secret!,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ lang, limit })
+      });
+
+      const data = await res.json();
+
+      resultDiv.style.display = 'block';
+      if (data.success) {
+        resultDiv.className = 'batch-result success';
+        resultDiv.innerHTML = `
+          <strong>✅ Slug Oluşturma Tamamlandı!</strong><br>
+          ${data.translated}/${data.total} ${lang === 'en' ? 'İngilizce' : 'Almanca'} slug oluşturuldu.
+          ${data.errors ? `<br><small>⚠️ ${data.errors.length} hata oluştu</small>` : ''}
+        `;
+        loadStatus();
+        addToHistory(lang, data.translated, data.total, 'slug');
+      } else {
+        resultDiv.className = 'batch-result error';
+        resultDiv.innerHTML = `<strong>❌ Hata:</strong> ${data.error || 'Bilinmeyen hata'}`;
+      }
+    } catch (err: any) {
+      resultDiv.style.display = 'block';
+      resultDiv.className = 'batch-result error';
+      resultDiv.innerHTML = `<strong>❌ Bağlantı hatası:</strong> ${err.message}`;
+    } finally {
+      btnText.style.display = 'inline';
+      btnLoading.style.display = 'none';
+      btn.disabled = false;
+    }
+  });
+
+  // Init
+  loadStatus();
+</script>

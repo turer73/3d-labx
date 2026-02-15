@@ -1,0 +1,529 @@
+{
+  "dialogue": [
+    {
+      "id": "d001",
+      "sentence": "James: I have a question about citing Internet sources in our research paper.\nVince: Well, it depends on the source.\nJames: ----\nVince: Of course not. We're writing an academic paper and all the information should be reliable.",
+      "options": [
+        "I see. Why don't we go to the computer lab and check the database?",
+        "So are you saying that we should consult our advisors first?",
+        "The Internet has the necessary information. It isn't worth going to the library, is it?",
+        "What do you mean by that? Can't we cite every source we find online?",
+        "I didn't get your point. Would you please be more specific?"
+      ],
+      "answer": 3,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2018
+    },
+    {
+      "id": "d002",
+      "sentence": "Robert: Why is Galileo considered to be so important?\nJessica: He invented the astronomical telescope and suggested a sun-centred Solar System.\nJessica: ----\nRobert: It's really surprising that you're questioning it. His studies started everything about the Universe!",
+      "options": [
+        "Yes, I also learnt that he used improved telescopes to identify the moons of Jupiter.",
+        "Doesn't everybody know that his obsession with measurable experiments marked him as one of the founders of modern science?",
+        "He did but it's unfortunate that his conflict with the Church led to the censorship of his publications.",
+        "I know all about this, but I just can't understand why so many popular writers still mention him in their works.",
+        "Maybe you can check it online before you believe what people say about him."
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2018
+    },
+    {
+      "id": "d003",
+      "sentence": "Journalist: Could you tell us about the food industries threatened by antibiotic resistance?\nResearcher: Certainly.\nJournalist: ----\nResearcher: For example, if you buy a farmed salmon today, chances are it will have eaten a greater weight of antibiotics during its life than its own body weight.",
+      "options": [
+        "We know that farmers rely heavily on antibiotics. What is the reason behind their practices?",
+        "What can health scientists and clinicians do to sort out the problem?",
+        "Can you tell us how antimicrobial resistance affects food?",
+        "Do you think food industries could collapse if resistance spreads?",
+        "What else does the report warn us about?"
+      ],
+      "answer": 2,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2018
+    },
+    {
+      "id": "d004",
+      "sentence": "Eda: I haven't seen you on social media for a long time. What's going on?\nÇiğdem: ----\nEda: You've done the right thing! Experts say browsing social media sites leads to depression as it triggers a feeling of envy among users.\nÇiğdem: That could be true, as well. But my reason is being too busy to use it these days, not because I'm jealous of others.",
+      "options": [
+        "I'm afraid I've forgotten my password, so I can't log in these days.",
+        "Well, seeing how people are satisfied with their lives gets on my nerves.",
+        "I believe it's a waste of time and I do nothing but follow the lives of people around me.",
+        "I didn't expect you'd notice my absence, but don't worry I'll be back very soon.",
+        "I've closed my account as I've got much more important stuff to do."
+      ],
+      "answer": 4,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2018
+    },
+    {
+      "id": "d005",
+      "sentence": "Mert: I've got this pain in my leg from running.\nFatma: ----\nMert: No, I've been running in the mornings for the last three months, I haven't taken a break.",
+      "options": [
+        "Do you stop for water breaks when you're running?",
+        "Do you always suffer pain after running?",
+        "Do you usually run in the evenings?",
+        "Was it your first time running for a while?",
+        "Do you think it would help staying healthy?"
+      ],
+      "answer": 3,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2018
+    },
+    {
+      "id": "d006",
+      "sentence": "Kevin: What do you think was David Beckham's greatest achievement?\nRichard: ----\nKevin: Actually, no. He says his greatest achievement has been always putting his family first.",
+      "options": [
+        "Let me guess! He must've said something about his career playing for several well-known clubs.",
+        "How would I know? I've never met a celebrity in my life!",
+        "That's easy. Celebrities always say they put their loved ones and friends first.",
+        "That's a really tricky question. He's had such a successful career that anything could be considered great!",
+        "In my opinion, the real achievement is what you do for others in your daily life."
+      ],
+      "answer": 0,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2019
+    },
+    {
+      "id": "d007",
+      "sentence": "Interviewer: How safe is our personal information without any apps?\nTech Expert: Not safe at all. Even a simple Wifi software can reveal a lot.\nInterviewer: ----\nTech Expert: By using this software, I can see which Wifi networks you've connected to before, I can predict your financial status, and I can also figure out where you live and work.",
+      "options": [
+        "What do you think is safe about this software?",
+        "What kind of information could you possibly learn through Wifi connection?",
+        "How can I protect my personal information from this type of software?",
+        "What would be the best way to detect such threats?",
+        "Are there any other ways to get information about people in addition to Wifi connection?"
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2019
+    },
+    {
+      "id": "d008",
+      "sentence": "Jane: I've read that there could be another planet in our Solar System.\nRonald: If so, it must be quite distant from the Sun.\nJane: ----\nRonald: Oh, don't worry. If one's out there, they'll find it! Science has been improving faster than we may think.",
+      "options": [
+        "Astronomers are going to start analysing the movements of objects in the Solar System soon.",
+        "Do you think that scientists will ever be able to find another one?",
+        "I hope people will be able to travel across the universe in the future.",
+        "Will people ever believe that there could be life on other planets?",
+        "What if it was not that far from the Sun or our planet?"
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2019
+    },
+    {
+      "id": "d009",
+      "sentence": "Teacher: Which book by Arthur Conan Doyle have you read recently?\nStudent: The Return of Sherlock Holmes.\nTeacher: ----\nStudent: Because it's the collected short-story adventures published after the Great Detective's return from the dead.",
+      "options": [
+        "Can you tell us what you really liked about the book?",
+        "Why do you think the book is called so?",
+        "Do you know why the first one was titled Sherlock Holmes?",
+        "Why does the writer have a collection of stories?",
+        "Why is Sherlock Holmes so famous in fiction?"
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2019
+    },
+    {
+      "id": "d010",
+      "sentence": "Adam: I don't understand why meditation is so popular these days.\nJennifer: ----\nAdam: Yeah, you're right, all you need is a comfortable posture and wish for self-transformation and desire for others' well-being.",
+      "options": [
+        "It may be because it is derived from various branches of Buddhism.",
+        "Because scientists proved that its practitioners are less prone to stress.",
+        "I think it's very easy to practise, I mean no equipment and workout is needed.",
+        "You know, meditation also leads to some physiological changes in the brain.",
+        "Especially three types that developed through Buddhism are very commonly practised."
+      ],
+      "answer": 2,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2019
+    },
+    {
+      "id": "d011",
+      "sentence": "Reporter: Studies suggest that we should spend less time in cubicles.\nPhysician: I agree. Spending time outside boosts our mood and improves our health.\nReporter: ----\nPhysician: Just simple things like enjoying your drinks or meals outside or doing some workouts outdoors.",
+      "options": [
+        "How can we convince people who don't like outdoor activities?",
+        "Do you agree that outdoor activities in big cities are very expensive?",
+        "What would you suggest for those who don't know where to start?",
+        "Outdoor activities should be preferred when it is warm, shouldn't they?",
+        "Is there good evidence that shows the benefits of spending time in nature?"
+      ],
+      "answer": 2,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2020
+    },
+    {
+      "id": "d012",
+      "sentence": "Fiona: I really admire Roman buildings.\nMary: ----\nFiona: What do you mean?\nMary: Well, it was in ancient Greece that classical architecture emerged and it was the Romans who contributed much to its advancement in terms of complexity.",
+      "options": [
+        "The Romans are known for their contributions to a wide range of subjects from postal services to astronomy.",
+        "There are some art historians who claim that the Romans came up with nothing novel to the art of architecture.",
+        "The Romans were not the only ones adopting the Greek styles and techniques in their architectural design.",
+        "The Roman baths are one of the most distinguished examples of the Roman architectural style.",
+        "I guess you should thank both the Greeks and Romans for the elaborate Roman constructions."
+      ],
+      "answer": 4,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2020
+    },
+    {
+      "id": "d013",
+      "sentence": "Ann: You read a lot of books, Boris.\nBoris: Not really. I've only read two books this month.\nAnn: ----\nBoris: Why don't you set yourself a goal of one book a month or something?",
+      "options": [
+        "I just don't like reading books. Rather, I'm usually fine with reading my work materials in my spare time.",
+        "How do you find enough time to read though you're often busy?",
+        "I don't read as much as you. I generally prefer to read best-selling novels.",
+        "Two books? That's more than I could bear. I'll stick to magazines.",
+        "That's more than I can do. Whenever I start, I always find a good reason to quit."
+      ],
+      "answer": 4,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2020
+    },
+    {
+      "id": "d014",
+      "sentence": "Patient: I've been trying to lose weight for a while now.\nDietician: ----\nPatient: A couple of times. But nothing actually worked, though I did my best.",
+      "options": [
+        "Well, have you ever consulted a professional before?",
+        "How many times do you eat in a typical day?",
+        "What kind of diets have you tried until now?",
+        "How often do you eat junk food?",
+        "How long have you been on this particular diet?"
+      ],
+      "answer": 0,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2020
+    },
+    {
+      "id": "d015",
+      "sentence": "Interviewer: How did you come up with the idea of drone delivery?\nEntrepreneur: Well, I've always had a passion for aviation.\nInterviewer: ----\nEntrepreneur: One is the capability to operate safely and independently, without crashing into anything or anyone.",
+      "options": [
+        "What do you think you can do to make drone delivery economically more competitive?",
+        "Why do you think ordinary people have so many concerns about drone delivery?",
+        "How confident are you that people will choose your delivery system?",
+        "What are some of the technical improvements you want to achieve to enhance the drone delivery system?",
+        "Which types of drones are the most appealing for most customers?"
+      ],
+      "answer": 3,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2020
+    },
+    {
+      "id": "d016",
+      "sentence": "Sam: The documentary I watched last night claims that animals can predict earthquakes.\nMay: Even scientists think so.\nSam: Is there any evidence?\nMay: ----\nSam: Wow! Sounds interesting.",
+      "options": [
+        "There are also many scientists who believe it's impossible to predict natural disasters like earthquakes.",
+        "The idea that animals can predict natural disasters isn't actually a new one. 3,000 years ago Chinese scholars were convinced that they could.",
+        "I think scientists will have a better understanding of whether animals can in any way feel a natural disaster with more evidence.",
+        "Researchers who studied the Etna volcanic eruption and following earthquakes observed that animals reacted during the hours before.",
+        "When a natural disaster like a volcanic eruption is underway, the ground under us changes. So, we might be feeling those."
+      ],
+      "answer": 3,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2021
+    },
+    {
+      "id": "d017",
+      "sentence": "Tim: I just can't manage to save any money!\nHelen: Look, I manage and I don't have a scholarship or a part-time job.\nTim: How do you do it?\nHelen: ----\nTim: That's smart! I'll go look for one now.",
+      "options": [
+        "I just stay home watching a movie or playing with my cat.",
+        "I find free activities in the student paper. They're really fun!",
+        "Well, I don't really like cooking but it's much cheaper. Avoid eating out!",
+        "I don't think you should take me as an example. Ask another classmate.",
+        "My eldest sister sends me pocket money every school month."
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2021
+    },
+    {
+      "id": "d018",
+      "sentence": "Justine: There's nothing worth watching at the movies these days.\nKenneth: ----\nJustine: It sounds like a science fiction movie rather than a detective one, but seems interesting anyway.",
+      "options": [
+        "I've watched a few extraordinary movies this month, but the one about a detective on a space station was the best.",
+        "Last night, I saw a trailer for an interesting detective story where the police used augmented reality to investigate crime scenes.",
+        "I know that there's a detective movie that's supposed to have every possible worst-case scenario imaginable in it.",
+        "In fact, a science fiction movie is now showing about an intergalactic war.",
+        "It makes more sense to watch a pay-per-view detective movie on the Internet."
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2021
+    },
+    {
+      "id": "d019",
+      "sentence": "Lindy: I've read that travel happiness peaks in the planning stage.\nEdith: ----\nLindy: You're right. You have a feeling of contentment when you know that you'll soon do things that entertain you.",
+      "options": [
+        "In fact, it's the same case when you return home.",
+        "I think it depends on whether you're able to plan things well.",
+        "Really? To be honest, I feel really stressed when I have to think about where to go.",
+        "Sure! Even knowing that you're going to see wonderful places, taste delicious foods, or have a good rest can dramatically boost your mood.",
+        "Today, travel agencies offer so many alternatives for their customers."
+      ],
+      "answer": 3,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2021
+    },
+    {
+      "id": "d020",
+      "sentence": "Interviewer: Tell us about the new environments you've discovered under the sea.\nOceanographer: We've found some very distant environments that harbour life forms.\nInterviewer: ----\nOceanographer: We want to find out more about the microbes living beneath the ocean floor.",
+      "options": [
+        "How do you plan to reach such areas beneath the sea?",
+        "What do you exactly intend to study in those environments?",
+        "What do you know about other creatures living in the sea?",
+        "What actually are these life forms in the deep oceans?",
+        "Why didn't scientists explore these environments before?"
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2021
+    },
+    {
+      "id": "d021",
+      "sentence": "Mother: I'm looking for a babysitter. Do you have any advice?\nFriend: Have you tried asking around?\nMother: Yes, I've invited a girl to meet the children, but I'm not sure what to do next.\nFriend: ----",
+      "options": [
+        "You should agree on the fee before she starts.",
+        "The most important thing is that your children are happy with her.",
+        "If you and the children like her, and you think she seems reliable, you can ask her to come for a trial sit.",
+        "It is your responsibility as a parent to satisfy yourself that she is competent.",
+        "She should only babysit when she feels well and comfortable."
+      ],
+      "answer": 2,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2022
+    },
+    {
+      "id": "d022",
+      "sentence": "Susan: I'm exhausted all the time. I don't know what to do.\nLydia: What time do you go to bed?\nSusan: Well, it's quite irregular.\nLydia: Don't play with your circadian rhythm.\nSusan: ----\nLydia: It's the body's built-in clock.",
+      "options": [
+        "Where did you learn about circadian rhythm?",
+        "For what time should I set my alarm clock to wake up?",
+        "I don't. This is already my sleep cycle.",
+        "What do you mean by the circadian rhythm?",
+        "What's the connection between circadian rhythm and my body clock?"
+      ],
+      "answer": 3,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2022
+    },
+    {
+      "id": "d023",
+      "sentence": "John: I'm planning to buy an electric car.\nTimothy: Some of my friends have already bought some.\nJohn: Are they happy with them?\nTimothy: ----\nJohn: I see. Then I should carefully weigh its benefits and downsides.",
+      "options": [
+        "Generally speaking, they are. Just think about how much the technology has improved.",
+        "Absolutely. But there are going to be so many new electric models.",
+        "Well, yes and no. Most of them bought them for environmental reasons, but some complain about problems with the battery.",
+        "Somewhat. They save a lot of money on maintenance.",
+        "I don't know, but what I know for sure is that there are more and more charging stations."
+      ],
+      "answer": 2,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2022
+    },
+    {
+      "id": "d024",
+      "sentence": "Andy: Were the ancient Egyptians more concerned about death than life?\nJean: On the contrary, they were obsessed with life.\nAndy: Then why did they build the Pyramids?\nJean: ----",
+      "options": [
+        "Their tombs contain endless 'daily life' scenes, depicting individuals working in the fields, making wine, dancing and numerous other daily activities.",
+        "The ancient Egyptians' attitudes to life and death were heavily influenced by their belief that eternal life could be ensured.",
+        "In ancient Egypt, each individual was considered to comprise not only a physical body but also three other crucial elements.",
+        "Many recent books have made the point that their real concerns lay somewhere between these two extremes.",
+        "Egyptians used to devote most of their time and financial resources to preparations for death."
+      ],
+      "answer": 0,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2022
+    },
+    {
+      "id": "d025",
+      "sentence": "Instructor: Did you know that 40% of gold miners in eastern Congo are children?\nStudent: That's terrible. Children deserve to be in school.\nInstructor: ----\nStudent: I'd promote compulsory education.",
+      "options": [
+        "What would you do to improve their working conditions?",
+        "Why do you think Africa lacks basic needs for children's education?",
+        "Do you think you can solve this issue by means of international diplomacy?",
+        "Don't you agree that this problem requires substantial consideration?",
+        "Can you suggest an effective solution to this issue?"
+      ],
+      "answer": 4,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2022
+    },
+    {
+      "id": "d026",
+      "sentence": "Patient: I've lost my self-confidence lately.\nPsychologist: Your problems might be related to your organisation.\nPatient: ----\nPsychologist: Well, if you want to grow in confidence you need to change your perspective and focus on your strengths.",
+      "options": [
+        "I really don't understand why most of my colleagues burden me with their responsibilities.",
+        "I always prioritise my own good when it comes to relations at work.",
+        "This is the problem. I always tend to blame myself, not outside factors.",
+        "In fact, some organisations arrange seminars to help their employees.",
+        "I sometimes watch a movie or go for a walk to forget about my problems."
+      ],
+      "answer": 2,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2023
+    },
+    {
+      "id": "d027",
+      "sentence": "Josh: I've read about an MIT study that found lies spread faster than facts on social media.\nChristie: ----\nJosh: Actually the opposite. The typical person spreading lies tended to have few followers.",
+      "options": [
+        "Do you think the research also explains why so many of us are fooled?",
+        "So, Mark Twain was right when he said a lie travels faster than the truth.",
+        "Can we say that we shouldn't trust the majority of the stories?",
+        "Could it be because lies were being spread by popular social media users?",
+        "Did the researchers compare all those stories?"
+      ],
+      "answer": 3,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2023
+    },
+    {
+      "id": "d028",
+      "sentence": "Frank: I need some help on computer memory.\nSue: Sure. There are two types: RAM and ROM.\nFrank: ----\nSue: RAM stores the programs and data you are using in your current work session.",
+      "options": [
+        "So, RAM and ROM are two kinds of memory, then what do the abbreviations stand for?",
+        "I need to be able to explain them, so what is the difference between RAM and ROM?",
+        "Technically speaking, what are the distinct physical features of these two memory types?",
+        "So, can you briefly describe what happens if a memory unit is used at its limits?",
+        "What difference does it make if I upgrade one of these units with a newer one?"
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2023
+    },
+    {
+      "id": "d029",
+      "sentence": "Amy: Have you ever heard of Yuncheng Salt Lake?\nPam: Yes! What makes it so beautiful?\nAmy: ----\nPam: How's that possible? How can it have such an effect on the lake?",
+      "options": [
+        "The water is brightly coloured due to high temperatures in the region.",
+        "In fact, it is the third biggest sodium sulphate lake in the world.",
+        "The weather in that region is so hot that tourists hardly come to stay there.",
+        "Humans have been harvesting salt in this lake for 4,000 years.",
+        "It is in the Shanxi province of northern China \u2013 known as the Dead Sea of China."
+      ],
+      "answer": 0,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2023
+    },
+    {
+      "id": "d030",
+      "sentence": "Pauline: I always buy too much at the grocery store.\nJill: Empty stomachs are to blame.\nPauline: ----\nJill: Eating some fruit or nuts before heading to the store might help.",
+      "options": [
+        "It's not only the hunger that plays a role, adverts can have a big influence.",
+        "The same goes for shopping on the Internet.",
+        "For me, it's not the case. There are too many alternatives offered.",
+        "I think you're completely right because so much of what's available looks extra-tempting when I'm hungry.",
+        "But I often tend to buy cakes and biscuits even when I'm not hungry."
+      ],
+      "answer": 3,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2023
+    },
+    {
+      "id": "d031",
+      "sentence": "Louise: My sister doesn't feel healthy these days.\nKate: ----\nLouise: So you say factors like high stress and heavy workload might cause her to feel less vigorous.",
+      "options": [
+        "When people get to certain ages, their physical strength may decline.",
+        "I think you should observe her behaviours carefully because symptoms like gloomy mood and lack of enthusiasm are associated with depression.",
+        "Well, you know health doesn't only mean being free from physical conditions, but it also involves mental and spiritual well-being. You seem to ignore psychological burdens.",
+        "Actually, she might be pretending this way so that you can spare enough time for her.",
+        "To enjoy good health and boost her energy, she can do regular exercise."
+      ],
+      "answer": 2,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2024
+    },
+    {
+      "id": "d032",
+      "sentence": "Daisy: Did you know that keeping a bulb on at night affects your health?\nJohn: Oh, come on. I don't buy it.\nDaisy: There is new research on this.\nJohn: ----\nDaisy: Well, researchers claim that people who sleep with a light on are more likely to be overweight or have type 2 diabetes.",
+      "options": [
+        "Do you imply that my fear of the dark keeps me from turning the light off?",
+        "Don't you think having a light on can make you feel more secure?",
+        "Should I always turn the light off and clear my mind?",
+        "Do you know any strategies to cope with its side effects?",
+        "Do you mean that it's not as innocent as I assume it to be?"
+      ],
+      "answer": 4,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2024
+    },
+    {
+      "id": "d033",
+      "sentence": "Richard: I watched a documentary about bat communication last night.\nLaura: ----\nRichard: They claim that the majority of bat interactions are over food.",
+      "options": [
+        "How accurately can they interpret the sounds bats produce?",
+        "Most animals produce sounds when they feel threatened, don't they?",
+        "That sounds interesting! What's the most striking thing they've found?",
+        "Do they use sophisticated devices to identify the sounds bats make?",
+        "Does it report that bats also make sounds to entertain themselves?"
+      ],
+      "answer": 2,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2024
+    },
+    {
+      "id": "d034",
+      "sentence": "Matthew: Why do ants walk in a line?\nRussell: They release chemicals called pheromones to communicate.\nMatthew: ----\nRussell: Exactly! The scents ants give off have many other functions besides helping to identify locations, like signalling the presence of predators.",
+      "options": [
+        "I see. I've also heard that wasps and moths are among the social insects that live in colonies as ants do.",
+        "They look highly organised when they're on the march, but it seems they just use their antennae to work as a team.",
+        "So you mean they form specific scent trails and follow them to reach food sources or nest sites.",
+        "Actually, I know that pheromones have been studied most intensively in insects and mice.",
+        "Some ant species follow a straight path while others move in a series of zigzags."
+      ],
+      "answer": 2,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2024
+    },
+    {
+      "id": "d035",
+      "sentence": "Journalist: Could you tell us about microscopy in the late 1970s?\nResearcher: Back then, we used film-based techniques.\nJournalist: ----\nResearcher: There is a need to improve our ability to image scales between macro and micro.",
+      "options": [
+        "Can you discuss some of the breakthroughs in the last four decades?",
+        "Could you also talk about some of the challenges you are facing now?",
+        "Have you ever tried collaborating with other microscopy researchers?",
+        "Would you please give examples of the images that earned you prestigious awards?",
+        "How do you take such technical photos that are also aesthetically appealing?"
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2024
+    }
+  ]
+}

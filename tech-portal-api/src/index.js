@@ -142,6 +142,30 @@ function errorResponse(message, status = 500, code = "ERROR", request = null) {
   return jsonResponse({ error: message, code }, status, 0, request);
 }
 
+// Image URL proxy - harici resimleri proxy URL'ye çevir (hotlinking sorununu önler)
+function proxyImageUrl(imageUrl, apiBaseUrl) {
+  if (!imageUrl) return null;
+  // R2 public URL'si ise - r2 endpoint'e yönlendir
+  if (imageUrl.startsWith(CONFIG.R2_PUBLIC_URL)) {
+    const key = imageUrl.replace(CONFIG.R2_PUBLIC_URL + "/", "");
+    return `${apiBaseUrl}/r2/${key}`;
+  }
+  // Harici URL ise - proxy endpoint'e yönlendir
+  if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+    return `${apiBaseUrl}/api/image-proxy?url=${encodeURIComponent(imageUrl)}`;
+  }
+  return imageUrl;
+}
+
+// Post listesindeki tüm image_url'leri proxy URL'ye çevir
+function proxyPostImages(posts, apiBaseUrl) {
+  if (!Array.isArray(posts)) return posts;
+  return posts.map(p => ({
+    ...p,
+    image_url: proxyImageUrl(p.image_url, apiBaseUrl)
+  }));
+}
+
 // ================================
 // 🛡️ RATE LIMITING (In-Memory)
 // ================================
@@ -871,6 +895,69 @@ export default {
       // 🔓 PUBLIC ENDPOINTS
       // ================================
 
+      // Image Proxy - proxy external images to avoid hotlinking issues
+      if (path === "/api/image-proxy" && method === "GET") {
+        const imageUrl = url.searchParams.get("url");
+        if (!imageUrl) return errorResponse("URL parameter required", 400, "URL_REQUIRED");
+
+        try {
+          // Validate URL
+          const parsedUrl = new URL(imageUrl);
+          if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+            return errorResponse("Invalid URL protocol", 400, "INVALID_PROTOCOL");
+          }
+
+          // Check R2 cache first
+          const cacheKey = "proxy/" + encodeURIComponent(imageUrl);
+          if (env.R2_IMAGES) {
+            const cached = await env.R2_IMAGES.get(cacheKey);
+            if (cached) {
+              const headers = new Headers();
+              cached.writeHttpMetadata(headers);
+              headers.set("Cache-Control", "public, max-age=604800"); // 7 days
+              headers.set("Access-Control-Allow-Origin", "*");
+              return new Response(cached.body, { headers });
+            }
+          }
+
+          // Fetch from external source
+          const imgRes = await fetch(imageUrl, {
+            headers: {
+              "User-Agent": "Mozilla/5.0 (compatible; 3DLabX/1.0)",
+              "Accept": "image/*,*/*",
+              "Referer": parsedUrl.origin
+            },
+            cf: { cacheTtl: 86400 }
+          });
+
+          if (!imgRes.ok) {
+            return errorResponse("Image fetch failed: " + imgRes.status, 502, "FETCH_FAILED");
+          }
+
+          const contentType = imgRes.headers.get("content-type") || "image/jpeg";
+          const imageBuffer = await imgRes.arrayBuffer();
+
+          // Cache in R2 if available
+          if (env.R2_IMAGES && imageBuffer.byteLength < 5 * 1024 * 1024) { // Max 5MB
+            try {
+              await env.R2_IMAGES.put(cacheKey, imageBuffer, {
+                httpMetadata: { contentType }
+              });
+            } catch(e) { /* ignore cache errors */ }
+          }
+
+          return new Response(imageBuffer, {
+            headers: {
+              "Content-Type": contentType,
+              "Cache-Control": "public, max-age=604800",
+              "Access-Control-Allow-Origin": "*"
+            }
+          });
+        } catch (error) {
+          return errorResponse("Proxy error: " + error.message, 500, "PROXY_ERROR");
+        }
+      }
+
       // R2 Image Serve (public access)
       if (path.startsWith("/r2/") && method === "GET") {
         const key = path.replace("/r2/", "");
@@ -900,18 +987,33 @@ export default {
         }, 200, 10);
       }
 
-      // Stats (ana sayfa için)
+      // Stats (ana sayfa ve dashboard için)
       if (path === "/api/stats" && method === "GET") {
         const stats = await env.DB.prepare(`
           SELECT
             COUNT(*) as total,
             SUM(CASE WHEN category = '3d-baski' THEN 1 ELSE 0 END) as baski_3d,
             SUM(CASE WHEN category = 'teknoloji' THEN 1 ELSE 0 END) as teknoloji,
-            SUM(CASE WHEN category = 'yapay-zeka' THEN 1 ELSE 0 END) as yapay_zeka
+            SUM(CASE WHEN category = 'yapay-zeka' THEN 1 ELSE 0 END) as yapay_zeka,
+            SUM(CASE WHEN category = 'rehberler' THEN 1 ELSE 0 END) as rehberler,
+            SUM(CASE WHEN category = 'sorun-cozumleri' THEN 1 ELSE 0 END) as sorun_cozumleri,
+            SUM(CASE WHEN category = 'incelemeler' THEN 1 ELSE 0 END) as incelemeler
           FROM posts WHERE published = 1
         `).first();
 
-        return jsonResponse(stats, 200, CONFIG.CACHE_TTL);
+        // published ve draft sayılarını ekle
+        const counts = await env.DB.prepare(`
+          SELECT
+            SUM(CASE WHEN published = 1 THEN 1 ELSE 0 END) as published,
+            SUM(CASE WHEN published = 0 THEN 1 ELSE 0 END) as draft
+          FROM posts
+        `).first();
+
+        return jsonResponse({
+          ...stats,
+          published: counts?.published || 0,
+          draft: counts?.draft || 0
+        }, 200, CONFIG.CACHE_TTL);
       }
 
       // Ana Sayfa (kategorilere göre gruplu) - Çok dilli destek
@@ -934,7 +1036,8 @@ export default {
             LIMIT 6
           `).bind(category).all();
 
-          result[category] = posts.results || [];
+          const apiBase = url.origin;
+          result[category] = proxyPostImages(posts.results || [], apiBase);
         }
 
         return jsonResponse(result, 200, CONFIG.CACHE_TTL);
@@ -988,7 +1091,7 @@ export default {
         const posts = await env.DB.prepare(query).bind(...bindings).all();
 
         return jsonResponse({
-          posts: posts.results || [],
+          posts: proxyPostImages(posts.results || [], url.origin),
           pagination: {
             page,
             limit,
@@ -1029,6 +1132,7 @@ export default {
         // Diğer dillerdeki slug'ları döndür (hreflang için)
         return jsonResponse({
           ...post,
+          image_url: proxyImageUrl(post.image_url, url.origin),
           slugs: {
             tr: post.slug_tr,
             en: post.slug_en || post.slug_tr,
@@ -1068,7 +1172,7 @@ export default {
         `).bind(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm).all();
 
         return jsonResponse({
-          results: results.results || [],
+          results: proxyPostImages(results.results || [], url.origin),
           query,
           count: results.results?.length || 0
         }, 200, 60);
@@ -3931,6 +4035,159 @@ Content: ${(post.content_tr || '').substring(0, 1500)}`;
             userTrend: userTrend.results || [],
             recentActivities: recentActivities.results || []
           });
+        }
+
+        // Admin: Gelişmiş Dashboard İstatistikleri v2
+        if (path === "/admin/dashboard-stats-v2" && method === "GET") {
+          try {
+          // Paralel sorgular
+          const [
+            postStats, userStats, logStats, rssStats,
+            recentPosts, topPosts, dailyPosts, dailyLogs,
+            categoryDistribution, recentUsers, recentErrors
+          ] = await Promise.all([
+            // Post istatistikleri
+            env.DB.prepare(`
+              SELECT
+                COUNT(*) as total,
+                SUM(CASE WHEN published = 1 THEN 1 ELSE 0 END) as published,
+                SUM(CASE WHEN published = 0 THEN 1 ELSE 0 END) as draft,
+                SUM(CASE WHEN category = '3d-baski' THEN 1 ELSE 0 END) as baski_3d,
+                SUM(CASE WHEN category = 'teknoloji' THEN 1 ELSE 0 END) as teknoloji,
+                SUM(CASE WHEN category = 'yapay-zeka' THEN 1 ELSE 0 END) as yapay_zeka,
+                SUM(CASE WHEN category = 'rehberler' THEN 1 ELSE 0 END) as rehberler,
+                SUM(CASE WHEN category = 'sorun-cozumleri' THEN 1 ELSE 0 END) as sorun_cozumleri,
+                SUM(CASE WHEN category = 'incelemeler' THEN 1 ELSE 0 END) as incelemeler,
+                SUM(CASE WHEN is_featured = 1 THEN 1 ELSE 0 END) as featured,
+                SUM(CASE WHEN created_at > datetime('now', '-24 hours') THEN 1 ELSE 0 END) as last24h,
+                SUM(CASE WHEN created_at > datetime('now', '-7 days') THEN 1 ELSE 0 END) as last7d
+              FROM posts
+            `).first(),
+
+            // Kullanıcı istatistikleri
+            env.DB.prepare(`
+              SELECT
+                COUNT(*) as total,
+                SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active,
+                SUM(CASE WHEN date(created_at) = date('now') THEN 1 ELSE 0 END) as today,
+                SUM(CASE WHEN created_at > datetime('now', '-7 days') THEN 1 ELSE 0 END) as last7d
+              FROM users
+            `).first(),
+
+            // Log istatistikleri (trafik)
+            env.DB.prepare(`
+              SELECT
+                COUNT(*) as total,
+                SUM(CASE WHEN log_type = 'page_view' THEN 1 ELSE 0 END) as pageViews,
+                SUM(CASE WHEN log_level = 'error' THEN 1 ELSE 0 END) as errors,
+                SUM(CASE WHEN DATE(created_at) = DATE('now') THEN 1 ELSE 0 END) as today,
+                SUM(CASE WHEN log_type = 'page_view' AND DATE(created_at) = DATE('now') THEN 1 ELSE 0 END) as todayPageViews,
+                COUNT(DISTINCT ip_hash) as uniqueVisitors
+              FROM site_logs
+              WHERE created_at > datetime('now', '-30 days')
+            `).first(),
+
+            // RSS kaynakları
+            env.DB.prepare(`
+              SELECT
+                COUNT(*) as total,
+                SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active
+              FROM rss_sources
+            `).first(),
+
+            // Son 5 yazı
+            env.DB.prepare(`
+              SELECT id, title_tr, slug, category, published, is_featured, created_at
+              FROM posts ORDER BY created_at DESC LIMIT 5
+            `).all(),
+
+            // En çok yorum alan yazılar
+            env.DB.prepare(`
+              SELECT p.id, p.title_tr, p.slug, p.category,
+                (SELECT COUNT(*) FROM comments WHERE post_id = p.id AND is_deleted = 0) as comment_count
+              FROM posts p WHERE p.published = 1
+              ORDER BY comment_count DESC LIMIT 5
+            `).all(),
+
+            // Son 14 gün yazı trendi
+            env.DB.prepare(`
+              SELECT date(created_at) as date, COUNT(*) as count
+              FROM posts
+              WHERE created_at > datetime('now', '-14 days')
+              GROUP BY date(created_at)
+              ORDER BY date ASC
+            `).all(),
+
+            // Son 14 gün log/trafik trendi
+            env.DB.prepare(`
+              SELECT
+                date(created_at) as date,
+                COUNT(*) as total,
+                SUM(CASE WHEN log_type = 'page_view' THEN 1 ELSE 0 END) as page_views,
+                COUNT(DISTINCT ip_hash) as unique_visitors
+              FROM site_logs
+              WHERE created_at > datetime('now', '-14 days')
+              GROUP BY date(created_at)
+              ORDER BY date ASC
+            `).all(),
+
+            // Kategori dağılımı (pie chart)
+            env.DB.prepare(`
+              SELECT category, COUNT(*) as count
+              FROM posts WHERE published = 1
+              GROUP BY category ORDER BY count DESC
+            `).all(),
+
+            // Son 5 kayıt olan kullanıcı
+            env.DB.prepare(`
+              SELECT id, username, email, created_at, is_active
+              FROM users ORDER BY created_at DESC LIMIT 5
+            `).all(),
+
+            // Son hatalar
+            env.DB.prepare(`
+              SELECT message, page_url, created_at, user_agent
+              FROM site_logs
+              WHERE log_level = 'error'
+              ORDER BY created_at DESC LIMIT 5
+            `).all()
+          ]);
+
+          // Yorum sayısı
+          const commentStats = await env.DB.prepare(`
+            SELECT COUNT(*) as total FROM comments WHERE is_deleted = 0
+          `).first();
+
+          // Forum istatistikleri
+          let forumStats = { threads: 0, replies: 0 };
+          try {
+            const fs = await env.DB.prepare(`
+              SELECT
+                (SELECT COUNT(*) FROM forum_threads) as threads,
+                (SELECT COUNT(*) FROM forum_replies) as replies
+            `).first();
+            if (fs) forumStats = { threads: fs.threads || 0, replies: fs.replies || 0 };
+          } catch(e) { /* forum tabloları yoksa */ }
+
+          return jsonResponse({
+            posts: postStats || {},
+            users: userStats || {},
+            logs: logStats || {},
+            rss: rssStats || {},
+            comments: commentStats?.total || 0,
+            forum: forumStats,
+            recentPosts: recentPosts.results || [],
+            topPosts: topPosts.results || [],
+            dailyPosts: dailyPosts.results || [],
+            dailyLogs: dailyLogs.results || [],
+            categoryDistribution: categoryDistribution.results || [],
+            recentUsers: recentUsers.results || [],
+            recentErrors: recentErrors.results || []
+          });
+          } catch(dashErr) {
+            console.error('Dashboard stats v2 error:', dashErr);
+            return errorResponse("Dashboard stats error: " + dashErr.message, 500, "DASHBOARD_ERROR");
+          }
         }
 
         // Admin: Forum Thread Oluştur (kullanıcı adına)

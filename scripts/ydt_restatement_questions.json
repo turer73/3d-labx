@@ -1,0 +1,529 @@
+{
+  "restatement": [
+    {
+      "id": "r001",
+      "sentence": "Eating healthily does not mean obsessing about the features of the specific nutrients in a meal, nor following the latest trends.",
+      "options": [
+        "Both the features of the particular nutrients in a meal and the most recent fashion should be continually followed to eat healthily.",
+        "A healthy diet does not require us to think too much about the features of the specific nutrients in a meal but it does require an awareness of the recent trends.",
+        "Being obsessed about the qualities of the particular nutrients in a meal and also following the latest trends do not help someone have a healthy diet.",
+        "One does not need to be too interested in the features of the specific nutrients in a meal but needs to follow the most recent fashion.",
+        "People who are not obsessed with the most recent trends and the qualities of some nutrients in a meal should achieve a healthy diet."
+      ],
+      "answer": 4,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2018
+    },
+    {
+      "id": "r002",
+      "sentence": "Officially the biggest street party on the planet, Salvador's awesome Carnival offers greater participation and much more fun than its more famous counterpart in Rio.",
+      "options": [
+        "Despite being more famous, Rio's street party is just as large and fun, and it offers as much participation as the amazing Carnival held in Salvador, which is officially the largest on the planet.",
+        "Salvador's amazing Carnival is officially the largest street party on the planet, and even though it is not as well-known as the one in Rio, it allows for greater attendance and is much more enjoyable.",
+        "Salvador has an amazing party named Carnival, similar to the famous one in Rio, although it is officially much bigger and can allow for just as much fun and participation as the one in Rio.",
+        "As it is officially the biggest street party on the planet, the Carnival in Salvador is more famous than the one in Rio and offers a higher degree of participation and fun for all participants.",
+        "The most famous party happens in Rio, which is the biggest street party on the planet, and it offers greater participation and just as much fun as the Carnival in Salvador."
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2018
+    },
+    {
+      "id": "r003",
+      "sentence": "The word 'fossil' comes from the Latin word fossilis, meaning 'dug up', and that is how some fossils are discovered, although most are exposed by erosion.",
+      "options": [
+        "Despite the fact that the word 'fossil' is derived from the Latin fossilis, which has the meaning 'dug up', not all fossils are discovered that way as they mostly appear due to erosion.",
+        "The word 'fossil' which originated from the Latin word fossilis, means 'dug up' but the way that most of them are discovered is through their appearance after erosion.",
+        "Unlike the ones that are discovered after appearing due to erosion, 'fossils' are 'dug up', as the meaning of the Latin word fossilis suggests.",
+        "The word 'fossil' is derived from the Latin word fossilis and it means being 'dug up' instead of being discovered after having emerged due to erosion.",
+        "Fossilis, which is the Latin origin of the word 'fossil', means discovered either when it is 'dug up' or emerged as a result of erosion."
+      ],
+      "answer": 0,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2018
+    },
+    {
+      "id": "r004",
+      "sentence": "As tourist numbers increase around the world, so do the types of activities they choose to undertake during their trip.",
+      "options": [
+        "Tourists can now participate in a wide range of activities during their trip, which has boosted their numbers throughout the world.",
+        "Tourists have been increasing in number throughout the world, and accordingly, the activities they prefer to do during their trip are more varied.",
+        "The large variety of activities that people want to take part in during their trip has dramatically increased the number of tourists in many parts of the world.",
+        "Because tourist numbers have been increasing all over the world, activities offered to them during their trip must be increased to meet their needs.",
+        "Tourists, whose numbers are increasing throughout the world, believe that there is a sufficient range of activities to do during their trip."
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2018
+    },
+    {
+      "id": "r005",
+      "sentence": "Growth is more gradual in childhood than in infancy, but this is a time when new skills and knowledge are rapidly acquired.",
+      "options": [
+        "When compared to infancy, people grow up more slowly throughout their childhood, though they gain new abilities and knowledge fast.",
+        "People get more knowledgable and develop new skills more rapidly in infancy than they do in childhood, when they grow up slowly.",
+        "The pace at which people acquire new abilities and knowledge, and grow up is more gradual in childhood than in infancy.",
+        "People who grow up faster in infancy develop new capabilities and knowledge in a longer period of time in childhood.",
+        "Growing up more slowly in infancy does not necessarily mean that acquiring new skills and knowledge in childhood will be fast."
+      ],
+      "answer": 0,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2018
+    },
+    {
+      "id": "r006",
+      "sentence": "As shown in a study in which young adults became better sleepers after three weeks of listening to classical music at bedtime, music can have a profound effect on our lives.",
+      "options": [
+        "A study has found out that listening to classical music at bedtime for three weeks helped young adults sleep better, demonstrating how strongly music affects our lives.",
+        "According to the results of a study, young adults should listen to classical music at bedtime for three weeks to increase their sleep quality since music has a deep effect on our lives.",
+        "As proven in a three-week study, bedtime classical music has a significant effect on our lives, particularly helping young adults improve their sleep quality.",
+        "Thanks to the profound effect of classical music, young adults were able to become better sleepers at the end of a study after listening to it at bedtime for three weeks.",
+        "Music can impact our lives to a great extent, as young adults who listened to classical music regularly at bedtime in a study were able to sleep better for three weeks."
+      ],
+      "answer": 0,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2019
+    },
+    {
+      "id": "r007",
+      "sentence": "Though dynasties changed over the thousands of years of Chinese history, many of the elements of Chinese life remained the same.",
+      "options": [
+        "If dynasties had not changed over the thousands of years of Chinese history, all of the elements of Chinese life could have stayed the same.",
+        "Many elements of Chinese life hardly succeeded to continue, while dynasties changed over the thousands of years of Chinese history.",
+        "Chinese history witnessed many changing dynasties over thousands of years, yet many of the elements were preserved in Chinese life.",
+        "Some elements of Chinese life succeeded in staying the same; however, changing dynasties of Chinese history over the thousands of years could have prevented this.",
+        "Due to the changing dynasties over the thousands of years of China's history, only a few elements of Chinese life faced much change."
+      ],
+      "answer": 2,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2019
+    },
+    {
+      "id": "r008",
+      "sentence": "Materials found under water are preserved differently from materials found on land, so underwater archaeologists must know how to handle them without destroying the valuable information they reveal.",
+      "options": [
+        "Underwater archaeologists have to know how to deal with objects found under water and the ones found on land as they can be easily harmed if they do not pay enough attention to them.",
+        "Not to give harm to the precious information they will provide, underwater archaeologists have to preserve objects found under water carefully because they are maintained differently from the ones found on land.",
+        "It is very difficult to protect the objects found under water because, unlike the ones found on land, they can be harmed easily, so underwater archaeologists cannot get enough information.",
+        "Knowing how to get enough information from them, underwater archaeologists show a great deal of effort not to cause harm to the objects found under water which are different from the ones found on land.",
+        "Underwater archaeologists have to know how to deal with objects found under water without damaging the precious information they provide because the way they are kept is different from those found on land."
+      ],
+      "answer": 4,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2019
+    },
+    {
+      "id": "r009",
+      "sentence": "Achieving mutual understanding is not a trivial skill because most people are not taught how to communicate effectively.",
+      "options": [
+        "As most people are not educated in effective communication, mutual understanding is an important trait to possess.",
+        "Effective communication can only be acquired when people are educated, as it is considered by many people an important skill for mutual understanding.",
+        "Most people still think that mutual understanding is an insignificant trait even if they are taught how to communicate effectively.",
+        "Effective communication is the key to achieving mutual understanding, but a great number of people need some training on it.",
+        "It is a good idea to teach people how to communicate effectively because they are usually not good at demonstrating mutual understanding."
+      ],
+      "answer": 3,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2019
+    },
+    {
+      "id": "r010",
+      "sentence": "Car makers are looking for ways of reusing metal and plastic parts instead of throwing them away when a car is scrapped.",
+      "options": [
+        "It is essential for car manufacturers to make use of metal and plastic parts from old cars before their total removal.",
+        "Metal and plastic parts from unused cars should be taken advantage of, according to car manufacturers.",
+        "Before cars are disposed of, all their parts, whether metal or plastic, can be re-used by car manufacturers in many ways.",
+        "Utilisation of metal and plastic parts without wasting them when a car is discarded is what car manufacturers are attempting to achieve.",
+        "What makes recycling significant for car manufacturers is that most car parts, including metal and plastic ones, are used again."
+      ],
+      "answer": 3,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2019
+    },
+    {
+      "id": "r011",
+      "sentence": "Despite its small size, Costa Rica, whose geography varies from rainforests to arid regions, is home to some of the most intense biodiversity in the world.",
+      "options": [
+        "Costa Rica has got one of the highest levels of biodiversity in the world, and rainforests and arid regions make up the majority of the small country's diverse geography.",
+        "Partly because Costa Rica has a geography that ranges from rainforests to arid regions, the small country possesses some of the richest biodiversity in the world.",
+        "With a diverse geography including rainforests and arid regions, Costa Rica has some of the richest biodiversity in the world although it is a small country.",
+        "Costa Rica's small size does not prevent it from boasting some of the highest levels of biodiversity in the world, partly due to its geography ranging from rainforests to arid regions.",
+        "While Costa Rica is blessed with some of the most intense biodiversity in the world, it is one of the smallest countries possessing a geography ranging from rainforests to arid regions."
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2020
+    },
+    {
+      "id": "r012",
+      "sentence": "As well as spoken language, we use body language to pass on a multitude of messages about our moods and intentions.",
+      "options": [
+        "A good amount of information about our moods and intentions is passed on to other people using either body language or spoken language.",
+        "Spoken language is not the only means to convey a large number of messages regarding our moods and intentions, we also make use of body language.",
+        "Plenty of messages concerning our moods and intentions are conveyed using spoken language rather than body language.",
+        "We utilise either body language or spoken language to convey some messages related to our moods and intentions.",
+        "Both body language and spoken language have to be used together to effectively convey messages with regard to our moods and intentions."
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2020
+    },
+    {
+      "id": "r013",
+      "sentence": "Few inventions have had a more immediate or lasting impact on world history than the railroad, the first mode of land transport capable of outdistancing the horse and camel.",
+      "options": [
+        "The railroad, the mode of land transport which offered longer distances than the horse and camel for the first time, affected world history more directly and permanently than most other inventions.",
+        "Direct and permanent impact on world history came from a number of land transport inventions, one of which was the railroad, as it made it possible to travel longer distances compared to the horse and camel.",
+        "The horse and camel were outdistanced by the railroad, the first mode of land transport, which came as a more direct and lasting impact on world history compared to other inventions.",
+        "Different modes of land transport that are able to go longer distances than the horse and camel have been invented, but the railroad was the first to have a direct and long-lasting effect on world history.",
+        "World history has been influenced directly and permanently by a great number of inventions, including the railroad, which was the first mode of land transport that outperformed both the horse and camel in terms of distance."
+      ],
+      "answer": 0,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2020
+    },
+    {
+      "id": "r014",
+      "sentence": "The learning of culture is an integral part of language education because culture dramatically influences how people speak in everyday interaction.",
+      "options": [
+        "Everyday interaction seems to be affected by culture to a great extent, which, in turn, affects how culture is taught in language education.",
+        "Language education, where the way people of a certain culture speak in their routine activities is taught, significantly contributes to the learning of culture.",
+        "Culture largely determines the norms of speaking in everyday interaction, so the learning of culture is perhaps the most important aspect of language education.",
+        "Given that culture substantially affects the way people speak in daily communication, the learning of culture cannot be separated from language education.",
+        "Learning a language means learning the culture of that language; that is, language education also helps people speak in a particular language according to cultural norms."
+      ],
+      "answer": 3,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2020
+    },
+    {
+      "id": "r015",
+      "sentence": "Because industrialised countries have been the primary greenhouse gas emitters, they should play a role in helping the world shift to renewable energy sources.",
+      "options": [
+        "In order to help the world move to renewable energy sources, industrialised countries should stop releasing greenhouse gases into the atmosphere.",
+        "It is the duty of industrialised countries to move to renewable energy sources as they are the world's major contributors to the production of greenhouse gases.",
+        "Although industrialised countries give out greenhouse gases into the atmosphere, they need to help the world to start using renewable energy sources.",
+        "The reason why industrialised countries should help the world to turn to renewable energy sources is that they have been largely responsible for greenhouse gas emissions.",
+        "Not only industrialised countries, which release greenhouse gases into the atmosphere, the other countries of the world also need to shift to renewable energy sources."
+      ],
+      "answer": 3,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2020
+    },
+    {
+      "id": "r016",
+      "sentence": "Because mammals are warm-blooded, they are able to keep their body at roughly the same temperature no matter what the surrounding temperature is.",
+      "options": [
+        "The surrounding temperature does not prevent mammals from maintaining their body temperature at more or less the same level if they are warm-blooded.",
+        "Even if the outside temperature changes slightly, it does not affect mammals' ability to keep their body at approximately the same temperature because they are warm-blooded.",
+        "Irrespective of the surrounding temperature, warm-blooded mammals will continue to maintain their body temperature at a constant level.",
+        "If mammals were not warm-blooded, they would not keep their body temperature at exactly the same level despite the changes in the surrounding temperature.",
+        "Regardless of the surrounding temperature, mammals manage to maintain their body at approximately the same temperature since they are warm-blooded."
+      ],
+      "answer": 4,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2021
+    },
+    {
+      "id": "r017",
+      "sentence": "Considering both numbers of animals involved and the extent to which they are harmed, factory farming causes more harm to animals than does any other human practice.",
+      "options": [
+        "Other human practices are more harmful to animals than factory farming when both numbers of animals and how much they are damaged are taken into consideration.",
+        "Not only factory farming but also other human practices have caused considerable harm to animals, resulting in an increase in the number of animals being damaged.",
+        "The number of animals suffering from the harmful effects of factory farming has increased, making factory farming the most dangerous human practice to affect animals.",
+        "Factory farming, which causes more animals to suffer from its negative effects, is one of the main contributors to the damage to animals along with other human practices.",
+        "Factory farming is more harmful to animals compared to other human practices when numbers of animals as well as the degree of the damage are taken into account."
+      ],
+      "answer": 4,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2021
+    },
+    {
+      "id": "r018",
+      "sentence": "Before the 17th century, no serious scientific work was done on gases, and they were all thought to be just air.",
+      "options": [
+        "Before the 17th century, gases were all believed to be just air because scientific studies conducted on gases were not accurate enough to change this belief.",
+        "It was only in the 17th century that scientists began to carry out in-depth research on gases, quitting the idea that gases were all just air.",
+        "By the 17th century, none of the scientific studies done on gases could eradicate the thought that gases are all just air.",
+        "Until the 17th century, there was not any important scientific research conducted on gases, which were all seen as just air.",
+        "It was once thought that gases are all just air; however, in the 17th century, remarkable scientific research on gases began to flourish."
+      ],
+      "answer": 3,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2021
+    },
+    {
+      "id": "r019",
+      "sentence": "Individual agricultural workers are not as productive as industrial workers, given that agriculture has a less developed division of labour.",
+      "options": [
+        "Considering that the division of labour in agriculture is less advanced, individual agricultural workers are less productive than their industrial counterparts.",
+        "If agriculture had a more developed division of labour, industrial workers could be as productive as individual agricultural workers.",
+        "Individual agricultural workers are not more productive than industrial workers because agriculture boasts a more advanced division of labour.",
+        "Despite labour division development in agriculture, industrial workers are more productive than their individual agricultural counterparts.",
+        "As agriculture has a less advanced division of labour, individual workers in this sector are as productive as industrial workers."
+      ],
+      "answer": 0,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2021
+    },
+    {
+      "id": "r020",
+      "sentence": "To qualify for legal protection, an animal must be living in the wild and be listed as endangered.",
+      "options": [
+        "A wild animal cannot be saved from extinction unless any kind of legal protection is immediately ensured.",
+        "An animal is provided with legal protection only when it is a member of wildlife and on the list of endangered animals.",
+        "Whether an animal lives in its natural habitat or not, it must be legally protected if it is on the list of endangered animals.",
+        "An endangered animal must be given legal protection if its survival in the wild is no longer possible.",
+        "The lack of legal protection will absolutely jeopardise the existence of a wild animal that has been on the edge of extinction."
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2021
+    },
+    {
+      "id": "r021",
+      "sentence": "Despite claims of slave labour, it is thought that the Great Pyramid of Giza was built by skilled workers.",
+      "options": [
+        "It has been suggested that the Great Pyramid of Giza was built mainly by slaves rather than skilled workers.",
+        "The Great Pyramid of Giza is claimed to have been built by qualified workers who mostly relied on slave labour.",
+        "Although many assume it was built by slave labour, the Great Pyramid of Giza is believed to have been constructed by skilled workers.",
+        "In spite of claims that qualified workers must have built the Great Pyramid of Giza, many assert that it owes its existence to slaves.",
+        "There are claims that skilled workers could not have erected the Great Pyramid of Giza without slave labour."
+      ],
+      "answer": 2,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2022
+    },
+    {
+      "id": "r022",
+      "sentence": "In addition to the role of culture in shaping our diets, our own learning experience dictates which foods we will include in our diets.",
+      "options": [
+        "Which foods we will have in our diets depends on our own learning experience rather than culture in shaping our diets.",
+        "Together with culture, our own learning experience leads us to choose the foods that will be a part of our diets.",
+        "Which foods we will include in our diets is determined by our own learning experience on which culture has a profound effect.",
+        "Even if the role of our own learning experience in shaping our diets is undeniable, it is the culture which makes the biggest contribution to our food choices.",
+        "Our diets, mostly influenced by culture, are not totally independent of our own learning experience."
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2022
+    },
+    {
+      "id": "r023",
+      "sentence": "Unless an increasing proportion of a nation's income is devoted to health care, shortages in its services are likely to get worse.",
+      "options": [
+        "It is likely that shortages in health care services will continue to worsen if a growing proportion of a country's revenues is not allocated to it.",
+        "While an increasing ratio of a nation's income could be devoted to health care, it would still be possible for it to encounter worsening limitations.",
+        "If shortages in health care are likely to worsen within a country, more of that nation's income must be devoted to services related to health care.",
+        "A growing proportion of a country's income should be directed at reducing the likelihood that health care restrictions will worsen.",
+        "A higher ratio of a nation's income is probably necessary to ensure that the proportion of shortages in health care services is manageable."
+      ],
+      "answer": 0,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2022
+    },
+    {
+      "id": "r024",
+      "sentence": "As NASA plans return visits to the Moon, lunar scientists hope for more samples from across the surface and deep underground to learn more about the early history of the solar system.",
+      "options": [
+        "In order to help lunar scientists improve their studies on the early history of the solar system, NASA is planning to revisit the Moon and get more samples from across the surface and deep underground.",
+        "Since NASA aims to go to the Moon again, lunar scientists are waiting for more samples from across the surface and deep underground that can provide further information about the early history of the solar system.",
+        "Because lunar scientists wish for more samples across the surface and deep underground to learn more about the early history of the solar system they hope that NASA can revisit the Moon.",
+        "Lunar scientists who are studying the early history of the solar system want to obtain new samples from both across and below the Moon's surface, so NASA is planning to revisit the Moon.",
+        "The same way in which NASA wants to revisit the Moon, lunar scientists wish to get more samples from both above and below the surface so that they can advance their studies on the early history of the solar system."
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2022
+    },
+    {
+      "id": "r025",
+      "sentence": "The effectiveness of cognitive behavioural therapy for various psychological problems has been researched more extensively than any other psychotherapeutic approach.",
+      "options": [
+        "Cognitive behavioural therapy is one of the most comprehensively researched psychotherapeutic approaches, and it has proven effective for numerous psychological problems.",
+        "There are a large number of psychological problems for which cognitive behavioural therapy is effective, as opposed to other psychotherapeutic approaches which have been investigated broadly.",
+        "Much more research has been conducted on whether cognitive behavioural therapy is successful in handling a variety of psychological problems, compared to other psychotherapeutic approaches.",
+        "A greater number of psychological problems are effectively tackled by cognitive behavioural therapy than any other extensively researched psychotherapeutic approach.",
+        "The more researchers have investigated the effectiveness of cognitive behavioural therapy, the more accurately they have been able to compare it to other psychotherapeutic approaches."
+      ],
+      "answer": 2,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2022
+    },
+    {
+      "id": "r026",
+      "sentence": "An investigation into the fish remains in the Sahara Desert has revealed that humans living there 10,000 years ago were eating fish for dinner.",
+      "options": [
+        "An analysis of the humans that lived in the Sahara Desert 10,000 years ago, based on their remains, sheds light on how often these people ate fish for dinner.",
+        "According to an analysis on the fish remains in the Sahara Desert, it has been found that the people residing in this area 10,000 years ago used to consume fish for dinner.",
+        "According to a study on the diets of the humans living in the Sahara Desert 10,000 years ago, it was customary for those who lived in that area to consume fish for dinner.",
+        "According to a study on the fish remains in the Sahara Desert, the residents of this area are known to have been eating fish for dinner for the last 10,000 years.",
+        "An examination of the fish remains in the Sahara Desert, 10,000 years ago, indicated that fish was often preferred for dinner by the residents of this area."
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2023
+    },
+    {
+      "id": "r027",
+      "sentence": "No sooner had Isaac Newton received his university degree, in 1665, then the plague came, which forced everyone to leave Cambridge.",
+      "options": [
+        "As soon as Isaac Newton received his university degree in 1665, people had to abandon Cambridge because of the outbreak of the plague.",
+        "Upon being forced to leave Cambridge due to the plague in 1665, Isaac Newton received his university degree.",
+        "Before Isaac Newton finished university in 1665, the plague had broken out in Cambridge and made people leave the city.",
+        "The plague forced everyone including Isaac Newton, who would soon receive his university degree, to leave Cambridge in 1665.",
+        "It was 1665 when Isaac Newton had to leave Cambridge with his university degree since the plague afflicted everyone."
+      ],
+      "answer": 0,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2023
+    },
+    {
+      "id": "r028",
+      "sentence": "With the huge growth in population and with the development of larger and more efficient machines, the ability of humans to influence their environment has increased enormously.",
+      "options": [
+        "Population of humans has grown immensely, which means both an increase in their ability to affect their environment considerably and also the development of bigger and more efficient machines.",
+        "Due to the massive growth in population, much larger and more efficient machines have been developed and this has led humans to be able to influence their environment extensively.",
+        "There has been a great increase in the ability of humans to have a huge impact on their nature as a massive growth in the population has helped them develop larger and more efficient machines.",
+        "There has been a great deal of increase in humans' capability to have an impact on their environment thanks to the massive population growth and the development of larger and more efficient machines.",
+        "Humans have the capability to influence their nature greatly thanks to the development of larger and more efficient machines which are the products of the immensely growing population."
+      ],
+      "answer": 3,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2023
+    },
+    {
+      "id": "r029",
+      "sentence": "Although clouds vary enormously from day to day, they can all be identified as one of ten basic types.",
+      "options": [
+        "Even though they belong to one of ten simple types of clouds, cloud formations can dramatically change their shapes from day to day.",
+        "Identifying clouds as one of ten basic varieties is due to the fact that they tend to vary quite a lot on a daily basis.",
+        "Despite belonging to one of ten basic varieties of clouds, most clouds can change their shape quite a lot on a day to day basis.",
+        "The fundamental variations of clouds on a day to day basis can be grouped into one of ten different cloud types.",
+        "Despite differing immensely on a daily basis, clouds typically all belong to one of ten fundamental varieties."
+      ],
+      "answer": 4,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2023
+    },
+    {
+      "id": "r030",
+      "sentence": "Rome's military and administrative strength allowed it to endure several crises until, finally, waves of invaders brought about its fall.",
+      "options": [
+        "Rome could survive the attacks of invaders thanks to its powerful army and governmental system; however, several crises ultimately caused its fall.",
+        "Although waves of invaders were able to make Rome surrender after several crises, they eventually failed to weaken Rome's military and administrative powers.",
+        "If it had not been for Rome's military and administrative strength, it could not have survived even until the attack of invaders.",
+        "Rome was able to handle many crises thanks to the power of its army and governmental system, yet it ultimately collapsed as a result of the attacks of the invaders.",
+        "The invaders eventually succeeded to conquer Rome after some crises no matter how powerful its military and administration were."
+      ],
+      "answer": 3,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2023
+    },
+    {
+      "id": "r031",
+      "sentence": "Thanks to its contribution to many technological advances, chemistry has flourished as a remarkable branch of science since the early 19th century.",
+      "options": [
+        "It was not until the early 19th century that chemistry facilitated a wide range of technological advances and thus became an important scientific field.",
+        "Chemistry has prospered as a prominent scientific field since the early 19th century, fostering a great number of technological advances.",
+        "In the early 19th century, chemistry fostered some certain technological advances, and since then, it has evolved into a prominent scientific branch.",
+        "It was the high number of technological advances it facilitated in the early 19th century that made chemistry an important scientific field.",
+        "Chemistry is the most prominent scientific field that has fostered a large number of technological advances since the early 19th century."
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2024
+    },
+    {
+      "id": "r032",
+      "sentence": "Climate change may make floods more severe in the future, but scientists remain uncertain about how to prevent them in an efficient way.",
+      "options": [
+        "Scientists think that it is not possible to foresee whether floods will be more destructive in the future due to climate change and they will require more effective prevention methods.",
+        "There could be more devastating floods resulting from climate change in the future; however, scientists are still unclear about the ways to avoid them successfully.",
+        "Climate change will create more devastating floods in the future, which has increased scientists' concerns about developing strategies to prevent them successfully.",
+        "Although scientists cannot decide on the best way to prevent floods, it is very likely that floods will be more destructive in the future, mostly because of climate change.",
+        "Owing to climate change, floods are getting more devastating, so scientists argue whether their existing methods will be successful in preventing them in the future."
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2024
+    },
+    {
+      "id": "r033",
+      "sentence": "Elephants bathe and roll in the mud as a protective measure since, despite the thickness of their skin, they are sensitive to intense sun.",
+      "options": [
+        "When elephants bathe and roll in the mud, they can enhance the protection they get from their thick skin against their vulnerability to intense sun.",
+        "Although elephants have thick skin, they are vulnerable to intense sun, and that is why they protect themselves by bathing and rolling in the mud.",
+        "In spite of their sensitivity to intense sun, bathing and rolling in the mud, along with their thick skin, can protect elephants from the sun.",
+        "Because elephants have thick skin, which is also protected through bathing and rolling in the mud, they can reduce their vulnerability to intense sun.",
+        "Not only through their thick skin but also by bathing and rolling in the mud can elephants prevent themselves from developing sensitivity to intense sun."
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2024
+    },
+    {
+      "id": "r034",
+      "sentence": "We cannot properly assess a student's educational achievement unless we analyse the teaching methods and the learning environment.",
+      "options": [
+        "There seems to be no point in evaluating a student's academic success without carefully analysing the teaching methods and the learning context.",
+        "The instructional methods and the learning context are among the factors that enable us to accurately evaluate a student's school success.",
+        "It is not possible to accurately evaluate a student's academic success if we do not analyse the instructional methods and the learning context.",
+        "In order to evaluate a student's school success accurately, we need to focus on the types of teaching methods used in the learning context.",
+        "The careful evaluation of a student's academic success can be carried out through examining the learning context where specific instructional methods are applied."
+      ],
+      "answer": 2,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2024
+    },
+    {
+      "id": "r035",
+      "sentence": "Hallucinations are sensations that appear real but are not evoked by anything in our external environment.",
+      "options": [
+        "Hallucinations are products of our minds that could be in close connection with the external world.",
+        "While hallucinations seem to be actual perceptions, nothing in the external world triggers them.",
+        "Hallucinations cannot be recalled by anything from the outside world and are absolutely imaginary.",
+        "Anything in the outside world can give rise to hallucinations that might be perceived as real.",
+        "Hallucinations are unreal perceptions that might be associated with our external environment."
+      ],
+      "answer": 1,
+      "level": "B2",
+      "exam": "YDT",
+      "year": 2024
+    }
+  ]
+}

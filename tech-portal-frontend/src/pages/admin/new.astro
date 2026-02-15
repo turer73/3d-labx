@@ -293,25 +293,27 @@ import "../../styles/admin.css";
     justify-content: center;
     width: 40px;
     height: 40px;
-    background: var(--card-bg, #2d3748);
-    border: 1px solid var(--border-color, #4a5568);
-    border-radius: 8px;
+    background: rgba(99, 102, 241, 0.06);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    border-radius: 10px;
     cursor: pointer;
     font-size: 1.2rem;
     transition: all 0.2s;
   }
 
   .upload-btn:hover {
-    background: var(--primary-color, #4299e1);
+    background: rgba(99, 102, 241, 0.15);
+    border-color: #6366F1;
   }
 
   .ai-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-color: #764ba2;
+    background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+    border-color: rgba(99, 102, 241, 0.3);
   }
 
   .ai-btn:hover {
-    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
   }
 
   .ai-btn:disabled {
@@ -324,24 +326,27 @@ import "../../styles/admin.css";
     align-items: center;
     gap: 0.3rem;
     padding: 0.25rem 0.5rem;
-    background: var(--card-bg, #2d3748);
-    border: 1px solid var(--border-color, #4a5568);
+    background: rgba(99, 102, 241, 0.06);
+    border: 1px solid rgba(99, 102, 241, 0.15);
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.75rem;
     font-weight: normal;
     transition: all 0.2s;
+    color: #6366F1;
   }
 
   .inline-upload-btn:hover {
-    background: var(--primary-color, #4299e1);
+    background: rgba(99, 102, 241, 0.15);
+    border-color: #6366F1;
   }
 
   .image-preview {
     margin-top: 0.5rem;
     padding: 0.5rem;
-    background: var(--card-bg, #2d3748);
-    border-radius: 8px;
+    background: rgba(99, 102, 241, 0.04);
+    border: 1px solid rgba(99, 102, 241, 0.08);
+    border-radius: 10px;
     text-align: center;
   }
 
@@ -360,8 +365,9 @@ import "../../styles/admin.css";
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem;
-    background: var(--card-bg, #2d3748);
-    border-radius: 8px;
+    background: rgba(99, 102, 241, 0.04);
+    border: 1px solid rgba(99, 102, 241, 0.08);
+    border-radius: 10px;
     margin-top: 0.5rem;
     color: var(--text-muted);
     font-size: 0.85rem;
@@ -376,9 +382,10 @@ import "../../styles/admin.css";
     display: flex;
     gap: 4px;
     margin-bottom: 8px;
-    background: var(--bg-secondary);
+    background: rgba(99, 102, 241, 0.04);
+    border: 1px solid rgba(99, 102, 241, 0.08);
     padding: 4px;
-    border-radius: 8px;
+    border-radius: 12px;
   }
 
   .editor-toolbar {
@@ -386,10 +393,11 @@ import "../../styles/admin.css";
     flex-wrap: wrap;
     gap: 8px;
     padding: 10px;
-    background: var(--bg-secondary, #1E293B);
-    border: 1px solid var(--border-color, #334155);
-    border-radius: 8px;
+    background: white;
+    border: 1px solid rgba(99, 102, 241, 0.08);
+    border-radius: 12px;
     margin-bottom: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
   }
 
   .toolbar-group {
@@ -397,7 +405,7 @@ import "../../styles/admin.css";
     align-items: center;
     gap: 4px;
     padding-right: 12px;
-    border-right: 1px solid var(--border-color, #334155);
+    border-right: 1px solid rgba(99, 102, 241, 0.1);
   }
 
   .toolbar-group:last-child {
@@ -407,8 +415,9 @@ import "../../styles/admin.css";
 
   .toolbar-label {
     font-size: 0.7rem;
-    color: var(--text-muted, #64748B);
+    color: #94A3B8;
     margin-right: 4px;
+    font-weight: 500;
   }
 
   .toolbar-btn {
@@ -417,18 +426,19 @@ import "../../styles/admin.css";
     justify-content: center;
     width: 32px;
     height: 32px;
-    background: var(--card-bg, #2d3748);
-    border: 1px solid var(--border-color, #4a5568);
-    border-radius: 6px;
+    background: rgba(99, 102, 241, 0.04);
+    border: 1px solid rgba(99, 102, 241, 0.1);
+    border-radius: 8px;
     cursor: pointer;
     font-size: 0.9rem;
     transition: all 0.2s;
-    color: var(--text-primary, #E2E8F0);
+    color: #475569;
   }
 
   .toolbar-btn:hover {
-    background: var(--primary, #6366F1);
-    border-color: var(--primary, #6366F1);
+    background: #6366F1;
+    border-color: #6366F1;
+    color: white;
     transform: translateY(-1px);
   }
 
@@ -476,12 +486,13 @@ import "../../styles/admin.css";
   }
 
   .editor-tab.active {
-    background: var(--primary);
+    background: linear-gradient(135deg, #6366F1, #818CF8);
     color: white;
+    box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
   }
 
   .editor-panel {
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(99, 102, 241, 0.1);
     border-radius: 12px;
     overflow: hidden;
   }
@@ -499,7 +510,8 @@ import "../../styles/admin.css";
     line-height: 1.6;
     resize: vertical;
     min-height: 400px;
-    background: var(--bg-code);
+    background: #F8FAFC;
+    color: #334155;
   }
 
   .preview-content {
@@ -662,7 +674,8 @@ import "../../styles/admin.css";
   /* Dark mode */
   @media (prefers-color-scheme: dark) {
     .editor-tabs {
-      background: #1E293B;
+      background: rgba(99, 102, 241, 0.08);
+      border-color: rgba(99, 102, 241, 0.15);
     }
 
     .editor-tab {
@@ -674,8 +687,29 @@ import "../../styles/admin.css";
       background: rgba(99, 102, 241, 0.2);
     }
 
+    .editor-toolbar {
+      background: var(--bg-card);
+      border-color: rgba(99, 102, 241, 0.12);
+      box-shadow: none;
+    }
+
+    .toolbar-group {
+      border-right-color: rgba(99, 102, 241, 0.15);
+    }
+
+    .toolbar-btn {
+      background: rgba(99, 102, 241, 0.08);
+      border-color: rgba(99, 102, 241, 0.15);
+      color: #CBD5E1;
+    }
+
+    .toolbar-btn:hover {
+      background: #6366F1;
+      color: white;
+    }
+
     .editor-panel {
-      border-color: #334155;
+      border-color: rgba(99, 102, 241, 0.15);
     }
 
     .editor-panel textarea {
@@ -705,6 +739,31 @@ import "../../styles/admin.css";
     .preview-content .bento-card {
       background: #0F172A;
       border-color: #334155;
+    }
+
+    .upload-btn {
+      background: rgba(99, 102, 241, 0.12);
+      border-color: rgba(99, 102, 241, 0.25);
+    }
+
+    .upload-btn:hover {
+      background: rgba(99, 102, 241, 0.25);
+    }
+
+    .image-preview {
+      background: rgba(99, 102, 241, 0.08);
+      border-color: rgba(99, 102, 241, 0.15);
+    }
+
+    .upload-progress {
+      background: rgba(99, 102, 241, 0.08);
+      border-color: rgba(99, 102, 241, 0.15);
+    }
+
+    .inline-upload-btn {
+      background: rgba(99, 102, 241, 0.12);
+      border-color: rgba(99, 102, 241, 0.25);
+      color: #A5B4FC;
     }
   }
 </style>

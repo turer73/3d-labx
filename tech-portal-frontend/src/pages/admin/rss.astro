@@ -107,7 +107,7 @@ import "../../styles/admin.css";
       </div>
 
       <!-- Filtreler -->
-      <div class="filters">
+      <div class="filter-bar">
         <select id="categoryFilter" class="filter-select">
           <option value="">Tüm Kategoriler</option>
           <option value="3d-baski">3D Baskı</option>
@@ -247,6 +247,89 @@ import "../../styles/admin.css";
     color: var(--admin-primary);
     text-decoration: underline;
   }
+
+  .category-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .category-badge.3d-baski { background: rgba(59, 130, 246, 0.12); color: #3B82F6; }
+  .category-badge.rehberler { background: rgba(16, 185, 129, 0.12); color: #10B981; }
+  .category-badge.sorun-cozumleri { background: rgba(249, 115, 22, 0.12); color: #F97316; }
+  .category-badge.incelemeler { background: rgba(168, 85, 247, 0.12); color: #A855F7; }
+
+  .status-toggle {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .status-toggle.published {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10B981;
+  }
+
+  .status-toggle.published:hover {
+    background: rgba(16, 185, 129, 0.25);
+  }
+
+  .status-toggle.draft {
+    background: rgba(239, 68, 68, 0.12);
+    color: #EF4444;
+  }
+
+  .status-toggle.draft:hover {
+    background: rgba(239, 68, 68, 0.25);
+  }
+
+  /* Dark Mode */
+  @media (prefers-color-scheme: dark) {
+    .message-warning {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.08) 100%);
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #FCD34D;
+    }
+
+    .message-info {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.08) 100%);
+      border-color: rgba(59, 130, 246, 0.4);
+      color: #93C5FD;
+    }
+
+    .url-cell,
+    .url-cell a {
+      color: #94A3B8;
+    }
+
+    .url-cell a:hover {
+      color: #818CF8;
+    }
+
+    .category-badge.3d-baski { background: rgba(59, 130, 246, 0.2); color: #93C5FD; }
+    .category-badge.rehberler { background: rgba(16, 185, 129, 0.2); color: #6EE7B7; }
+    .category-badge.sorun-cozumleri { background: rgba(249, 115, 22, 0.2); color: #FDBA74; }
+    .category-badge.incelemeler { background: rgba(168, 85, 247, 0.2); color: #C4B5FD; }
+
+    .status-toggle.published {
+      background: rgba(16, 185, 129, 0.2);
+      color: #6EE7B7;
+    }
+
+    .status-toggle.draft {
+      background: rgba(239, 68, 68, 0.2);
+      color: #FCA5A5;
+    }
+  }
 </style>
 
 <script>
@@ -330,8 +413,8 @@ import "../../styles/admin.css";
 
   function renderTable() {
     const tbody = document.querySelector('#rssTable tbody')!;
-    const categoryFilter = (document.getElementById('categoryFilter')).value;
-    const searchQuery = (document.getElementById('searchInput')).value.toLowerCase();
+    const categoryFilter = (document.getElementById('categoryFilter') as HTMLSelectElement).value;
+    const searchQuery = (document.getElementById('searchInput') as HTMLInputElement).value.toLowerCase();
 
     let filtered = allSources;
 
@@ -390,7 +473,7 @@ import "../../styles/admin.css";
   }
 
   async function toggleStatus(e: Event) {
-    const btn = e.target;
+    const btn = e.target as HTMLButtonElement;
     const id = btn.dataset.id;
     const currentActive = btn.dataset.active === '1';
 
@@ -413,7 +496,7 @@ import "../../styles/admin.css";
   }
 
   function showDeleteModal(e: Event) {
-    const btn = e.target;
+    const btn = e.target as HTMLButtonElement;
     deleteId = parseInt(btn.dataset.id || '0');
     const name = btn.dataset.name;
 
@@ -447,7 +530,7 @@ import "../../styles/admin.css";
 
   document.getElementById('cancelAddBtn')?.addEventListener('click', () => {
     document.getElementById('addModal')!.classList.add('hidden');
-    (document.getElementById('addRssForm')).reset();
+    (document.getElementById('addRssForm') as HTMLFormElement).reset();
   });
 
   document.getElementById('modalBackdrop')?.addEventListener('click', () => {
@@ -470,9 +553,9 @@ import "../../styles/admin.css";
   document.getElementById('addRssForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const url = (document.getElementById('rssUrl')).value;
-    const name = (document.getElementById('rssName')).value;
-    const category = (document.getElementById('rssCategory')).value;
+    const url = (document.getElementById('rssUrl') as HTMLInputElement).value;
+    const name = (document.getElementById('rssName') as HTMLInputElement).value;
+    const category = (document.getElementById('rssCategory') as HTMLSelectElement).value;
 
     try {
       const res = await fetch(`${API_BASE}/admin/rss`, {
@@ -488,7 +571,7 @@ import "../../styles/admin.css";
 
       if (res.ok) {
         document.getElementById('addModal')!.classList.add('hidden');
-        (document.getElementById('addRssForm')).reset();
+        (document.getElementById('addRssForm') as HTMLFormElement).reset();
         loadSources();
       } else {
         alert(data.error || 'Ekleme başarısız');
@@ -522,7 +605,7 @@ import "../../styles/admin.css";
 
   // Haber içeriklerini formatla
   document.getElementById('formatNewsBtn')?.addEventListener('click', async () => {
-    const btn = document.getElementById('formatNewsBtn');
+    const btn = document.getElementById('formatNewsBtn') as HTMLButtonElement;
     const originalText = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '⏳ Formatlanıyor...';

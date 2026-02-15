@@ -756,11 +756,21 @@
 /* ================================
    FILTERS
    ================================ */
-.filters {
+.filters,
+.filter-bar {
   display: flex;
   gap: 16px;
   margin-bottom: 24px;
   flex-wrap: wrap;
+}
+
+.filter-bar {
+  padding: 16px 20px;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid rgba(99, 102, 241, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  align-items: center;
 }
 
 .filter-select,
@@ -1359,5 +1369,63 @@
 
   .checkbox-group label:hover {
     background: #312E81;
+  }
+
+  /* Filter bar dark mode */
+  .filter-bar {
+    background: #1E293B;
+    border-color: #334155;
+  }
+
+  /* Login dark mode */
+  .login-card {
+    background: rgba(30, 41, 59, 0.95);
+  }
+
+  .login-header p {
+    color: #94A3B8;
+  }
+
+  .login-form .form-group input {
+    background: #0F172A;
+    border-color: #334155;
+    color: #F1F5F9;
+  }
+
+  .login-form .form-group input::placeholder {
+    color: #64748B;
+  }
+
+  .error-message {
+    background: linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(220,38,38,0.15) 100%);
+    border-color: rgba(239,68,68,0.3);
+    color: #FCA5A5;
+  }
+
+  .form-sidebar .sidebar-card h3 {
+    color: #F1F5F9;
+  }
+
+  .form-hint {
+    color: #94A3B8;
+  }
+
+  /* Message dark mode */
+  .message-success {
+    background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(52,211,153,0.15) 100%);
+    border-color: rgba(16,185,129,0.3);
+    color: #6EE7B7;
+  }
+
+  .message-error {
+    background: linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(220,38,38,0.15) 100%);
+    border-color: rgba(239,68,68,0.3);
+    color: #FCA5A5;
+  }
+
+  .message-warning {
+    background: linear-gradient(135deg, rgba(245,158,11,0.15) 0%, rgba(251,191,36,0.15) 100%);
+    border-color: rgba(245,158,11,0.3);
+    color: #FBBF24;
   }
 }

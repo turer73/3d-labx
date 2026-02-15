@@ -1,5 +1,6 @@
 // ===== WORDQUEST SERVICE WORKER =====
-const CACHE_NAME = 'wordquest-v1.0.0';
+const BUILD_TS = '2026-02-16T03:00:00Z';
+const CACHE_NAME = 'wordquest-' + BUILD_TS;
 const ASSETS = [
     './',
     './index.html',
@@ -9,16 +10,18 @@ const ASSETS = [
     './manifest.json'
 ];
 
-// Install
+// Install - no-cache fetch to ensure fresh assets
 self.addEventListener('install', (e) => {
     e.waitUntil(
         caches.open(CACHE_NAME)
-            .then(cache => cache.addAll(ASSETS))
+            .then(cache => Promise.all(
+                ASSETS.map(url => fetch(url, { cache: 'no-cache' }).then(res => cache.put(url, res)))
+            ))
             .then(() => self.skipWaiting())
     );
 });
 
-// Activate
+// Activate - clean old caches
 self.addEventListener('activate', (e) => {
     e.waitUntil(
         caches.keys().then(keys =>
@@ -27,21 +30,19 @@ self.addEventListener('activate', (e) => {
     );
 });
 
-// Fetch - Cache first, network fallback
+// Fetch - stale-while-revalidate
 self.addEventListener('fetch', (e) => {
     e.respondWith(
-        caches.match(e.request)
-            .then(cached => cached || fetch(e.request)
-                .then(res => {
+        caches.match(e.request).then(cached => {
+            const fetchPromise = fetch(e.request).then(res => {
+                if (res.ok) {
                     const clone = res.clone();
                     caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
-                    return res;
-                })
-            )
-            .catch(() => {
-                if (e.request.destination === 'document') {
-                    return caches.match('./index.html');
                 }
-            })
+                return res;
+            }).catch(() => cached);
+
+            return cached || fetchPromise;
+        })
     );
 });

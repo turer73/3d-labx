@@ -66,7 +66,7 @@
                             <h3>Kelime Bilgisi</h3>
                             <p>YDS tarzı kelime soruları</p>
                         </div>
-                        <span class="mode-count" id="vocab-count">90</span>
+                        <span class="mode-count" id="vocab-count">145</span>
                     </button>
                     <button class="mode-card" data-mode="phrasal_verb" id="btn-phrasal">
                         <div class="mode-icon">🔗</div>
@@ -74,7 +74,47 @@
                             <h3>Phrasal Verbs</h3>
                             <p>Deyimsel fiil soruları</p>
                         </div>
-                        <span class="mode-count" id="phrasal-count">30</span>
+                        <span class="mode-count" id="phrasal-count">44</span>
+                    </button>
+                    <button class="mode-card" data-mode="grammar" id="btn-grammar">
+                        <div class="mode-icon">📐</div>
+                        <div class="mode-info">
+                            <h3>Dilbilgisi</h3>
+                            <p>Tense, preposition, conjunction</p>
+                        </div>
+                        <span class="mode-count" id="grammar-count">90</span>
+                    </button>
+                    <button class="mode-card" data-mode="sentence_completion" id="btn-sc">
+                        <div class="mode-icon">📝</div>
+                        <div class="mode-info">
+                            <h3>Cümle Tamamlama</h3>
+                            <p>Cümleyi anlamlı tamamla</p>
+                        </div>
+                        <span class="mode-count" id="sc-count">76</span>
+                    </button>
+                    <button class="mode-card" data-mode="cloze_test" id="btn-cloze">
+                        <div class="mode-icon">📄</div>
+                        <div class="mode-info">
+                            <h3>Boşluk Doldurma</h3>
+                            <p>Paragraftaki boşlukları doldur</p>
+                        </div>
+                        <span class="mode-count" id="cloze-count">35</span>
+                    </button>
+                    <button class="mode-card" data-mode="dialogue" id="btn-dialogue">
+                        <div class="mode-icon">💬</div>
+                        <div class="mode-info">
+                            <h3>Diyalog Tamamlama</h3>
+                            <p>Diyaloğu anlamlı tamamla</p>
+                        </div>
+                        <span class="mode-count" id="dialogue-count">35</span>
+                    </button>
+                    <button class="mode-card" data-mode="restatement" id="btn-restatement">
+                        <div class="mode-icon">🔄</div>
+                        <div class="mode-info">
+                            <h3>Yakın Anlam</h3>
+                            <p>Cümlenin anlamca en yakınını bul</p>
+                        </div>
+                        <span class="mode-count" id="restatement-count">35</span>
                     </button>
                     <button class="mode-card" data-mode="mixed" id="btn-mixed">
                         <div class="mode-icon">🎯</div>
@@ -82,7 +122,15 @@
                             <h3>Karışık</h3>
                             <p>Tüm soru tipleri</p>
                         </div>
-                        <span class="mode-count" id="mixed-count">120</span>
+                        <span class="mode-count" id="mixed-count">460</span>
+                    </button>
+                    <button class="mode-card mode-review" data-mode="review" id="btn-review">
+                        <div class="mode-icon">🧠</div>
+                        <div class="mode-info">
+                            <h3>Tekrar</h3>
+                            <p>Yanlış ve öğrenilmekte olan sorular</p>
+                        </div>
+                        <span class="mode-count mode-count-review" id="review-count">0</span>
                     </button>
                 </div>
             </div>
@@ -93,6 +141,7 @@
                 <div class="exam-pills">
                     <button class="exam-pill active" data-exam="all">Tümü</button>
                     <button class="exam-pill" data-exam="YDS">YDS</button>
+                    <button class="exam-pill" data-exam="YDT">YDT</button>
                     <button class="exam-pill" data-exam="YKS">YKS</button>
                     <button class="exam-pill" data-exam="YÖKDİL">YÖKDİL</button>
                 </div>
@@ -107,6 +156,18 @@
                     <button class="diff-pill" data-level="B2">B2</button>
                     <button class="diff-pill" data-level="C1">C1</button>
                 </div>
+            </div>
+
+            <!-- Daily Goal -->
+            <div class="daily-goal-section">
+                <div class="daily-goal-header">
+                    <h2 class="section-title">Günlük Hedef</h2>
+                    <span class="daily-check" id="daily-check"></span>
+                </div>
+                <div class="daily-goal-bar">
+                    <div class="daily-goal-fill" id="daily-progress-fill"></div>
+                </div>
+                <span class="daily-goal-text" id="daily-progress-text">0/20</span>
             </div>
 
             <!-- Start Button -->
@@ -132,6 +193,14 @@
                 <div class="qs-item">
                     <span class="qs-num" id="qs-best">0</span>
                     <span class="qs-label">En İyi Seri</span>
+                </div>
+            </div>
+
+            <!-- Category Stats -->
+            <div class="cat-stats-section">
+                <h2 class="section-title">Kategori Başarısı</h2>
+                <div class="cat-stats-grid" id="cat-stats-grid">
+                    <p style="color:var(--text-dim);font-size:0.82rem;text-align:center">Henüz veri yok. Oynamaya başla!</p>
                 </div>
             </div>
         </div>

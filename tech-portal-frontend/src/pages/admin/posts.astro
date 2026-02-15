@@ -62,20 +62,54 @@ import "../../styles/admin.css";
       <header class="content-header">
         <div>
           <h1>Yazılar</h1>
-          <p class="text-muted">Tüm yazıları yönetin</p>
+          <p class="text-muted">Tüm yazıları yönetin ve düzenleyin</p>
         </div>
-        <a href="/admin/new" class="btn btn-primary">+ Yeni Yazı</a>
+        <a href="/admin/new" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Yeni Yazı
+        </a>
       </header>
 
-      <div class="filters">
+      <!-- Stats Row -->
+      <div class="stats-grid" id="postStats">
+        <div class="stat-card">
+          <div class="stat-icon">📄</div>
+          <div class="stat-info">
+            <span class="stat-value" id="statTotal">-</span>
+            <span class="stat-label">Toplam Yazı</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-info">
+            <span class="stat-value" id="statPublished">-</span>
+            <span class="stat-label">Yayında</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📝</div>
+          <div class="stat-info">
+            <span class="stat-value" id="statDraft">-</span>
+            <span class="stat-label">Taslak</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⭐</div>
+          <div class="stat-info">
+            <span class="stat-value" id="statFeatured">-</span>
+            <span class="stat-label">Öne Çıkan</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-bar">
         <select id="categoryFilter" class="filter-select">
           <option value="">Tüm Kategoriler</option>
-          <optgroup label="📦 3D Baskı">
-            <option value="3d-baski">🔶 3D Baskı Haberleri</option>
-            <option value="rehberler">📘 Rehberler</option>
-            <option value="sorun-cozumleri">🔧 Sorun Çözümleri</option>
-            <option value="incelemeler">⭐ İncelemeler</option>
-          </optgroup>
+          <option value="3d-baski">🔶 3D Baskı Haberleri</option>
+          <option value="rehberler">📘 Rehberler</option>
+          <option value="sorun-cozumleri">🔧 Sorun Çözümleri</option>
+          <option value="incelemeler">⭐ İncelemeler</option>
         </select>
 
         <select id="statusFilter" class="filter-select">
@@ -87,6 +121,7 @@ import "../../styles/admin.css";
         <input type="search" id="searchInput" placeholder="Yazı ara..." class="search-input" />
       </div>
 
+      <!-- Table -->
       <div class="posts-table-container">
         <table class="posts-table" id="postsTable">
           <thead>
@@ -126,6 +161,25 @@ import "../../styles/admin.css";
     </div>
   </div>
 </BaseLayout>
+
+<style>
+  /* Category badge colors */
+  .category-badge.\33 d-baski { background: rgba(59,130,246,0.1); color: #2563EB; }
+  .category-badge.rehberler { background: rgba(6,182,212,0.1); color: #0891B2; }
+  .category-badge.sorun-cozumleri { background: rgba(34,197,94,0.1); color: #16A34A; }
+  .category-badge.incelemeler { background: rgba(168,85,247,0.1); color: #9333EA; }
+  .category-badge.teknoloji { background: rgba(139,92,246,0.1); color: #7C3AED; }
+  .category-badge.yapay-zeka { background: rgba(245,158,11,0.1); color: #D97706; }
+
+  @media (prefers-color-scheme: dark) {
+    .category-badge.\33 d-baski { background: rgba(59,130,246,0.15); color: #60A5FA; }
+    .category-badge.rehberler { background: rgba(6,182,212,0.15); color: #22D3EE; }
+    .category-badge.sorun-cozumleri { background: rgba(34,197,94,0.15); color: #4ADE80; }
+    .category-badge.incelemeler { background: rgba(168,85,247,0.15); color: #C084FC; }
+    .category-badge.teknoloji { background: rgba(139,92,246,0.15); color: #A78BFA; }
+    .category-badge.yapay-zeka { background: rgba(245,158,11,0.15); color: #FBBF24; }
+  }
+</style>
 
 <script>
   const API_BASE = 'https://tech-portal-api.turgut-d01.workers.dev';
@@ -167,8 +221,24 @@ import "../../styles/admin.css";
     '3d-baski': '3D Baskı',
     'rehberler': 'Rehber',
     'sorun-cozumleri': 'Sorun Çözümü',
-    'incelemeler': 'İnceleme'
+    'incelemeler': 'İnceleme',
+    'teknoloji': 'Teknoloji',
+    'yapay-zeka': 'Yapay Zeka'
   };
+
+  // Stats güncelle
+  function updateStats(posts: any[], totalCount?: number) {
+    const total = totalCount || posts.length;
+    const published = posts.filter(p => p.published).length;
+    const draft = posts.filter(p => !p.published).length;
+    const featured = posts.filter(p => p.is_featured).length;
+
+    const el = (id: string) => document.getElementById(id);
+    el('statTotal')!.textContent = total.toString();
+    el('statPublished')!.textContent = published.toString();
+    el('statDraft')!.textContent = draft.toString();
+    el('statFeatured')!.textContent = featured.toString();
+  }
 
   // Yazıları yükle
   async function loadPosts(page = 1) {
@@ -195,6 +265,7 @@ import "../../styles/admin.css";
       allPosts = data.posts || data;
       totalPages = data.pagination?.totalPages || 1;
 
+      updateStats(allPosts, data.pagination?.total);
       renderPosts(allPosts);
       renderPagination();
     } catch (err) {
@@ -222,7 +293,7 @@ import "../../styles/admin.css";
         </td>
         <td>
           <button class="status-toggle ${post.published ? 'published' : 'draft'}" data-id="${post.id}" data-published="${post.published}">
-            ${post.published ? 'Yayında' : 'Taslak'}
+            ${post.published ? '● Yayında' : '○ Taslak'}
           </button>
         </td>
         <td>
@@ -232,9 +303,9 @@ import "../../styles/admin.css";
         </td>
         <td class="date-cell">${new Date(post.created_at).toLocaleDateString('tr-TR')}</td>
         <td class="actions-cell">
-          <a href="/admin/edit/${post.id}" class="btn btn-ghost btn-sm">✏️</a>
-          <a href="/${post.category}/${post.slug}" target="_blank" class="btn btn-ghost btn-sm">👁️</a>
-          <button class="btn btn-ghost btn-sm delete-btn" data-id="${post.id}">🗑️</button>
+          <a href="/admin/edit/${post.id}" class="btn btn-ghost btn-sm" title="Düzenle">✏️</a>
+          <a href="/${post.category}/${post.slug}" target="_blank" class="btn btn-ghost btn-sm" title="Görüntüle">👁️</a>
+          <button class="btn btn-ghost btn-sm delete-btn" data-id="${post.id}" title="Sil">🗑️</button>
         </td>
       </tr>
     `).join('');
@@ -248,7 +319,7 @@ import "../../styles/admin.css";
     // Durum değiştir
     document.querySelectorAll('.status-toggle').forEach(btn => {
       btn.addEventListener('click', async (e) => {
-        const target = e.currentTarget;
+        const target = e.currentTarget as HTMLElement;
         const id = target.dataset.id;
         const currentStatus = target.dataset.published === '1';
 
@@ -263,7 +334,7 @@ import "../../styles/admin.css";
           });
 
           if (res.ok) {
-            loadPosts();
+            loadPosts(currentPage);
           }
         } catch (err) {
           console.error('Güncelleme hatası:', err);
@@ -274,7 +345,7 @@ import "../../styles/admin.css";
     // Öne çıkan değiştir
     document.querySelectorAll('.featured-toggle').forEach(btn => {
       btn.addEventListener('click', async (e) => {
-        const target = e.currentTarget;
+        const target = e.currentTarget as HTMLElement;
         const id = target.dataset.id;
         const currentFeatured = target.dataset.featured === '1';
 
@@ -289,7 +360,7 @@ import "../../styles/admin.css";
           });
 
           if (res.ok) {
-            loadPosts();
+            loadPosts(currentPage);
           }
         } catch (err) {
           console.error('Güncelleme hatası:', err);
@@ -300,7 +371,7 @@ import "../../styles/admin.css";
     // Silme
     document.querySelectorAll('.delete-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const target = e.currentTarget;
+        const target = e.currentTarget as HTMLElement;
         deletePostId = parseInt(target.dataset.id!);
         document.getElementById('deleteModal')?.classList.remove('hidden');
       });
@@ -351,7 +422,7 @@ import "../../styles/admin.css";
     // Event listeners
     paginationEl.querySelectorAll('.pagination-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const page = parseInt((e.target).dataset.page!);
+        const page = parseInt((e.target as HTMLElement).dataset.page!);
         loadPosts(page);
       });
     });
@@ -363,19 +434,19 @@ import "../../styles/admin.css";
   function handleSearch() {
     clearTimeout(searchTimeout);
     searchTimeout = window.setTimeout(() => {
-      currentSearch = (document.getElementById('searchInput')).value.trim();
+      currentSearch = (document.getElementById('searchInput') as HTMLInputElement).value.trim();
       loadPosts(1);
     }, 300);
   }
 
   function handleCategoryChange() {
-    currentCategory = (document.getElementById('categoryFilter')).value;
+    currentCategory = (document.getElementById('categoryFilter') as HTMLSelectElement).value;
     loadPosts(1);
   }
 
   // Client-side status filtresi (API'de yok)
   function filterByStatus() {
-    const status = (document.getElementById('statusFilter')).value;
+    const status = (document.getElementById('statusFilter') as HTMLSelectElement).value;
     if (status === '') {
       renderPosts(allPosts);
     } else {
@@ -410,7 +481,7 @@ import "../../styles/admin.css";
       if (res.ok) {
         document.getElementById('deleteModal')?.classList.add('hidden');
         deletePostId = null;
-        loadPosts();
+        loadPosts(currentPage);
       }
     } catch (err) {
       console.error('Silme hatası:', err);

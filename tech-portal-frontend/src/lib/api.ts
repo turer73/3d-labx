@@ -93,3 +93,25 @@ export function getCategoryUrl(category: string, lang: Language): string {
   const path = categoryPaths[lang][category] || category;
   return `/${path}`;
 }
+
+// Image proxy URL - harici resimleri API proxy üzerinden yükle (hotlinking sorununu önler)
+const API_URL = "https://tech-portal-api.turgut-d01.workers.dev";
+const R2_PUBLIC_URL = "https://pub-9142f11355e84e1da1dd96a4c14e4afb.r2.dev";
+
+export function getImageUrl(imageUrl: string | null | undefined): string {
+  if (!imageUrl) return "/placeholders/default.svg";
+
+  // R2 public URL'si ise - r2 endpoint'inden sun
+  if (imageUrl.startsWith(R2_PUBLIC_URL)) {
+    const key = imageUrl.replace(R2_PUBLIC_URL + "/", "");
+    return `${API_URL}/r2/${key}`;
+  }
+
+  // Harici URL ise - proxy üzerinden sun
+  if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+    return `${API_URL}/api/image-proxy?url=${encodeURIComponent(imageUrl)}`;
+  }
+
+  // Göreceli URL ise olduğu gibi döndür
+  return imageUrl;
+}
