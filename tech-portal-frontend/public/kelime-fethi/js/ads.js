@@ -22,8 +22,8 @@ import { SFX } from './sound.js';
 const ADS_CONFIG = {
     // Replace with your actual AdMob/AdSense IDs after approval
     // For web PWA, use AdSense auto ads or AdMob mediation
-    publisherId: 'ca-pub-XXXXXXXXXXXXXXXX',       // Your AdSense publisher ID
-    rewardSlotId: 'ca-pub-XXXXXXXXXXXXXXXX/YYYYYY', // Reward ad unit ID
+    publisherId: 'ca-pub-5103156785085864',       // Your AdSense publisher ID
+    rewardSlotId: 'ca-pub-5103156785085864/YYYYYY', // Reward ad unit ID
 
     // Rate limiting
     maxAdsPerDay: 5,            // Max reward ads per day
