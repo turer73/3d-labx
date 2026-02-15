@@ -1,5 +1,5 @@
 // ===== WORDQUEST SERVICE WORKER =====
-const BUILD_TS = '2026-02-16T05:00:00Z';
+const BUILD_TS = '2026-02-16T06:00:00Z';
 const CACHE_NAME = 'wordquest-' + BUILD_TS;
 const ASSETS = [
     './',

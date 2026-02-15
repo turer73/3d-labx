@@ -17,6 +17,93 @@
     const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev/api/wq';
     const PLAYER_ID_KEY = 'wq_player_id';
 
+    // ===== BONUS WORDS (Günlük Kullanım İngilizce-Türkçe) =====
+    const BONUS_WORDS = [
+        { en: 'accomplish', tr: 'başarmak', ex: 'She accomplished her goal.' },
+        { en: 'anxious', tr: 'endişeli', ex: 'He felt anxious about the exam.' },
+        { en: 'appreciate', tr: 'takdir etmek', ex: 'I appreciate your help.' },
+        { en: 'awkward', tr: 'garip, tuhaf', ex: 'It was an awkward silence.' },
+        { en: 'bargain', tr: 'pazarlık, kelepir', ex: 'This coat was a real bargain.' },
+        { en: 'beneath', tr: 'altında', ex: 'The cat hid beneath the table.' },
+        { en: 'brief', tr: 'kısa, öz', ex: 'He gave a brief explanation.' },
+        { en: 'capable', tr: 'yetenekli, muktedir', ex: 'She is capable of great things.' },
+        { en: 'cautious', tr: 'tedbirli, dikkatli', ex: 'Be cautious when crossing the road.' },
+        { en: 'concern', tr: 'endişe, ilgi', ex: 'There is growing concern about pollution.' },
+        { en: 'convince', tr: 'ikna etmek', ex: 'She convinced him to stay.' },
+        { en: 'curious', tr: 'meraklı', ex: 'The child was curious about everything.' },
+        { en: 'decent', tr: 'uygun, iyi', ex: 'He earns a decent salary.' },
+        { en: 'deny', tr: 'inkar etmek', ex: 'He denied all the accusations.' },
+        { en: 'determine', tr: 'belirlemek, kararlı olmak', ex: 'We need to determine the cause.' },
+        { en: 'eager', tr: 'istekli, hevesli', ex: 'She was eager to learn.' },
+        { en: 'enormous', tr: 'devasa, muazzam', ex: 'The building was enormous.' },
+        { en: 'essential', tr: 'temel, zorunlu', ex: 'Water is essential for life.' },
+        { en: 'eventually', tr: 'sonunda', ex: 'He eventually found his keys.' },
+        { en: 'familiar', tr: 'tanıdık, bilinen', ex: 'This place looks familiar.' },
+        { en: 'fortunate', tr: 'şanslı', ex: 'We were fortunate to survive.' },
+        { en: 'generous', tr: 'cömert', ex: 'She is very generous with her time.' },
+        { en: 'genuine', tr: 'gerçek, samimi', ex: 'He showed genuine interest.' },
+        { en: 'grateful', tr: 'minnettar', ex: 'I am grateful for your support.' },
+        { en: 'hesitate', tr: 'tereddüt etmek', ex: "Don't hesitate to ask for help." },
+        { en: 'ignore', tr: 'görmezden gelmek', ex: 'She ignored his comments.' },
+        { en: 'impress', tr: 'etkilemek', ex: 'His speech impressed the audience.' },
+        { en: 'inevitable', tr: 'kaçınılmaz', ex: 'Change is inevitable.' },
+        { en: 'involve', tr: 'dahil etmek, içermek', ex: 'The project involves many people.' },
+        { en: 'launch', tr: 'başlatmak, fırlatmak', ex: 'They launched a new product.' },
+        { en: 'maintain', tr: 'sürdürmek, bakımını yapmak', ex: 'Maintain a healthy lifestyle.' },
+        { en: 'modest', tr: 'mütevazı, alçakgönüllü', ex: 'She is very modest about her success.' },
+        { en: 'numerous', tr: 'çok sayıda', ex: 'There were numerous complaints.' },
+        { en: 'obtain', tr: 'elde etmek', ex: 'She obtained a new passport.' },
+        { en: 'obvious', tr: 'açık, bariz', ex: 'The answer is obvious.' },
+        { en: 'particular', tr: 'belirli, özel', ex: 'Is there a particular reason?' },
+        { en: 'postpone', tr: 'ertelemek', ex: 'They postponed the meeting.' },
+        { en: 'pursue', tr: 'peşinden gitmek, takip etmek', ex: 'He decided to pursue his dream.' },
+        { en: 'recognize', tr: 'tanımak, fark etmek', ex: 'I barely recognized her.' },
+        { en: 'recommend', tr: 'tavsiye etmek', ex: 'I recommend this restaurant.' },
+        { en: 'reluctant', tr: 'isteksiz, gönülsüz', ex: 'He was reluctant to leave.' },
+        { en: 'resemble', tr: 'benzemek', ex: 'She resembles her mother.' },
+        { en: 'reveal', tr: 'ortaya çıkarmak', ex: 'The report revealed the truth.' },
+        { en: 'severe', tr: 'ciddi, şiddetli', ex: 'There was severe weather damage.' },
+        { en: 'struggle', tr: 'mücadele etmek', ex: 'He struggled to find work.' },
+        { en: 'sufficient', tr: 'yeterli', ex: 'We have sufficient evidence.' },
+        { en: 'surround', tr: 'çevrelemek', ex: 'Mountains surround the village.' },
+        { en: 'tend', tr: 'eğiliminde olmak', ex: 'People tend to forget things.' },
+        { en: 'thorough', tr: 'kapsamlı, titiz', ex: 'She did a thorough research.' },
+        { en: 'valid', tr: 'geçerli', ex: 'Your ticket is still valid.' },
+        { en: 'vast', tr: 'geniş, uçsuz bucaksız', ex: 'The desert is vast and empty.' },
+        { en: 'willing', tr: 'istekli, gönüllü', ex: 'She was willing to help.' },
+        { en: 'witness', tr: 'tanık, şahit', ex: 'He was a witness to the accident.' },
+        { en: 'afford', tr: 'karşılayabilmek (maddi)', ex: "I can't afford a new car." },
+        { en: 'attempt', tr: 'girişim, denemek', ex: 'She made an attempt to escape.' },
+        { en: 'boundary', tr: 'sınır', ex: 'The river forms the boundary.' },
+        { en: 'commitment', tr: 'bağlılık, taahhüt', ex: 'He showed great commitment.' },
+        { en: 'consistent', tr: 'tutarlı, istikrarlı', ex: 'Be consistent in your efforts.' },
+        { en: 'emphasize', tr: 'vurgulamak', ex: 'She emphasized the importance of education.' },
+        { en: 'glimpse', tr: 'kısa bakış', ex: 'I caught a glimpse of the sunset.' },
+        { en: 'narrow', tr: 'dar', ex: 'The street was very narrow.' },
+        { en: 'permanent', tr: 'kalıcı, daimi', ex: 'Is this a permanent position?' },
+        { en: 'precise', tr: 'kesin, dakik', ex: 'Give me the precise location.' },
+        { en: 'remarkable', tr: 'dikkat çekici, olağanüstü', ex: 'She made a remarkable recovery.' },
+        { en: 'subtle', tr: 'ince, belirsiz', ex: 'There was a subtle difference.' },
+        { en: 'urge', tr: 'dürtmek, ısrar etmek', ex: 'I urge you to reconsider.' },
+        { en: 'vital', tr: 'hayati, çok önemli', ex: 'Exercise is vital for health.' },
+        { en: 'abandon', tr: 'terk etmek', ex: 'They abandoned the sinking ship.' },
+        { en: 'breeze', tr: 'esinti, meltem', ex: 'A cool breeze was blowing.' },
+        { en: 'confuse', tr: 'karıştırmak, şaşırtmak', ex: "Don't confuse the two words." },
+        { en: 'demand', tr: 'talep etmek', ex: 'They demanded an explanation.' },
+        { en: 'emerge', tr: 'ortaya çıkmak', ex: 'A new leader emerged.' },
+        { en: 'frequent', tr: 'sık, sık sık olan', ex: 'She is a frequent visitor.' },
+        { en: 'harm', tr: 'zarar', ex: 'Smoking causes great harm.' },
+        { en: 'inspire', tr: 'ilham vermek', ex: 'Her story inspired millions.' },
+        { en: 'merely', tr: 'sadece, yalnızca', ex: 'He is merely a child.' },
+        { en: 'occur', tr: 'meydana gelmek', ex: 'The accident occurred at night.' },
+        { en: 'penalty', tr: 'ceza', ex: 'There is a penalty for late payment.' },
+        { en: 'rapid', tr: 'hızlı', ex: 'There was rapid growth in the city.' },
+        { en: 'scarce', tr: 'kıt, yetersiz', ex: 'Fresh water is scarce in the desert.' },
+        { en: 'threat', tr: 'tehdit', ex: 'Climate change is a major threat.' },
+        { en: 'venture', tr: 'girişim, risk almak', ex: 'Starting a business is a venture.' }
+    ];
+    const BONUS_SEEN_KEY = 'wq_bonus_seen';
+
     // ===== ANALYTICS =====
     function trackEvent(eventName, params) {
         try {
@@ -1718,6 +1805,9 @@
             reviewSection.classList.add('hidden');
         }
 
+        // Render bonus words
+        renderBonusWords();
+
         showScreen('results');
 
         // Animate score circle
@@ -1731,6 +1821,58 @@
                 else $('score-circle').style.stroke = 'var(--danger)';
             });
         });
+    }
+
+    // ===== BONUS WORDS =====
+    function getBonusWords(count) {
+        // Load seen list
+        let seen = [];
+        try { seen = JSON.parse(localStorage.getItem(BONUS_SEEN_KEY) || '[]'); } catch(e) { seen = []; }
+
+        // Filter unseen words
+        let available = BONUS_WORDS.filter(w => !seen.includes(w.en));
+
+        // If all seen, reset
+        if (available.length < count) {
+            seen = [];
+            available = [...BONUS_WORDS];
+        }
+
+        // Pick random unseen words
+        shuffleArray(available);
+        const picked = available.slice(0, count);
+
+        // Mark as seen
+        picked.forEach(w => { if (!seen.includes(w.en)) seen.push(w.en); });
+        // Keep seen list reasonable (last 60)
+        if (seen.length > 60) seen = seen.slice(-60);
+        try { localStorage.setItem(BONUS_SEEN_KEY, JSON.stringify(seen)); } catch(e) {}
+
+        return picked;
+    }
+
+    function renderBonusWords() {
+        const section = $('bonus-words-section');
+        const list = $('bonus-words-list');
+        if (!section || !list) return;
+
+        const words = getBonusWords(3);
+        if (words.length === 0) { section.classList.add('hidden'); return; }
+
+        let html = '';
+        words.forEach(w => {
+            html += `
+                <div class="bonus-word-card">
+                    <div class="bonus-word-top">
+                        <span class="bonus-word-en">${w.en}</span>
+                        <span class="bonus-word-tr">${w.tr}</span>
+                    </div>
+                    <div class="bonus-word-ex">"${w.ex}"</div>
+                </div>
+            `;
+        });
+        list.innerHTML = html;
+        section.classList.remove('hidden');
     }
 
     // ===== HELPERS =====
