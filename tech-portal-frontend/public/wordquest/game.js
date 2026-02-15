@@ -64,7 +64,8 @@
         home: $('home'),
         quiz: $('quiz'),
         results: $('results'),
-        stats: $('stats')
+        stats: $('stats'),
+        leaderboard: $('leaderboard')
     };
 
     // ===== INIT =====
@@ -642,6 +643,135 @@
         showToast('🗑️ İstatistikler sıfırlandı');
     }
 
+    // ===== LEADERBOARD =====
+    let lbCurrentTab = 'overall';
+    let lbCurrentSort = 'xp';
+
+    async function syncScore() {
+        try {
+            await fetch(`${API_URL}/score`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    playerId: getPlayerId(),
+                    nickname: localStorage.getItem('wq_nickname') || 'Anonim',
+                    mode: state.mode,
+                    score: state.score,
+                    total: state.questions.length,
+                    pct: Math.round((state.score / state.questions.length) * 100),
+                    xpEarned: state.xpEarned,
+                    timeMs: state.totalTimeMs || 0,
+                    totalXP: stats.totalXP,
+                    level: stats.level,
+                    gamesPlayed: stats.gamesPlayed,
+                    totalCorrect: stats.totalCorrect,
+                    totalQuestions: stats.totalQuestions,
+                    bestStreak: stats.bestStreak
+                })
+            });
+        } catch(e) { console.warn('Score sync error:', e); }
+    }
+
+    function showLeaderboard() {
+        showScreen('leaderboard');
+        // Fill my card
+        $('lb-my-name').textContent = localStorage.getItem('wq_nickname') || 'Anonim';
+        $('lb-my-stat').textContent = `${stats.totalXP} XP • Seviye ${stats.level}`;
+        // Fill nickname input
+        const nameInput = $('lb-nickname-input');
+        if (nameInput) nameInput.value = localStorage.getItem('wq_nickname') || '';
+        // Load data
+        lbCurrentTab = 'overall';
+        lbCurrentSort = 'xp';
+        loadLeaderboard();
+    }
+
+    async function loadLeaderboard() {
+        const list = $('lb-list');
+        list.innerHTML = '<div class="lb-loading">Yükleniyor...</div>';
+
+        // Show/hide sort pills
+        const sortPills = $('lb-sort-pills');
+        if (sortPills) sortPills.style.display = lbCurrentTab === 'overall' ? 'flex' : 'none';
+
+        try {
+            let url;
+            if (lbCurrentTab === 'weekly') {
+                url = `${API_URL}/leaderboard/weekly`;
+            } else {
+                url = `${API_URL}/leaderboard?type=${lbCurrentSort}`;
+            }
+            const res = await fetch(url);
+            const data = await res.json();
+            renderLeaderboard(data.leaderboard || []);
+        } catch(e) {
+            list.innerHTML = '<div class="lb-empty">Bağlantı hatası. Tekrar dene.</div>';
+        }
+    }
+
+    function renderLeaderboard(entries) {
+        const list = $('lb-list');
+        const myId = getPlayerId();
+
+        if (entries.length === 0) {
+            list.innerHTML = '<div class="lb-empty">Henüz veri yok. Oynamaya başla!</div>';
+            $('lb-my-rank-num').textContent = '#-';
+            return;
+        }
+
+        const medals = ['🥇', '🥈', '🥉'];
+        let html = '';
+        entries.forEach((e, i) => {
+            const isMe = e.playerId === myId;
+            const rankDisplay = i < 3 ? medals[i] : `#${e.rank}`;
+
+            let statLine;
+            if (lbCurrentTab === 'weekly') {
+                statLine = `${e.weeklyXP} XP • ${e.gamesThisWeek} oyun`;
+            } else {
+                statLine = `${e.totalXP} XP • Sv.${e.level} • %${e.accuracy}`;
+            }
+
+            html += `
+                <div class="lb-row ${isMe ? 'me' : ''} ${i < 3 ? 'top-' + (i+1) : ''}">
+                    <span class="lb-rank">${rankDisplay}</span>
+                    <span class="lb-avatar">${e.avatar || '📚'}</span>
+                    <div class="lb-player-info">
+                        <span class="lb-name">${e.nickname || 'Anonim'}${isMe ? ' (Sen)' : ''}</span>
+                        <span class="lb-stat-line">${statLine}</span>
+                    </div>
+                </div>
+            `;
+        });
+        list.innerHTML = html;
+
+        // Update my rank card
+        const myEntry = entries.find(e => e.playerId === myId);
+        if (myEntry) {
+            $('lb-my-rank-num').textContent = '#' + myEntry.rank;
+            $('lb-my-name').textContent = myEntry.nickname || 'Anonim';
+            $('lb-my-stat').textContent = `${myEntry.totalXP || 0} XP • Seviye ${myEntry.level || 1}`;
+        } else {
+            $('lb-my-rank-num').textContent = '#-';
+        }
+    }
+
+    async function saveNickname() {
+        const input = $('lb-nickname-input');
+        const name = (input.value || '').trim().substring(0, 16);
+        if (!name) { showToast('İsim boş olamaz'); return; }
+        localStorage.setItem('wq_nickname', name);
+        $('lb-my-name').textContent = name;
+        try {
+            await fetch(`${API_URL}/profile`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ playerId: getPlayerId(), nickname: name })
+            });
+            showToast('✅ İsim kaydedildi');
+        } catch(e) { showToast('Kayıt hatası'); }
+    }
+
     function checkDailyStreak() {
         const today = new Date().toDateString();
         const yesterday = new Date(Date.now() - 86400000).toDateString();
@@ -790,6 +920,29 @@
         if ($('btn-stats')) $('btn-stats').addEventListener('click', showStats);
         if ($('btn-stats-back')) $('btn-stats-back').addEventListener('click', () => showScreen('home'));
         if ($('btn-reset-stats')) $('btn-reset-stats').addEventListener('click', resetStats);
+
+        // Leaderboard
+        if ($('btn-leaderboard')) $('btn-leaderboard').addEventListener('click', showLeaderboard);
+        if ($('btn-lb-back')) $('btn-lb-back').addEventListener('click', () => showScreen('home'));
+        if ($('btn-lb-save-name')) $('btn-lb-save-name').addEventListener('click', saveNickname);
+
+        document.querySelectorAll('.lb-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                lbCurrentTab = tab.dataset.tab;
+                loadLeaderboard();
+            });
+        });
+
+        document.querySelectorAll('.lb-sort-pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+                document.querySelectorAll('.lb-sort-pill').forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                lbCurrentSort = pill.dataset.sort;
+                loadLeaderboard();
+            });
+        });
 
         // Default selection
         document.querySelector('.mode-card[data-mode="vocabulary"]').classList.add('selected');
@@ -1010,6 +1163,9 @@
         addDailyProgress(state.questions.length);
 
         saveStats();
+
+        // Sync score to leaderboard server
+        syncScore();
 
         const pctEnd = Math.round((state.score / state.questions.length) * 100);
         trackEvent('game_complete', {

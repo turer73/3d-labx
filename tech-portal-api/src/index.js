@@ -7103,6 +7103,192 @@ ${text}`;
         }
       }
 
+      // ================================================================
+      // 🏆 WORDQUEST LEADERBOARD
+      // ================================================================
+
+      // POST /api/wq/score — Submit game score & upsert profile
+      if (path === "/api/wq/score" && method === "POST") {
+        try {
+          const body = await request.json();
+          const { playerId, nickname, mode, score, total, pct, xpEarned, timeMs,
+                  totalXP, level, gamesPlayed, totalCorrect, totalQuestions, bestStreak } = body;
+
+          if (!playerId || score === undefined || !total) {
+            return errorResponse("playerId, score, total gerekli", 400, "INVALID_INPUT", request);
+          }
+
+          // Ensure tables exist
+          await env.DB.exec(`
+            CREATE TABLE IF NOT EXISTS wq_profiles (
+              player_id TEXT PRIMARY KEY,
+              nickname TEXT DEFAULT 'Anonim',
+              avatar TEXT DEFAULT '📚',
+              total_xp INTEGER DEFAULT 0,
+              total_correct INTEGER DEFAULT 0,
+              total_questions INTEGER DEFAULT 0,
+              games_played INTEGER DEFAULT 0,
+              best_streak INTEGER DEFAULT 0,
+              level INTEGER DEFAULT 1,
+              leaderboard_opt_in INTEGER DEFAULT 1,
+              created_at TEXT DEFAULT (datetime('now')),
+              updated_at TEXT DEFAULT (datetime('now'))
+            );
+            CREATE TABLE IF NOT EXISTS wq_game_scores (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              player_id TEXT NOT NULL,
+              mode TEXT NOT NULL,
+              score INTEGER NOT NULL,
+              total INTEGER NOT NULL,
+              pct INTEGER NOT NULL,
+              xp_earned INTEGER DEFAULT 0,
+              time_ms INTEGER DEFAULT 0,
+              created_at TEXT DEFAULT (datetime('now'))
+            );
+          `);
+
+          // Upsert profile
+          await env.DB.prepare(`
+            INSERT INTO wq_profiles (player_id, nickname, total_xp, total_correct, total_questions, games_played, best_streak, level, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+            ON CONFLICT(player_id) DO UPDATE SET
+              nickname = excluded.nickname,
+              total_xp = excluded.total_xp,
+              total_correct = excluded.total_correct,
+              total_questions = excluded.total_questions,
+              games_played = excluded.games_played,
+              best_streak = excluded.best_streak,
+              level = excluded.level,
+              updated_at = datetime('now')
+          `).bind(
+            playerId, nickname || 'Anonim', totalXP || 0, totalCorrect || 0,
+            totalQuestions || 0, gamesPlayed || 0, bestStreak || 0, level || 1
+          ).run();
+
+          // Insert game score
+          await env.DB.prepare(`
+            INSERT INTO wq_game_scores (player_id, mode, score, total, pct, xp_earned, time_ms)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+          `).bind(playerId, mode || 'mixed', score, total, pct || 0, xpEarned || 0, timeMs || 0).run();
+
+          return jsonResponse({ success: true }, 200, 0, request);
+        } catch (error) {
+          console.error("WQ score error:", error);
+          return errorResponse("Skor hatası: " + error.message, 500, "WQ_SCORE_ERROR", request);
+        }
+      }
+
+      // GET /api/wq/leaderboard/weekly — Weekly leaderboard
+      if (path === "/api/wq/leaderboard/weekly" && method === "GET") {
+        try {
+          // Ensure tables
+          await env.DB.exec(`CREATE TABLE IF NOT EXISTS wq_profiles (player_id TEXT PRIMARY KEY, nickname TEXT DEFAULT 'Anonim', avatar TEXT DEFAULT '📚', total_xp INTEGER DEFAULT 0, total_correct INTEGER DEFAULT 0, total_questions INTEGER DEFAULT 0, games_played INTEGER DEFAULT 0, best_streak INTEGER DEFAULT 0, level INTEGER DEFAULT 1, leaderboard_opt_in INTEGER DEFAULT 1, created_at TEXT DEFAULT (datetime('now')), updated_at TEXT DEFAULT (datetime('now')))`);
+          await env.DB.exec(`CREATE TABLE IF NOT EXISTS wq_game_scores (id INTEGER PRIMARY KEY AUTOINCREMENT, player_id TEXT NOT NULL, mode TEXT NOT NULL, score INTEGER NOT NULL, total INTEGER NOT NULL, pct INTEGER NOT NULL, xp_earned INTEGER DEFAULT 0, time_ms INTEGER DEFAULT 0, created_at TEXT DEFAULT (datetime('now')))`);
+
+          const results = await env.DB.prepare(`
+            SELECT gs.player_id, p.nickname, p.avatar,
+                   SUM(gs.xp_earned) as weekly_xp,
+                   COUNT(*) as games_this_week
+            FROM wq_game_scores gs
+            JOIN wq_profiles p ON p.player_id = gs.player_id AND p.leaderboard_opt_in = 1
+            WHERE gs.created_at >= datetime('now', '-7 days')
+            GROUP BY gs.player_id
+            ORDER BY weekly_xp DESC
+            LIMIT 50
+          `).all();
+
+          const leaderboard = (results.results || []).map((row, idx) => ({
+            rank: idx + 1,
+            nickname: row.nickname || 'Anonim',
+            avatar: row.avatar || '📚',
+            weeklyXP: row.weekly_xp || 0,
+            gamesThisWeek: row.games_this_week || 0,
+            playerId: row.player_id
+          }));
+
+          return jsonResponse({ count: leaderboard.length, leaderboard }, 200, 30, request);
+        } catch (error) {
+          console.error("WQ weekly leaderboard error:", error);
+          return errorResponse("Haftalık sıralama hatası: " + error.message, 500, "WQ_LB_ERROR", request);
+        }
+      }
+
+      // GET /api/wq/leaderboard — Overall leaderboard
+      if (path === "/api/wq/leaderboard" && method === "GET") {
+        try {
+          await env.DB.exec(`CREATE TABLE IF NOT EXISTS wq_profiles (player_id TEXT PRIMARY KEY, nickname TEXT DEFAULT 'Anonim', avatar TEXT DEFAULT '📚', total_xp INTEGER DEFAULT 0, total_correct INTEGER DEFAULT 0, total_questions INTEGER DEFAULT 0, games_played INTEGER DEFAULT 0, best_streak INTEGER DEFAULT 0, level INTEGER DEFAULT 1, leaderboard_opt_in INTEGER DEFAULT 1, created_at TEXT DEFAULT (datetime('now')), updated_at TEXT DEFAULT (datetime('now')))`);
+
+          const type = url.searchParams.get('type') || 'xp';
+          let orderBy = 'total_xp DESC';
+          let whereExtra = '';
+
+          if (type === 'accuracy') {
+            orderBy = '(total_correct * 100 / total_questions) DESC';
+            whereExtra = ' AND total_questions >= 50';
+          } else if (type === 'games') {
+            orderBy = 'games_played DESC';
+          }
+
+          const results = await env.DB.prepare(`
+            SELECT player_id, nickname, avatar, total_xp, level, total_correct, total_questions, games_played, best_streak
+            FROM wq_profiles
+            WHERE leaderboard_opt_in = 1 AND games_played > 0${whereExtra}
+            ORDER BY ${orderBy}
+            LIMIT 50
+          `).all();
+
+          const leaderboard = (results.results || []).map((row, idx) => ({
+            rank: idx + 1,
+            nickname: row.nickname || 'Anonim',
+            avatar: row.avatar || '📚',
+            totalXP: row.total_xp || 0,
+            level: row.level || 1,
+            accuracy: row.total_questions > 0 ? Math.round((row.total_correct / row.total_questions) * 100) : 0,
+            gamesPlayed: row.games_played || 0,
+            bestStreak: row.best_streak || 0,
+            playerId: row.player_id
+          }));
+
+          return jsonResponse({ count: leaderboard.length, type, leaderboard }, 200, 30, request);
+        } catch (error) {
+          console.error("WQ leaderboard error:", error);
+          return errorResponse("Sıralama hatası: " + error.message, 500, "WQ_LB_ERROR", request);
+        }
+      }
+
+      // POST /api/wq/profile — Update player profile
+      if (path === "/api/wq/profile" && method === "POST") {
+        try {
+          const body = await request.json();
+          const { playerId, nickname, avatar, leaderboardOptIn } = body;
+
+          if (!playerId) return errorResponse("playerId gerekli", 400, "INVALID_INPUT", request);
+
+          await env.DB.exec(`CREATE TABLE IF NOT EXISTS wq_profiles (player_id TEXT PRIMARY KEY, nickname TEXT DEFAULT 'Anonim', avatar TEXT DEFAULT '📚', total_xp INTEGER DEFAULT 0, total_correct INTEGER DEFAULT 0, total_questions INTEGER DEFAULT 0, games_played INTEGER DEFAULT 0, best_streak INTEGER DEFAULT 0, level INTEGER DEFAULT 1, leaderboard_opt_in INTEGER DEFAULT 1, created_at TEXT DEFAULT (datetime('now')), updated_at TEXT DEFAULT (datetime('now')))`);
+
+          // Build dynamic update
+          const updates = [];
+          const values = [];
+          if (nickname !== undefined) { updates.push('nickname = ?'); values.push(nickname.substring(0, 16)); }
+          if (avatar !== undefined) { updates.push('avatar = ?'); values.push(avatar); }
+          if (leaderboardOptIn !== undefined) { updates.push('leaderboard_opt_in = ?'); values.push(leaderboardOptIn ? 1 : 0); }
+
+          if (updates.length === 0) return errorResponse("Güncellenecek alan yok", 400, "NO_UPDATES", request);
+
+          updates.push("updated_at = datetime('now')");
+          values.push(playerId);
+
+          await env.DB.prepare(
+            `UPDATE wq_profiles SET ${updates.join(', ')} WHERE player_id = ?`
+          ).bind(...values).run();
+
+          return jsonResponse({ success: true }, 200, 0, request);
+        } catch (error) {
+          console.error("WQ profile error:", error);
+          return errorResponse("Profil hatası: " + error.message, 500, "WQ_PROFILE_ERROR", request);
+        }
+      }
+
       return errorResponse("Not Found", 404, "NOT_FOUND");
 
     } catch (error) {

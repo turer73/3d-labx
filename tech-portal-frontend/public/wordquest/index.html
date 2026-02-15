@@ -350,6 +350,7 @@
 
             <!-- Stats Page Button -->
             <button class="stats-page-btn" id="btn-stats">📊 Detaylı İstatistikler</button>
+            <button class="leaderboard-page-btn" id="btn-leaderboard">🏆 Sıralama</button>
         </div>
 
         <!-- QUIZ SCREEN -->
@@ -603,6 +604,48 @@
             <!-- Reset -->
             <div class="stats-section stats-reset">
                 <button class="reset-btn" id="btn-reset-stats">🗑️ İstatistikleri Sıfırla</button>
+            </div>
+        </div>
+
+        <!-- LEADERBOARD SCREEN -->
+        <div id="leaderboard" class="screen">
+            <div class="stats-header">
+                <button class="back-btn" id="btn-lb-back">←</button>
+                <h2>🏆 Sıralama</h2>
+            </div>
+
+            <!-- My Rank Card -->
+            <div class="lb-my-rank-card">
+                <span class="lb-my-avatar" id="lb-my-avatar">📚</span>
+                <div class="lb-my-info">
+                    <span class="lb-my-name" id="lb-my-name">Anonim</span>
+                    <span class="lb-my-stat" id="lb-my-stat">0 XP • Seviye 1</span>
+                </div>
+                <span class="lb-my-rank-num" id="lb-my-rank-num">#-</span>
+            </div>
+
+            <!-- Nickname Edit -->
+            <div class="lb-nickname-section">
+                <input type="text" id="lb-nickname-input" placeholder="Kullanıcı adın" maxlength="16" />
+                <button class="lb-save-btn" id="btn-lb-save-name">Kaydet</button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="lb-tabs">
+                <button class="lb-tab active" data-tab="overall">🌍 Genel</button>
+                <button class="lb-tab" data-tab="weekly">📅 Haftalık</button>
+            </div>
+
+            <!-- Sort Pills (overall only) -->
+            <div class="lb-sort-pills" id="lb-sort-pills">
+                <button class="lb-sort-pill active" data-sort="xp">⭐ XP</button>
+                <button class="lb-sort-pill" data-sort="accuracy">🎯 Doğruluk</button>
+                <button class="lb-sort-pill" data-sort="games">🎮 Oyun</button>
+            </div>
+
+            <!-- List -->
+            <div class="lb-list" id="lb-list">
+                <div class="lb-loading">Yükleniyor...</div>
             </div>
         </div>
     </div>
