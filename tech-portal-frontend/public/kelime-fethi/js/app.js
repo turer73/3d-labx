@@ -27,6 +27,21 @@ import { initAds } from './ads.js';
 import { fetchDailyLeaderboard, fetchAlltimeLeaderboard, renderDailyLeaderboard, renderAlltimeLeaderboard } from './leaderboard.js';
 import { initSocialUI, shareViaWhatsApp, createChallenge, loadChallenge } from './social.js';
 
+// ===== ANALYTICS =====
+function trackEvent(eventName, params) {
+    try {
+        if (window.dataLayer) {
+            window.dataLayer.push({ event: eventName, ...params });
+        }
+        if (window.gtag) {
+            window.gtag('event', eventName, params);
+        }
+    } catch(e) {}
+}
+
+// Export for use in other modules
+window._trackEvent = trackEvent;
+
 // ===== ICON INTEGRATION =====
 function initIcons() {
     if (typeof window.setIcon !== 'function') return;

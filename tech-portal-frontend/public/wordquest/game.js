@@ -15,6 +15,18 @@
     const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev/api/wq';
     const PLAYER_ID_KEY = 'wq_player_id';
 
+    // ===== ANALYTICS =====
+    function trackEvent(eventName, params) {
+        try {
+            if (window.dataLayer) {
+                window.dataLayer.push({ event: eventName, ...params });
+            }
+            if (window.gtag) {
+                window.gtag('event', eventName, params);
+            }
+        } catch(e) {}
+    }
+
     let wordData = null;
     let state = {
         mode: 'vocabulary',
@@ -196,6 +208,7 @@
 
     function shareResult() {
         const text = generateShareText();
+        trackEvent('share', { method: 'native', content_type: 'game_result', game_name: 'wordquest' });
         if (navigator.share) {
             navigator.share({ text }).catch(() => copyToClipboard(text));
         } else {
@@ -205,6 +218,7 @@
 
     function shareViaWhatsApp() {
         const text = generateShareText();
+        trackEvent('share', { method: 'whatsapp', content_type: 'game_result', game_name: 'wordquest' });
         window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
     }
 
@@ -662,6 +676,14 @@
         state.answerResults = [];
         state.gameStartTime = Date.now();
 
+        trackEvent('game_start', {
+            game_name: 'wordquest',
+            game_mode: state.mode,
+            exam_filter: state.exam,
+            level_filter: state.level,
+            question_count: state.questions.length
+        });
+
         showScreen('quiz');
         showQuestion();
     }
@@ -838,6 +860,24 @@
         addDailyProgress(state.questions.length);
 
         saveStats();
+
+        const pctEnd = Math.round((state.score / state.questions.length) * 100);
+        trackEvent('game_complete', {
+            game_name: 'wordquest',
+            game_mode: state.mode,
+            score: state.score,
+            total_questions: state.questions.length,
+            percentage: pctEnd,
+            xp_earned: state.xpEarned,
+            best_streak: state.bestStreak,
+            time_ms: state.totalTimeMs,
+            is_challenge: !!state.challengeId
+        });
+
+        // AdSense: refresh ad on results screen
+        try {
+            if (window.adsbygoogle) (adsbygoogle = window.adsbygoogle || []).push({});
+        } catch(e) {}
 
         // Show results
         showResults();

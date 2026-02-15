@@ -465,6 +465,19 @@ function checkPuzzleResult(guess, evaluation, rowIndex) {
 
             showResultOverlay(true, message, totalScore, hasBonus, guessCount);
 
+            // GA4 tracking
+            if (window._trackEvent) window._trackEvent('puzzle_complete', {
+                game_name: 'kelime-fethi',
+                result: 'win',
+                guesses: guessCount,
+                score: totalScore,
+                is_daily: isDaily,
+                city: state.activeCityId || 'daily',
+                difficulty: state.difficulty,
+                word_length: WORD_LENGTH,
+                time_ms: _puzzleSolveTimeMs
+            });
+
             const grid = document.getElementById('guess-grid');
             if (grid) {
                 const rect = grid.getBoundingClientRect();
@@ -539,6 +552,19 @@ function checkPuzzleResult(guess, evaluation, rowIndex) {
             if (consolation > 0) {
                 floatText(`+${consolation}`, window.innerWidth / 2, window.innerHeight / 2 - 60, '#f59e0b');
             }
+
+            // GA4 tracking
+            if (window._trackEvent) window._trackEvent('puzzle_complete', {
+                game_name: 'kelime-fethi',
+                result: 'lose',
+                guesses: MAX_GUESSES,
+                score: consolation,
+                is_daily: state.dailyDate === getTodayStr(),
+                city: state.activeCityId || 'daily',
+                difficulty: state.difficulty,
+                word_length: WORD_LENGTH,
+                time_ms: _puzzleSolveTimeMs
+            });
         }, 500);
     } else {
         // Not correct, not last guess — check auto-hint
@@ -698,6 +724,13 @@ export function generateShareGrid() {
 export function shareResult() {
     const text = generateShareGrid();
     if (!text) return;
+
+    // GA4 tracking
+    if (window._trackEvent) window._trackEvent('share', {
+        game_name: 'kelime-fethi',
+        method: navigator.share ? 'native' : 'clipboard',
+        content_type: 'puzzle_result'
+    });
 
     if (navigator.share) {
         navigator.share({ text }).catch(() => {});
@@ -1027,6 +1060,15 @@ export function startCityPuzzle(cityId, switchViewFn) {
     _eliminatedKeys.clear();
     clearEvalCache();
 
+    // GA4 tracking
+    if (window._trackEvent) window._trackEvent('puzzle_start', {
+        game_name: 'kelime-fethi',
+        puzzle_type: 'city',
+        city: cityId,
+        difficulty: state.difficulty,
+        word_length: wordLength
+    });
+
     document.getElementById('puzzle-city-name').textContent = city.name;
     const regionData = REGIONS.find(r => r.id === city.region);
     document.getElementById('puzzle-region-name').textContent = regionData ? regionData.name : '';
@@ -1108,6 +1150,15 @@ export function startDailyPuzzle(switchViewFn) {
     }
 
     updateKeyboardState();
+
+    // GA4 tracking
+    if (window._trackEvent) window._trackEvent('puzzle_start', {
+        game_name: 'kelime-fethi',
+        puzzle_type: 'daily',
+        day_number: getDayNumber(),
+        difficulty: state.difficulty,
+        word_length: WORD_LENGTH
+    });
 
     document.getElementById('puzzle-city-name').textContent = 'Günlük Bulmaca';
     document.getElementById('puzzle-region-name').textContent = `#${getDayNumber()}`;

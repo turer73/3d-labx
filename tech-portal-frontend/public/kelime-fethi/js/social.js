@@ -84,6 +84,13 @@ export function shareViaWhatsApp(shareText) {
     window.open(url, '_blank');
     state.shareCount = (state.shareCount || 0) + 1;
     save();
+
+    // GA4 tracking
+    if (window._trackEvent) window._trackEvent('share', {
+        game_name: 'kelime-fethi',
+        method: 'whatsapp',
+        content_type: 'puzzle_result'
+    });
 }
 
 // ===== CHALLENGE LINKS =====

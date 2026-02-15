@@ -1278,6 +1278,22 @@ body {
     font-weight: 800;
 }
 
+/* ===== AD CONTAINER ===== */
+.ad-container {
+    width: 100%;
+    margin: 16px 0;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.ad-container ins {
+    width: 100%;
+}
+
 /* ===== SAFE AREA ===== */
 @supports (padding-top: env(safe-area-inset-top)) {
     #home { padding-top: calc(20px + env(safe-area-inset-top)); }
