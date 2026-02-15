@@ -270,7 +270,7 @@
 
             const data = await res.json();
             if (data.success) {
-                const shareText = `⚔️ WordQuest Meydan Okuma!\n${state.score}/${state.questions.length} yaptım, sen kaç yaparsın?\n\n${data.url}`;
+                const shareText = `⚔️ WordQuest Meydan Okuma!\n${state.score}/${state.questions.length} yaptım, sen kaç yaparsın?\nHerkes katılabilir! 🎉\n\n${data.url}`;
                 if (navigator.share) {
                     navigator.share({ text: shareText }).catch(() => copyToClipboard(shareText));
                 } else {
@@ -306,6 +306,7 @@
             state.challengeCreatorPct = data.creatorPct;
             state.challengeQuestionIds = data.questionIds;
             state.challengeMode = data.mode;
+            state.challengePlayCount = data.playCount || 0;
             return true;
         } catch(e) {
             console.warn('Challenge load error:', e);
@@ -317,7 +318,11 @@
         const banner = $('challenge-banner');
         if (!banner || !state.challengeId) return;
         $('challenge-creator-name').textContent = state.challengeCreator || 'Birisi';
-        $('challenge-target').textContent = `Hedef: %${state.challengeCreatorPct || 0}`;
+        const playCount = state.challengePlayCount || 0;
+        const targetText = playCount > 1
+            ? `🎉 ${playCount} kişi katıldı • Hedef: %${state.challengeCreatorPct || 0}`
+            : `Hedef: %${state.challengeCreatorPct || 0}`;
+        $('challenge-target').textContent = targetText;
         banner.classList.remove('hidden');
     }
 
@@ -368,6 +373,9 @@
             });
             const data = await res.json();
             if (data.comparison) showChallengeComparison(data.comparison);
+            if (data.participants && data.participants.length > 2) {
+                showPartyResults(data.participants);
+            }
         } catch(e) { console.warn('Challenge result error:', e); }
     }
 
@@ -394,6 +402,47 @@
             </div>
             <div class="comp-winner">${winLabel}</div>
         `;
+        el.classList.remove('hidden');
+    }
+
+    function showPartyResults(participants) {
+        const el = $('challenge-comparison');
+        if (!el) return;
+
+        const myId = getPlayerId();
+        const medals = ['🥇', '🥈', '🥉'];
+
+        let html = `
+            <h3 class="comparison-title">🎉 Grup Yarışması Sonuçları</h3>
+            <div class="party-subtitle">${participants.length} katılımcı</div>
+            <div class="party-results">
+        `;
+
+        participants.forEach((p, i) => {
+            const isMe = p.playerId === myId;
+            const rankDisplay = i < 3 ? medals[i] : `#${p.rank}`;
+            const timeStr = p.timeMs > 0 ? `${Math.round(p.timeMs / 1000)}s` : '-';
+            html += `
+                <div class="party-row ${isMe ? 'party-me' : ''} ${i < 3 ? 'party-top-' + (i+1) : ''}">
+                    <span class="party-rank">${rankDisplay}</span>
+                    <span class="party-name">${p.nickname}${isMe ? ' (Sen)' : ''}${p.isCreator ? ' 👑' : ''}</span>
+                    <span class="party-score">%${p.pct}</span>
+                    <span class="party-time">${timeStr}</span>
+                </div>
+            `;
+        });
+
+        html += '</div>';
+
+        // My rank message
+        const myEntry = participants.find(p => p.playerId === myId);
+        if (myEntry) {
+            if (myEntry.rank === 1) html += '<div class="party-message">🏆 Birinci oldun!</div>';
+            else if (myEntry.rank <= 3) html += `<div class="party-message">🎉 ${myEntry.rank}. sıradasın!</div>`;
+            else html += `<div class="party-message">${myEntry.rank}/${participants.length} sırada</div>`;
+        }
+
+        el.innerHTML = html;
         el.classList.remove('hidden');
     }
 

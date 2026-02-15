@@ -7078,6 +7078,39 @@ ${text}`;
             else if (creatorTime < challengerTime) winner = 'creator';
           }
 
+          // Get all results for party/group mode
+          const allResults = await env.DB.prepare(`
+            SELECT player_id, nickname, score, pct, time_ms
+            FROM wq_challenge_results WHERE challenge_id = ?
+            ORDER BY pct DESC, time_ms ASC
+          `).bind(challengeId).all();
+
+          // Build leaderboard including creator
+          const participants = [
+            {
+              playerId: challenge.creator_id,
+              nickname: challenge.creator_nickname,
+              score: challenge.creator_score,
+              pct: challenge.creator_pct,
+              timeMs: challenge.creator_time_ms,
+              isCreator: true
+            },
+            ...(allResults.results || []).map(r => ({
+              playerId: r.player_id,
+              nickname: r.nickname,
+              score: r.score,
+              pct: r.pct,
+              timeMs: r.time_ms,
+              isCreator: false
+            }))
+          ];
+
+          // Sort by pct DESC, then time ASC
+          participants.sort((a, b) => b.pct - a.pct || a.timeMs - b.timeMs);
+
+          // Assign ranks
+          participants.forEach((p, i) => { p.rank = i + 1; });
+
           return jsonResponse({
             success: true,
             comparison: {
@@ -7095,10 +7128,65 @@ ${text}`;
               },
               winner,
               questionCount: challenge.question_count
-            }
+            },
+            participants,
+            totalPlayers: participants.length
           }, 200, 0, request);
         } catch (error) {
           console.error("WQ Challenge result error:", error);
+          return errorResponse("Sonuç hatası: " + error.message, 500, "WQ_CHALLENGE_ERROR", request);
+        }
+      }
+
+      // GET /api/wq/challenge/:id/results — Get all participants for a challenge (party mode)
+      if (path.match(/^\/api\/wq\/challenge\/[A-Z0-9]{6}\/results$/) && method === "GET") {
+        try {
+          const parts = path.split("/");
+          const challengeId = parts[4].toUpperCase();
+
+          const challenge = await env.DB.prepare(`
+            SELECT creator_id, creator_nickname, creator_score, creator_pct, creator_time_ms, question_count, play_count
+            FROM wq_challenges WHERE challenge_id = ?
+          `).bind(challengeId).first();
+
+          if (!challenge) return errorResponse("Meydan okuma bulunamadı", 404, "CHALLENGE_NOT_FOUND", request);
+
+          const allResults = await env.DB.prepare(`
+            SELECT player_id, nickname, score, pct, time_ms, created_at
+            FROM wq_challenge_results WHERE challenge_id = ?
+            ORDER BY pct DESC, time_ms ASC
+          `).bind(challengeId).all();
+
+          const participants = [
+            {
+              playerId: challenge.creator_id,
+              nickname: challenge.creator_nickname,
+              score: challenge.creator_score,
+              pct: challenge.creator_pct,
+              timeMs: challenge.creator_time_ms,
+              isCreator: true
+            },
+            ...(allResults.results || []).map(r => ({
+              playerId: r.player_id,
+              nickname: r.nickname,
+              score: r.score,
+              pct: r.pct,
+              timeMs: r.time_ms,
+              isCreator: false
+            }))
+          ];
+
+          participants.sort((a, b) => b.pct - a.pct || a.timeMs - b.timeMs);
+          participants.forEach((p, i) => { p.rank = i + 1; });
+
+          return jsonResponse({
+            challengeId,
+            questionCount: challenge.question_count,
+            totalPlayers: participants.length,
+            participants
+          }, 200, 30, request);
+        } catch (error) {
+          console.error("WQ Challenge results error:", error);
           return errorResponse("Sonuç hatası: " + error.message, 500, "WQ_CHALLENGE_ERROR", request);
         }
       }

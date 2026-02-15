@@ -1278,6 +1278,82 @@ body {
     font-weight: 800;
 }
 
+/* ===== PARTY / GROUP CHALLENGE RESULTS ===== */
+.party-subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+}
+.party-results {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.party-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--card);
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: all 0.2s;
+}
+.party-row.party-me {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+.party-row.party-top-1 {
+    background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(234,179,8,0.08));
+    border-color: rgba(245,158,11,0.3);
+}
+.party-row.party-top-2 {
+    background: linear-gradient(135deg, rgba(156,163,175,0.12), rgba(156,163,175,0.05));
+    border-color: rgba(156,163,175,0.2);
+}
+.party-row.party-top-3 {
+    background: linear-gradient(135deg, rgba(180,83,9,0.12), rgba(180,83,9,0.05));
+    border-color: rgba(180,83,9,0.2);
+}
+.party-rank {
+    font-size: 1.1rem;
+    min-width: 28px;
+    text-align: center;
+    font-weight: 700;
+}
+.party-name {
+    flex: 1;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.party-score {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--primary);
+    min-width: 40px;
+    text-align: right;
+}
+.party-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    min-width: 30px;
+    text-align: right;
+}
+.party-message {
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-top: 12px;
+    padding: 8px;
+    background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(147,51,234,0.1));
+    border-radius: var(--radius-sm);
+}
+
 /* ===== AD CONTAINER ===== */
 .ad-container {
     width: 100%;
