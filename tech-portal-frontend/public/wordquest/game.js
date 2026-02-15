@@ -63,7 +63,8 @@
         splash: $('splash'),
         home: $('home'),
         quiz: $('quiz'),
-        results: $('results')
+        results: $('results'),
+        stats: $('stats')
     };
 
     // ===== INIT =====
@@ -497,6 +498,150 @@
         container.innerHTML = html || '<p style="color:var(--text-dim);font-size:0.82rem;text-align:center">Henüz veri yok. Oynamaya başla!</p>';
     }
 
+    // ===== STATS PAGE =====
+    function showStats() {
+        showScreen('stats');
+        updateStatsUI();
+    }
+
+    function updateStatsUI() {
+        // --- Genel Özet ---
+        $('s-xp').textContent = stats.totalXP;
+        $('s-level').textContent = stats.level;
+        $('s-games').textContent = stats.gamesPlayed;
+        $('s-streak').textContent = stats.streak;
+
+        // XP progress bar (to next level)
+        const xpInLevel = stats.totalXP % XP_PER_LEVEL;
+        const xpPct = Math.round((xpInLevel / XP_PER_LEVEL) * 100);
+        $('s-xp-fill').style.width = xpPct + '%';
+        $('s-xp-text').textContent = xpInLevel + '/' + XP_PER_LEVEL + ' XP → Seviye ' + (stats.level + 1);
+
+        // --- Accuracy Ring ---
+        const totalQ = stats.totalQuestions;
+        const totalC = stats.totalCorrect;
+        const pct = totalQ > 0 ? Math.round((totalC / totalQ) * 100) : 0;
+        const circumference = 2 * Math.PI * 54; // ≈ 339.29
+        const offset = circumference * (1 - pct / 100);
+
+        const ringFill = $('s-ring-fill');
+        ringFill.style.strokeDasharray = circumference;
+        ringFill.style.strokeDashoffset = circumference; // start empty
+
+        // Animate after paint
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                ringFill.style.transition = 'stroke-dashoffset 1.2s ease';
+                ringFill.style.strokeDashoffset = offset;
+                // Color based on accuracy
+                if (pct >= 70) ringFill.style.stroke = 'var(--success)';
+                else if (pct >= 40) ringFill.style.stroke = 'var(--warning)';
+                else ringFill.style.stroke = 'var(--danger)';
+            });
+        });
+
+        $('s-accuracy-pct').textContent = pct + '%';
+        $('s-correct').textContent = totalC;
+        $('s-wrong').textContent = totalQ - totalC;
+        $('s-total').textContent = totalQ;
+        $('s-learned').textContent = stats.learnedWords.length;
+
+        // --- Kategori Detay ---
+        updateStatsCategoryUI();
+
+        // --- Leitner Kutuları ---
+        updateStatsLeitnerUI();
+
+        // --- Günlük Hedef ---
+        const dailyProgress = getDailyProgress();
+        $('s-daily-count').textContent = dailyProgress;
+        $('s-best-streak').textContent = stats.bestStreak;
+    }
+
+    function updateStatsCategoryUI() {
+        const container = $('s-cat-details');
+        if (!container) return;
+
+        const typeLabels = {
+            vocabulary: { name: 'Kelime Bilgisi', icon: '📖' },
+            phrasal_verb: { name: 'Phrasal Verb', icon: '🔗' },
+            grammar: { name: 'Dilbilgisi', icon: '📝' },
+            sentence_completion: { name: 'Cümle Tamamlama', icon: '✏️' },
+            cloze_test: { name: 'Boşluk Doldurma', icon: '🔲' },
+            dialogue: { name: 'Diyalog', icon: '💬' },
+            restatement: { name: 'Yakın Anlam', icon: '🔄' }
+        };
+
+        let html = '';
+        const types = Object.keys(typeLabels);
+
+        types.forEach(type => {
+            const cs = catStats[type];
+            const correct = cs ? cs.correct : 0;
+            const total = cs ? cs.total : 0;
+            const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+            let barColor = 'var(--danger)';
+            if (pct >= 70) barColor = 'var(--success)';
+            else if (pct >= 40) barColor = 'var(--warning)';
+
+            const info = typeLabels[type];
+            html += `
+                <div class="cat-detail-card">
+                    <div class="cat-detail-header">
+                        <span class="cat-detail-name">${info.icon} ${info.name}</span>
+                        <span class="cat-detail-pct" style="color:${barColor}">${pct}%</span>
+                    </div>
+                    <div class="cat-detail-bar">
+                        <div class="cat-detail-fill" style="width:${pct}%;background:${barColor}"></div>
+                    </div>
+                    <div class="cat-detail-info">${correct} doğru / ${total} soru</div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    function updateStatsLeitnerUI() {
+        if (!wordData) return;
+
+        const allQ = getAllQuestions();
+        let box0 = 0, box1 = 0, box2 = 0, box3 = 0;
+
+        allQ.forEach(q => {
+            const box = getLeitnerBox(q.word || q.id);
+            if (box === 0) box0++;
+            else if (box === 1) box1++;
+            else if (box === 2) box2++;
+            else if (box === 3) box3++;
+        });
+
+        $('s-box0').textContent = box0;
+        $('s-box1').textContent = box1;
+        $('s-box2').textContent = box2;
+        $('s-box3').textContent = box3;
+
+        // Stacked progress bar
+        const total = allQ.length || 1;
+        $('s-lp0').style.width = (box0 / total * 100) + '%';
+        $('s-lp1').style.width = (box1 / total * 100) + '%';
+        $('s-lp2').style.width = (box2 / total * 100) + '%';
+        $('s-lp3').style.width = (box3 / total * 100) + '%';
+    }
+
+    function resetStats() {
+        if (!confirm('Tüm istatistikleri sıfırlamak istediğinize emin misiniz?\nBu işlem geri alınamaz!')) return;
+        localStorage.removeItem('wq_stats');
+        localStorage.removeItem('wq_cat_stats');
+        localStorage.removeItem('wq_leitner');
+        stats = loadStats();
+        catStats = loadCatStats();
+        leitner = loadLeitner();
+        updateStatsUI();
+        showToast('🗑️ İstatistikler sıfırlandı');
+    }
+
     function checkDailyStreak() {
         const today = new Date().toDateString();
         const yesterday = new Date(Date.now() - 86400000).toDateString();
@@ -640,6 +785,11 @@
                 window.history.replaceState({}, '', window.location.pathname);
             });
         }
+
+        // Stats page
+        if ($('btn-stats')) $('btn-stats').addEventListener('click', showStats);
+        if ($('btn-stats-back')) $('btn-stats-back').addEventListener('click', () => showScreen('home'));
+        if ($('btn-reset-stats')) $('btn-reset-stats').addEventListener('click', resetStats);
 
         // Default selection
         document.querySelector('.mode-card[data-mode="vocabulary"]').classList.add('selected');

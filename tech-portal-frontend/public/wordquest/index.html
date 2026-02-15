@@ -347,6 +347,9 @@
                     <p style="color:var(--text-dim);font-size:0.82rem;text-align:center">Henüz veri yok. Oynamaya başla!</p>
                 </div>
             </div>
+
+            <!-- Stats Page Button -->
+            <button class="stats-page-btn" id="btn-stats">📊 Detaylı İstatistikler</button>
         </div>
 
         <!-- QUIZ SCREEN -->
@@ -490,6 +493,116 @@
             <div class="results-actions">
                 <button class="action-btn primary" id="play-again">Tekrar Oyna</button>
                 <button class="action-btn secondary" id="go-home">Ana Menü</button>
+            </div>
+        </div>
+
+        <!-- STATS SCREEN -->
+        <div id="stats" class="screen">
+            <div class="stats-header">
+                <button class="back-btn" id="btn-stats-back">←</button>
+                <h2>📊 İstatistikler</h2>
+            </div>
+
+            <!-- Overview Card -->
+            <div class="stats-overview-card">
+                <div class="stats-overview-grid">
+                    <div class="sov-item">
+                        <span class="sov-value" id="s-xp">0</span>
+                        <span class="sov-label">Toplam XP</span>
+                    </div>
+                    <div class="sov-item">
+                        <span class="sov-value" id="s-level">1</span>
+                        <span class="sov-label">Seviye</span>
+                    </div>
+                    <div class="sov-item">
+                        <span class="sov-value" id="s-games">0</span>
+                        <span class="sov-label">Oyun</span>
+                    </div>
+                    <div class="sov-item">
+                        <span class="sov-value" id="s-streak">0</span>
+                        <span class="sov-label">🔥 Seri</span>
+                    </div>
+                </div>
+                <div class="xp-level-bar">
+                    <div class="xp-level-fill" id="s-xp-fill"></div>
+                    <span class="xp-level-text" id="s-xp-text">0/100 XP</span>
+                </div>
+            </div>
+
+            <!-- Accuracy Section -->
+            <div class="stats-section">
+                <h3 class="section-title">📈 Genel Başarı</h3>
+                <div class="stats-accuracy-card">
+                    <div class="accuracy-ring">
+                        <svg viewBox="0 0 120 120">
+                            <circle class="ring-bg" cx="60" cy="60" r="54" />
+                            <circle class="ring-fill" cx="60" cy="60" r="54" id="s-ring-fill" />
+                        </svg>
+                        <span class="ring-value" id="s-accuracy-pct">0%</span>
+                    </div>
+                    <div class="accuracy-details">
+                        <div class="acc-row"><span>✅ Doğru</span><span id="s-correct">0</span></div>
+                        <div class="acc-row"><span>❌ Yanlış</span><span id="s-wrong">0</span></div>
+                        <div class="acc-row"><span>📝 Toplam Soru</span><span id="s-total">0</span></div>
+                        <div class="acc-row"><span>📚 Öğrenilen</span><span id="s-learned">0</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Details -->
+            <div class="stats-section">
+                <h3 class="section-title">📂 Kategori Detay</h3>
+                <div id="s-cat-details"></div>
+            </div>
+
+            <!-- Leitner Boxes -->
+            <div class="stats-section">
+                <h3 class="section-title">🧠 Kelime Hafızası (Leitner)</h3>
+                <div class="leitner-boxes">
+                    <div class="lbox">
+                        <span class="lbox-icon">🆕</span>
+                        <span class="lbox-count" id="s-box0">0</span>
+                        <span class="lbox-label">Görülmemiş</span>
+                    </div>
+                    <div class="lbox lbox-1">
+                        <span class="lbox-icon">🔴</span>
+                        <span class="lbox-count" id="s-box1">0</span>
+                        <span class="lbox-label">Yanlış</span>
+                    </div>
+                    <div class="lbox lbox-2">
+                        <span class="lbox-icon">🟡</span>
+                        <span class="lbox-count" id="s-box2">0</span>
+                        <span class="lbox-label">Öğreniyor</span>
+                    </div>
+                    <div class="lbox lbox-3">
+                        <span class="lbox-icon">🟢</span>
+                        <span class="lbox-count" id="s-box3">0</span>
+                        <span class="lbox-label">Bilinen</span>
+                    </div>
+                </div>
+                <div class="leitner-progress">
+                    <div class="lp-segment lp-0" id="s-lp0"></div>
+                    <div class="lp-segment lp-1" id="s-lp1"></div>
+                    <div class="lp-segment lp-2" id="s-lp2"></div>
+                    <div class="lp-segment lp-3" id="s-lp3"></div>
+                </div>
+            </div>
+
+            <!-- Daily Goal -->
+            <div class="stats-section">
+                <h3 class="section-title">🎯 Günlük Hedef</h3>
+                <div class="daily-stats-card">
+                    <div class="daily-big-number" id="s-daily-count">0</div>
+                    <div class="daily-goal-label">/ 20 soru bugün</div>
+                    <div class="daily-streak-info">
+                        <span>🔥 En iyi seri: <strong id="s-best-streak">0</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reset -->
+            <div class="stats-section stats-reset">
+                <button class="reset-btn" id="btn-reset-stats">🗑️ İstatistikleri Sıfırla</button>
             </div>
         </div>
     </div>
