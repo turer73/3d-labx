@@ -285,7 +285,9 @@
                     <button class="diff-pill" data-level="B1">B1</button>
                     <button class="diff-pill" data-level="B2">B2</button>
                     <button class="diff-pill" data-level="C1">C1</button>
+                    <button class="diff-pill diff-pill-adaptive" data-level="adaptive">🎯 Adaptif</button>
                 </div>
+                <div class="adaptive-hint hidden" id="adaptive-hint"></div>
             </div>
 
             <!-- Daily Goal -->
@@ -383,8 +385,11 @@
 
             <!-- Question -->
             <div class="question-area">
-                <div class="question-badge" id="question-badge">Kelime Bilgisi</div>
-                <div class="question-level" id="question-level">B2</div>
+                <div class="question-meta-row">
+                    <div class="question-badge" id="question-badge">Kelime Bilgisi</div>
+                    <div class="question-level" id="question-level">B2</div>
+                    <div class="adaptive-indicator hidden" id="adaptive-indicator"></div>
+                </div>
                 <p class="question-text" id="question-text"></p>
             </div>
 
@@ -451,6 +456,9 @@
                     <span class="rs-label">En İyi Seri</span>
                 </div>
             </div>
+
+            <!-- Adaptive Difficulty Summary -->
+            <div class="rs-adaptive hidden" id="rs-adaptive"></div>
 
             <!-- Wrong Answers Review -->
             <div class="review-section" id="review-section">

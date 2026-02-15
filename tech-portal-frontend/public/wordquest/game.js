@@ -12,6 +12,8 @@
     const XP_TIME_BONUS = 3;
     const XP_PER_LEVEL = 100;
     const DAILY_GOAL = 20;
+    const ADAPTIVE_STREAK_UP = 3;   // 3 correct in a row → difficulty up
+    const ADAPTIVE_STREAK_DOWN = 2; // 2 wrong in a row → difficulty down
     const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev/api/wq';
     const PLAYER_ID_KEY = 'wq_player_id';
 
@@ -50,7 +52,8 @@
         challengeCreatorScore: null,
         challengeCreatorPct: null,
         challengeQuestionIds: null,
-        challengeMode: null
+        challengeMode: null,
+        adaptiveLevel: null  // current adaptive difficulty: B1/B2/C1
     };
 
     let stats = loadStats();
@@ -412,7 +415,21 @@
         // Counts
         let allQuestions = getAllQuestions();
         if (state.exam !== 'all') allQuestions = allQuestions.filter(q => q.exam === state.exam);
-        if (state.level !== 'all') allQuestions = allQuestions.filter(q => q.level === state.level);
+        if (state.level !== 'all' && state.level !== 'adaptive') allQuestions = allQuestions.filter(q => q.level === state.level);
+
+        // Show adaptive info hint on home
+        const adaptiveHint = $('adaptive-hint');
+        if (adaptiveHint) {
+            if (state.level === 'adaptive') {
+                const strength = getPlayerStrength(null);
+                const labels = { B1: 'Kolay (B1)', B2: 'Orta (B2)', C1: 'Zor (C1)' };
+                const emoji = { B1: '🟢', B2: '🟡', C1: '🔴' };
+                adaptiveHint.innerHTML = `${emoji[strength]} Tahmini seviye: <strong>${labels[strength]}</strong>`;
+                adaptiveHint.classList.remove('hidden');
+            } else {
+                adaptiveHint.classList.add('hidden');
+            }
+        }
 
         const counts = {};
         ['vocabulary','phrasal_verb','grammar','sentence_completion','cloze_test','dialogue','restatement'].forEach(t => {
@@ -772,6 +789,117 @@
         } catch(e) { showToast('Kayıt hatası'); }
     }
 
+    // ===== ADAPTIVE DIFFICULTY =====
+    const LEVEL_ORDER = ['B1', 'B2', 'C1'];
+
+    function getPlayerStrength(modeType) {
+        // Calculate player's effective level based on performance
+        // Consider: overall accuracy, category accuracy, Leitner data
+        const overall = stats.totalQuestions > 0
+            ? (stats.totalCorrect / stats.totalQuestions) : 0.5;
+
+        // Category-specific accuracy (if available)
+        let catAcc = overall;
+        if (modeType && catStats[modeType] && catStats[modeType].total >= 10) {
+            catAcc = catStats[modeType].correct / catStats[modeType].total;
+        }
+
+        // Weighted: 40% category, 60% overall (category has smaller sample)
+        const acc = catStats[modeType] && catStats[modeType].total >= 10
+            ? catAcc * 0.4 + overall * 0.6
+            : overall;
+
+        if (acc < 0.45) return 'B1';
+        if (acc < 0.72) return 'B2';
+        return 'C1';
+    }
+
+    function buildAdaptivePool(questions) {
+        // Determine player's starting level
+        const modeType = state.mode === 'mixed' ? null : state.mode;
+        const strength = getPlayerStrength(modeType);
+        state.adaptiveLevel = strength;
+
+        // Group questions by level
+        const byLevel = { B1: [], B2: [], C1: [] };
+        questions.forEach(q => {
+            if (byLevel[q.level]) byLevel[q.level].push(q);
+        });
+
+        // Weight distribution based on strength
+        // Player at B1: 50% B1, 35% B2, 15% C1 (mostly easy, some challenge)
+        // Player at B2: 20% B1, 50% B2, 30% C1 (balanced)
+        // Player at C1: 10% B1, 30% B2, 60% C1 (mostly hard, some review)
+        const weights = {
+            B1: { B1: 0.50, B2: 0.35, C1: 0.15 },
+            B2: { B1: 0.20, B2: 0.50, C1: 0.30 },
+            C1: { B1: 0.10, B2: 0.30, C1: 0.60 }
+        };
+
+        const w = weights[strength];
+        const total = QUESTIONS_PER_ROUND;
+
+        // Calculate target count per level
+        let targets = {
+            B1: Math.round(total * w.B1),
+            B2: Math.round(total * w.B2),
+            C1: Math.round(total * w.C1)
+        };
+
+        // Ensure total matches
+        const diff = total - (targets.B1 + targets.B2 + targets.C1);
+        targets[strength] += diff;
+
+        // Prioritize Leitner box 1 & 2 (wrong/learning) within each level
+        const pool = [];
+        for (const lvl of LEVEL_ORDER) {
+            const available = shuffleArray([...byLevel[lvl]]);
+            // Sort: box 1 first, then box 2, then box 0, then box 3
+            available.sort((a, b) => {
+                const boxA = getLeitnerBox(a.word || a.id);
+                const boxB = getLeitnerBox(b.word || b.id);
+                const priority = { 1: 0, 2: 1, 0: 2, 3: 3 };
+                return (priority[boxA] || 3) - (priority[boxB] || 3);
+            });
+            pool.push(...available.slice(0, targets[lvl]));
+        }
+
+        // If not enough questions at certain levels, fill from others
+        if (pool.length < total) {
+            const poolIds = new Set(pool.map(q => q.id));
+            const remaining = shuffleArray(questions.filter(q => !poolIds.has(q.id)));
+            pool.push(...remaining.slice(0, total - pool.length));
+        }
+
+        return shuffleArray(pool);
+    }
+
+    function getAdaptiveNextLevel() {
+        // Mid-game adaptation: check recent answers to adjust difficulty
+        const results = state.answerResults;
+        if (results.length < 2) return state.adaptiveLevel;
+
+        const currentIdx = LEVEL_ORDER.indexOf(state.adaptiveLevel);
+
+        // Check for streak up (consecutive correct)
+        const recentCorrect = results.slice(-ADAPTIVE_STREAK_UP);
+        if (recentCorrect.length >= ADAPTIVE_STREAK_UP && recentCorrect.every(r => r === 'correct')) {
+            if (currentIdx < LEVEL_ORDER.length - 1) {
+                return LEVEL_ORDER[currentIdx + 1];
+            }
+        }
+
+        // Check for streak down (consecutive wrong)
+        const recentWrong = results.slice(-ADAPTIVE_STREAK_DOWN);
+        if (recentWrong.length >= ADAPTIVE_STREAK_DOWN && recentWrong.every(r => r !== 'correct')) {
+            if (currentIdx > 0) {
+                return LEVEL_ORDER[currentIdx - 1];
+            }
+        }
+
+        return state.adaptiveLevel;
+    }
+
     function checkDailyStreak() {
         const today = new Date().toDateString();
         const yesterday = new Date(Date.now() - 86400000).toDateString();
@@ -830,8 +958,8 @@
             questions = questions.filter(q => q.exam === state.exam);
         }
 
-        // Filter by level
-        if (state.level !== 'all') {
+        // Filter by level (skip for adaptive mode — buildAdaptivePool handles it)
+        if (state.level !== 'all' && state.level !== 'adaptive') {
             questions = questions.filter(q => q.level === state.level);
         }
 
@@ -960,16 +1088,20 @@
             return;
         }
 
-        // Leitner-weighted shuffle for review mode: box 1 first, then box 2
+        // Build question pool based on mode and difficulty setting
         if (state.mode === 'review') {
+            // Leitner-weighted shuffle: box 1 first, then box 2
             const box1 = pool.filter(q => getLeitnerBox(q.word || q.id) === 1);
             const box2 = pool.filter(q => getLeitnerBox(q.word || q.id) === 2);
             pool = [...shuffleArray(box1), ...shuffleArray(box2)];
+            state.questions = pool.slice(0, Math.min(QUESTIONS_PER_ROUND, pool.length));
+        } else if (state.level === 'adaptive') {
+            // Adaptive difficulty: weighted mix based on player performance
+            state.questions = buildAdaptivePool(pool);
         } else {
             pool = shuffleArray([...pool]);
+            state.questions = pool.slice(0, Math.min(QUESTIONS_PER_ROUND, pool.length));
         }
-
-        state.questions = pool.slice(0, Math.min(QUESTIONS_PER_ROUND, pool.length));
         state.currentIndex = 0;
         state.score = 0;
         state.xpEarned = 0;
@@ -1014,6 +1146,24 @@
         const boxIcons = ['🆕', '🔴', '🟡', '🟢'];
         if ($('question-badge')) {
             $('question-badge').textContent = (badges[q._type] || q._type) + ' ' + (boxIcons[box] || '');
+        }
+
+        // Adaptive difficulty indicator
+        const adaptiveIndicator = $('adaptive-indicator');
+        if (adaptiveIndicator) {
+            if (state.level === 'adaptive') {
+                // Check mid-game level shift
+                const newLevel = getAdaptiveNextLevel();
+                if (newLevel !== state.adaptiveLevel) {
+                    state.adaptiveLevel = newLevel;
+                    showToast(newLevel === 'C1' ? '🔥 Zorluk arttı!' : newLevel === 'B1' ? '💡 Zorluk azaldı' : '📊 Zorluk ayarlandı');
+                }
+                const levelEmoji = { B1: '🟢', B2: '🟡', C1: '🔴' };
+                adaptiveIndicator.innerHTML = `<span class="adaptive-badge adaptive-${state.adaptiveLevel.toLowerCase()}">${levelEmoji[state.adaptiveLevel]} ${state.adaptiveLevel}</span>`;
+                adaptiveIndicator.classList.remove('hidden');
+            } else {
+                adaptiveIndicator.classList.add('hidden');
+            }
         }
 
         // Question text
@@ -1285,6 +1435,32 @@
         $('rs-wrong').textContent = state.questions.length - state.score;
         $('rs-xp').textContent = state.xpEarned;
         $('rs-streak').textContent = state.bestStreak;
+
+        // Adaptive difficulty summary
+        const adaptiveSummary = $('rs-adaptive');
+        if (adaptiveSummary) {
+            if (state.level === 'adaptive' && state.adaptiveLevel) {
+                const levelLabels = { B1: 'Kolay (B1)', B2: 'Orta (B2)', C1: 'Zor (C1)' };
+                const levelEmoji = { B1: '🟢', B2: '🟡', C1: '🔴' };
+                // Count questions by level
+                const levelCounts = { B1: 0, B2: 0, C1: 0 };
+                state.questions.forEach(q => { if (levelCounts[q.level] !== undefined) levelCounts[q.level]++; });
+                adaptiveSummary.innerHTML = `
+                    <div class="rs-adaptive-card">
+                        <span class="rs-adaptive-title">🎯 Adaptif Zorluk</span>
+                        <span class="rs-adaptive-level">${levelEmoji[state.adaptiveLevel]} Seviye: ${levelLabels[state.adaptiveLevel]}</span>
+                        <div class="rs-adaptive-dist">
+                            <span class="rs-ad-pill b1">B1: ${levelCounts.B1}</span>
+                            <span class="rs-ad-pill b2">B2: ${levelCounts.B2}</span>
+                            <span class="rs-ad-pill c1">C1: ${levelCounts.C1}</span>
+                        </div>
+                    </div>
+                `;
+                adaptiveSummary.classList.remove('hidden');
+            } else {
+                adaptiveSummary.classList.add('hidden');
+            }
+        }
 
         // Wrong answers review
         const reviewSection = $('review-section');
