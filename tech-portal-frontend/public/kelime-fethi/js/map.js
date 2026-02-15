@@ -49,11 +49,20 @@ export function setOnCityClickCallback(fn) {
     _onCityClickCallback = fn;
 }
 
+// Last conquered city ID — for glow animation when returning to map
+let _lastConqueredCityId = null;
+export function setLastConqueredCity(cityId) { _lastConqueredCityId = cityId; }
+
 export function renderMap() {
     const mapEl = document.getElementById('turkey-map');
     if (!mapEl || !TURKEY_MAP.paths) return;
 
     mapEl.innerHTML = '';
+
+    // Group cities by region for stagger index
+    const regionIndexMap = {};
+    let regionCounter = 0;
+    REGIONS.forEach(r => { regionIndexMap[r.id] = regionCounter++; });
 
     TURKEY_MAP.paths.forEach(pathData => {
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -84,6 +93,10 @@ export function renderMap() {
             path.classList.add('city-locked');
         }
 
+        // Stagger entrance animation by region
+        const staggerIdx = region ? (regionIndexMap[region] || 0) : 0;
+        path.classList.add(`map-stagger-${Math.min(staggerIdx + 1, 7)}`);
+
         path.addEventListener('click', () => onCityClick(pathData.id));
         mapEl.appendChild(path);
 
@@ -113,6 +126,18 @@ export function renderMap() {
     });
 
     updateMapProgress();
+
+    // If returning to map after conquest, glow the newly conquered city
+    if (_lastConqueredCityId) {
+        const glowPath = document.getElementById(`city-${_lastConqueredCityId}`);
+        if (glowPath) {
+            setTimeout(() => {
+                glowPath.classList.add('city-glow-new');
+                setTimeout(() => glowPath.classList.remove('city-glow-new'), 2000);
+            }, 300);
+        }
+        _lastConqueredCityId = null;
+    }
 }
 
 // Highlight city label — grows and comes to front
@@ -140,6 +165,9 @@ export function highlightCityLabel(cityId) {
     setTimeout(() => label.classList.remove('label-pop'), 400);
 }
 
+let _lastProgressCount = -1;
+const PROGRESS_MILESTONES = [10, 20, 30, 40, 50, 60, 70, 81];
+
 export function updateMapProgress() {
     const count = getConqueredCount();
     const total = CITIES.length || 81;
@@ -148,7 +176,18 @@ export function updateMapProgress() {
     if (countEl) countEl.textContent = `${count}/${total}`;
 
     const progressEl = document.getElementById('map-progress');
-    if (progressEl) progressEl.style.width = `${(count / total) * 100}%`;
+    if (progressEl) {
+        progressEl.style.width = `${(count / total) * 100}%`;
+
+        // Milestone celebration
+        if (_lastProgressCount >= 0 && count > _lastProgressCount) {
+            if (PROGRESS_MILESTONES.includes(count)) {
+                progressEl.classList.add('milestone-hit');
+                setTimeout(() => progressEl.classList.remove('milestone-hit'), 1000);
+            }
+        }
+    }
+    _lastProgressCount = count;
 }
 
 function onCityClick(cityId) {
@@ -178,20 +217,33 @@ function onCityClick(cityId) {
     }
 }
 
-// FIX: Improved filterMapByRegion with proper label filtering
+// FIX: Improved filterMapByRegion with animated filtering
 export function filterMapByRegion(regionId) {
     const mapEl = document.getElementById('turkey-map');
     if (!mapEl) return;
 
     const paths = mapEl.querySelectorAll('path');
+    let focusIdx = 0;
     paths.forEach(path => {
         const cityId = parseInt(path.dataset.cityId);
         const city = CITIES.find(c => c.id === cityId);
 
-        if (regionId === 'all') {
-            path.style.opacity = '1';
-        } else if (city && city.region === regionId) {
-            path.style.opacity = '1';
+        // Remove previous animation classes
+        path.classList.remove('filter-fade-in', 'filter-fade-out');
+
+        const isFocused = regionId === 'all' || (city && city.region === regionId);
+
+        if (isFocused) {
+            // Stagger the fade-in for focused cities
+            path.style.opacity = '';
+            path.classList.add('filter-fade-in');
+            path.style.animationDelay = `${focusIdx * 30}ms`;
+            focusIdx++;
+            setTimeout(() => {
+                path.classList.remove('filter-fade-in');
+                path.style.opacity = '1';
+                path.style.animationDelay = '';
+            }, 500);
         } else {
             path.style.opacity = '0.15';
         }
@@ -354,6 +406,9 @@ export function playCityConquestAnimation(cityId) {
     const cityPath = document.getElementById(`city-${cityId}`);
     if (!cityPath) return;
 
+    // Track last conquered city for glow on map return
+    _lastConqueredCityId = cityId;
+
     // Add conquest animation class
     cityPath.classList.add('city-just-conquered');
     setTimeout(() => cityPath.classList.remove('city-just-conquered'), 1500);
@@ -395,6 +450,57 @@ export function playCityConquestAnimation(cityId) {
         const screenY = rect.top + (cy / svgHeight) * svgRect.height;
         Particles.confetti(screenX, screenY);
     }
+
+    // Region wave effect — pulse nearby cities in same region
+    playRegionWave(cityId);
+}
+
+// ===== REGION WAVE EFFECT =====
+function playRegionWave(conqueredCityId) {
+    const region = getCityRegion(conqueredCityId);
+    if (!region) return;
+
+    const mapEl = document.getElementById('turkey-map');
+    if (!mapEl) return;
+
+    // Get all conquered cities in same region
+    const regionCities = CITIES.filter(c => c.region === region && isCityConquered(c.id) && c.id !== conqueredCityId);
+
+    // Stagger wave through region cities
+    regionCities.forEach((city, i) => {
+        const path = document.getElementById(`city-${city.id}`);
+        if (!path) return;
+        setTimeout(() => {
+            path.classList.add('region-wave');
+            setTimeout(() => path.classList.remove('region-wave'), 600);
+        }, 200 + i * 80);
+    });
+
+    // Check if region is now complete
+    const progress = getRegionProgress(region);
+    if (progress.conquered === progress.total && progress.total > 0) {
+        // All cities in region conquered — celebration!
+        setTimeout(() => playRegionCompleteCelebration(region), 800);
+    }
+}
+
+// ===== REGION COMPLETE CELEBRATION =====
+function playRegionCompleteCelebration(regionId) {
+    const mapEl = document.getElementById('turkey-map');
+    if (!mapEl) return;
+
+    const regionCities = CITIES.filter(c => c.region === regionId);
+    regionCities.forEach((city, i) => {
+        const path = document.getElementById(`city-${city.id}`);
+        if (!path) return;
+        setTimeout(() => {
+            path.classList.add('region-complete-shimmer');
+            setTimeout(() => path.classList.remove('region-complete-shimmer'), 1500);
+        }, i * 60);
+    });
+
+    SFX.streakReward();
+    showToast(`🎉 ${regionId.replace('-', ' ').replace(/^./, c => c.toUpperCase())} bölgesi tamamen fethedildi!`, 4000);
 }
 
 // ===== REGION UNLOCK BANNER =====
