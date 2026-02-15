@@ -384,6 +384,7 @@
             <!-- Stats Page Button -->
             <button class="stats-page-btn" id="btn-stats">📊 Detaylı İstatistikler</button>
             <button class="leaderboard-page-btn" id="btn-leaderboard">🏆 Sıralama</button>
+            <button class="dictionary-page-btn" id="btn-dictionary">📖 Sözlük</button>
         </div>
 
         <!-- QUIZ SCREEN -->
@@ -427,6 +428,23 @@
             <!-- Options -->
             <div class="options-area" id="options-area">
                 <!-- Options will be inserted by JS -->
+            </div>
+
+            <!-- Word Lookup Button (during quiz) -->
+            <button class="quiz-lookup-btn" id="quiz-lookup-btn" title="Soruda geçen kelimeleri ara">
+                📖 Kelime Ara
+            </button>
+
+            <!-- Word Lookup Panel (overlay) -->
+            <div class="quiz-lookup-panel hidden" id="quiz-lookup-panel">
+                <div class="lookup-panel-header">
+                    <h3>📖 Kelime Sorgula</h3>
+                    <button class="lookup-close-btn" id="lookup-close-btn">✕</button>
+                </div>
+                <input type="text" class="lookup-search-input" id="lookup-search-input" placeholder="İngilizce veya Türkçe kelime ara..." autocomplete="off" />
+                <div class="lookup-results" id="lookup-results">
+                    <p class="lookup-hint">Soruda geçen kelimeleri veya herhangi bir kelimeyi arayabilirsin.</p>
+                </div>
             </div>
 
             <!-- Word Info (shown after answer) -->
@@ -694,6 +712,42 @@
             <!-- List -->
             <div class="lb-list" id="lb-list">
                 <div class="lb-loading">Yükleniyor...</div>
+            </div>
+        </div>
+
+        <!-- DICTIONARY SCREEN -->
+        <div id="dictionary" class="screen">
+            <div class="stats-header">
+                <button class="back-btn" id="btn-dict-back">←</button>
+                <h2>📖 Sözlük</h2>
+            </div>
+
+            <!-- Search -->
+            <div class="dict-search-section">
+                <div class="dict-search-box">
+                    <span class="dict-search-icon">🔍</span>
+                    <input type="text" id="dict-search-input" placeholder="İngilizce veya Türkçe ara..." autocomplete="off" />
+                    <button class="dict-clear-btn hidden" id="dict-clear-btn">✕</button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="dict-filters">
+                <button class="dict-filter-pill active" data-dict-filter="all">Tümü</button>
+                <button class="dict-filter-pill" data-dict-filter="vocabulary">🔤 Kelime</button>
+                <button class="dict-filter-pill" data-dict-filter="bonus">💡 Bonus</button>
+                <button class="dict-filter-pill" data-dict-filter="learned">🟢 Bilinen</button>
+                <button class="dict-filter-pill" data-dict-filter="weak">🔴 Zayıf</button>
+            </div>
+
+            <!-- Stats summary -->
+            <div class="dict-summary" id="dict-summary">
+                <span class="dict-count" id="dict-count">0 kelime</span>
+            </div>
+
+            <!-- Word List -->
+            <div class="dict-list" id="dict-list">
+                <div class="dict-loading">Yükleniyor...</div>
             </div>
         </div>
     </div>

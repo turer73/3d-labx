@@ -155,7 +155,8 @@
         quiz: $('quiz'),
         results: $('results'),
         stats: $('stats'),
-        leaderboard: $('leaderboard')
+        leaderboard: $('leaderboard'),
+        dictionary: $('dictionary')
     };
 
     // ===== INIT =====
@@ -1384,6 +1385,48 @@
         if ($('notif-toggle')) $('notif-toggle').addEventListener('change', toggleNotifications);
         if ($('notif-time')) $('notif-time').addEventListener('change', changeNotifTime);
 
+        // Dictionary
+        if ($('btn-dictionary')) $('btn-dictionary').addEventListener('click', showDictionary);
+        if ($('btn-dict-back')) $('btn-dict-back').addEventListener('click', () => showScreen('home'));
+        if ($('dict-search-input')) {
+            let dictDebounce = null;
+            $('dict-search-input').addEventListener('input', (e) => {
+                dictSearchTerm = e.target.value.trim();
+                const clearBtn = $('dict-clear-btn');
+                if (clearBtn) clearBtn.classList.toggle('hidden', !dictSearchTerm);
+                clearTimeout(dictDebounce);
+                dictDebounce = setTimeout(() => renderDictionary(), 200);
+            });
+        }
+        if ($('dict-clear-btn')) {
+            $('dict-clear-btn').addEventListener('click', () => {
+                const input = $('dict-search-input');
+                if (input) input.value = '';
+                dictSearchTerm = '';
+                $('dict-clear-btn').classList.add('hidden');
+                renderDictionary();
+            });
+        }
+        document.querySelectorAll('.dict-filter-pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+                document.querySelectorAll('.dict-filter-pill').forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                dictCurrentFilter = pill.dataset.dictFilter;
+                renderDictionary();
+            });
+        });
+
+        // Quiz Word Lookup
+        if ($('quiz-lookup-btn')) $('quiz-lookup-btn').addEventListener('click', openQuizLookup);
+        if ($('lookup-close-btn')) $('lookup-close-btn').addEventListener('click', closeQuizLookup);
+        if ($('lookup-search-input')) {
+            let lookupDebounce = null;
+            $('lookup-search-input').addEventListener('input', (e) => {
+                clearTimeout(lookupDebounce);
+                lookupDebounce = setTimeout(() => searchLookup(e.target.value.trim()), 250);
+            });
+        }
+
         // Default selection
         document.querySelector('.mode-card[data-mode="vocabulary"]').classList.add('selected');
     }
@@ -1438,6 +1481,7 @@
     function showQuestion() {
         const q = state.questions[state.currentIndex];
         state.answered = false;
+        closeQuizLookup(); // Close lookup panel on new question
 
         // Progress
         const progress = ((state.currentIndex) / state.questions.length) * 100;
@@ -1873,6 +1917,277 @@
         });
         list.innerHTML = html;
         section.classList.remove('hidden');
+    }
+
+    // ===== DICTIONARY =====
+    let dictCurrentFilter = 'all';
+    let dictSearchTerm = '';
+
+    function buildDictionaryData() {
+        // Combine: vocabulary words (with word+meaning_tr) + bonus words
+        const items = [];
+
+        // From game questions: only vocabulary & phrasal_verb have word+meaning_tr
+        if (wordData) {
+            (wordData.vocabulary || []).forEach(q => {
+                if (q.word && q.meaning_tr) {
+                    items.push({
+                        en: q.word,
+                        tr: q.meaning_tr,
+                        ex: q.sentence || '',
+                        level: q.level || '',
+                        type: 'vocabulary',
+                        id: q.word,
+                        leitner: getLeitnerBox(q.word)
+                    });
+                }
+            });
+            (wordData.phrasal_verbs || []).forEach(q => {
+                if (q.word && q.meaning_tr) {
+                    items.push({
+                        en: q.word,
+                        tr: q.meaning_tr,
+                        ex: q.sentence || '',
+                        level: q.level || '',
+                        type: 'phrasal_verb',
+                        id: q.word,
+                        leitner: getLeitnerBox(q.word)
+                    });
+                }
+            });
+        }
+
+        // Bonus words
+        BONUS_WORDS.forEach(w => {
+            // Don't duplicate if already in vocabulary
+            if (!items.some(i => i.en.toLowerCase() === w.en.toLowerCase())) {
+                items.push({
+                    en: w.en,
+                    tr: w.tr,
+                    ex: w.ex || '',
+                    level: '',
+                    type: 'bonus',
+                    id: 'bonus_' + w.en,
+                    leitner: -1 // no Leitner for bonus
+                });
+            }
+        });
+
+        // Sort alphabetically
+        items.sort((a, b) => a.en.localeCompare(b.en, 'en'));
+        return items;
+    }
+
+    function showDictionary() {
+        showScreen('dictionary');
+        dictCurrentFilter = 'all';
+        dictSearchTerm = '';
+        const searchInput = $('dict-search-input');
+        if (searchInput) searchInput.value = '';
+        const clearBtn = $('dict-clear-btn');
+        if (clearBtn) clearBtn.classList.add('hidden');
+        // Reset filter pills
+        document.querySelectorAll('.dict-filter-pill').forEach(p => p.classList.remove('active'));
+        document.querySelector('.dict-filter-pill[data-dict-filter="all"]').classList.add('active');
+        renderDictionary();
+    }
+
+    function renderDictionary() {
+        const list = $('dict-list');
+        const countEl = $('dict-count');
+        if (!list) return;
+
+        const allItems = buildDictionaryData();
+        let filtered = allItems;
+
+        // Apply filter
+        if (dictCurrentFilter === 'vocabulary') {
+            filtered = filtered.filter(i => i.type === 'vocabulary' || i.type === 'phrasal_verb');
+        } else if (dictCurrentFilter === 'bonus') {
+            filtered = filtered.filter(i => i.type === 'bonus');
+        } else if (dictCurrentFilter === 'learned') {
+            filtered = filtered.filter(i => i.leitner === 3);
+        } else if (dictCurrentFilter === 'weak') {
+            filtered = filtered.filter(i => i.leitner === 1);
+        }
+
+        // Apply search
+        if (dictSearchTerm) {
+            const term = dictSearchTerm.toLowerCase();
+            filtered = filtered.filter(i =>
+                i.en.toLowerCase().includes(term) ||
+                i.tr.toLowerCase().includes(term)
+            );
+        }
+
+        if (countEl) countEl.textContent = filtered.length + ' kelime';
+
+        if (filtered.length === 0) {
+            list.innerHTML = '<div class="dict-empty">Sonuç bulunamadı.</div>';
+            return;
+        }
+
+        // Render max 100 initially for performance
+        const display = filtered.slice(0, 100);
+        const typeLabels = { vocabulary: 'Kelime', phrasal_verb: 'Phrasal', bonus: 'Bonus' };
+
+        let html = '';
+        display.forEach(item => {
+            const isBonus = item.type === 'bonus';
+            const boxClass = item.leitner >= 0 ? `box-${item.leitner}` : 'box-0';
+            const exShort = item.ex.length > 70 ? item.ex.substring(0, 70) + '...' : item.ex;
+
+            html += `
+                <div class="dict-word-card ${isBonus ? 'dict-bonus' : ''}">
+                    ${!isBonus ? `<span class="dict-leitner-dot ${boxClass}"></span>` : ''}
+                    <div class="dict-word-main">
+                        <span class="dict-word-en">${item.en}</span>
+                        <span class="dict-word-tr">${item.tr}</span>
+                        ${exShort ? `<span class="dict-word-ex">"${exShort}"</span>` : ''}
+                    </div>
+                    <div class="dict-word-meta">
+                        ${item.level ? `<span class="dict-word-level">${item.level}</span>` : ''}
+                        <span class="dict-word-type">${typeLabels[item.type] || ''}</span>
+                    </div>
+                </div>
+            `;
+        });
+
+        if (filtered.length > 100) {
+            html += `<div class="dict-empty">+${filtered.length - 100} daha... Aramayı daralt.</div>`;
+        }
+
+        list.innerHTML = html;
+    }
+
+    // ===== QUIZ WORD LOOKUP =====
+    let lookupAllWords = null; // cached
+
+    function buildLookupIndex() {
+        if (lookupAllWords) return lookupAllWords;
+        const map = new Map();
+
+        // Vocabulary & phrasal verbs with word+meaning_tr
+        if (wordData) {
+            (wordData.vocabulary || []).forEach(q => {
+                if (q.word && q.meaning_tr) {
+                    map.set(q.word.toLowerCase(), { en: q.word, tr: q.meaning_tr, level: q.level || '', type: 'vocab' });
+                }
+            });
+            (wordData.phrasal_verbs || []).forEach(q => {
+                if (q.word && q.meaning_tr) {
+                    map.set(q.word.toLowerCase(), { en: q.word, tr: q.meaning_tr, level: q.level || '', type: 'phrasal' });
+                }
+            });
+        }
+
+        // Bonus words
+        BONUS_WORDS.forEach(w => {
+            if (!map.has(w.en.toLowerCase())) {
+                map.set(w.en.toLowerCase(), { en: w.en, tr: w.tr, level: '', type: 'bonus' });
+            }
+        });
+
+        lookupAllWords = map;
+        return map;
+    }
+
+    function openQuizLookup() {
+        const panel = $('quiz-lookup-panel');
+        if (!panel) return;
+        panel.classList.remove('hidden');
+        const input = $('lookup-search-input');
+        if (input) { input.value = ''; input.focus(); }
+        // Show current question's words as suggestions
+        showLookupSuggestions();
+    }
+
+    function closeQuizLookup() {
+        const panel = $('quiz-lookup-panel');
+        if (panel) panel.classList.add('hidden');
+    }
+
+    function showLookupSuggestions() {
+        const results = $('lookup-results');
+        if (!results) return;
+
+        const index = buildLookupIndex();
+        const q = state.questions[state.currentIndex];
+        if (!q) { results.innerHTML = '<p class="lookup-hint">Soru bulunamadı.</p>'; return; }
+
+        // Extract words from question text
+        const text = (q.sentence || '').replace(/----/g, '');
+        const words = text.match(/[a-zA-Z]+/g) || [];
+        const unique = [...new Set(words.map(w => w.toLowerCase()))];
+
+        // Find matches in our dictionary
+        const found = [];
+        unique.forEach(w => {
+            if (w.length < 3) return; // skip short words (a, an, the, is, etc.)
+            const entry = index.get(w);
+            if (entry) found.push(entry);
+        });
+
+        if (found.length > 0) {
+            let html = '<p class="lookup-hint" style="padding:8px 0 4px;font-size:0.75rem;">📌 Bu soruda geçen kelimeler:</p>';
+            found.forEach(e => {
+                const isBonus = e.type === 'bonus';
+                html += `
+                    <div class="lookup-word-item ${isBonus ? 'lookup-bonus' : ''}">
+                        <span class="lookup-word-en">${e.en}</span>
+                        <span class="lookup-word-tr">${e.tr}</span>
+                        ${e.level ? `<span class="lookup-word-level">${e.level}</span>` : ''}
+                    </div>
+                `;
+            });
+            html += '<p class="lookup-hint" style="padding:8px 0 0;font-size:0.72rem;">Yukarıda arama yaparak başka kelimeler de sorgulayabilirsin.</p>';
+            results.innerHTML = html;
+        } else {
+            results.innerHTML = '<p class="lookup-hint">Soruda sözlükteki kelimelerden bulunamadı. Yukarıdan arama yapabilirsin.</p>';
+        }
+    }
+
+    function searchLookup(term) {
+        const results = $('lookup-results');
+        if (!results) return;
+
+        if (!term || term.length < 2) {
+            showLookupSuggestions();
+            return;
+        }
+
+        const index = buildLookupIndex();
+        const lowerTerm = term.toLowerCase();
+        const matches = [];
+
+        index.forEach((entry) => {
+            if (entry.en.toLowerCase().includes(lowerTerm) || entry.tr.toLowerCase().includes(lowerTerm)) {
+                matches.push(entry);
+            }
+        });
+
+        if (matches.length === 0) {
+            results.innerHTML = `<p class="lookup-hint">"${term}" için sonuç bulunamadı.</p>`;
+            return;
+        }
+
+        // Limit to 20
+        const display = matches.slice(0, 20);
+        let html = '';
+        display.forEach(e => {
+            const isBonus = e.type === 'bonus';
+            html += `
+                <div class="lookup-word-item ${isBonus ? 'lookup-bonus' : ''}">
+                    <span class="lookup-word-en">${e.en}</span>
+                    <span class="lookup-word-tr">${e.tr}</span>
+                    ${e.level ? `<span class="lookup-word-level">${e.level}</span>` : ''}
+                </div>
+            `;
+        });
+        if (matches.length > 20) {
+            html += `<p class="lookup-hint">+${matches.length - 20} daha...</p>`;
+        }
+        results.innerHTML = html;
     }
 
     // ===== HELPERS =====

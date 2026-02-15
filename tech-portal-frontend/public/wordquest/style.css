@@ -2140,11 +2140,355 @@ body {
     color: #ef4444;
 }
 
+/* ===== DICTIONARY PAGE BUTTON ===== */
+.dictionary-page-btn {
+    width: 100%;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(16,185,129,0.15));
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: var(--radius);
+    color: #22c55e;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+.dictionary-page-btn:active {
+    transform: scale(0.97);
+    background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(16,185,129,0.25));
+}
+
+/* ===== DICTIONARY SCREEN ===== */
+.dict-search-section {
+    margin-bottom: 12px;
+}
+.dict-search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    transition: border-color 0.2s;
+}
+.dict-search-box:focus-within {
+    border-color: var(--accent);
+}
+.dict-search-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+.dict-search-box input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text-main);
+    font-size: 0.92rem;
+    font-family: inherit;
+}
+.dict-search-box input::placeholder {
+    color: var(--text-dim);
+}
+.dict-clear-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.dict-clear-btn.hidden { display: none; }
+
+/* Dictionary Filters */
+.dict-filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+.dict-filter-pill {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+.dict-filter-pill.active {
+    background: rgba(34,197,94,0.15);
+    border-color: rgba(34,197,94,0.4);
+    color: #22c55e;
+}
+
+/* Dictionary Summary */
+.dict-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 0 4px;
+}
+.dict-count {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-dim);
+}
+
+/* Dictionary List */
+.dict-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-bottom: 20px;
+}
+.dict-loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+}
+.dict-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-dim);
+    font-size: 0.88rem;
+}
+
+/* Dictionary Word Card */
+.dict-word-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+}
+.dict-word-card.dict-bonus {
+    border-color: rgba(245,158,11,0.2);
+    background: linear-gradient(135deg, rgba(245,158,11,0.05), transparent);
+}
+.dict-leitner-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.dict-leitner-dot.box-0 { background: var(--text-dim); }
+.dict-leitner-dot.box-1 { background: var(--danger); }
+.dict-leitner-dot.box-2 { background: var(--warning); }
+.dict-leitner-dot.box-3 { background: var(--success); }
+.dict-word-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.dict-word-en {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--accent);
+    word-break: break-word;
+}
+.dict-word-card.dict-bonus .dict-word-en {
+    color: #f59e0b;
+}
+.dict-word-tr {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    word-break: break-word;
+}
+.dict-word-ex {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    font-style: italic;
+    margin-top: 2px;
+    word-break: break-word;
+}
+.dict-word-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+.dict-word-level {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(139,92,246,0.15);
+    color: #a78bfa;
+}
+.dict-word-type {
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+}
+
+/* ===== QUIZ WORD LOOKUP ===== */
+.quiz-lookup-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 10px;
+    background: rgba(34,197,94,0.08);
+    border: 1px solid rgba(34,197,94,0.25);
+    border-radius: var(--radius-sm);
+    color: #22c55e;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+.quiz-lookup-btn:active {
+    transform: scale(0.97);
+    background: rgba(34,197,94,0.15);
+}
+
+/* Lookup Panel */
+.quiz-lookup-panel {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    max-height: 65vh;
+    background: var(--bg-primary);
+    border-top: 2px solid rgba(34,197,94,0.4);
+    border-radius: 20px 20px 0 0;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    animation: slidePanelUp 0.3s ease;
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.4);
+}
+.quiz-lookup-panel.hidden {
+    display: none !important;
+}
+@keyframes slidePanelUp {
+    from { transform: translateX(-50%) translateY(100%); }
+    to { transform: translateX(-50%) translateY(0); }
+}
+.lookup-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px 8px;
+}
+.lookup-panel-header h3 {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #22c55e;
+}
+.lookup-close-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.lookup-search-input {
+    margin: 0 18px 10px;
+    padding: 10px 14px;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-main);
+    font-size: 0.88rem;
+    font-family: inherit;
+    outline: none;
+}
+.lookup-search-input:focus {
+    border-color: var(--accent);
+}
+.lookup-search-input::placeholder {
+    color: var(--text-dim);
+}
+.lookup-results {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.lookup-hint {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    padding: 20px 0;
+}
+.lookup-word-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+}
+.lookup-word-item.lookup-bonus {
+    border-color: rgba(245,158,11,0.2);
+}
+.lookup-word-en {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 80px;
+}
+.lookup-word-item.lookup-bonus .lookup-word-en {
+    color: #f59e0b;
+}
+.lookup-word-tr {
+    flex: 1;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+.lookup-word-level {
+    font-size: 0.62rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(139,92,246,0.15);
+    color: #a78bfa;
+    flex-shrink: 0;
+}
+
 /* ===== SAFE AREA ===== */
 @supports (padding-top: env(safe-area-inset-top)) {
     #home { padding-top: calc(20px + env(safe-area-inset-top)); }
     #quiz { padding-top: calc(16px + env(safe-area-inset-top)); }
     #stats { padding-top: calc(20px + env(safe-area-inset-top)); }
     #leaderboard { padding-top: calc(20px + env(safe-area-inset-top)); }
+    #dictionary { padding-top: calc(20px + env(safe-area-inset-top)); }
     .screen { padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
 }
