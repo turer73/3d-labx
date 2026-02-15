@@ -1,0 +1,1214 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "totalQuestions": 120,
+    "categories": ["vocabulary", "phrasal_verb"],
+    "exams": ["YDS", "YKS", "YÖKDİL"],
+    "levels": ["B1", "B2", "C1"],
+    "lastUpdated": "2025-02-15"
+  },
+  "vocabulary": [
+    {
+      "id": "v001",
+      "sentence": "The most powerful ---- to parachuting is fear, but one should also take its high cost into account.",
+      "options": ["resemblance", "adjustment", "deterrent", "submission", "adherence"],
+      "answer": 2,
+      "word": "deterrent",
+      "meaning_tr": "caydırıcı",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v002",
+      "sentence": "Peanut may very well be the most common food allergy, but the ---- of a particular food allergy varies according to age and group.",
+      "options": ["utilisation", "withdrawal", "precaution", "termination", "prevalence"],
+      "answer": 4,
+      "word": "prevalence",
+      "meaning_tr": "yaygınlık",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v003",
+      "sentence": "Heating and cooling of the Earth are not ----, as it takes time for land, water, and air to absorb heat.",
+      "options": ["hospitable", "convertible", "instantaneous", "detrimental", "preliminary"],
+      "answer": 2,
+      "word": "instantaneous",
+      "meaning_tr": "anlık, anında olan",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v004",
+      "sentence": "Since the mid-20th century, plastic pollution has increased ----, and resulting pollution has become a global issue.",
+      "options": ["exponentially", "conveniently", "alternatively", "precisely", "fruitfully"],
+      "answer": 0,
+      "word": "exponentially",
+      "meaning_tr": "katlanarak, üstel olarak",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v005",
+      "sentence": "The most basic path to computer literacy is to ---- competence in using computers to perform personal or vocational tasks.",
+      "options": ["exclude", "relieve", "deteriorate", "restrict", "attain"],
+      "answer": 4,
+      "word": "attain",
+      "meaning_tr": "ulaşmak, elde etmek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v006",
+      "sentence": "The recent economic downturn has ---- many small businesses to close their doors permanently.",
+      "options": ["compelled", "restored", "abandoned", "fulfilled", "sustained"],
+      "answer": 0,
+      "word": "compelled",
+      "meaning_tr": "zorlamak, mecbur bırakmak",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v007",
+      "sentence": "The region has ---- natural resources, which has attracted many foreign investors over the years.",
+      "options": ["abundant", "fragile", "scarce", "neutral", "rigid"],
+      "answer": 0,
+      "word": "abundant",
+      "meaning_tr": "bol, bereketli",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v008",
+      "sentence": "The scientist's findings were ---- by several independent research teams before being published.",
+      "options": ["neglected", "verified", "disrupted", "exaggerated", "undermined"],
+      "answer": 1,
+      "word": "verified",
+      "meaning_tr": "doğrulamak",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v009",
+      "sentence": "Access to clean water remains a ---- issue in many developing countries despite international efforts.",
+      "options": ["marginal", "persistent", "superficial", "voluntary", "moderate"],
+      "answer": 1,
+      "word": "persistent",
+      "meaning_tr": "sürekli, ısrarcı",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v010",
+      "sentence": "The new regulations will ---- affect the way businesses operate in the financial sector.",
+      "options": ["profoundly", "reluctantly", "moderately", "temporarily", "randomly"],
+      "answer": 0,
+      "word": "profoundly",
+      "meaning_tr": "derinden, köklü biçimde",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v011",
+      "sentence": "The government decided to ---- strict measures to control the spread of the disease.",
+      "options": ["implement", "withdraw", "neglect", "diminish", "postpone"],
+      "answer": 0,
+      "word": "implement",
+      "meaning_tr": "uygulamak, yürürlüğe koymak",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v012",
+      "sentence": "The success of the project depends ---- on the collaboration between different departments.",
+      "options": ["merely", "entirely", "rarely", "gradually", "slightly"],
+      "answer": 1,
+      "word": "entirely",
+      "meaning_tr": "tamamen, bütünüyle",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "v013",
+      "sentence": "Despite the initial setback, the team showed remarkable ---- and completed the project on time.",
+      "options": ["fragility", "resilience", "negligence", "ambiguity", "deficiency"],
+      "answer": 1,
+      "word": "resilience",
+      "meaning_tr": "dayanıklılık, esneklik",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v014",
+      "sentence": "The medicine should be stored in a cool place to ---- its effectiveness over time.",
+      "options": ["retain", "distort", "abandon", "provoke", "diminish"],
+      "answer": 0,
+      "word": "retain",
+      "meaning_tr": "korumak, muhafaza etmek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v015",
+      "sentence": "The ---- between the rich and the poor continues to widen in many countries around the world.",
+      "options": ["diversity", "disparity", "controversy", "consistency", "proximity"],
+      "answer": 1,
+      "word": "disparity",
+      "meaning_tr": "eşitsizlik, fark",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v016",
+      "sentence": "Researchers have found that sleep deprivation can ---- impair cognitive function and decision-making.",
+      "options": ["severely", "moderately", "occasionally", "marginally", "voluntarily"],
+      "answer": 0,
+      "word": "severely",
+      "meaning_tr": "ciddi biçimde, şiddetli",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v017",
+      "sentence": "The new policy aims to ---- the environmental damage caused by industrial waste.",
+      "options": ["intensify", "mitigate", "overlook", "prolong", "duplicate"],
+      "answer": 1,
+      "word": "mitigate",
+      "meaning_tr": "hafifletmek, azaltmak",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v018",
+      "sentence": "Deforestation has led to the ---- of numerous animal species from their natural habitats.",
+      "options": ["displacement", "enhancement", "restoration", "accumulation", "preservation"],
+      "answer": 0,
+      "word": "displacement",
+      "meaning_tr": "yerinden edilme",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v019",
+      "sentence": "The author's latest novel has received ---- critical acclaim from literary experts worldwide.",
+      "options": ["widespread", "moderate", "declining", "occasional", "minimal"],
+      "answer": 0,
+      "word": "widespread",
+      "meaning_tr": "yaygın, geniş çaplı",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v020",
+      "sentence": "The evidence presented at the trial was not ---- enough to convict the defendant.",
+      "options": ["substantial", "controversial", "ambiguous", "redundant", "superficial"],
+      "answer": 0,
+      "word": "substantial",
+      "meaning_tr": "önemli, büyük, kayda değer",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v021",
+      "sentence": "It is ---- that we take immediate action to address the climate crisis before it is too late.",
+      "options": ["imperative", "optional", "trivial", "redundant", "arbitrary"],
+      "answer": 0,
+      "word": "imperative",
+      "meaning_tr": "zorunlu, mecburi",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v022",
+      "sentence": "The new drug has shown ---- results in clinical trials, raising hopes for patients.",
+      "options": ["promising", "devastating", "negligible", "ambiguous", "moderate"],
+      "answer": 0,
+      "word": "promising",
+      "meaning_tr": "umut verici, gelecek vaadeden",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v023",
+      "sentence": "Human activities have ---- altered the natural balance of ecosystems across the globe.",
+      "options": ["marginally", "significantly", "temporarily", "reluctantly", "inadvertently"],
+      "answer": 1,
+      "word": "significantly",
+      "meaning_tr": "önemli ölçüde",
+      "level": "B2",
+      "exam": "YKS"
+    },
+    {
+      "id": "v024",
+      "sentence": "The researchers found a strong ---- between air pollution levels and respiratory diseases.",
+      "options": ["correlation", "contradiction", "distinction", "exclusion", "deviation"],
+      "answer": 0,
+      "word": "correlation",
+      "meaning_tr": "bağıntı, korelasyon",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v025",
+      "sentence": "The earthquake caused ---- damage to the infrastructure, leaving thousands homeless.",
+      "options": ["extensive", "moderate", "minimal", "reversible", "gradual"],
+      "answer": 0,
+      "word": "extensive",
+      "meaning_tr": "kapsamlı, geniş çaplı",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v026",
+      "sentence": "Many ancient civilizations ---- near rivers because of the fertile land and easy access to water.",
+      "options": ["flourished", "diminished", "scattered", "retreated", "perished"],
+      "answer": 0,
+      "word": "flourished",
+      "meaning_tr": "gelişmek, büyümek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v027",
+      "sentence": "The company is trying to ---- a new strategy to increase its market share in the region.",
+      "options": ["devise", "abandon", "overlook", "restrict", "postpone"],
+      "answer": 0,
+      "word": "devise",
+      "meaning_tr": "tasarlamak, icat etmek",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v028",
+      "sentence": "The discovery of antibiotics was a major ---- in the history of medical science.",
+      "options": ["breakthrough", "setback", "controversy", "obstacle", "contradiction"],
+      "answer": 0,
+      "word": "breakthrough",
+      "meaning_tr": "çığır açan buluş",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v029",
+      "sentence": "The government has ---- new regulations to reduce carbon emissions from industrial plants.",
+      "options": ["imposed", "withdrawn", "neglected", "exempted", "postponed"],
+      "answer": 0,
+      "word": "imposed",
+      "meaning_tr": "dayatmak, uygulamak",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v030",
+      "sentence": "Scientists warn that the ---- of natural resources could have devastating consequences for future generations.",
+      "options": ["depletion", "restoration", "accumulation", "preservation", "distribution"],
+      "answer": 0,
+      "word": "depletion",
+      "meaning_tr": "tükenme, azalma",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v031",
+      "sentence": "The ---- of the experiment confirmed what scientists had predicted about the reaction.",
+      "options": ["outcome", "obstacle", "contrast", "exception", "deficiency"],
+      "answer": 0,
+      "word": "outcome",
+      "meaning_tr": "sonuç",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "v032",
+      "sentence": "The new safety measures were introduced ---- after the accident at the factory.",
+      "options": ["promptly", "reluctantly", "vaguely", "occasionally", "marginally"],
+      "answer": 0,
+      "word": "promptly",
+      "meaning_tr": "derhal, hemen",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v033",
+      "sentence": "The professor's theory was initially met with ----, but later proved to be correct.",
+      "options": ["skepticism", "enthusiasm", "approval", "indifference", "compliance"],
+      "answer": 0,
+      "word": "skepticism",
+      "meaning_tr": "şüphecilik, kuşku",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v034",
+      "sentence": "Climate change poses a ---- threat to biodiversity in many regions of the world.",
+      "options": ["formidable", "negligible", "temporary", "superficial", "optional"],
+      "answer": 0,
+      "word": "formidable",
+      "meaning_tr": "zorlu, müthiş",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v035",
+      "sentence": "The architect designed the building to ---- the natural landscape rather than dominate it.",
+      "options": ["complement", "contradict", "replace", "obstruct", "eliminate"],
+      "answer": 0,
+      "word": "complement",
+      "meaning_tr": "tamamlamak",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v036",
+      "sentence": "Despite his efforts to remain neutral, the journalist's report was clearly ---- towards one side.",
+      "options": ["biased", "dedicated", "committed", "exposed", "directed"],
+      "answer": 0,
+      "word": "biased",
+      "meaning_tr": "önyargılı, taraflı",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v037",
+      "sentence": "The study found that children who read ---- tend to develop better critical thinking skills.",
+      "options": ["extensively", "reluctantly", "occasionally", "superficially", "moderately"],
+      "answer": 0,
+      "word": "extensively",
+      "meaning_tr": "kapsamlı bir şekilde",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v038",
+      "sentence": "The old building was ---- renovated to serve as a modern art museum.",
+      "options": ["thoroughly", "partially", "reluctantly", "temporarily", "marginally"],
+      "answer": 0,
+      "word": "thoroughly",
+      "meaning_tr": "iyice, baştan sona",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v039",
+      "sentence": "Urban expansion has ---- reduced the amount of agricultural land available for farming.",
+      "options": ["drastically", "moderately", "temporarily", "optionally", "marginally"],
+      "answer": 0,
+      "word": "drastically",
+      "meaning_tr": "büyük ölçüde, köklü biçimde",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v040",
+      "sentence": "The negotiations reached a ---- when neither side was willing to make concessions.",
+      "options": ["deadlock", "consensus", "breakthrough", "resolution", "compromise"],
+      "answer": 0,
+      "word": "deadlock",
+      "meaning_tr": "çıkmaz, tıkanıklık",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v041",
+      "sentence": "Lack of exercise and poor diet can ---- to a range of serious health problems.",
+      "options": ["contribute", "surrender", "attach", "expose", "resort"],
+      "answer": 0,
+      "word": "contribute",
+      "meaning_tr": "katkıda bulunmak, yol açmak",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "v042",
+      "sentence": "The committee decided to ---- the proposal until further research could be conducted.",
+      "options": ["postpone", "approve", "enforce", "implement", "endorse"],
+      "answer": 0,
+      "word": "postpone",
+      "meaning_tr": "ertelemek",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "v043",
+      "sentence": "Fossil fuels are ---- resources, which means they will eventually run out.",
+      "options": ["finite", "abundant", "renewable", "sustainable", "perpetual"],
+      "answer": 0,
+      "word": "finite",
+      "meaning_tr": "sınırlı, sonlu",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v044",
+      "sentence": "The doctor advised the patient to ---- from strenuous physical activity for at least two weeks.",
+      "options": ["refrain", "engage", "persist", "recover", "proceed"],
+      "answer": 0,
+      "word": "refrain",
+      "meaning_tr": "kaçınmak, sakınmak",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v045",
+      "sentence": "Technological innovations have made it possible to ---- more accurate weather forecasts.",
+      "options": ["generate", "restrict", "abandon", "distort", "overlook"],
+      "answer": 0,
+      "word": "generate",
+      "meaning_tr": "üretmek, oluşturmak",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v046",
+      "sentence": "The ---- of the population lives in urban areas, creating enormous pressure on city infrastructure.",
+      "options": ["majority", "minority", "entirety", "fraction", "exception"],
+      "answer": 0,
+      "word": "majority",
+      "meaning_tr": "çoğunluk",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "v047",
+      "sentence": "The museum's collection includes ---- artifacts from ancient civilizations across the Mediterranean.",
+      "options": ["remarkable", "insignificant", "ordinary", "temporary", "moderate"],
+      "answer": 0,
+      "word": "remarkable",
+      "meaning_tr": "dikkat çekici, olağanüstü",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v048",
+      "sentence": "Scientists have long debated the ---- effects of genetically modified organisms on human health.",
+      "options": ["potential", "trivial", "obsolete", "redundant", "superficial"],
+      "answer": 0,
+      "word": "potential",
+      "meaning_tr": "potansiyel, olası",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "v049",
+      "sentence": "The child's remarkable memory allowed him to ---- large amounts of information effortlessly.",
+      "options": ["absorb", "neglect", "distort", "restrict", "abandon"],
+      "answer": 0,
+      "word": "absorb",
+      "meaning_tr": "emmek, özümsemek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v050",
+      "sentence": "The country's economy has been ---- recovering since the financial crisis of 2008.",
+      "options": ["gradually", "abruptly", "permanently", "randomly", "instantly"],
+      "answer": 0,
+      "word": "gradually",
+      "meaning_tr": "yavaş yavaş, kademeli olarak",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "v051",
+      "sentence": "The new treatment has proven to be highly ---- in reducing symptoms of the disease.",
+      "options": ["effective", "defective", "excessive", "offensive", "selective"],
+      "answer": 0,
+      "word": "effective",
+      "meaning_tr": "etkili",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "v052",
+      "sentence": "The police launched a thorough ---- into the cause of the explosion at the factory.",
+      "options": ["investigation", "accusation", "speculation", "declaration", "observation"],
+      "answer": 0,
+      "word": "investigation",
+      "meaning_tr": "soruşturma, araştırma",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "v053",
+      "sentence": "The rapid ---- of technology has transformed the way people communicate with each other.",
+      "options": ["advancement", "withdrawal", "restriction", "deterioration", "stagnation"],
+      "answer": 0,
+      "word": "advancement",
+      "meaning_tr": "ilerleme, gelişme",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v054",
+      "sentence": "The documentary provides a ---- account of the events that led to the revolution.",
+      "options": ["comprehensive", "superficial", "biased", "brief", "distorted"],
+      "answer": 0,
+      "word": "comprehensive",
+      "meaning_tr": "kapsamlı, geniş",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v055",
+      "sentence": "Experts believe that education is the most ---- tool for reducing poverty in developing nations.",
+      "options": ["vital", "harmful", "trivial", "optional", "moderate"],
+      "answer": 0,
+      "word": "vital",
+      "meaning_tr": "hayati, çok önemli",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "v056",
+      "sentence": "The president's speech ---- a strong response from both supporters and critics.",
+      "options": ["elicited", "concealed", "diminished", "overlooked", "restrained"],
+      "answer": 0,
+      "word": "elicited",
+      "meaning_tr": "ortaya çıkarmak, uyandırmak",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v057",
+      "sentence": "The government is ---- citizens to reduce their energy consumption during peak hours.",
+      "options": ["urging", "preventing", "restricting", "exempting", "discouraging"],
+      "answer": 0,
+      "word": "urging",
+      "meaning_tr": "teşvik etmek, ısrarla istemek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v058",
+      "sentence": "The patient made a full recovery, which the doctors described as ---- given the severity of the injury.",
+      "options": ["remarkable", "predictable", "inevitable", "ordinary", "moderate"],
+      "answer": 0,
+      "word": "remarkable",
+      "meaning_tr": "dikkat çekici, olağanüstü",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v059",
+      "sentence": "Some historians ---- that the Industrial Revolution had more negative than positive effects on society.",
+      "options": ["contend", "deny", "conceal", "overlook", "abandon"],
+      "answer": 0,
+      "word": "contend",
+      "meaning_tr": "iddia etmek, savunmak",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v060",
+      "sentence": "The company has ---- invested in renewable energy sources to reduce its carbon footprint.",
+      "options": ["heavily", "barely", "reluctantly", "randomly", "temporarily"],
+      "answer": 0,
+      "word": "heavily",
+      "meaning_tr": "yoğun biçimde, ağır olarak",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "v061",
+      "sentence": "The new law ---- employers from discriminating against job applicants based on their age.",
+      "options": ["prohibits", "encourages", "allows", "compels", "exempts"],
+      "answer": 0,
+      "word": "prohibits",
+      "meaning_tr": "yasaklamak",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v062",
+      "sentence": "The explorers faced ---- challenges as they tried to cross the desert without sufficient supplies.",
+      "options": ["enormous", "trivial", "optional", "moderate", "occasional"],
+      "answer": 0,
+      "word": "enormous",
+      "meaning_tr": "muazzam, devasa",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "v063",
+      "sentence": "The two countries signed a treaty to ---- their longstanding territorial dispute.",
+      "options": ["resolve", "provoke", "intensify", "prolong", "overlook"],
+      "answer": 0,
+      "word": "resolve",
+      "meaning_tr": "çözmek, halletmek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v064",
+      "sentence": "Emotional intelligence is ---- to effective leadership in modern organizations.",
+      "options": ["crucial", "irrelevant", "harmful", "optional", "marginal"],
+      "answer": 0,
+      "word": "crucial",
+      "meaning_tr": "kritik, çok önemli",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v065",
+      "sentence": "The ---- of online shopping has transformed the retail industry across the world.",
+      "options": ["emergence", "decline", "restriction", "elimination", "reversal"],
+      "answer": 0,
+      "word": "emergence",
+      "meaning_tr": "ortaya çıkış, belirme",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v066",
+      "sentence": "The virus can ---- rapidly in crowded environments where hygiene standards are low.",
+      "options": ["spread", "diminish", "stabilize", "retreat", "stagnate"],
+      "answer": 0,
+      "word": "spread",
+      "meaning_tr": "yayılmak",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "v067",
+      "sentence": "The philosopher argued that the pursuit of knowledge is ---- to human nature.",
+      "options": ["inherent", "external", "harmful", "optional", "trivial"],
+      "answer": 0,
+      "word": "inherent",
+      "meaning_tr": "doğuştan gelen, içkin",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v068",
+      "sentence": "The city council voted ---- to approve the new urban development plan.",
+      "options": ["unanimously", "reluctantly", "partially", "occasionally", "arbitrarily"],
+      "answer": 0,
+      "word": "unanimously",
+      "meaning_tr": "oybirliğiyle",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v069",
+      "sentence": "The teacher tried to ---- the students' interest in science through hands-on experiments.",
+      "options": ["stimulate", "suppress", "diminish", "restrict", "postpone"],
+      "answer": 0,
+      "word": "stimulate",
+      "meaning_tr": "teşvik etmek, uyarmak",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v070",
+      "sentence": "Many people find it difficult to ---- to new cultural norms when they move to a different country.",
+      "options": ["adapt", "object", "resist", "surrender", "contribute"],
+      "answer": 0,
+      "word": "adapt",
+      "meaning_tr": "uyum sağlamak",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "v071",
+      "sentence": "The painting was ---- damaged during the transportation, and restoration will take months.",
+      "options": ["irreparably", "slightly", "temporarily", "marginally", "optionally"],
+      "answer": 0,
+      "word": "irreparably",
+      "meaning_tr": "onarılamaz biçimde",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v072",
+      "sentence": "The report highlights the need to ---- public awareness about environmental protection.",
+      "options": ["enhance", "diminish", "suppress", "neglect", "undermine"],
+      "answer": 0,
+      "word": "enhance",
+      "meaning_tr": "artırmak, geliştirmek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v073",
+      "sentence": "The novel offers a ---- perspective on the social changes that occurred during the industrial era.",
+      "options": ["unique", "predictable", "conventional", "outdated", "trivial"],
+      "answer": 0,
+      "word": "unique",
+      "meaning_tr": "eşsiz, benzersiz",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "v074",
+      "sentence": "The diplomat tried to ---- tensions between the two nations through peaceful negotiations.",
+      "options": ["alleviate", "intensify", "provoke", "exploit", "prolong"],
+      "answer": 0,
+      "word": "alleviate",
+      "meaning_tr": "hafifletmek, azaltmak",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v075",
+      "sentence": "The company must ---- to strict quality standards to maintain its certification.",
+      "options": ["adhere", "object", "resort", "surrender", "aspire"],
+      "answer": 0,
+      "word": "adhere",
+      "meaning_tr": "bağlı kalmak, uymak",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v076",
+      "sentence": "The drought has had a ---- impact on agricultural production in the region.",
+      "options": ["devastating", "negligible", "moderate", "temporary", "beneficial"],
+      "answer": 0,
+      "word": "devastating",
+      "meaning_tr": "yıkıcı, tahrip edici",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v077",
+      "sentence": "Historians ---- that the empire began its decline in the late 15th century.",
+      "options": ["assert", "deny", "conceal", "neglect", "overlook"],
+      "answer": 0,
+      "word": "assert",
+      "meaning_tr": "ileri sürmek, iddia etmek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v078",
+      "sentence": "The scientist's ---- research on genetics has paved the way for new medical treatments.",
+      "options": ["groundbreaking", "insignificant", "conventional", "superficial", "outdated"],
+      "answer": 0,
+      "word": "groundbreaking",
+      "meaning_tr": "çığır açan",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v079",
+      "sentence": "Regular physical exercise can ---- reduce the risk of heart disease and diabetes.",
+      "options": ["considerably", "barely", "randomly", "temporarily", "reluctantly"],
+      "answer": 0,
+      "word": "considerably",
+      "meaning_tr": "önemli ölçüde, hayli",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v080",
+      "sentence": "The government needs to ---- more resources to public education if it wants to improve literacy rates.",
+      "options": ["allocate", "restrict", "withdraw", "eliminate", "postpone"],
+      "answer": 0,
+      "word": "allocate",
+      "meaning_tr": "ayırmak, tahsis etmek",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v081",
+      "sentence": "The ---- nature of the disease makes it difficult to diagnose in its early stages.",
+      "options": ["elusive", "obvious", "prominent", "transparent", "predictable"],
+      "answer": 0,
+      "word": "elusive",
+      "meaning_tr": "anlaşılması güç, yakalanması zor",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v082",
+      "sentence": "Many traditional crafts are at risk of ---- as younger generations prefer modern occupations.",
+      "options": ["extinction", "expansion", "restoration", "preservation", "elevation"],
+      "answer": 0,
+      "word": "extinction",
+      "meaning_tr": "yok olma, tükenme",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v083",
+      "sentence": "The documentary aims to ---- public opinion on the issue of animal rights.",
+      "options": ["influence", "suppress", "conceal", "overlook", "restrict"],
+      "answer": 0,
+      "word": "influence",
+      "meaning_tr": "etkilemek",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "v084",
+      "sentence": "Advances in technology have made it ---- to explore the deepest parts of the ocean.",
+      "options": ["feasible", "unnecessary", "irrelevant", "obsolete", "harmful"],
+      "answer": 0,
+      "word": "feasible",
+      "meaning_tr": "uygulanabilir, mümkün",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "v085",
+      "sentence": "The charity organization relies ---- on donations from the public to fund its operations.",
+      "options": ["primarily", "barely", "reluctantly", "temporarily", "randomly"],
+      "answer": 0,
+      "word": "primarily",
+      "meaning_tr": "başlıca, esas olarak",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v086",
+      "sentence": "The company has taken steps to ---- the risk of data breaches by investing in cybersecurity.",
+      "options": ["minimize", "maximize", "overlook", "intensify", "prolong"],
+      "answer": 0,
+      "word": "minimize",
+      "meaning_tr": "en aza indirmek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v087",
+      "sentence": "Many species face the threat of ---- due to habitat loss caused by deforestation.",
+      "options": ["extinction", "adaptation", "reproduction", "migration", "evolution"],
+      "answer": 0,
+      "word": "extinction",
+      "meaning_tr": "yok olma, tükenme",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v088",
+      "sentence": "The artist's work is ---- for its bold use of color and innovative techniques.",
+      "options": ["renowned", "criticized", "ignored", "dismissed", "questioned"],
+      "answer": 0,
+      "word": "renowned",
+      "meaning_tr": "ünlü, tanınmış",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "v089",
+      "sentence": "The project was completed on time ---- the numerous challenges the team encountered.",
+      "options": ["despite", "because", "unless", "although", "since"],
+      "answer": 0,
+      "word": "despite",
+      "meaning_tr": "-e rağmen",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "v090",
+      "sentence": "The government should ---- strict penalties for companies that violate environmental regulations.",
+      "options": ["enforce", "withdraw", "neglect", "eliminate", "postpone"],
+      "answer": 0,
+      "word": "enforce",
+      "meaning_tr": "uygulamak, yürürlüğe koymak",
+      "level": "B2",
+      "exam": "YDS"
+    }
+  ],
+  "phrasal_verbs": [
+    {
+      "id": "pv001",
+      "sentence": "Making videos should be a lot of fun, but lots of people ---- problems and lose momentum before they even get started.",
+      "options": ["hand over", "look for", "turn down", "give up", "run into"],
+      "answer": 4,
+      "word": "run into",
+      "meaning_tr": "karşılaşmak, rastlamak",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv002",
+      "sentence": "After years of negotiations, the company finally decided to ---- the deal because the terms were not favorable.",
+      "options": ["turn down", "carry out", "look into", "come up with", "put off"],
+      "answer": 0,
+      "word": "turn down",
+      "meaning_tr": "reddetmek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv003",
+      "sentence": "The detective promised to ---- the matter thoroughly before making any accusations.",
+      "options": ["look into", "give up", "put off", "turn down", "hand over"],
+      "answer": 0,
+      "word": "look into",
+      "meaning_tr": "araştırmak, incelemek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv004",
+      "sentence": "The manager asked the employees to ---- a creative solution to the ongoing problem.",
+      "options": ["come up with", "put off", "turn down", "give up", "look into"],
+      "answer": 0,
+      "word": "come up with",
+      "meaning_tr": "bulmak, ortaya koymak",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv005",
+      "sentence": "The scientist refused to ---- his research even when funding was cut significantly.",
+      "options": ["give up", "carry out", "put off", "look into", "come up with"],
+      "answer": 0,
+      "word": "give up",
+      "meaning_tr": "vazgeçmek, bırakmak",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "pv006",
+      "sentence": "The soldiers were ordered to ---- their weapons to the enemy after the ceasefire agreement.",
+      "options": ["hand over", "turn down", "look into", "put off", "give up"],
+      "answer": 0,
+      "word": "hand over",
+      "meaning_tr": "teslim etmek, devretmek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv007",
+      "sentence": "The meeting was ---- until next week because the director was unavailable.",
+      "options": ["put off", "carried out", "turned down", "looked into", "given up"],
+      "answer": 0,
+      "word": "put off",
+      "meaning_tr": "ertelemek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv008",
+      "sentence": "The researchers ---- a series of experiments to test the effectiveness of the new drug.",
+      "options": ["carried out", "turned down", "put off", "gave up", "looked into"],
+      "answer": 0,
+      "word": "carried out",
+      "meaning_tr": "gerçekleştirmek, yürütmek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv009",
+      "sentence": "The company is trying to ---- new ways to reduce its environmental impact.",
+      "options": ["figure out", "turn down", "give up", "put off", "hand over"],
+      "answer": 0,
+      "word": "figure out",
+      "meaning_tr": "çözmek, anlamak",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv010",
+      "sentence": "When the factory closed down, hundreds of workers were ---- without any notice.",
+      "options": ["laid off", "taken over", "put off", "turned down", "carried out"],
+      "answer": 0,
+      "word": "laid off",
+      "meaning_tr": "işten çıkarmak",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv011",
+      "sentence": "The government decided to ---- the outdated regulation and replace it with a modern one.",
+      "options": ["do away with", "come up with", "look into", "put off", "hand over"],
+      "answer": 0,
+      "word": "do away with",
+      "meaning_tr": "kaldırmak, ortadan kaldırmak",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv012",
+      "sentence": "The multinational company was ---- by a larger corporation in a billion-dollar deal.",
+      "options": ["taken over", "turned down", "put off", "given up", "carried out"],
+      "answer": 0,
+      "word": "taken over",
+      "meaning_tr": "devralmak, ele geçirmek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv013",
+      "sentence": "The children ---- their grandparents, sharing many of the same characteristics.",
+      "options": ["take after", "give up", "turn down", "put off", "look into"],
+      "answer": 0,
+      "word": "take after",
+      "meaning_tr": "benzemek, çekmek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv014",
+      "sentence": "Scientists are trying to ---- why some people are more resistant to the virus than others.",
+      "options": ["find out", "give up", "put off", "turn down", "hand over"],
+      "answer": 0,
+      "word": "find out",
+      "meaning_tr": "öğrenmek, keşfetmek",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "pv015",
+      "sentence": "The pilot had to ---- the mission due to severe weather conditions over the mountain.",
+      "options": ["call off", "carry out", "come up with", "look into", "put off"],
+      "answer": 0,
+      "word": "call off",
+      "meaning_tr": "iptal etmek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv016",
+      "sentence": "The volunteers ---- food and blankets to the earthquake victims in the disaster zone.",
+      "options": ["handed out", "turned down", "put off", "gave up", "looked into"],
+      "answer": 0,
+      "word": "handed out",
+      "meaning_tr": "dağıtmak",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv017",
+      "sentence": "We need to ---- the amount of plastic waste we produce every day.",
+      "options": ["cut down on", "come up with", "look into", "put off", "give up"],
+      "answer": 0,
+      "word": "cut down on",
+      "meaning_tr": "azaltmak, kısmak",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv018",
+      "sentence": "The professor asked the students to ---- their essays by Friday at the latest.",
+      "options": ["hand in", "turn down", "give up", "put off", "look into"],
+      "answer": 0,
+      "word": "hand in",
+      "meaning_tr": "teslim etmek",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "pv019",
+      "sentence": "The firefighters managed to ---- the fire before it spread to the neighboring buildings.",
+      "options": ["put out", "carry out", "come up with", "look into", "turn down"],
+      "answer": 0,
+      "word": "put out",
+      "meaning_tr": "söndürmek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv020",
+      "sentence": "The athlete ---- despite the pain in his knee and finished the marathon successfully.",
+      "options": ["kept on", "gave up", "turned down", "put off", "handed over"],
+      "answer": 0,
+      "word": "kept on",
+      "meaning_tr": "devam etmek",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "pv021",
+      "sentence": "The government has ---- a new set of rules for online data privacy protection.",
+      "options": ["brought in", "given up", "turned down", "put off", "looked into"],
+      "answer": 0,
+      "word": "brought in",
+      "meaning_tr": "getirmek, yürürlüğe koymak",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv022",
+      "sentence": "She had to ---- the invitation because she already had plans for that evening.",
+      "options": ["turn down", "carry out", "come up with", "put off", "look into"],
+      "answer": 0,
+      "word": "turn down",
+      "meaning_tr": "reddetmek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv023",
+      "sentence": "Environmental organizations are ---- stricter regulations to protect endangered species.",
+      "options": ["calling for", "giving up", "turning down", "putting off", "handing over"],
+      "answer": 0,
+      "word": "calling for",
+      "meaning_tr": "talep etmek, çağrıda bulunmak",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv024",
+      "sentence": "The company plans to ---- a new line of eco-friendly products next quarter.",
+      "options": ["bring out", "give up", "turn down", "put off", "look into"],
+      "answer": 0,
+      "word": "bring out",
+      "meaning_tr": "piyasaya sürmek, çıkarmak",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv025",
+      "sentence": "The teacher asked the noisy students to ---- so that the rest of the class could concentrate.",
+      "options": ["settle down", "give up", "turn down", "carry out", "hand over"],
+      "answer": 0,
+      "word": "settle down",
+      "meaning_tr": "sakinleşmek, yerleşmek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv026",
+      "sentence": "The mechanic couldn't ---- what was wrong with the car despite checking it thoroughly.",
+      "options": ["make out", "give up", "turn down", "put off", "hand over"],
+      "answer": 0,
+      "word": "make out",
+      "meaning_tr": "anlamak, seçmek",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv027",
+      "sentence": "The heavy rainfall caused the river to ---- and flood the surrounding villages.",
+      "options": ["overflow", "dry up", "settle down", "give up", "break down"],
+      "answer": 0,
+      "word": "overflow",
+      "meaning_tr": "taşmak",
+      "level": "B2",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv028",
+      "sentence": "The old machine finally ---- after years of heavy use and needed to be replaced.",
+      "options": ["broke down", "carried out", "turned down", "gave up", "put off"],
+      "answer": 0,
+      "word": "broke down",
+      "meaning_tr": "bozulmak, arızalanmak",
+      "level": "B1",
+      "exam": "YKS"
+    },
+    {
+      "id": "pv029",
+      "sentence": "The police are trying to ---- the identity of the person who committed the crime.",
+      "options": ["track down", "give up", "turn down", "put off", "hand over"],
+      "answer": 0,
+      "word": "track down",
+      "meaning_tr": "izini sürmek, bulmak",
+      "level": "C1",
+      "exam": "YDS"
+    },
+    {
+      "id": "pv030",
+      "sentence": "The committee will ---- the applications and announce the results by next month.",
+      "options": ["go through", "give up", "turn down", "put off", "hand over"],
+      "answer": 0,
+      "word": "go through",
+      "meaning_tr": "incelemek, gözden geçirmek",
+      "level": "B2",
+      "exam": "YDS"
+    }
+  ]
+}

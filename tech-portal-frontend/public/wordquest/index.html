@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="WordQuest - YDS, YKS, YÖKDİL sınavlarına hazırlık kelime oyunu. ÖSYM formatında sorularla İngilizce kelime bilgini test et!">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>WordQuest - İngilizce Kelime Oyunu</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- SPLASH SCREEN -->
+        <div id="splash" class="screen active">
+            <div class="splash-bg"></div>
+            <div class="splash-content">
+                <div class="splash-icon">📚</div>
+                <h1 class="splash-title">WordQuest</h1>
+                <p class="splash-subtitle">YDS · YKS · YÖKDİL</p>
+                <div class="splash-loader">
+                    <div class="loader-bar"></div>
+                </div>
+                <p class="splash-hint">Kelime bilgini test et!</p>
+            </div>
+        </div>
+
+        <!-- HOME SCREEN -->
+        <div id="home" class="screen">
+            <div class="home-header">
+                <div class="home-stats">
+                    <div class="stat-item">
+                        <span class="stat-icon">⭐</span>
+                        <span class="stat-value" id="total-xp">0</span>
+                        <span class="stat-label">XP</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">🔥</span>
+                        <span class="stat-value" id="streak-count">0</span>
+                        <span class="stat-label">Seri</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">🏆</span>
+                        <span class="stat-value" id="level-display">1</span>
+                        <span class="stat-label">Seviye</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="home-hero">
+                <div class="hero-icon">📚</div>
+                <h1 class="hero-title">WordQuest</h1>
+                <p class="hero-desc">ÖSYM formatında İngilizce kelime oyunu</p>
+            </div>
+
+            <!-- Mode Selection -->
+            <div class="mode-section">
+                <h2 class="section-title">Oyun Modu</h2>
+                <div class="mode-grid">
+                    <button class="mode-card" data-mode="vocabulary" id="btn-vocab">
+                        <div class="mode-icon">🔤</div>
+                        <div class="mode-info">
+                            <h3>Kelime Bilgisi</h3>
+                            <p>YDS tarzı kelime soruları</p>
+                        </div>
+                        <span class="mode-count" id="vocab-count">90</span>
+                    </button>
+                    <button class="mode-card" data-mode="phrasal_verb" id="btn-phrasal">
+                        <div class="mode-icon">🔗</div>
+                        <div class="mode-info">
+                            <h3>Phrasal Verbs</h3>
+                            <p>Deyimsel fiil soruları</p>
+                        </div>
+                        <span class="mode-count" id="phrasal-count">30</span>
+                    </button>
+                    <button class="mode-card" data-mode="mixed" id="btn-mixed">
+                        <div class="mode-icon">🎯</div>
+                        <div class="mode-info">
+                            <h3>Karışık</h3>
+                            <p>Tüm soru tipleri</p>
+                        </div>
+                        <span class="mode-count" id="mixed-count">120</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Exam Filter -->
+            <div class="exam-section">
+                <h2 class="section-title">Sınav Türü</h2>
+                <div class="exam-pills">
+                    <button class="exam-pill active" data-exam="all">Tümü</button>
+                    <button class="exam-pill" data-exam="YDS">YDS</button>
+                    <button class="exam-pill" data-exam="YKS">YKS</button>
+                    <button class="exam-pill" data-exam="YÖKDİL">YÖKDİL</button>
+                </div>
+            </div>
+
+            <!-- Difficulty Filter -->
+            <div class="diff-section">
+                <h2 class="section-title">Zorluk</h2>
+                <div class="diff-pills">
+                    <button class="diff-pill active" data-level="all">Tümü</button>
+                    <button class="diff-pill" data-level="B1">B1</button>
+                    <button class="diff-pill" data-level="B2">B2</button>
+                    <button class="diff-pill" data-level="C1">C1</button>
+                </div>
+            </div>
+
+            <!-- Start Button -->
+            <button class="start-btn" id="start-game">
+                <span class="start-icon">▶</span>
+                Başla
+            </button>
+
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="qs-item">
+                    <span class="qs-num" id="qs-played">0</span>
+                    <span class="qs-label">Oyun</span>
+                </div>
+                <div class="qs-item">
+                    <span class="qs-num" id="qs-correct">0%</span>
+                    <span class="qs-label">Başarı</span>
+                </div>
+                <div class="qs-item">
+                    <span class="qs-num" id="qs-words">0</span>
+                    <span class="qs-label">Kelime</span>
+                </div>
+                <div class="qs-item">
+                    <span class="qs-num" id="qs-best">0</span>
+                    <span class="qs-label">En İyi Seri</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUIZ SCREEN -->
+        <div id="quiz" class="screen">
+            <div class="quiz-header">
+                <button class="quiz-back" id="quiz-back">✕</button>
+                <div class="quiz-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <span class="progress-text" id="progress-text">1/10</span>
+                </div>
+                <div class="quiz-timer" id="quiz-timer">
+                    <span class="timer-icon">⏱</span>
+                    <span class="timer-value" id="timer-value">30</span>
+                </div>
+            </div>
+
+            <!-- Streak & XP Bar -->
+            <div class="quiz-status">
+                <div class="status-streak">
+                    <span class="streak-fire">🔥</span>
+                    <span id="quiz-streak">0</span>
+                </div>
+                <div class="status-xp">
+                    <span class="xp-star">⭐</span>
+                    <span id="quiz-xp">0</span> XP
+                </div>
+            </div>
+
+            <!-- Question -->
+            <div class="question-area">
+                <div class="question-badge" id="question-badge">Kelime Bilgisi</div>
+                <div class="question-level" id="question-level">B2</div>
+                <p class="question-text" id="question-text"></p>
+            </div>
+
+            <!-- Options -->
+            <div class="options-area" id="options-area">
+                <!-- Options will be inserted by JS -->
+            </div>
+
+            <!-- Word Info (shown after answer) -->
+            <div class="word-info hidden" id="word-info">
+                <div class="word-main">
+                    <span class="word-en" id="word-en"></span>
+                    <span class="word-arrow">→</span>
+                    <span class="word-tr" id="word-tr"></span>
+                </div>
+            </div>
+
+            <!-- Next Button -->
+            <button class="next-btn hidden" id="next-btn">
+                Sonraki Soru →
+            </button>
+        </div>
+
+        <!-- RESULTS SCREEN -->
+        <div id="results" class="screen">
+            <div class="results-header">
+                <div class="results-emoji" id="results-emoji">🎉</div>
+                <h2 class="results-title" id="results-title">Tebrikler!</h2>
+                <p class="results-subtitle" id="results-subtitle">Harika bir performans!</p>
+            </div>
+
+            <div class="results-score">
+                <div class="score-circle">
+                    <svg viewBox="0 0 120 120">
+                        <circle class="score-bg" cx="60" cy="60" r="52"></circle>
+                        <circle class="score-fill" id="score-circle" cx="60" cy="60" r="52"></circle>
+                    </svg>
+                    <div class="score-text">
+                        <span class="score-num" id="score-num">0</span>
+                        <span class="score-label">%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-stats">
+                <div class="rs-item">
+                    <span class="rs-icon">✅</span>
+                    <span class="rs-value" id="rs-correct">0</span>
+                    <span class="rs-label">Doğru</span>
+                </div>
+                <div class="rs-item">
+                    <span class="rs-icon">❌</span>
+                    <span class="rs-value" id="rs-wrong">0</span>
+                    <span class="rs-label">Yanlış</span>
+                </div>
+                <div class="rs-item">
+                    <span class="rs-icon">⭐</span>
+                    <span class="rs-value" id="rs-xp">0</span>
+                    <span class="rs-label">XP</span>
+                </div>
+                <div class="rs-item">
+                    <span class="rs-icon">🔥</span>
+                    <span class="rs-value" id="rs-streak">0</span>
+                    <span class="rs-label">En İyi Seri</span>
+                </div>
+            </div>
+
+            <!-- Wrong Answers Review -->
+            <div class="review-section" id="review-section">
+                <h3 class="review-title">📖 Öğrenilecek Kelimeler</h3>
+                <div class="review-list" id="review-list">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+
+            <div class="results-actions">
+                <button class="action-btn primary" id="play-again">Tekrar Oyna</button>
+                <button class="action-btn secondary" id="go-home">Ana Menü</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
