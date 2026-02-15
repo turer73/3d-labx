@@ -170,6 +170,20 @@
                 <span class="daily-goal-text" id="daily-progress-text">0/20</span>
             </div>
 
+            <!-- Challenge Banner (shown when arriving via challenge link) -->
+            <div class="challenge-banner hidden" id="challenge-banner">
+                <div class="challenge-banner-icon">⚔️</div>
+                <div class="challenge-banner-info">
+                    <h3>Meydan Okuma!</h3>
+                    <p><strong id="challenge-creator-name">Birisi</strong> seni meydan okuyor!</p>
+                    <p class="challenge-target-text" id="challenge-target">Hedef: %0</p>
+                </div>
+                <div class="challenge-banner-actions">
+                    <button class="challenge-accept-btn" id="btn-challenge-accept">Kabul Et</button>
+                    <button class="challenge-decline-btn" id="btn-challenge-decline">Reddet</button>
+                </div>
+            </div>
+
             <!-- Start Button -->
             <button class="start-btn" id="start-game">
                 <span class="start-icon">▶</span>
@@ -310,6 +324,27 @@
                 <div class="review-list" id="review-list">
                     <!-- Filled by JS -->
                 </div>
+            </div>
+
+            <!-- Share Section -->
+            <div class="share-section">
+                <h3 class="share-title">Sonucunu Paylaş</h3>
+                <div class="share-buttons">
+                    <button class="share-btn share-copy" id="btn-share-copy">
+                        <span class="share-btn-icon">📋</span> Kopyala
+                    </button>
+                    <button class="share-btn share-whatsapp" id="btn-share-whatsapp">
+                        <span class="share-btn-icon">💬</span> WhatsApp
+                    </button>
+                    <button class="share-btn share-challenge" id="btn-challenge">
+                        <span class="share-btn-icon">⚔️</span> Meydan Oku
+                    </button>
+                </div>
+            </div>
+
+            <!-- Challenge Comparison (shown after challenge) -->
+            <div class="challenge-comparison hidden" id="challenge-comparison">
+                <!-- Filled by JS -->
             </div>
 
             <div class="results-actions">

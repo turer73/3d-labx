@@ -6958,6 +6958,151 @@ ${text}`;
         }
       }
 
+      // ================================
+      // 📚 WORDQUEST CHALLENGE API
+      // ================================
+
+      // POST /api/wq/challenge — Create a WordQuest challenge
+      if (path === "/api/wq/challenge" && method === "POST") {
+        try {
+          const body = await request.json();
+          const { creatorId, creatorNickname, mode, questionIds, creatorScore, creatorPct, creatorTimeMs, creatorAnswers } = body;
+
+          if (!creatorId || !questionIds || !Array.isArray(questionIds) || questionIds.length === 0) {
+            return errorResponse("creatorId ve questionIds gerekli", 400, "INVALID_INPUT", request);
+          }
+
+          const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+          let challengeId = '';
+          for (let i = 0; i < 6; i++) challengeId += chars[Math.floor(Math.random() * chars.length)];
+
+          const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
+          await env.DB.prepare(`
+            INSERT INTO wq_challenges (challenge_id, creator_id, creator_nickname, mode, question_ids, question_count, creator_score, creator_pct, creator_time_ms, creator_answers, expires_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            challengeId, creatorId, creatorNickname || 'Anonim', mode || 'mixed',
+            JSON.stringify(questionIds), questionIds.length,
+            creatorScore || 0, creatorPct || 0, creatorTimeMs || 0,
+            JSON.stringify(creatorAnswers || []), expiresAt
+          ).run();
+
+          return jsonResponse({
+            success: true, challengeId, expiresAt,
+            url: `https://3d-labx.com/wordquest/?challenge=${challengeId}`
+          }, 200, 0, request);
+        } catch (error) {
+          console.error("WQ Challenge create error:", error);
+          return errorResponse("Meydan okuma hatası: " + error.message, 500, "WQ_CHALLENGE_ERROR", request);
+        }
+      }
+
+      // GET /api/wq/challenge/:id — Get WordQuest challenge details
+      if (path.startsWith("/api/wq/challenge/") && !path.endsWith("/result") && method === "GET") {
+        try {
+          const parts = path.split("/");
+          const challengeId = parts[parts.length - 1];
+          if (!challengeId || challengeId.length !== 6) return errorResponse("Geçersiz meydan okuma ID", 400, "INVALID_CHALLENGE_ID", request);
+
+          const challenge = await env.DB.prepare(`
+            SELECT challenge_id, creator_id, creator_nickname, mode, question_ids, question_count,
+                   creator_score, creator_pct, creator_time_ms, play_count, created_at, expires_at
+            FROM wq_challenges WHERE challenge_id = ?
+          `).bind(challengeId.toUpperCase()).first();
+
+          if (!challenge) return errorResponse("Meydan okuma bulunamadı", 404, "CHALLENGE_NOT_FOUND", request);
+          if (new Date(challenge.expires_at) < new Date()) return errorResponse("Meydan okuma süresi dolmuş", 410, "CHALLENGE_EXPIRED", request);
+
+          await env.DB.prepare("UPDATE wq_challenges SET play_count = play_count + 1 WHERE challenge_id = ?").bind(challengeId.toUpperCase()).run();
+
+          return jsonResponse({
+            challengeId: challenge.challenge_id,
+            creatorNickname: challenge.creator_nickname,
+            mode: challenge.mode,
+            questionIds: JSON.parse(challenge.question_ids),
+            questionCount: challenge.question_count,
+            creatorScore: challenge.creator_score,
+            creatorPct: challenge.creator_pct,
+            playCount: challenge.play_count + 1,
+            expiresAt: challenge.expires_at
+          }, 200, 0, request);
+        } catch (error) {
+          console.error("WQ Challenge get error:", error);
+          return errorResponse("Meydan okuma hatası: " + error.message, 500, "WQ_CHALLENGE_ERROR", request);
+        }
+      }
+
+      // POST /api/wq/challenge/:id/result — Submit challenge result & get comparison
+      if (path.match(/^\/api\/wq\/challenge\/[A-Z0-9]{6}\/result$/) && method === "POST") {
+        try {
+          const parts = path.split("/");
+          const challengeId = parts[4].toUpperCase();
+          const body = await request.json();
+          const { playerId, nickname, score, pct, timeMs, answers } = body;
+
+          if (!playerId) return errorResponse("playerId gerekli", 400, "INVALID_INPUT", request);
+
+          // Get challenge info
+          const challenge = await env.DB.prepare(`
+            SELECT creator_id, creator_nickname, creator_score, creator_pct, creator_time_ms, creator_answers, question_count
+            FROM wq_challenges WHERE challenge_id = ?
+          `).bind(challengeId).first();
+
+          if (!challenge) return errorResponse("Meydan okuma bulunamadı", 404, "CHALLENGE_NOT_FOUND", request);
+
+          // Save result (upsert)
+          await env.DB.prepare(`
+            INSERT INTO wq_challenge_results (challenge_id, player_id, nickname, score, pct, time_ms, answers)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(challenge_id, player_id) DO UPDATE SET
+              score = excluded.score, pct = excluded.pct, time_ms = excluded.time_ms,
+              answers = excluded.answers, created_at = datetime('now')
+          `).bind(
+            challengeId, playerId, nickname || 'Anonim',
+            score || 0, pct || 0, timeMs || 0,
+            JSON.stringify(answers || [])
+          ).run();
+
+          // Determine winner
+          const creatorPct = challenge.creator_pct;
+          const challengerPct = pct || 0;
+          let winner = 'tie';
+          if (challengerPct > creatorPct) winner = 'challenger';
+          else if (creatorPct > challengerPct) winner = 'creator';
+          else {
+            // Tie-break by time (lower is better)
+            const creatorTime = challenge.creator_time_ms || 999999;
+            const challengerTime = timeMs || 999999;
+            if (challengerTime < creatorTime) winner = 'challenger';
+            else if (creatorTime < challengerTime) winner = 'creator';
+          }
+
+          return jsonResponse({
+            success: true,
+            comparison: {
+              creator: {
+                nickname: challenge.creator_nickname,
+                score: challenge.creator_score,
+                pct: challenge.creator_pct,
+                timeMs: challenge.creator_time_ms
+              },
+              challenger: {
+                nickname: nickname || 'Anonim',
+                score: score || 0,
+                pct: challengerPct,
+                timeMs: timeMs || 0
+              },
+              winner,
+              questionCount: challenge.question_count
+            }
+          }, 200, 0, request);
+        } catch (error) {
+          console.error("WQ Challenge result error:", error);
+          return errorResponse("Sonuç hatası: " + error.message, 500, "WQ_CHALLENGE_ERROR", request);
+        }
+      }
+
       return errorResponse("Not Found", 404, "NOT_FOUND");
 
     } catch (error) {

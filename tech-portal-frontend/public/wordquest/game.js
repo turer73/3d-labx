@@ -1,4 +1,4 @@
-// ===== WORDQUEST - GAME ENGINE v7 =====
+// ===== WORDQUEST - GAME ENGINE v8 =====
 
 (function() {
     'use strict';
@@ -12,6 +12,8 @@
     const XP_TIME_BONUS = 3;
     const XP_PER_LEVEL = 100;
     const DAILY_GOAL = 20;
+    const API_URL = 'https://tech-portal-api.turgut-d01.workers.dev/api/wq';
+    const PLAYER_ID_KEY = 'wq_player_id';
 
     let wordData = null;
     let state = {
@@ -27,7 +29,16 @@
         timer: TIMER_DEFAULT,
         timerInterval: null,
         answered: false,
-        wrongAnswers: []
+        wrongAnswers: [],
+        answerResults: [],
+        gameStartTime: 0,
+        totalTimeMs: 0,
+        challengeId: null,
+        challengeCreator: null,
+        challengeCreatorScore: null,
+        challengeCreatorPct: null,
+        challengeQuestionIds: null,
+        challengeMode: null
     };
 
     let stats = loadStats();
@@ -48,8 +59,15 @@
         try {
             const res = await fetch('data/words.json');
             wordData = await res.json();
+
+            // Check for challenge URL
+            const hasChallenge = await loadChallengeFromUrl();
+
             updateHomeUI();
-            setTimeout(() => showScreen('home'), 2200);
+            setTimeout(() => {
+                showScreen('home');
+                if (hasChallenge) showChallengeBanner();
+            }, 2200);
         } catch(e) {
             console.error('Word data load error:', e);
             document.querySelector('.splash-hint').textContent = 'Veri yüklenirken hata oluştu!';
@@ -141,6 +159,222 @@
         }
         stats.dailyCount += count;
         saveStats();
+    }
+
+    // ===== PLAYER ID =====
+    function getPlayerId() {
+        let id = localStorage.getItem(PLAYER_ID_KEY);
+        if (!id) {
+            id = 'wq_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 10);
+            localStorage.setItem(PLAYER_ID_KEY, id);
+        }
+        return id;
+    }
+
+    // ===== SHARE =====
+    function generateShareText() {
+        const pct = Math.round((state.score / state.questions.length) * 100);
+        const modeLabels = {
+            vocabulary: 'Kelime Bilgisi', phrasal_verb: 'Phrasal Verb', grammar: 'Dilbilgisi',
+            sentence_completion: 'Cümle Tamamlama', cloze_test: 'Boşluk Doldurma',
+            dialogue: 'Diyalog', restatement: 'Yakın Anlam', mixed: 'Karışık', review: 'Tekrar'
+        };
+
+        let text = `📚 WordQuest - ${modeLabels[state.mode] || state.mode}\n`;
+        text += `${state.score}/${state.questions.length} (%${pct})\n\n`;
+
+        state.questions.forEach((q, i) => {
+            const wasWrong = state.wrongAnswers.some(w => (w.word || w.id) === (q.word || q.id));
+            text += wasWrong ? '❌' : '✅';
+            if ((i + 1) % 5 === 0) text += '\n';
+        });
+
+        text += `\n\n🔥 Seri: ${state.bestStreak} | ⭐ ${state.xpEarned} XP`;
+        text += `\n\nhttps://3d-labx.com/wordquest/`;
+        return text;
+    }
+
+    function shareResult() {
+        const text = generateShareText();
+        if (navigator.share) {
+            navigator.share({ text }).catch(() => copyToClipboard(text));
+        } else {
+            copyToClipboard(text);
+        }
+    }
+
+    function shareViaWhatsApp() {
+        const text = generateShareText();
+        window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
+    }
+
+    function copyToClipboard(text) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(() => showToast('📋 Panoya kopyalandı!')).catch(() => showToast('Kopyalanamadı'));
+        } else {
+            showToast('Kopyalanamadı');
+        }
+    }
+
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2200);
+    }
+
+    // ===== CHALLENGE =====
+    async function createChallenge() {
+        const btn = $('btn-challenge');
+        if (btn) { btn.disabled = true; btn.textContent = '⏳ Oluşturuluyor...'; }
+
+        try {
+            const questionIds = state.questions.map(q => q.id || q.word);
+            const pct = Math.round((state.score / state.questions.length) * 100);
+
+            const res = await fetch(`${API_URL}/challenge`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    creatorId: getPlayerId(),
+                    creatorNickname: localStorage.getItem('wq_nickname') || 'Anonim',
+                    mode: state.mode,
+                    questionIds,
+                    creatorScore: state.score,
+                    creatorPct: pct,
+                    creatorTimeMs: state.totalTimeMs || 0,
+                    creatorAnswers: state.answerResults
+                })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                const shareText = `⚔️ WordQuest Meydan Okuma!\n${state.score}/${state.questions.length} yaptım, sen kaç yaparsın?\n\n${data.url}`;
+                if (navigator.share) {
+                    navigator.share({ text: shareText }).catch(() => copyToClipboard(shareText));
+                } else {
+                    copyToClipboard(shareText);
+                }
+                if (btn) { btn.textContent = '✅ Link Kopyalandı!'; }
+            } else {
+                showToast('Meydan okuma oluşturulamadı');
+                if (btn) { btn.textContent = '⚔️ Meydan Oku'; btn.disabled = false; }
+            }
+        } catch(e) {
+            console.warn('Challenge error:', e);
+            showToast('Bağlantı hatası');
+            if (btn) { btn.textContent = '⚔️ Meydan Oku'; btn.disabled = false; }
+        }
+
+        setTimeout(() => { if (btn) { btn.textContent = '⚔️ Meydan Oku'; btn.disabled = false; } }, 4000);
+    }
+
+    async function loadChallengeFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        const challengeId = params.get('challenge');
+        if (!challengeId || challengeId.length !== 6) return false;
+
+        try {
+            const res = await fetch(`${API_URL}/challenge/${challengeId}`);
+            if (!res.ok) return false;
+            const data = await res.json();
+
+            state.challengeId = data.challengeId;
+            state.challengeCreator = data.creatorNickname;
+            state.challengeCreatorScore = data.creatorScore;
+            state.challengeCreatorPct = data.creatorPct;
+            state.challengeQuestionIds = data.questionIds;
+            state.challengeMode = data.mode;
+            return true;
+        } catch(e) {
+            console.warn('Challenge load error:', e);
+            return false;
+        }
+    }
+
+    function showChallengeBanner() {
+        const banner = $('challenge-banner');
+        if (!banner || !state.challengeId) return;
+        $('challenge-creator-name').textContent = state.challengeCreator || 'Birisi';
+        $('challenge-target').textContent = `Hedef: %${state.challengeCreatorPct || 0}`;
+        banner.classList.remove('hidden');
+    }
+
+    function startChallengeGame() {
+        const allQ = getAllQuestions();
+        const qMap = {};
+        allQ.forEach(q => { qMap[q.id || q.word] = q; });
+
+        const challengeQuestions = state.challengeQuestionIds
+            .map(id => qMap[id])
+            .filter(q => q !== undefined);
+
+        if (challengeQuestions.length === 0) {
+            alert('Meydan okuma soruları yüklenemedi!');
+            return;
+        }
+
+        state.mode = state.challengeMode || 'mixed';
+        state.questions = challengeQuestions;
+        state.currentIndex = 0;
+        state.score = 0;
+        state.xpEarned = 0;
+        state.streak = 0;
+        state.bestStreak = 0;
+        state.wrongAnswers = [];
+        state.answerResults = [];
+        state.gameStartTime = Date.now();
+
+        showScreen('quiz');
+        showQuestion();
+    }
+
+    async function submitChallengeResult() {
+        if (!state.challengeId) return;
+        try {
+            const pct = Math.round((state.score / state.questions.length) * 100);
+            const res = await fetch(`${API_URL}/challenge/${state.challengeId}/result`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    playerId: getPlayerId(),
+                    nickname: localStorage.getItem('wq_nickname') || 'Anonim',
+                    score: state.score,
+                    pct,
+                    timeMs: state.totalTimeMs || 0,
+                    answers: state.answerResults
+                })
+            });
+            const data = await res.json();
+            if (data.comparison) showChallengeComparison(data.comparison);
+        } catch(e) { console.warn('Challenge result error:', e); }
+    }
+
+    function showChallengeComparison(c) {
+        const el = $('challenge-comparison');
+        if (!el) return;
+
+        const winLabel = c.winner === 'tie' ? '🤝 Berabere!' : (c.winner === 'challenger' ? '🏆 Kazandın!' : '😤 Rakip Kazandı!');
+
+        el.innerHTML = `
+            <h3 class="comparison-title">⚔️ Meydan Okuma Sonucu</h3>
+            <div class="comparison-grid">
+                <div class="comp-player ${c.winner === 'creator' ? 'winner' : ''}">
+                    <div class="comp-name">${c.creator.nickname}</div>
+                    <div class="comp-score">${c.creator.score}/${state.questions.length}</div>
+                    <div class="comp-pct">%${c.creator.pct}</div>
+                </div>
+                <div class="comp-vs">VS</div>
+                <div class="comp-player ${c.winner === 'challenger' ? 'winner' : ''}">
+                    <div class="comp-name">${c.challenger.nickname}</div>
+                    <div class="comp-score">${c.challenger.score}/${state.questions.length}</div>
+                    <div class="comp-pct">%${c.challenger.pct}</div>
+                </div>
+            </div>
+            <div class="comp-winner">${winLabel}</div>
+        `;
+        el.classList.remove('hidden');
     }
 
     // ===== SCREENS =====
@@ -366,6 +600,33 @@
         $('play-again').addEventListener('click', startGame);
         $('go-home').addEventListener('click', () => showScreen('home'));
 
+        // Share buttons
+        if ($('btn-share-copy')) $('btn-share-copy').addEventListener('click', () => copyToClipboard(generateShareText()));
+        if ($('btn-share-whatsapp')) $('btn-share-whatsapp').addEventListener('click', shareViaWhatsApp);
+        if ($('btn-share-native')) $('btn-share-native').addEventListener('click', shareResult);
+
+        // Challenge button
+        if ($('btn-challenge')) $('btn-challenge').addEventListener('click', createChallenge);
+
+        // Challenge accept button
+        if ($('btn-challenge-accept')) {
+            $('btn-challenge-accept').addEventListener('click', () => {
+                const banner = $('challenge-banner');
+                if (banner) banner.classList.add('hidden');
+                startChallengeGame();
+            });
+        }
+        if ($('btn-challenge-decline')) {
+            $('btn-challenge-decline').addEventListener('click', () => {
+                state.challengeId = null;
+                state.challengeQuestionIds = null;
+                const banner = $('challenge-banner');
+                if (banner) banner.classList.add('hidden');
+                // Clean URL
+                window.history.replaceState({}, '', window.location.pathname);
+            });
+        }
+
         // Default selection
         document.querySelector('.mode-card[data-mode="vocabulary"]').classList.add('selected');
     }
@@ -398,6 +659,8 @@
         state.streak = 0;
         state.bestStreak = 0;
         state.wrongAnswers = [];
+        state.answerResults = [];
+        state.gameStartTime = Date.now();
 
         showScreen('quiz');
         showQuestion();
@@ -493,6 +756,9 @@
         // Update category stats
         updateCatStats(q._type, isCorrect);
 
+        // Track answer result for sharing/challenge
+        state.answerResults.push(isCorrect ? 'correct' : 'wrong');
+
         // XP calculation
         let xp = 0;
         if (isCorrect) {
@@ -548,6 +814,10 @@
 
     function endGame() {
         clearInterval(state.timerInterval);
+        state.totalTimeMs = Date.now() - state.gameStartTime;
+
+        // Submit challenge result if in challenge mode
+        if (state.challengeId) submitChallengeResult();
 
         // Update stats
         stats.totalXP += state.xpEarned;
@@ -614,6 +884,9 @@
         // Update Leitner (wrong)
         updateLeitnerBox(qKey, false);
         updateCatStats(q._type, false);
+
+        // Track timeout answer
+        state.answerResults.push('timeout');
 
         // Reset streak, add to wrong
         state.streak = 0;
