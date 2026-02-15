@@ -5,7 +5,7 @@
 // ============================================================
 
 // BUILD_TS will be updated by deploy script or manually
-const BUILD_TS = '20260215b';
+const BUILD_TS = '20260216a';
 const CACHE_NAME = `kelime-fethi-${BUILD_TS}`;
 
 const ASSETS_TO_CACHE = [
@@ -31,6 +31,7 @@ const ASSETS_TO_CACHE = [
     './js/ads.js',
     './js/leaderboard.js',
     './js/social.js',
+    './js/notifications.js',
     './assets/icon-192.svg',
     './assets/icon-192.png',
     './assets/icon-512.svg',
@@ -150,9 +151,39 @@ self.addEventListener('fetch', (event) => {
     );
 });
 
-// Listen for skip waiting message from client
+// Notification click — open Kelime Fethi
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(tabs => {
+            for (const tab of tabs) {
+                if (tab.url.includes('/kelime-fethi/')) {
+                    return tab.focus();
+                }
+            }
+            return clients.openWindow('./index.html');
+        })
+    );
+});
+
+// Listen for messages from client
 self.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'SKIP_WAITING') {
         self.skipWaiting();
+    }
+    // Schedule notification (local reminder)
+    if (event.data && event.data.type === 'SCHEDULE_NOTIFICATION') {
+        const { delayMs, title, body, tag } = event.data;
+        setTimeout(() => {
+            self.registration.showNotification(title, {
+                body,
+                tag,
+                icon: './assets/icon-192.png',
+                badge: './assets/icon-192.png',
+                vibrate: [200, 100, 200],
+                data: { url: './index.html' },
+                requireInteraction: false
+            });
+        }, delayMs);
     }
 });

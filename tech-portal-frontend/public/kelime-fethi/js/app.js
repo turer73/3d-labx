@@ -26,6 +26,7 @@ import { checkAchievements } from './achievements.js';
 import { initAds } from './ads.js';
 import { fetchDailyLeaderboard, fetchAlltimeLeaderboard, renderDailyLeaderboard, renderAlltimeLeaderboard } from './leaderboard.js';
 import { initSocialUI, shareViaWhatsApp, createChallenge, loadChallenge } from './social.js';
+import { initNotifications, scheduleDailyReminder } from './notifications.js';
 
 // ===== ANALYTICS =====
 function trackEvent(eventName, params) {
@@ -124,6 +125,9 @@ function updateUI() {
     // Update freeze count display
     const freezeEl = document.getElementById('freeze-count');
     if (freezeEl) freezeEl.textContent = state.streakFreezeCount || 0;
+
+    // Schedule next daily reminder (after game complete, for next day)
+    scheduleDailyReminder();
 }
 
 // Register updateUI callback
@@ -485,6 +489,9 @@ async function init() {
 
     // Init social UI (nickname, avatar, leaderboard opt-in)
     initSocialUI();
+
+    // Init push notifications
+    initNotifications();
 
     // Daily countdown timer
     setInterval(updateDailyCountdown, 1000);
